@@ -1,0 +1,323 @@
+package com.gptplus18.app.ui.screens.subscription
+
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.gptplus18.app.data.models.Plan
+import com.gptplus18.app.ui.theme.*
+import com.gptplus18.app.util.QrGenerator
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SubscriptionScreen(vm: SubscriptionViewModel = hiltViewModel()) {
+    val state by vm.state.collectAsState()
+
+    Scaffold(
+        containerColor = BgPrimary,
+        topBar = {
+            TopAppBar(
+                title = { Text("الاشتراك", color = TextPrimary, fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
+            )
+        },
+    ) { padding ->
+        if (state.isLoading) {
+            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Accent)
+            }
+            return@Scaffold
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+        ) {
+            StatusCard(state)
+
+            Spacer(Modifier.height(20.dp))
+            Text("اختر الباقة", color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(10.dp))
+
+            state.plans.forEach { (key, plan) ->
+                PlanCard(
+                    planKey = key,
+                    plan = plan,
+                    selected = state.selectedPlan == key,
+                    onClick = { vm.selectPlan(key) },
+                )
+                Spacer(Modifier.height(10.dp))
+            }
+
+            if (state.selectedPlan != null) {
+                Spacer(Modifier.height(20.dp))
+                Text("اختر الشبكة", color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(10.dp))
+                NetworkSelector(
+                    networks = state.wallets.keys.toList(),
+                    selected = state.selectedNetwork,
+                    onSelect = { vm.selectNetwork(it) },
+                )
+            }
+
+            if (state.selectedNetwork != null && state.selectedPlan != null) {
+                Spacer(Modifier.height(20.dp))
+                PaymentBox(
+                    wallet = state.wallets[state.selectedNetwork!!] ?: "",
+                    network = state.selectedNetwork!!,
+                    plan = state.selectedPlan!!,
+                    plans = state.plans,
+                    txHash = state.txHash,
+                    onTxChange = { vm.setTxHash(it) },
+                    isVerifying = state.isVerifying,
+                    onVerify = { vm.verify() },
+                )
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            if (state.successMessage != null) {
+                InfoCard(state.successMessage!!, true) { vm.clearMessages() }
+            }
+            if (state.errorMessage != null) {
+                InfoCard(state.errorMessage!!, false) { vm.clearMessages() }
+            }
+
+            Spacer(Modifier.height(80.dp))
+        }
+    }
+}
+
+@Composable
+private fun StatusCard(state: SubscriptionState) {
+    val st = state.status
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = BgSecondary),
+        shape = RoundedCornerShape(16.dp),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text("حالة حسابك", color = Accent, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Spacer(Modifier.height(10.dp))
+            when {
+                st?.hasSub == true -> {
+                    Text("مشترك", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    if (st.subExpires > 0) {
+                        val days = ((st.subExpires - st.now) / 86400).toInt()
+                        Text("متبقي $days يوم", color = TextSecondary, fontSize = 14.sp,
+                            modifier = Modifier.padding(top = 4.dp))
+                    }
+                }
+                st?.hasTrial == true -> {
+                    Text("تجربة مجانية", color = Accent, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    if (st.trialExpires > 0) {
+                        val mins = ((st.trialExpires - st.now) / 60).toInt()
+                        Text("متبقي $mins دقيقة", color = TextSecondary, fontSize = 14.sp,
+                            modifier = Modifier.padding(top = 4.dp))
+                    }
+                }
+                else -> Text("بدون اشتراك", color = TextSecondary, fontSize = 16.sp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlanCard(planKey: String, plan: Plan, selected: Boolean, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (selected) Accent.copy(alpha = 0.15f) else BgSecondary,
+        ),
+        border = if (selected) androidx.compose.foundation.BorderStroke(2.dp, Accent) else null,
+        shape = RoundedCornerShape(14.dp),
+    ) {
+        Row(
+            Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(plan.name, color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("${plan.days} يوم", color = TextSecondary, fontSize = 13.sp)
+            }
+            Text("$${plan.price}", color = Accent, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            if (selected) {
+                Spacer(Modifier.width(8.dp))
+                Icon(Icons.Default.Check, null, tint = Accent)
+            }
+        }
+    }
+}
+
+@Composable
+private fun NetworkSelector(networks: List<String>, selected: String?, onSelect: (String) -> Unit) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        networks.forEach { net ->
+            val isSel = net == selected
+            val label = when (net) {
+                "trc20" -> "TRC-20"
+                "bep20" -> "BEP-20"
+                else -> net.uppercase()
+            }
+            Card(
+                onClick = { onSelect(net) },
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isSel) Accent else BgSecondary,
+                ),
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+            ) {
+                Text(
+                    label,
+                    color = if (isSel) BgPrimary else TextPrimary,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth().padding(14.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PaymentBox(
+    wallet: String,
+    network: String,
+    plan: String,
+    plans: Map<String, Plan>,
+    txHash: String,
+    onTxChange: (String) -> Unit,
+    isVerifying: Boolean,
+    onVerify: () -> Unit,
+) {
+    val clip = LocalClipboardManager.current
+    val planData = plans[plan]
+    val qrBitmap: Bitmap? = remember(wallet) {
+        if (wallet.isNotEmpty()) QrGenerator.generate(wallet, 600) else null
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = BgSecondary),
+        shape = RoundedCornerShape(16.dp),
+    ) {
+        Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("ادفع ${planData?.price ?: ""} USDT",
+                color = Accent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text("على شبكة ${network.uppercase()}",
+                color = TextSecondary, fontSize = 14.sp,
+                modifier = Modifier.padding(top = 4.dp))
+            Spacer(Modifier.height(16.dp))
+
+            if (qrBitmap != null) {
+                Box(
+                    Modifier
+                        .background(androidx.compose.ui.graphics.Color.White, RoundedCornerShape(12.dp))
+                        .padding(10.dp),
+                ) {
+                    Image(
+                        bitmap = qrBitmap.asImageBitmap(),
+                        contentDescription = "QR",
+                        modifier = Modifier.size(220.dp),
+                    )
+                }
+                Spacer(Modifier.height(16.dp))
+            }
+
+            Text("عنوان المحفظة", color = TextSecondary, fontSize = 13.sp)
+            Spacer(Modifier.height(6.dp))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(BgPrimary, RoundedCornerShape(10.dp))
+                    .clickable {
+                        clip.setText(AnnotatedString(wallet))
+                    }
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    wallet,
+                    color = TextPrimary,
+                    fontSize = 12.sp,
+                    modifier = Modifier.weight(1f),
+                )
+                Icon(Icons.Default.ContentCopy, "نسخ", tint = Accent)
+            }
+            Spacer(Modifier.height(20.dp))
+
+            OutlinedTextField(
+                value = txHash,
+                onValueChange = onTxChange,
+                label = { Text("رقم العملية (TX Hash)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextPrimary,
+                    focusedBorderColor = Accent,
+                    unfocusedBorderColor = TextSecondary.copy(alpha = 0.3f),
+                    cursorColor = Accent,
+                ),
+            )
+
+            Spacer(Modifier.height(12.dp))
+
+            Button(
+                onClick = onVerify,
+                enabled = !isVerifying && txHash.length >= 20,
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Accent),
+            ) {
+                if (isVerifying) {
+                    CircularProgressIndicator(color = BgPrimary, modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
+                } else {
+                    Text("تحقق وتفعيل", color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InfoCard(text: String, success: Boolean, onDismiss: () -> Unit) {
+    Card(
+        onClick = onDismiss,
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (success) Success.copy(alpha = 0.15f) else Error.copy(alpha = 0.15f),
+        ),
+        shape = RoundedCornerShape(12.dp),
+    ) {
+        Text(
+            text,
+            color = if (success) Success else Error,
+            fontSize = 14.sp,
+            modifier = Modifier.padding(14.dp),
+        )
+    }
+}

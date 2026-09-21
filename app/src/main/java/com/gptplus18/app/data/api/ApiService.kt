@@ -17,10 +17,16 @@ interface ApiService {
     suspend fun me(@Header("Authorization") bearer: String): Response<MeResponse>
 
     @GET("api/auth/subscription")
-    suspend fun mySubscription(@Header("Authorization") bearer: String): Response<Any>
+    suspend fun mySubscription(@Header("Authorization") bearer: String): Response<MySubscriptionResponse>
 
     @POST("api/auth/start-trial")
     suspend fun startTrial(@Header("Authorization") bearer: String): Response<Any>
+
+    @POST("api/auth/verify-payment")
+    suspend fun verifyPayment(
+        @Header("Authorization") bearer: String,
+        @Body body: VerifyPaymentRequest,
+    ): Response<VerifyPaymentResponse>
 
     // ─── Chat ───
     @GET("api/chat/sessions")

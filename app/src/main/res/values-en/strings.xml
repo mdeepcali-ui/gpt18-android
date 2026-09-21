@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GPT+18</string>
+    <string name="app_tagline">AI without limits</string>
+    <string name="login">Login</string>
+    <string name="signup">Sign Up</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="name">Name</string>
+    <string name="enter">Login</string>
+    <string name="create_account">Create Account</string>
+    <string name="chat">Chat</string>
+    <string name="code">Code</string>
+    <string name="subscription">Subscribe</string>
+    <string name="profile">Profile</string>
+    <string name="settings">Settings</string>
+    <string name="new_chat">New Chat</string>
+    <string name="type_message">Type a message...</string>
+    <string name="thinking">Thinking...</string>
+    <string name="logout">Logout</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="language">Language</string>
+</resources>

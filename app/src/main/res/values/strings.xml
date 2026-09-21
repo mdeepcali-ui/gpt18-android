@@ -2,4 +2,22 @@
 <resources>
     <string name="app_name">GPT+18</string>
     <string name="app_tagline">ذكاء اصطناعي بلا قيود</string>
+    <string name="login">تسجيل دخول</string>
+    <string name="signup">حساب جديد</string>
+    <string name="email">الإيميل</string>
+    <string name="password">كلمة السر</string>
+    <string name="name">الاسم</string>
+    <string name="enter">دخول</string>
+    <string name="create_account">إنشاء حساب</string>
+    <string name="chat">دردشة</string>
+    <string name="code">برمجة</string>
+    <string name="subscription">اشتراك</string>
+    <string name="profile">بروفايل</string>
+    <string name="settings">إعدادات</string>
+    <string name="new_chat">محادثة جديدة</string>
+    <string name="type_message">اكتب رسالة...</string>
+    <string name="thinking">يفكر...</string>
+    <string name="logout">خروج</string>
+    <string name="dark_mode">الوضع الليلي</string>
+    <string name="language">اللغة</string>
 </resources>
