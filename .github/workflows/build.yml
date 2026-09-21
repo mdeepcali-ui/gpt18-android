@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
+    env:
+      HAS_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 != '' }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -33,12 +36,12 @@ jobs:
         restore-keys: gradle-${{ runner.os }}-
 
     - name: Decode Keystore
-      if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+      if: env.HAS_KEYSTORE == 'true'
       run: |
         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
 
     - name: Create key.properties
-      if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+      if: env.HAS_KEYSTORE == 'true'
       run: |
         cat > key.properties << EOF
         storeFile=$GITHUB_WORKSPACE/keystore.jks
