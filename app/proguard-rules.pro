@@ -1,0 +1,6 @@
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.gptplus18.app.data.models.** { *; }
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn retrofit2.**
