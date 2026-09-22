@@ -191,8 +191,8 @@ private fun SettingRow(
 private fun FontSizeChip(
     label: String,
     active: Boolean,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit,
 ) {
     Card(
         onClick = onClick,

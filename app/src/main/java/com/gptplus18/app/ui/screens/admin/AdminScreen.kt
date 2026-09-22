@@ -481,8 +481,8 @@ private fun StatCard(label: String, value: Int, color: Color, modifier: Modifier
 private fun PlanChip(
     label: String,
     active: Boolean,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit,
 ) {
     Card(
         onClick = onClick,
@@ -508,6 +508,7 @@ private fun FilterChip(
     label: String,
     active: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Card(
         onClick = onClick,

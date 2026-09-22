@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+
 package com.gptplus18.app.ui.screens.code
 
 import androidx.compose.foundation.ExperimentalFoundationApi

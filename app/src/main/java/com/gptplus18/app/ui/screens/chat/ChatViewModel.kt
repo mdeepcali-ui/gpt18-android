@@ -11,6 +11,7 @@ import com.gptplus18.app.data.models.Message
 import com.gptplus18.app.data.models.Session
 import com.gptplus18.app.data.models.ThinkingData
 import com.gptplus18.app.data.repository.CacheRepository
+import com.gptplus18.app.data.repository.AdminRepository
 import com.gptplus18.app.data.repository.ChatRepository
 import com.gptplus18.app.data.repository.UploadRepository
 import com.gptplus18.app.util.AnalyticsHelper
@@ -51,6 +52,7 @@ class ChatViewModel @Inject constructor(
     private val cacheRepo: CacheRepository,
     private val tokenStorage: TokenStorage,
     private val analytics: AnalyticsHelper,
+    private val adminRepo: AdminRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ChatUiState())
@@ -61,6 +63,10 @@ class ChatViewModel @Inject constructor(
             val name = tokenStorage.getName() ?: "صديقي"
             _state.value = _state.value.copy(userName = name)
             loadSessions()
+        }
+        viewModelScope.launch {
+            val owner = runCatching { adminRepo.isOwner() }.getOrDefault(false)
+            _state.value = _state.value.copy(isOwner = owner)
         }
     }
 
