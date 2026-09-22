@@ -3,16 +3,17 @@ package com.gptplus18.app.ui.screens.chat
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gptplus18.app.data.api.StreamEvent
 import com.gptplus18.app.data.local.TokenStorage
 import com.gptplus18.app.data.models.Attachment
 import com.gptplus18.app.data.models.ChatMode
 import com.gptplus18.app.data.models.Message
 import com.gptplus18.app.data.models.Session
 import com.gptplus18.app.data.models.ThinkingData
-import com.gptplus18.app.data.api.StreamEvent
 import com.gptplus18.app.data.repository.CacheRepository
 import com.gptplus18.app.data.repository.ChatRepository
 import com.gptplus18.app.data.repository.UploadRepository
+import com.gptplus18.app.util.AnalyticsHelper
 import com.gptplus18.app.util.RateLimiter
 import com.gptplus18.app.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +40,7 @@ data class ChatUiState(
     val currentMode: ChatMode = ChatMode.CHAT,
     val isSubscribed: Boolean = false,
     val thinkingByMessage: Map<Long, ThinkingData> = emptyMap(),
+    val pendingAttachments: List<Attachment> = emptyList(),
 )
 
 @HiltViewModel
@@ -47,6 +49,7 @@ class ChatViewModel @Inject constructor(
     private val uploadRepo: UploadRepository,
     private val cacheRepo: CacheRepository,
     private val tokenStorage: TokenStorage,
+    private val analytics: AnalyticsHelper,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ChatUiState())
@@ -62,7 +65,6 @@ class ChatViewModel @Inject constructor(
 
     fun loadSessions() {
         viewModelScope.launch {
-            // 1) Cache فوراً
             val cached = cacheRepo.getSessions()
             if (cached.isNotEmpty()) {
                 _state.value = _state.value.copy(
@@ -70,7 +72,6 @@ class ChatViewModel @Inject constructor(
                     filteredSessions = filterSessions(cached, _state.value.searchQuery),
                 )
             }
-            // 2) السيرفر
             when (val r = chatRepo.listSessions()) {
                 is Result.Success -> {
                     _state.value = _state.value.copy(
@@ -97,7 +98,7 @@ class ChatViewModel @Inject constructor(
         if (query.isBlank()) return list
         return list.filter {
             it.title.contains(query, ignoreCase = true) ||
-            (it.lastMsg?.contains(query, ignoreCase = true) == true)
+                (it.lastMsg?.contains(query, ignoreCase = true) == true)
         }
     }
 
@@ -115,12 +116,10 @@ class ChatViewModel @Inject constructor(
                 messages = emptyList(),
                 replyTo = null,
             )
-            // 1) Cache فوراً
             val cached = cacheRepo.getMessages(sid)
             if (cached.isNotEmpty()) {
                 _state.value = _state.value.copy(messages = cached)
             }
-            // 2) السيرفر
             when (val r = chatRepo.getMessages(sid)) {
                 is Result.Success -> {
                     _state.value = _state.value.copy(messages = r.data)
@@ -137,10 +136,13 @@ class ChatViewModel @Inject constructor(
     }
 
     fun newChat() {
+        // 📊 Analytics
+        analytics.logChatStart()
         _state.value = _state.value.copy(
             currentSessionId = null,
             messages = emptyList(),
             replyTo = null,
+            pendingAttachments = emptyList(),
         )
     }
 
@@ -177,11 +179,13 @@ class ChatViewModel @Inject constructor(
     fun send(text: String) {
         if (text.isBlank()) return
 
-        // ─── Rate Limit ───
         RateLimiter.checkChat()?.let { err ->
             _state.value = _state.value.copy(error = err)
             return
         }
+
+        // 📊 Analytics
+        analytics.logMessageSent(length = text.length)
 
         val current = _state.value
         val replyPrefix = current.replyTo?.let { "↩︎ ${it.content.take(40)}\n" } ?: ""
@@ -201,7 +205,6 @@ class ChatViewModel @Inject constructor(
             else -> listOf("فهم السؤال", "جمع السياق", "صياغة الرد")
         }
 
-        // رسالة AI فاضية — رح تتعبأ حرف حرف
         val assistantTs = System.currentTimeMillis() / 1000.0 + 1
         val emptyAssistant = Message(
             id = -2,
@@ -232,7 +235,6 @@ class ChatViewModel @Inject constructor(
                     when (ev) {
                         is StreamEvent.Delta -> {
                             sb.append(ev.text)
-                            // نحدّث آخر رسالة (AI) بالتدريج
                             _state.value = _state.value.copy(
                                 messages = _state.value.messages.map { m ->
                                     if (m.id == -2 && m.ts == assistantTs) {
@@ -244,7 +246,6 @@ class ChatViewModel @Inject constructor(
                         }
                         is StreamEvent.Done -> {
                             finalSessionId = if (ev.sessionId > 0) ev.sessionId else current.currentSessionId
-                            // نحفظ التفكير الحقيقي
                             val newThinking = if (ev.thinking.isNotBlank()) {
                                 _state.value.thinkingByMessage + (thinkId to ThinkingData(
                                     steps = thinkingSteps,
@@ -265,7 +266,6 @@ class ChatViewModel @Inject constructor(
                                 statusLabel = "يفكر",
                                 thinkingByMessage = newThinking,
                             )
-                            // احفظ في cache
                             finalSessionId?.let { sid ->
                                 cacheRepo.saveMessages(sid, _state.value.messages)
                             }
@@ -376,7 +376,6 @@ class ChatViewModel @Inject constructor(
             pendingAttachments = _state.value.pendingAttachments + att,
             statusLabel = newLabel,
         )
-        // ابدأ الرفع
         viewModelScope.launch {
             updateAttachment(id) { it.copy(progress = 0.3f) }
             when (val up = uploadRepo.uploadFile(uri, mimeType, fileName)) {

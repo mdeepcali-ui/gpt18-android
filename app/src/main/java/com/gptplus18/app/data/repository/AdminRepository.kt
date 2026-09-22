@@ -68,4 +68,80 @@ class AdminRepository @Inject constructor(
             Result.Error(e.message ?: "خطأ")
         }
     }
+
+
+
+    // ═══════════════════════════════════════════
+    // Notifications (FCM)
+    // ═══════════════════════════════════════════
+
+    suspend fun sendNotification(
+        uid: Int,
+        title: String,
+        body: String,
+        deepLink: String? = null,
+    ): Result<AdminNotificationResult> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.adminSendNotification(
+                b,
+                AdminSendNotificationRequest(uid, title, body, deepLink),
+            )
+            if (r.isSuccessful) Result.Success(r.body()!!)
+            else Result.Error("فشل الإرسال (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ")
+        }
+    }
+
+    suspend fun sendMany(
+        uids: List<Int>,
+        title: String,
+        body: String,
+    ): Result<AdminNotificationResult> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.adminSendMany(b, AdminSendManyRequest(uids, title, body))
+            if (r.isSuccessful) Result.Success(r.body()!!)
+            else Result.Error("فشل الإرسال (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ")
+        }
+    }
+
+    suspend fun broadcast(
+        title: String,
+        body: String,
+    ): Result<AdminNotificationResult> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.adminBroadcast(b, AdminBroadcastRequest(title, body))
+            if (r.isSuccessful) Result.Success(r.body()!!)
+            else Result.Error("فشل البث (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ")
+        }
+    }
+
+    suspend fun notifStats(): Result<AdminNotificationStats> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.adminNotifStats(b)
+            if (r.isSuccessful) Result.Success(r.body()!!)
+            else Result.Error("فشل التحميل (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ")
+        }
+    }
+
+    suspend fun notifTokens(): Result<Map<String, Any>> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.adminNotifTokens(b)
+            if (r.isSuccessful) Result.Success(r.body() ?: emptyMap())
+            else Result.Error("فشل التحميل (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ")
+        }
+    }
 }

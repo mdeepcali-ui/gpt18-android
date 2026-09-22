@@ -143,4 +143,42 @@ interface ApiService {
     // ─── Public ───
     @GET("api/subscription-public")
     suspend fun subscriptionPublic(): Response<SubscriptionPublic>
+
+
+    // ─── Notifications (FCM) ───
+    @POST("api/notifications/register-token")
+    suspend fun registerFcmToken(
+        @Header("Authorization") bearer: String,
+        @Body body: RegisterTokenRequest,
+    ): Response<Any>
+
+
+    // ─── Admin Notifications (FCM) ───
+    @POST("api/admin/notifications/send")
+    suspend fun adminSendNotification(
+        @Header("Authorization") bearer: String,
+        @Body body: AdminSendNotificationRequest,
+    ): Response<AdminNotificationResult>
+
+    @POST("api/admin/notifications/send-many")
+    suspend fun adminSendMany(
+        @Header("Authorization") bearer: String,
+        @Body body: AdminSendManyRequest,
+    ): Response<AdminNotificationResult>
+
+    @POST("api/admin/notifications/broadcast")
+    suspend fun adminBroadcast(
+        @Header("Authorization") bearer: String,
+        @Body body: AdminBroadcastRequest,
+    ): Response<AdminNotificationResult>
+
+    @GET("api/admin/notifications/stats")
+    suspend fun adminNotifStats(
+        @Header("Authorization") bearer: String,
+    ): Response<AdminNotificationStats>
+
+    @GET("api/admin/notifications/tokens")
+    suspend fun adminNotifTokens(
+        @Header("Authorization") bearer: String,
+    ): Response<Map<String, Any>>
 }

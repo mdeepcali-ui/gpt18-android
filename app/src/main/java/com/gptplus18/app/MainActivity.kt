@@ -13,9 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import com.gptplus18.app.data.local.PreferencesRepository
+import com.gptplus18.app.data.local.TokenStorage
+import com.gptplus18.app.data.repository.NotificationsRepository
 import com.gptplus18.app.data.repository.UpdateInfo
 import com.gptplus18.app.data.repository.UpdateRepository
-import com.gptplus18.app.data.local.TokenStorage
 import com.gptplus18.app.ui.navigation.GptPlusNavGraph
 import com.gptplus18.app.ui.navigation.Routes
 import com.gptplus18.app.ui.screens.update.UpdateDialog
@@ -24,7 +25,6 @@ import com.gptplus18.app.ui.theme.GptPlus18Theme
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
             }
             val prefs = entry.prefs()
             val tokenStorage = entry.tokenStorage()
+            val notificationsRepo = entry.notificationsRepo()
 
             // ═══ معالجة Deep Link: gptplus18://auth?token=X&name=Y ═══
             var deepLinkRoute by remember { mutableStateOf(parseDeepLink(intent)) }
@@ -65,6 +66,11 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(Unit) {
                 darkMode = prefs.darkModeFlow.first()
                 fontScale = prefs.fontScaleFlow.first()
+
+                // 🔔 تسجيل FCM Token (لو المستخدم مسجل دخول)
+                try {
+                    notificationsRepo.registerCurrentToken()
+                } catch (_: Exception) { /* نتجاهل */ }
 
                 // فحص التحديثات
                 val updateRepo = UpdateRepository()
@@ -101,21 +107,22 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
 
-        // Deep Link من Google
         val data = intent.data
         if (data?.scheme == "gptplus18" && data.host == "auth") {
             val tok = data.getQueryParameter("token")
             val name = data.getQueryParameter("name") ?: "User"
             if (!tok.isNullOrBlank()) {
-                // نحفظ التوكن
                 lifecycleScope.launch {
                     val entry = EntryPointAccessors.fromApplication(
                         applicationContext,
                         MainEntryPoint::class.java,
                     )
                     entry.tokenStorage().save(tok, name, "", 0)
+                    // 🔔 نحدث FCM token بعد تسجيل الدخول
+                    try {
+                        entry.notificationsRepo().registerCurrentToken()
+                    } catch (_: Exception) { /* نتجاهل */ }
                 }
-                // نعيد تشغيل الـ Activity
                 recreate()
             }
         }
@@ -138,6 +145,7 @@ class MainActivity : ComponentActivity() {
 interface MainEntryPoint {
     fun prefs(): PreferencesRepository
     fun tokenStorage(): TokenStorage
+    fun notificationsRepo(): NotificationsRepository
 }
 
 @Composable

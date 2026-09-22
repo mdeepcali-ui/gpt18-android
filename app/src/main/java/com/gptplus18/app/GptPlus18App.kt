@@ -1,16 +1,47 @@
 package com.gptplus18.app
 
 import android.app.Application
+import android.util.Log
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
+import com.google.firebase.FirebaseApp
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class GptPlus18App : Application(), ImageLoaderFactory {
+
+    companion object {
+        private const val TAG = "GptPlus18App"
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+
+        // ═══ Firebase Init ═══
+        try {
+            FirebaseApp.initializeApp(this)
+
+            // Crashlytics — تفعيل تتبع الأخطاء
+            FirebaseCrashlytics.getInstance().apply {
+                setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
+            }
+
+            // Analytics — تتبع استخدام التطبيق
+            FirebaseAnalytics.getInstance(this).apply {
+                setAnalyticsCollectionEnabled(true)
+            }
+
+            Log.d(TAG, "✅ Firebase جاهز (Crashlytics + Analytics)")
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ فشل تهيئة Firebase: ${e.message}")
+        }
+    }
 
     override fun newImageLoader(): ImageLoader {
         return ImageLoader.Builder(this)

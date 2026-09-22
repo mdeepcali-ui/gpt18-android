@@ -15,3 +15,7 @@ key.properties
 
 # Local backups
 .backup-pre-firebase/
+
+# Backup files
+*.bak
+*.bak-*

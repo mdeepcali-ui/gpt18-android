@@ -9,6 +9,7 @@ import com.gptplus18.app.data.models.CodeMessage
 import com.gptplus18.app.data.models.CodeModel
 import com.gptplus18.app.data.models.CodeSession
 import com.gptplus18.app.data.repository.CodeRepository
+import com.gptplus18.app.util.AnalyticsHelper
 import com.gptplus18.app.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -36,6 +37,7 @@ data class CodeUiState(
 class CodeViewModel @Inject constructor(
     private val repo: CodeRepository,
     private val prefs: PreferencesRepository,
+    private val analytics: AnalyticsHelper,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CodeUiState())
@@ -44,7 +46,6 @@ class CodeViewModel @Inject constructor(
     private var pollJob: Job? = null
 
     init {
-        // تحميل النموذج المحفوظ
         viewModelScope.launch {
             val saved = prefs.codeModelFlow.first()
             val model = CodeModel.fromKey(saved)
@@ -122,7 +123,6 @@ class CodeViewModel @Inject constructor(
 
         val sid = _state.value.currentSessionId
         val model = _state.value.currentModel
-
         _state.value = _state.value.copy(
             isRunning = true,
             error = null,
@@ -132,10 +132,11 @@ class CodeViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            // نمرر model.key و نحدد use_team
             val modelKey = model.key
             when (val r = repo.generate(request, sid, modelKey)) {
                 is Result.Success -> {
+                    // 📊 Analytics
+                    analytics.logCodeJobStarted(model = modelKey)
                     _state.value = _state.value.copy(
                         currentSessionId = r.data.sessionId,
                         jobStatus = "running",

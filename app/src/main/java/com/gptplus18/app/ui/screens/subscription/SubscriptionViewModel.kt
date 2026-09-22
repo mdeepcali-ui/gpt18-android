@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.gptplus18.app.data.models.Plan
 import com.gptplus18.app.data.models.UserStatus
 import com.gptplus18.app.data.repository.SubscriptionRepository
+import com.gptplus18.app.util.AnalyticsHelper
 import com.gptplus18.app.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +30,7 @@ data class SubscriptionState(
 @HiltViewModel
 class SubscriptionViewModel @Inject constructor(
     private val repo: SubscriptionRepository,
+    private val analytics: AnalyticsHelper,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SubscriptionState())
@@ -47,7 +49,6 @@ class SubscriptionViewModel @Inject constructor(
                     status = r.data.status,
                 )
                 is Result.Error -> {
-                    // fallback — نطلب من endpoint العام
                     when (val p = repo.getPublic()) {
                         is Result.Success -> _state.value = _state.value.copy(
                             isLoading = false,
@@ -68,7 +69,13 @@ class SubscriptionViewModel @Inject constructor(
     }
 
     fun selectPlan(planKey: String) {
-        _state.value = _state.value.copy(selectedPlan = planKey, selectedNetwork = null, txHash = "")
+        _state.value = _state.value.copy(
+            selectedPlan = planKey,
+            selectedNetwork = null,
+            txHash = "",
+        )
+        // 📊 Analytics
+        analytics.logSubscriptionStarted(plan = planKey)
     }
 
     fun selectNetwork(net: String) {
@@ -91,6 +98,8 @@ class SubscriptionViewModel @Inject constructor(
             _state.value = _state.value.copy(isVerifying = true, errorMessage = null)
             when (val r = repo.verifyPayment(plan, net, tx)) {
                 is Result.Success -> {
+                    // 📊 Analytics
+                    analytics.logPaymentVerified(plan = plan, network = net, success = true)
                     _state.value = _state.value.copy(
                         isVerifying = false,
                         successMessage = r.data.message ?: "تم تفعيل الاشتراك!",
@@ -98,10 +107,14 @@ class SubscriptionViewModel @Inject constructor(
                     )
                     loadData()
                 }
-                is Result.Error -> _state.value = _state.value.copy(
-                    isVerifying = false,
-                    errorMessage = r.message,
-                )
+                is Result.Error -> {
+                    // 📊 Analytics
+                    analytics.logPaymentVerified(plan = plan, network = net, success = false)
+                    _state.value = _state.value.copy(
+                        isVerifying = false,
+                        errorMessage = r.message,
+                    )
+                }
                 else -> {}
             }
         }

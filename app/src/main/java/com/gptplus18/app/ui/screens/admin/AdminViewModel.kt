@@ -2,6 +2,7 @@ package com.gptplus18.app.ui.screens.admin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gptplus18.app.data.models.AdminNotificationStats
 import com.gptplus18.app.data.models.AdminUser
 import com.gptplus18.app.data.repository.AdminRepository
 import com.gptplus18.app.util.Result
@@ -32,6 +33,9 @@ data class AdminUiState(
     val stats: AdminStats = AdminStats(),
     val message: String? = null,
     val error: String? = null,
+    // ─── Notifications ───
+    val notifStats: AdminNotificationStats = AdminNotificationStats(),
+    val isSendingNotif: Boolean = false,
 )
 
 @HiltViewModel
@@ -48,7 +52,10 @@ class AdminViewModel @Inject constructor(
         viewModelScope.launch {
             val owner = repo.isOwner()
             _state.value = _state.value.copy(isOwner = owner, isChecking = false)
-            if (owner) loadUsers()
+            if (owner) {
+                loadUsers()
+                loadNotifStats()
+            }
         }
     }
 
@@ -164,6 +171,93 @@ class AdminViewModel @Inject constructor(
                     loadUsers()
                 }
                 is Result.Error -> _state.value = _state.value.copy(error = r.message)
+                else -> {}
+            }
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // Notifications (FCM)
+    // ═══════════════════════════════════════════
+
+    fun sendNotification(uid: Int, title: String, body: String) {
+        if (title.isBlank() || body.isBlank()) {
+            _state.value = _state.value.copy(error = "العنوان والنص مطلوبان")
+            return
+        }
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isSendingNotif = true)
+            when (val r = repo.sendNotification(uid, title, body)) {
+                is Result.Success -> {
+                    val sent = r.data.successCount
+                    _state.value = _state.value.copy(
+                        isSendingNotif = false,
+                        message = "✅ أُرسل لـ $sent جهاز",
+                    )
+                    loadNotifStats()
+                }
+                is Result.Error -> _state.value = _state.value.copy(
+                    isSendingNotif = false,
+                    error = r.message,
+                )
+                else -> {}
+            }
+        }
+    }
+
+    fun sendMany(uids: List<Int>, title: String, body: String) {
+        if (uids.isEmpty() || title.isBlank() || body.isBlank()) {
+            _state.value = _state.value.copy(error = "تحقق من المدخلات")
+            return
+        }
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isSendingNotif = true)
+            when (val r = repo.sendMany(uids, title, body)) {
+                is Result.Success -> {
+                    _state.value = _state.value.copy(
+                        isSendingNotif = false,
+                        message = "✅ ${r.data.successCount}/${r.data.usersCount}",
+                    )
+                    loadNotifStats()
+                }
+                is Result.Error -> _state.value = _state.value.copy(
+                    isSendingNotif = false,
+                    error = r.message,
+                )
+                else -> {}
+            }
+        }
+    }
+
+    fun broadcast(title: String, body: String) {
+        if (title.isBlank() || body.isBlank()) {
+            _state.value = _state.value.copy(error = "العنوان والنص مطلوبان")
+            return
+        }
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isSendingNotif = true)
+            when (val r = repo.broadcast(title, body)) {
+                is Result.Success -> {
+                    _state.value = _state.value.copy(
+                        isSendingNotif = false,
+                        message = "✅ أُرسل لـ ${r.data.successCount} من ${r.data.usersCount}",
+                    )
+                    loadNotifStats()
+                }
+                is Result.Error -> _state.value = _state.value.copy(
+                    isSendingNotif = false,
+                    error = r.message,
+                )
+                else -> {}
+            }
+        }
+    }
+
+    fun loadNotifStats() {
+        viewModelScope.launch {
+            when (val r = repo.notifStats()) {
+                is Result.Success -> _state.value = _state.value.copy(notifStats = r.data)
+                is Result.Error -> { /* نتجاهل — ما بدنا نزعج */ }
                 else -> {}
             }
         }

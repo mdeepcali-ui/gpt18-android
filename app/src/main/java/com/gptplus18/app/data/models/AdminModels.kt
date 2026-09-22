@@ -43,3 +43,52 @@ data class AdminActionResult(
     @SerializedName("ok") val ok: Boolean = false,
     @SerializedName("message") val message: String? = null,
 )
+
+// ═══════════════════════════════════════════
+// Notifications (FCM)
+// ═══════════════════════════════════════════
+
+data class AdminSendNotificationRequest(
+    @SerializedName("uid") val uid: Int,
+    @SerializedName("title") val title: String,
+    @SerializedName("body") val body: String,
+    @SerializedName("deep_link") val deepLink: String? = null,
+)
+
+data class AdminSendManyRequest(
+    @SerializedName("uids") val uids: List<Int>,
+    @SerializedName("title") val title: String,
+    @SerializedName("body") val body: String,
+)
+
+data class AdminBroadcastRequest(
+    @SerializedName("title") val title: String,
+    @SerializedName("body") val body: String,
+)
+
+data class AdminNotificationResult(
+    @SerializedName("ok") val ok: Boolean = false,
+    @SerializedName("users_count") val usersCount: Int = 0,
+    @SerializedName("success_count") val successCount: Int = 0,
+    @SerializedName("failure_count") val failureCount: Int = 0,
+)
+
+data class AdminNotificationStats(
+    @SerializedName("tokens_count") val tokensCount: Int = 0,
+    @SerializedName("users_count") val usersCount: Int = 0,
+    @SerializedName("sent_count") val sentCount: Int = 0,
+    @SerializedName("recent") val recent: List<AdminNotifLog> = emptyList(),
+    @SerializedName("by_event") val byEvent: List<AdminNotifByEvent> = emptyList(),
+)
+
+data class AdminNotifLog(
+    @SerializedName("uid") val uid: Int,
+    @SerializedName("event") val event: String,
+    @SerializedName("title") val title: String?,
+    @SerializedName("sent_at") val sentAt: Double = 0.0,
+)
+
+data class AdminNotifByEvent(
+    @SerializedName("event") val event: String,
+    @SerializedName("c") val count: Int = 0,
+)

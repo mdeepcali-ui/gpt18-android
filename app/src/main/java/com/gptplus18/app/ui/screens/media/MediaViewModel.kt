@@ -3,6 +3,7 @@ package com.gptplus18.app.ui.screens.media
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gptplus18.app.data.repository.MediaRepository
+import com.gptplus18.app.util.AnalyticsHelper
 import com.gptplus18.app.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +34,7 @@ data class MediaUiState(
 @HiltViewModel
 class MediaViewModel @Inject constructor(
     private val repo: MediaRepository,
+    private val analytics: AnalyticsHelper,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MediaUiState())
@@ -40,9 +42,14 @@ class MediaViewModel @Inject constructor(
 
     fun setTab(t: MediaTab) {
         _state.value = _state.value.copy(
-            tab = t, error = null,
-            imageUrl = null, songUrl = null, songTitle = null, songLyrics = null,
-            videoUrl = null, videoModelUsed = null,
+            tab = t,
+            error = null,
+            imageUrl = null,
+            songUrl = null,
+            songTitle = null,
+            songLyrics = null,
+            videoUrl = null,
+            videoModelUsed = null,
         )
     }
 
@@ -60,49 +67,73 @@ class MediaViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _state.value = _state.value.copy(
-                isLoading = true, error = null,
-                imageUrl = null, songUrl = null, songTitle = null, songLyrics = null,
-                videoUrl = null, videoModelUsed = null,
+                isLoading = true,
+                error = null,
+                imageUrl = null,
+                songUrl = null,
+                songTitle = null,
+                songLyrics = null,
+                videoUrl = null,
+                videoModelUsed = null,
             )
             when (_state.value.tab) {
                 MediaTab.IMAGE -> {
-                    when (val r = repo.generateImage(prompt, _state.value.preset)) {
-                        is Result.Success -> _state.value = _state.value.copy(
-                            isLoading = false, imageUrl = r.data.imageUrl,
-                        )
+                    val preset = _state.value.preset
+                    when (val r = repo.generateImage(prompt, preset)) {
+                        is Result.Success -> {
+                            // 📊 Analytics
+                            analytics.logImageGenerated(preset = preset)
+                            _state.value = _state.value.copy(
+                                isLoading = false,
+                                imageUrl = r.data.imageUrl,
+                            )
+                        }
                         is Result.Error -> _state.value = _state.value.copy(
-                            isLoading = false, error = r.message,
+                            isLoading = false,
+                            error = r.message,
                         )
                         else -> {}
                     }
                 }
                 MediaTab.SONG -> {
-                    when (val r = repo.generateSong(prompt, _state.value.duration)) {
-                        is Result.Success -> _state.value = _state.value.copy(
-                            isLoading = false,
-                            songUrl = r.data.audioUrl,
-                            songTitle = r.data.title,
-                            songLyrics = r.data.lyrics,
-                        )
+                    val duration = _state.value.duration
+                    when (val r = repo.generateSong(prompt, duration)) {
+                        is Result.Success -> {
+                            // 📊 Analytics
+                            analytics.logSongGenerated(durationSec = duration)
+                            _state.value = _state.value.copy(
+                                isLoading = false,
+                                songUrl = r.data.audioUrl,
+                                songTitle = r.data.title,
+                                songLyrics = r.data.lyrics,
+                            )
+                        }
                         is Result.Error -> _state.value = _state.value.copy(
-                            isLoading = false, error = r.message,
+                            isLoading = false,
+                            error = r.message,
                         )
                         else -> {}
                     }
                 }
                 MediaTab.VIDEO -> {
-                    when (val r = repo.generateVideo(
-                        prompt,
-                        _state.value.videoDuration,
-                        _state.value.videoModel,
-                    )) {
-                        is Result.Success -> _state.value = _state.value.copy(
-                            isLoading = false,
-                            videoUrl = r.data.videoUrl,
-                            videoModelUsed = r.data.modelUsed,
-                        )
+                    val duration = _state.value.videoDuration
+                    val modelPref = _state.value.videoModel
+                    when (val r = repo.generateVideo(prompt, duration, modelPref)) {
+                        is Result.Success -> {
+                            // 📊 Analytics
+                            analytics.logVideoGenerated(
+                                durationSec = duration,
+                                model = r.data.modelUsed ?: modelPref,
+                            )
+                            _state.value = _state.value.copy(
+                                isLoading = false,
+                                videoUrl = r.data.videoUrl,
+                                videoModelUsed = r.data.modelUsed,
+                            )
+                        }
                         is Result.Error -> _state.value = _state.value.copy(
-                            isLoading = false, error = r.message,
+                            isLoading = false,
+                            error = r.message,
                         )
                         else -> {}
                     }
