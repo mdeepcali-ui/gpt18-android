@@ -507,8 +507,8 @@ private fun PlanChip(
 private fun FilterChip(
     label: String,
     active: Boolean,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit,
 ) {
     Card(
         onClick = onClick,
