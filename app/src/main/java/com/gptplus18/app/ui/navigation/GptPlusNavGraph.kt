@@ -118,11 +118,6 @@ fun GptPlusNavGraph(
                     },
                 )
             }
-                    },
-                    onCancel = { navController.popBackStack() },
-                    onError = { navController.popBackStack() },
-                )
-            }
             composable(Routes.CHAT) {
                 ChatScreen(
                     onNavigateToCode = {
