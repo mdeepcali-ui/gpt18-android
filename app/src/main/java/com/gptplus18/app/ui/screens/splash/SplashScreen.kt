@@ -8,22 +8,25 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.gptplus18.app.data.local.TokenStorage
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.BgPrimary
 import dagger.hilt.android.EntryPointAccessors
-import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun SplashScreen(
     onNavigateToChat: () -> Unit,
     onNavigateToLogin: () -> Unit,
+    onNavigateToOnboarding: () -> Unit = {},
 ) {
     val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         delay(1200)
         try {
@@ -31,6 +34,13 @@ fun SplashScreen(
                 context.applicationContext,
                 SplashEntryPoint::class.java,
             )
+            // 1) هل اتعرض Onboarding؟
+            val onboardingDone = entry.prefs().onboardingDoneFlow.first()
+            if (!onboardingDone) {
+                onNavigateToOnboarding()
+                return@LaunchedEffect
+            }
+            // 2) هل في توكن؟
             val hasToken = entry.tokenStorage().getToken() != null
             if (hasToken) onNavigateToChat() else onNavigateToLogin()
         } catch (_: Exception) {

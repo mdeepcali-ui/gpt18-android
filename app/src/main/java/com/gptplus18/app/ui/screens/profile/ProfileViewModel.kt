@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gptplus18.app.data.local.PreferencesRepository
 import com.gptplus18.app.data.local.TokenStorage
+import com.gptplus18.app.data.repository.AdminRepository
 import com.gptplus18.app.data.repository.AuthRepository
 import com.gptplus18.app.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +22,7 @@ data class ProfileState(
     val language: String = "ar",
     val hasSubscription: Boolean = false,
     val hasTrial: Boolean = false,
+    val isOwner: Boolean = false,
 )
 
 @HiltViewModel
@@ -28,6 +30,7 @@ class ProfileViewModel @Inject constructor(
     private val tokenStorage: TokenStorage,
     private val prefs: PreferencesRepository,
     private val authRepo: AuthRepository,
+    private val adminRepo: AdminRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProfileState())
@@ -59,6 +62,10 @@ class ProfileViewModel @Inject constructor(
                 )
                 else -> {}
             }
+        }
+        viewModelScope.launch {
+            val owner = adminRepo.isOwner()
+            _state.value = _state.value.copy(isOwner = owner)
         }
     }
 

@@ -6,36 +6,84 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val DarkColors = darkColorScheme(
-    primary = Accent,
-    onPrimary = BgPrimary,
-    primaryContainer = AccentDark,
-    onPrimaryContainer = TextPrimary,
-    secondary = AccentDark,
-    onSecondary = TextPrimary,
-    background = BgPrimary,
-    onBackground = TextPrimary,
-    surface = BgSecondary,
-    onSurface = TextPrimary,
-    surfaceVariant = BgTertiary,
-    onSurfaceVariant = TextSecondary,
-    error = Error,
-    onError = TextPrimary,
+// ═══════════════════════════════════════════
+// App Colors — يدعم Light/Dark
+// ═══════════════════════════════════════════
+data class AppColors(
+    val bg: Color,
+    val surface: Color,
+    val surfaceVariant: Color,
+    val textPrimary: Color,
+    val textSecondary: Color,
+    val textTertiary: Color,
+    val accent: Color,
+    val accentContainer: Color,
+    val isLight: Boolean,
 )
 
-private val LightColors = lightColorScheme(
-    primary = AccentDark,
-    onPrimary = LightSurface,
-    background = LightBg,
-    onBackground = LightText,
+val DarkAppColors = AppColors(
+    bg = DarkBg,
+    surface = DarkSurface,
+    surfaceVariant = DarkSurfaceVariant,
+    textPrimary = DarkTextPrimary,
+    textSecondary = DarkTextSecondary,
+    textTertiary = DarkTextTertiary,
+    accent = DarkAccent,
+    accentContainer = DarkAccentContainer,
+    isLight = false,
+)
+
+val LightAppColors = AppColors(
+    bg = LightBg,
     surface = LightSurface,
-    onSurface = LightText,
+    surfaceVariant = LightSurfaceVariant,
+    textPrimary = LightTextPrimary,
+    textSecondary = LightTextSecondary,
+    textTertiary = LightTextTertiary,
+    accent = LightAccent,
+    accentContainer = LightAccentContainer,
+    isLight = true,
+)
+
+val LocalAppColors = staticCompositionLocalOf { DarkAppColors }
+
+// ─── Schemes لـ Material3 ───
+private val DarkScheme = darkColorScheme(
+    primary = DarkAccent,
+    onPrimary = DarkBg,
+    primaryContainer = DarkAccentContainer,
+    onPrimaryContainer = DarkTextPrimary,
+    background = DarkBg,
+    onBackground = DarkTextPrimary,
+    surface = DarkSurface,
+    onSurface = DarkTextPrimary,
+    surfaceVariant = DarkSurfaceVariant,
+    onSurfaceVariant = DarkTextSecondary,
     error = Error,
+    onError = Color.White,
+)
+
+private val LightScheme = lightColorScheme(
+    primary = LightAccent,
+    onPrimary = Color.White,
+    primaryContainer = LightAccentContainer,
+    onPrimaryContainer = Color.White,
+    background = LightBg,
+    onBackground = LightTextPrimary,
+    surface = LightSurface,
+    onSurface = LightTextPrimary,
+    surfaceVariant = LightSurfaceVariant,
+    onSurfaceVariant = LightTextSecondary,
+    error = Error,
+    onError = Color.White,
 )
 
 @Composable
@@ -43,21 +91,27 @@ fun GptPlus18Theme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColors else LightColors
+    val appColors = if (darkTheme) DarkAppColors else LightAppColors
+    val scheme = if (darkTheme) DarkScheme else LightScheme
 
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb()
-            window.navigationBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            window.statusBarColor = appColors.bg.toArgb()
+            window.navigationBarColor = appColors.bg.toArgb()
+            WindowCompat.getInsetsController(window, view)
+                .isAppearanceLightStatusBars = !darkTheme
+            WindowCompat.getInsetsController(window, view)
+                .isAppearanceLightNavigationBars = !darkTheme
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AppTypography,
-        content = content
-    )
+    CompositionLocalProvider(LocalAppColors provides appColors) {
+        MaterialTheme(
+            colorScheme = scheme,
+            typography = AppTypography,
+            content = content,
+        )
+    }
 }

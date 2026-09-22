@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "418217896846",
+    "project_id": "gptplus18-a327e",
+    "storage_bucket": "gptplus18-a327e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418217896846:android:cf7cc40a994cbf69c512df",
+        "android_client_info": {
+          "package_name": "com.gptplus18.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAI0ZuiMgiW1FeyC7-E2JHHkosLYHSDBfw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

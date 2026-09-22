@@ -1,0 +1,201 @@
+package com.gptplus18.app.ui.screens.about
+
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.PrivacyTip
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.gptplus18.app.ui.theme.*
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AboutScreen(onBack: () -> Unit = {}) {
+    val ctx = LocalContext.current
+
+    Scaffold(
+        containerColor = BgPrimary,
+        topBar = {
+            TopAppBar(
+                title = { Text("عن التطبيق", color = TextPrimary, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "رجوع", tint = Accent)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(Modifier.height(16.dp))
+
+            // Icon
+            Box(
+                modifier = Modifier
+                    .size(110.dp)
+                    .background(Accent.copy(alpha = 0.15f), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    "GPT+18",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Accent,
+                )
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            Text(
+                "GPT+18",
+                color = TextPrimary,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                "ذكاء اصطناعي بلا قيود",
+                color = TextSecondary,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 6.dp),
+            )
+            Text(
+                "الإصدار 1.0.0",
+                color = TextTertiary,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+
+            Spacer(Modifier.height(32.dp))
+
+            // وصف
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = BgSecondary),
+                shape = RoundedCornerShape(14.dp),
+            ) {
+                Column(Modifier.padding(16.dp)) {
+                    Text(
+                        "تطبيق ذكاء اصطناعي عربي متكامل",
+                        color = Accent,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "دردشة ذكية، فريق برمجة كامل، توليد صور وأغاني، وكل ما تحتاجه بأمر واحد.",
+                        color = TextSecondary,
+                        fontSize = 14.sp,
+                        lineHeight = 22.sp,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            // روابط
+            SectionTitle("تواصل معنا")
+
+            LinkRow("قناة المحتوى", "@qesaasss", Icons.Default.Chat, "https://t.me/qesaasss")
+            LinkRow("قناة الدفع", "@qisaasss", Icons.Default.Chat, "https://t.me/qisaasss")
+            LinkRow("بوت AI", "@Qisas_Plus18_bot", Icons.Default.Send, "https://t.me/Qisas_Plus18_bot")
+            LinkRow("الموقع الرسمي", "gptplus18.com", Icons.Default.Language, "https://gptplus18.com")
+
+            Spacer(Modifier.height(24.dp))
+            SectionTitle("قانوني")
+
+            LinkRow("الشروط والأحكام", "", Icons.Default.PrivacyTip, "https://gptplus18.com/terms")
+            LinkRow("سياسة الخصوصية", "", Icons.Default.PrivacyTip, "https://gptplus18.com/privacy")
+
+            Spacer(Modifier.height(32.dp))
+
+            Text(
+                "صُنع بـ ❤️ في سوريا",
+                color = TextTertiary,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                "© 2026 GPT+18. جميع الحقوق محفوظة.",
+                color = TextTertiary,
+                fontSize = 11.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+
+            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun SectionTitle(t: String) {
+    Text(
+        t,
+        color = TextSecondary,
+        fontSize = 13.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(bottom = 8.dp, start = 4.dp).fillMaxWidth(),
+    )
+}
+
+@Composable
+private fun LinkRow(
+    label: String,
+    subtitle: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    url: String,
+) {
+    val ctx = LocalContext.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(BgSecondary, RoundedCornerShape(12.dp))
+            .clickable {
+                try {
+                    ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                } catch (_: Exception) {}
+            }
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(icon, null, tint = Accent, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(label, color = TextPrimary, fontSize = 14.sp)
+            if (subtitle.isNotBlank()) {
+                Text(subtitle, color = TextSecondary, fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 2.dp))
+            }
+        }
+        Text("→", color = Accent, fontSize = 16.sp)
+    }
+    Spacer(Modifier.height(8.dp))
+}

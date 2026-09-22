@@ -2,6 +2,7 @@ package com.gptplus18.app.ui.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gptplus18.app.data.local.TokenStorage
 import com.gptplus18.app.data.repository.AuthRepository
 import com.gptplus18.app.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,11 +16,13 @@ data class AuthUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val isAuthenticated: Boolean = false,
+    val pendingGoogleToken: Pair<String, String>? = null,
 )
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val repo: AuthRepository,
+    private val tokenStorage: TokenStorage,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AuthUiState())
@@ -52,6 +55,17 @@ class AuthViewModel @Inject constructor(
                 else -> {}
             }
         }
+    }
+
+    fun saveGoogleSession(token: String, name: String) {
+        viewModelScope.launch {
+            tokenStorage.save(token, name, "", 0)
+            _state.value = _state.value.copy(pendingGoogleToken = Pair(token, name))
+        }
+    }
+
+    fun consumeGoogleToken() {
+        _state.value = _state.value.copy(pendingGoogleToken = null)
     }
 
     fun clearError() { _state.value = _state.value.copy(error = null) }

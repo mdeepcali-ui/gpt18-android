@@ -12,3 +12,6 @@ captures/
 *.keystore
 *.jks
 key.properties
+
+# Local backups
+.backup-pre-firebase/

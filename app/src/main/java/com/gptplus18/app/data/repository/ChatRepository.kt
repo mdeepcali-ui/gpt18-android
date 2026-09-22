@@ -1,9 +1,12 @@
 package com.gptplus18.app.data.repository
 
 import com.gptplus18.app.data.api.ApiService
+import com.gptplus18.app.data.api.StreamEvent
+import com.gptplus18.app.data.api.StreamingClient
 import com.gptplus18.app.data.local.TokenStorage
 import com.gptplus18.app.data.models.*
 import com.gptplus18.app.util.Result
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -12,6 +15,8 @@ class ChatRepository @Inject constructor(
     private val api: ApiService,
     private val tokenStorage: TokenStorage,
 ) {
+    private val streamingClient = StreamingClient()
+
     private suspend fun bearer(): String? {
         val t = tokenStorage.getToken() ?: return null
         return "Bearer $t"
@@ -58,6 +63,24 @@ class ChatRepository @Inject constructor(
             if (r.isSuccessful) Result.Success(Unit) else Result.Error("فشل الحذف")
         } catch (e: Exception) {
             Result.Error(e.message ?: "خطأ")
+        }
+    }
+
+    /**
+     * Streaming — يرجّع Flow من events
+     */
+    fun streamMessage(
+        sid: Int?,
+        text: String,
+        memory: Boolean = true,
+    ): Flow<StreamEvent> {
+        return kotlinx.coroutines.flow.flow {
+            val token = tokenStorage.getToken()
+            if (token.isNullOrBlank()) {
+                emit(StreamEvent.Error("غير مصرح"))
+                return@flow
+            }
+            emitAll(streamingClient.streamMessage(token, sid, text, memory))
         }
     }
 }

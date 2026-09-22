@@ -1,6 +1,7 @@
 package com.gptplus18.app.data.api
 
 import com.gptplus18.app.data.models.*
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -28,6 +29,31 @@ interface ApiService {
         @Body body: VerifyPaymentRequest,
     ): Response<VerifyPaymentResponse>
 
+    // ─── Admin ───
+    @GET("api/auth/admin/status")
+    suspend fun adminStatus(@Header("Authorization") bearer: String): Response<AdminStatus>
+
+    @GET("api/auth/admin/users")
+    suspend fun adminUsers(@Header("Authorization") bearer: String): Response<AdminUsersList>
+
+    @POST("api/auth/admin/grant")
+    suspend fun adminGrant(
+        @Header("Authorization") bearer: String,
+        @Body body: AdminGrantRequest,
+    ): Response<AdminActionResult>
+
+    @POST("api/auth/admin/revoke")
+    suspend fun adminRevoke(
+        @Header("Authorization") bearer: String,
+        @Body body: AdminRevokeRequest,
+    ): Response<AdminActionResult>
+
+    @POST("api/auth/admin/reset-trial")
+    suspend fun adminResetTrial(
+        @Header("Authorization") bearer: String,
+        @Body body: AdminResetTrialRequest,
+    ): Response<AdminActionResult>
+
     // ─── Chat ───
     @GET("api/chat/sessions")
     suspend fun listSessions(@Header("Authorization") bearer: String): Response<SessionsList>
@@ -52,6 +78,67 @@ interface ApiService {
         @Header("Authorization") bearer: String,
         @Body body: SendMessageRequest,
     ): Response<SendMessageResponse>
+
+    // ─── Chat Upload ───
+    @Multipart
+    @POST("api/chat/upload-temp")
+    suspend fun uploadTemp(
+        @Header("Authorization") bearer: String,
+        @Part file: MultipartBody.Part,
+    ): Response<UploadTempResponse>
+
+    @POST("api/chat/process-uploaded")
+    suspend fun processUploaded(
+        @Header("Authorization") bearer: String,
+        @Body body: ProcessUploadRequest,
+    ): Response<ProcessUploadResponse>
+
+    // ─── Code Agent ───
+    @POST("api/code/generate")
+    suspend fun codeGenerate(
+        @Header("Authorization") bearer: String,
+        @Body body: CodeRequest,
+    ): Response<CodeJobStart>
+
+    @GET("api/code/status/{jobId}")
+    suspend fun codeStatus(
+        @Header("Authorization") bearer: String,
+        @Path("jobId") jobId: String,
+    ): Response<CodeJobStatus>
+
+    @GET("api/code/sessions")
+    suspend fun codeSessions(@Header("Authorization") bearer: String): Response<CodeSessionsList>
+
+    @GET("api/code/sessions/{sid}/messages")
+    suspend fun codeMessages(
+        @Header("Authorization") bearer: String,
+        @Path("sid") sid: Int,
+    ): Response<CodeMessagesList>
+
+    @DELETE("api/code/sessions/{sid}")
+    suspend fun codeDeleteSession(
+        @Header("Authorization") bearer: String,
+        @Path("sid") sid: Int,
+    ): Response<Any>
+
+    // ─── Media ───
+    @POST("api/chat/image")
+    suspend fun generateImage(
+        @Header("Authorization") bearer: String,
+        @Body body: ImageRequest,
+    ): Response<ImageResponse>
+
+    @POST("api/chat/song")
+    suspend fun generateSong(
+        @Header("Authorization") bearer: String,
+        @Body body: SongRequest,
+    ): Response<SongResponse>
+
+    @POST("api/chat/video")
+    suspend fun generateVideo(
+        @Header("Authorization") bearer: String,
+        @Body body: VideoRequest,
+    ): Response<VideoResponse>
 
     // ─── Public ───
     @GET("api/subscription-public")

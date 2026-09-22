@@ -35,5 +35,6 @@ data class SendMessageRequest(
 data class SendMessageResponse(
     @SerializedName("session_id") val sessionId: Int,
     @SerializedName("reply") val reply: String,
+    @SerializedName("thinking") val thinking: String? = null,
     @SerializedName("limited") val limited: Boolean = false,
 )

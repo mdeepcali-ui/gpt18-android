@@ -2,13 +2,17 @@ package com.gptplus18.app.ui.screens.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -17,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.BgPrimary
 import com.gptplus18.app.ui.theme.TextPrimary
@@ -42,25 +47,49 @@ fun AuthScreen(
         contentAlignment = Alignment.Center,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Text("GPT+18", fontSize = 42.sp, fontWeight = FontWeight.Bold, color = Accent)
-            Text("ذكاء اصطناعي بلا قيود", fontSize = 14.sp, color = TextSecondary,
-                modifier = Modifier.padding(top = 8.dp, bottom = 32.dp))
+            Spacer(Modifier.height(40.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-            ) {
+            // ═══ الشعار ═══
+            AsyncImage(
+                model = "https://gptplus18.com/static/logo_final.png",
+                contentDescription = "GPT+18",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .size(140.dp)
+                    .padding(bottom = 12.dp),
+            )
+
+            // ═══ العنوان ═══
+            Text(
+                "GPT+18",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Accent,
+            )
+            Text(
+                "ذكاء اصطناعي بلا قيود",
+                fontSize = 14.sp,
+                color = TextSecondary,
+                modifier = Modifier.padding(top = 4.dp, bottom = 32.dp),
+            )
+
+            // ═══ Tabs ═══
+            Row(horizontalArrangement = Arrangement.Center) {
                 TabButton("تسجيل دخول", isLoginTab) { isLoginTab = true }
                 Spacer(Modifier.width(8.dp))
                 TabButton("حساب جديد", !isLoginTab) { isLoginTab = false }
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
 
+            // ═══ حقل الاسم (Signup فقط) ═══
             if (!isLoginTab) {
                 OutlinedTextField(
                     value = name, onValueChange = { name = it },
@@ -73,6 +102,7 @@ fun AuthScreen(
                 Spacer(Modifier.height(12.dp))
             }
 
+            // ═══ الإيميل ═══
             OutlinedTextField(
                 value = email, onValueChange = { email = it },
                 label = { Text("الإيميل") },
@@ -86,6 +116,7 @@ fun AuthScreen(
             )
             Spacer(Modifier.height(12.dp))
 
+            // ═══ كلمة السر ═══
             OutlinedTextField(
                 value = password, onValueChange = { password = it },
                 label = { Text("كلمة السر") },
@@ -99,14 +130,21 @@ fun AuthScreen(
                 ),
             )
 
+            // ═══ الخطأ ═══
             if (state.error != null) {
                 Spacer(Modifier.height(12.dp))
-                Text(state.error!!, color = Color(0xFFEF4444), fontSize = 13.sp,
-                    textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                Text(
+                    state.error!!,
+                    color = Color(0xFFEF4444),
+                    fontSize = 13.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
 
             Spacer(Modifier.height(20.dp))
 
+            // ═══ زر الدخول/التسجيل ═══
             Button(
                 onClick = {
                     if (isLoginTab) vm.login(email, password)
@@ -118,14 +156,52 @@ fun AuthScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = Accent),
             ) {
                 if (state.isLoading) {
-                    CircularProgressIndicator(color = BgPrimary, modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
+                    CircularProgressIndicator(
+                        color = BgPrimary,
+                        modifier = Modifier.size(22.dp),
+                        strokeWidth = 2.dp,
+                    )
                 } else {
                     Text(
                         if (isLoginTab) "دخول" else "إنشاء حساب",
-                        fontSize = 16.sp, fontWeight = FontWeight.Bold, color = BgPrimary,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = BgPrimary,
                     )
                 }
             }
+
+            Spacer(Modifier.height(20.dp))
+
+            // ═══ فاصل "أو" ═══
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                HorizontalDivider(Modifier.weight(1f), color = TextSecondary.copy(alpha = 0.2f))
+                Text("  أو  ", color = TextSecondary, fontSize = 13.sp)
+                HorizontalDivider(Modifier.weight(1f), color = TextSecondary.copy(alpha = 0.2f))
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // ═══ زر Google ═══
+            OutlinedButton(
+                onClick = {
+                    val ctx = LocalContext.current
+                    com.gptplus18.app.util.GoogleAuthLauncher.launch(ctx)
+                },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+            ) {
+                Text(
+                    "الدخول بحساب Google",
+                    color = TextPrimary,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+
+            Spacer(Modifier.height(40.dp))
         }
     }
 }
