@@ -23,6 +23,7 @@ data class ProfileState(
     val hasSubscription: Boolean = false,
     val hasTrial: Boolean = false,
     val isOwner: Boolean = false,
+    val fontScale: Float = 1.0f,
 )
 
 @HiltViewModel
@@ -53,6 +54,11 @@ class ProfileViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
+            prefs.fontScaleFlow.collect { scale ->
+                _state.value = _state.value.copy(fontScale = scale)
+            }
+        }
+        viewModelScope.launch {
             when (val r = authRepo.me()) {
                 is Result.Success -> _state.value = _state.value.copy(
                     userName = r.data.name,
@@ -77,6 +83,12 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             val current = prefs.langFlow.first()
             prefs.setLanguage(if (current == "ar") "en" else "ar")
+        }
+    }
+
+    fun setFontScale(scale: Float) {
+        viewModelScope.launch {
+            prefs.setFontScale(scale)
         }
     }
 

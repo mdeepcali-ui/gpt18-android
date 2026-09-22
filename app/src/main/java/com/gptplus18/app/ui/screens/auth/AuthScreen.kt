@@ -186,9 +186,9 @@ fun AuthScreen(
             Spacer(Modifier.height(16.dp))
 
             // ═══ زر Google ═══
+            val ctx = LocalContext.current
             OutlinedButton(
                 onClick = {
-                    val ctx = LocalContext.current
                     com.gptplus18.app.util.GoogleAuthLauncher.launch(ctx)
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),

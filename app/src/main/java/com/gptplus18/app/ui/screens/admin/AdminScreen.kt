@@ -189,8 +189,8 @@ private fun UsersTab(
             )
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PlanChip("شهري $20", grantPlan == "month") { onGrantPlanChange("month") }
-                PlanChip("سنوي $220", grantPlan == "year") { onGrantPlanChange("year") }
+                PlanChip("شهري $20", grantPlan == "month", modifier = Modifier.weight(1f)) { onGrantPlanChange("month") }
+                PlanChip("سنوي $220", grantPlan == "year", modifier = Modifier.weight(1f)) { onGrantPlanChange("year") }
             }
             Spacer(Modifier.height(8.dp))
             Button(
@@ -478,14 +478,19 @@ private fun StatCard(label: String, value: Int, color: Color, modifier: Modifier
 }
 
 @Composable
-private fun PlanChip(label: String, active: Boolean, onClick: () -> Unit) {
+private fun PlanChip(
+    label: String,
+    active: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(
             containerColor = if (active) Accent else BgTertiary,
         ),
         shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.weight(1f),
+        modifier = modifier,
     ) {
         Text(
             label,
@@ -499,7 +504,11 @@ private fun PlanChip(label: String, active: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun FilterChip(label: String, active: Boolean, onClick: () -> Unit) {
+private fun FilterChip(
+    label: String,
+    active: Boolean,
+    onClick: () -> Unit,
+) {
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(

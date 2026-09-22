@@ -41,6 +41,7 @@ data class ChatUiState(
     val isSubscribed: Boolean = false,
     val thinkingByMessage: Map<Long, ThinkingData> = emptyMap(),
     val pendingAttachments: List<Attachment> = emptyList(),
+    val isOwner: Boolean = false,
 )
 
 @HiltViewModel

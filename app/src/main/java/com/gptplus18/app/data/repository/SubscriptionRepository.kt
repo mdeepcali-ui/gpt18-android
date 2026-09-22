@@ -40,7 +40,7 @@ class SubscriptionRepository @Inject constructor(
             if (r.isSuccessful) {
                 val body = r.body()!!
                 if (body.ok) Result.Success(body)
-                else Result.Error(body.error ?: "فشل التحقق")
+                else Result.Error(body.message ?: "فشل التحقق")
             } else {
                 Result.Error("خطأ (${r.code()})")
             }

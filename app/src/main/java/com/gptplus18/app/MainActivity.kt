@@ -22,9 +22,11 @@ import com.gptplus18.app.ui.navigation.Routes
 import com.gptplus18.app.ui.screens.update.UpdateDialog
 import com.gptplus18.app.ui.theme.FontScaleProvider
 import com.gptplus18.app.ui.theme.GptPlus18Theme
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

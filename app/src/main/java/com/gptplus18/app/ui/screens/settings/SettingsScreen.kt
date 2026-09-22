@@ -188,14 +188,19 @@ private fun SettingRow(
 }
 
 @Composable
-private fun FontSizeChip(label: String, active: Boolean, onClick: () -> Unit) {
+private fun FontSizeChip(
+    label: String,
+    active: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(
             containerColor = if (active) Accent else BgTertiary,
         ),
         shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.weight(1f),
+        modifier = modifier,
     ) {
         Text(
             label,

@@ -16,7 +16,12 @@ data class User(
     @SerializedName("trial_expires") val trialExpires: Double? = null,
     @SerializedName("trial_used") val trialUsed: Int? = null,
     @SerializedName("created_at") val createdAt: Double? = null,
-)
+) {
+    val hasSubscription: Boolean
+        get() = (subExpires ?: 0.0) > System.currentTimeMillis() / 1000.0
+    val hasActiveTrial: Boolean
+        get() = (trialExpires ?: 0.0) > System.currentTimeMillis() / 1000.0
+}
 
 data class LoginRequest(
     @SerializedName("email") val email: String,
@@ -38,17 +43,6 @@ data class MeResponse(
     @SerializedName("user") val user: User,
 )
 
-data class VerifyPaymentRequest(
-    @SerializedName("plan") val plan: String,
-    @SerializedName("network") val network: String,
-    @SerializedName("tx_hash") val txHash: String,
-)
-
-data class VerifyPaymentResponse(
-    @SerializedName("ok") val ok: Boolean,
-    @SerializedName("expires_at") val expiresAt: Double? = null,
-    @SerializedName("message") val message: String? = null,
-)
 
 data class UpdateProfileRequest(
     @SerializedName("name") val name: String? = null,
