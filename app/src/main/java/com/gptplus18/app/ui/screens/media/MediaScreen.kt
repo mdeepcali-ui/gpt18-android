@@ -1,5 +1,10 @@
 package com.gptplus18.app.ui.screens.media
 
+import com.gptplus18.app.ui.theme.TextSecondary
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.Add
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -56,6 +61,27 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.t_056), color = TextPrimary, fontWeight = FontWeight.Bold) },
+                actions = {
+                    // ⭐ زر + دائري في الزاوية اليسرى (طلب جديد)
+                    IconButton(
+                        onClick = {
+                            vm.setTab(MediaTab.IMAGE)
+                            vm.setPrompt("")
+                        },
+                        modifier = Modifier
+                            .padding(end = 6.dp)
+                            .size(34.dp)
+                            .clip(CircleShape)
+                            .border(1.5.dp, TextSecondary, CircleShape),
+                    ) {
+                        Icon(
+                            Icons.Default.Add,
+                            stringResource(R.string.new_chat),
+                            tint = TextPrimary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
             )
         },

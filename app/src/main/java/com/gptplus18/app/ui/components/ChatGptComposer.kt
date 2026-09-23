@@ -23,6 +23,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,23 +35,17 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.gptplus18.app.data.models.Attachment
-import com.gptplus18.app.ui.theme.TextPrimary
-import com.gptplus18.app.ui.theme.BgPrimary
-import com.gptplus18.app.ui.theme.ComposerBgColor
-import com.gptplus18.app.ui.theme.ComposerBorderColor
-import com.gptplus18.app.ui.theme.TextTertiary
-import androidx.compose.ui.res.stringResource
 import com.gptplus18.app.R
+import com.gptplus18.app.data.models.Attachment
+import com.gptplus18.app.ui.theme.LocalAppColors
 
-private val SendBlue = Color(0xFF0A84FF)  // أزرق زيك
-private val IconGray = Color(0xFFB4B4B4)
-private val CloseBtnBg = Color(0xFF4A4A4A)
+private val SendBlue = Color(0xFF0A84FF)  // زر الإرسال — يبقى ثابت
 
 @Composable
 fun ChatGptComposer(
@@ -64,11 +59,12 @@ fun ChatGptComposer(
 ) {
     val hasText = value.isNotBlank()
     var showEmojiSheet by remember { mutableStateOf(false) }
+    val colors = LocalAppColors.current
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(BgPrimary)
+            .background(colors.bg)
             .padding(horizontal = 8.dp, vertical = 6.dp)
             .navigationBarsPadding(),
     ) {
@@ -82,8 +78,8 @@ fun ChatGptComposer(
                     spotColor = Color.Black.copy(alpha = 0.6f),
                 )
                 .clip(RoundedCornerShape(28.dp))
-                .background(ComposerBgColor)
-                .border(0.5.dp, ComposerBorderColor, RoundedCornerShape(28.dp))
+                .background(colors.composerBg)
+                .border(0.5.dp, colors.composerBorder, RoundedCornerShape(28.dp))
                 .padding(6.dp),
         ) {
             if (attachments.isNotEmpty()) {
@@ -102,7 +98,6 @@ fun ChatGptComposer(
                 }
                 Spacer(Modifier.height(4.dp))
             }
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -111,7 +106,7 @@ fun ChatGptComposer(
                 if (value.isEmpty()) {
                     Text(
                         text = stringResource(R.string.t_001),
-                        color = TextTertiary,
+                        color = colors.textTertiary,
                         fontSize = 16.sp,
                     )
                 }
@@ -120,7 +115,7 @@ fun ChatGptComposer(
                     onValueChange = onValueChange,
                     enabled = enabled,
                     textStyle = TextStyle(
-                        color = TextPrimary,
+                        color = colors.textPrimary,
                         fontSize = 16.sp,
                         lineHeight = 22.sp,
                     ),
@@ -131,7 +126,6 @@ fun ChatGptComposer(
                     maxLines = 8,
                 )
             }
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -142,7 +136,7 @@ fun ChatGptComposer(
                 Icon(
                     Icons.Default.EmojiEmotions,
                     stringResource(R.string.t_230),
-                    tint = IconGray,
+                    tint = colors.textSecondary,
                     modifier = Modifier
                         .size(26.dp)
                         .clickable(enabled = enabled) { showEmojiSheet = true },
@@ -153,7 +147,7 @@ fun ChatGptComposer(
                 Icon(
                     Icons.Default.Add,
                     stringResource(R.string.t_231),
-                    tint = IconGray,
+                    tint = colors.textSecondary,
                     modifier = Modifier
                         .size(28.dp)
                         .clickable(enabled = enabled, onClick = onAttachClick),
@@ -161,7 +155,6 @@ fun ChatGptComposer(
 
                 Spacer(Modifier.weight(1f))
 
-                // إرسال (يظهر فقط عند الكتابة)
                 if (hasText) {
                     Box(
                         modifier = Modifier
@@ -200,38 +193,42 @@ private fun EmojiPickerSheet(
     onSelect: (String) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState()
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = Color(0xFF0D0D0D),
-    ) {
-        Column(Modifier.fillMaxWidth().padding(16.dp)) {
-            Text(
-                stringResource(R.string.t_002),
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 12.dp),
-            )
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(7),
-                modifier = Modifier.fillMaxWidth().heightIn(max = 360.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                items(COMMON_EMOJIS) { emoji ->
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { onSelect(emoji) },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(emoji, fontSize = 26.sp)
+    val colors = LocalAppColors.current
+
+    CompositionLocalProvider(LocalAppColors provides colors) {
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = sheetState,
+            containerColor = colors.surface,
+        ) {
+            Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                Text(
+                    stringResource(R.string.t_002),
+                    color = colors.textPrimary,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(7),
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 360.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    items(COMMON_EMOJIS) { emoji ->
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { onSelect(emoji) },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(emoji, fontSize = 26.sp)
+                        }
                     }
                 }
+                Spacer(Modifier.height(24.dp))
             }
-            Spacer(Modifier.height(24.dp))
         }
     }
 }
@@ -257,11 +254,13 @@ private fun AttachmentChip(
     attachment: Attachment,
     onRemove: () -> Unit,
 ) {
+    val colors = LocalAppColors.current
+
     Box(
         modifier = Modifier
             .size(80.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(Color(0xFF1A1A1A)),
+            .background(colors.surfaceVariant),
     ) {
         if (attachment.isImage) {
             AsyncImage(
@@ -285,7 +284,7 @@ private fun AttachmentChip(
                 .padding(4.dp)
                 .size(22.dp)
                 .clip(CircleShape)
-                .background(CloseBtnBg)
+                .background(colors.textSecondary.copy(alpha = 0.7f))
                 .clickable(onClick = onRemove),
             contentAlignment = Alignment.Center,
         ) {
@@ -303,7 +302,7 @@ private fun AttachmentChip(
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .height(3.dp)
-                    .background(Color(0xFF333333)),
+                    .background(colors.surfaceVariant),
             ) {
                 Box(
                     modifier = Modifier

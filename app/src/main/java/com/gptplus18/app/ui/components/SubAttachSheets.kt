@@ -17,17 +17,17 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.gptplus18.app.ui.theme.TextPrimary
-import androidx.compose.ui.res.stringResource
 import com.gptplus18.app.R
+import com.gptplus18.app.ui.theme.LocalAppColors
 
 // ═══════════════════════════════════════════
 // المكونات الإضافية
@@ -39,45 +39,49 @@ fun AddonsSheet(
     onSelect: (String) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = Color(0xFF1C1C1E),
-        dragHandle = null,
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-    ) {
-        Column(
-            Modifier.fillMaxWidth().padding(vertical = 16.dp),
+    val colors = LocalAppColors.current
+
+    CompositionLocalProvider(LocalAppColors provides colors) {
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = sheetState,
+            containerColor = colors.surface,
+            dragHandle = null,
+            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         ) {
-            Text(
-                stringResource(R.string.t_006),
-                color = TextPrimary,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-            )
-            val s241 = stringResource(R.string.t_241)
-            val s242 = stringResource(R.string.t_242)
-            val s243 = stringResource(R.string.t_243)
-            SubItem(Icons.Default.Code, s241, s242) {
-                onSelect(s243)
-                onDismiss()
+            Column(
+                Modifier.fillMaxWidth().padding(vertical = 16.dp),
+            ) {
+                Text(
+                    stringResource(R.string.t_006),
+                    color = colors.textPrimary,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                )
+                val s241 = stringResource(R.string.t_241)
+                val s242 = stringResource(R.string.t_242)
+                val s243 = stringResource(R.string.t_243)
+                SubItem(Icons.Default.Code, s241, s242) {
+                    onSelect(s243)
+                    onDismiss()
+                }
+                val s244 = stringResource(R.string.t_244)
+                val s245 = stringResource(R.string.t_245)
+                val s246 = stringResource(R.string.t_246)
+                SubItem(Icons.Default.Translate, s244, s245) {
+                    onSelect(s246)
+                    onDismiss()
+                }
+                val s247 = stringResource(R.string.t_247)
+                val s248 = stringResource(R.string.t_248)
+                val s249 = stringResource(R.string.t_249)
+                SubItem(Icons.Default.Brush, s247, s248) {
+                    onSelect(s249)
+                    onDismiss()
+                }
+                Spacer(Modifier.height(16.dp))
             }
-            val s244 = stringResource(R.string.t_244)
-            val s245 = stringResource(R.string.t_245)
-            val s246 = stringResource(R.string.t_246)
-            SubItem(Icons.Default.Translate, s244, s245) {
-                onSelect(s246)
-                onDismiss()
-            }
-            val s247 = stringResource(R.string.t_247)
-            val s248 = stringResource(R.string.t_248)
-            val s249 = stringResource(R.string.t_249)
-            SubItem(Icons.Default.Brush, s247, s248) {
-                onSelect(s249)
-                onDismiss()
-            }
-            Spacer(Modifier.height(16.dp))
         }
     }
 }
@@ -92,38 +96,42 @@ fun DeepThinkSheet(
     onSelect: (String) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = Color(0xFF1C1C1E),
-        dragHandle = null,
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-    ) {
-        Column(
-            Modifier.fillMaxWidth().padding(vertical = 16.dp),
+    val colors = LocalAppColors.current
+
+    CompositionLocalProvider(LocalAppColors provides colors) {
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = sheetState,
+            containerColor = colors.surface,
+            dragHandle = null,
+            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         ) {
-            Text(
-                stringResource(R.string.t_007),
-                color = TextPrimary,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-            )
-            val s250 = stringResource(R.string.t_250)
-            val s251 = stringResource(R.string.t_251)
-            val s252 = stringResource(R.string.t_252)
-            SubItem(Icons.Default.Psychology, s250, s251) {
-                onSelect(s252)
-                onDismiss()
+            Column(
+                Modifier.fillMaxWidth().padding(vertical = 16.dp),
+            ) {
+                Text(
+                    stringResource(R.string.t_007),
+                    color = colors.textPrimary,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                )
+                val s250 = stringResource(R.string.t_250)
+                val s251 = stringResource(R.string.t_251)
+                val s252 = stringResource(R.string.t_252)
+                SubItem(Icons.Default.Psychology, s250, s251) {
+                    onSelect(s252)
+                    onDismiss()
+                }
+                val s253 = stringResource(R.string.t_253)
+                val s254 = stringResource(R.string.t_254)
+                val s255 = stringResource(R.string.t_255)
+                SubItem(Icons.Default.Lightbulb, s253, s254) {
+                    onSelect(s255)
+                    onDismiss()
+                }
+                Spacer(Modifier.height(16.dp))
             }
-            val s253 = stringResource(R.string.t_253)
-            val s254 = stringResource(R.string.t_254)
-            val s255 = stringResource(R.string.t_255)
-            SubItem(Icons.Default.Lightbulb, s253, s254) {
-                onSelect(s255)
-                onDismiss()
-            }
-            Spacer(Modifier.height(16.dp))
         }
     }
 }
@@ -135,6 +143,8 @@ private fun SubItem(
     description: String,
     onClick: () -> Unit,
 ) {
+    val colors = LocalAppColors.current
+
     Row(
         Modifier
             .fillMaxWidth()
@@ -143,19 +153,33 @@ private fun SubItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(label, color = TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Right)
-            Text(description, color = Color(0xFF9A9AA0), fontSize = 12.sp,
-                textAlign = TextAlign.Right)
+            Text(
+                label,
+                color = colors.textPrimary,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Right,
+            )
+            Text(
+                description,
+                color = colors.textSecondary,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Right,
+            )
         }
         Spacer(Modifier.width(12.dp))
         Box(
             Modifier
                 .size(40.dp)
-                .background(Color(0xFF3A3A3C), CircleShape),
+                .background(colors.surfaceVariant, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(icon, label, tint = Color.White, modifier = Modifier.size(20.dp))
+            Icon(
+                icon,
+                label,
+                tint = colors.textPrimary,
+                modifier = Modifier.size(20.dp),
+            )
         }
     }
 }

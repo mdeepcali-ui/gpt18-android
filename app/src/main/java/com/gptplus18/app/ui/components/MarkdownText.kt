@@ -1,5 +1,8 @@
 package com.gptplus18.app.ui.components
 
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -95,64 +98,67 @@ private fun CodeBlockView(lang: String, code: String) {
     val clip = LocalClipboardManager.current
     val scrollState = rememberScrollState()
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(CodeBlockColors.Background, RoundedCornerShape(10.dp)),
-    ) {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(CodeBlockColors.HeaderBg, RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "● ● ●",
-                    color = Color(0xFFFF5F57),
-                    fontSize = 9.sp,
-                    letterSpacing = 2.sp,
-                )
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    text = if (lang.isBlank()) "code" else lang,
-                    color = Color(0xFF858585),
-                    fontSize = 11.sp,
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.weight(1f),
-                )
+    // ⭐ الكود دائماً LTR — حتى في واجهة عربية
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(CodeBlockColors.Background, RoundedCornerShape(10.dp)),
+        ) {
+            Column {
                 Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(CodeBlockColors.HeaderBg, RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable {
-                        clip.setText(AnnotatedString(code))
-                    },
                 ) {
-                    Icon(
-                        Icons.Default.ContentCopy,
-                        stringResource(R.string.t_003),
-                        tint = Accent,
-                        modifier = Modifier.size(12.dp),
+                    Text(
+                        text = "● ● ●",
+                        color = Color(0xFFFF5F57),
+                        fontSize = 9.sp,
+                        letterSpacing = 2.sp,
                     )
-                    Spacer(Modifier.width(4.dp))
-                    Text(stringResource(R.string.t_003), color = Accent, fontSize = 11.sp)
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = if (lang.isBlank()) "code" else lang,
+                        color = Color(0xFF858585),
+                        fontSize = 11.sp,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            clip.setText(AnnotatedString(code))
+                        },
+                    ) {
+                        Icon(
+                            Icons.Default.ContentCopy,
+                            stringResource(R.string.t_003),
+                            tint = Accent,
+                            modifier = Modifier.size(12.dp),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(stringResource(R.string.t_003), color = Accent, fontSize = 11.sp)
+                    }
                 }
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(scrollState)
-                    .padding(10.dp),
-            ) {
-                Text(
-                    text = highlightSyntax(code, lang),
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp,
-                    softWrap = false,
-                    style = TextStyle(textDirection = TextDirection.Ltr),
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(scrollState)
+                        .padding(10.dp),
+                ) {
+                    Text(
+                        text = highlightSyntax(code, lang),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                        softWrap = false,
+                        style = TextStyle(textDirection = TextDirection.Ltr),
+                    )
+                }
             }
         }
     }

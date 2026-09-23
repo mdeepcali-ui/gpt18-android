@@ -1,5 +1,7 @@
 package com.gptplus18.app.ui.screens.chat
 
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.border
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -235,16 +237,6 @@ fun ChatScreen(
                                             }
                                         },
                                     )
-                                    Spacer(Modifier.width(8.dp))
-                                    // 🎯 زر + داخل الشات
-                                    IconButton(
-                                        onClick = { vm.newChat() },
-                                        modifier = Modifier.size(36.dp),
-                                    ) {
-                                        Icon(Icons.Default.Add, stringResource(R.string.new_chat),
-                                            tint = TextPrimary,
-                                            modifier = Modifier.size(22.dp))
-                                    }
                                 }
                             }
                         },
@@ -254,6 +246,22 @@ fun ChatScreen(
                             }
                         },
                         actions = {
+                            // ⭐ زر + دائري في الزاوية اليسرى
+                            IconButton(
+                                onClick = { vm.newChat() },
+                                modifier = Modifier
+                                    .padding(end = 6.dp)
+                                    .size(34.dp)
+                                    .clip(CircleShape)
+                                    .border(1.5.dp, TextSecondary, CircleShape),
+                            ) {
+                                Icon(
+                                    Icons.Default.Add,
+                                    stringResource(R.string.new_chat),
+                                    tint = TextPrimary,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
                             if (showSessionsList) {
                                 IconButton(onClick = { showSearch = true }) {
                                     Icon(Icons.Default.Search, stringResource(R.string.t_128), tint = TextPrimary)

@@ -2,6 +2,8 @@
 
 package com.gptplus18.app.ui.screens.code
 
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.border
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -28,6 +30,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gptplus18.app.ui.theme.TextSecondary
+import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.data.models.CodeMessage
 import com.gptplus18.app.data.models.CodeSession
 import com.gptplus18.app.ui.components.ChatGptComposer
@@ -91,8 +95,21 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { vm.newRequest() }) {
-                        Icon(Icons.Default.Add, stringResource(R.string.t_160), tint = Accent)
+                    // ⭐ زر + دائري في الزاوية اليسرى
+                    IconButton(
+                        onClick = { vm.newRequest() },
+                        modifier = Modifier
+                            .padding(end = 6.dp)
+                            .size(34.dp)
+                            .clip(CircleShape)
+                            .border(1.5.dp, TextSecondary, CircleShape),
+                    ) {
+                        Icon(
+                            Icons.Default.Add,
+                            stringResource(R.string.t_160),
+                            tint = TextPrimary,
+                            modifier = Modifier.size(20.dp),
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
