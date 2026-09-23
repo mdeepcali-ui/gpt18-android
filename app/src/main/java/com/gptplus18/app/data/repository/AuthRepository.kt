@@ -1,5 +1,6 @@
 package com.gptplus18.app.data.repository
 
+import com.gptplus18.app.util.DeviceIdProvider
 import com.gptplus18.app.data.api.ApiService
 import com.gptplus18.app.data.local.TokenStorage
 import com.gptplus18.app.data.models.LoginRequest
@@ -13,10 +14,12 @@ import javax.inject.Singleton
 class AuthRepository @Inject constructor(
     private val api: ApiService,
     private val tokenStorage: TokenStorage,
+,
+    private val deviceIdProvider: DeviceIdProvider,
 ) {
     suspend fun login(email: String, password: String): Result<User> {
         return try {
-            val r = api.login(LoginRequest(email.trim().lowercase(), password))
+            val r = api.login(LoginRequest(email.trim().lowercase(), password, deviceIdProvider.get()))
             if (r.isSuccessful) {
                 val body = r.body()!!
                 tokenStorage.save(body.token, body.user.name, body.user.email, body.user.id)
@@ -31,7 +34,7 @@ class AuthRepository @Inject constructor(
 
     suspend fun signup(name: String, email: String, password: String): Result<User> {
         return try {
-            val r = api.signup(SignupRequest(name.trim(), email.trim().lowercase(), password))
+            val r = api.signup(SignupRequest(name.trim(), email.trim().lowercase(), password, deviceIdProvider.get()))
             if (r.isSuccessful) {
                 val body = r.body()!!
                 tokenStorage.save(body.token, body.user.name, body.user.email, body.user.id)

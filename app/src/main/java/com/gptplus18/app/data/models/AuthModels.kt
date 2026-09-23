@@ -26,12 +26,14 @@ data class User(
 data class LoginRequest(
     @SerializedName("email") val email: String,
     @SerializedName("password") val password: String,
+    @SerializedName("device_id") val deviceId: String? = null,
 )
 
 data class SignupRequest(
     @SerializedName("name") val name: String,
     @SerializedName("email") val email: String,
     @SerializedName("password") val password: String,
+    @SerializedName("device_id") val deviceId: String? = null,
 )
 
 data class AuthResponse(
