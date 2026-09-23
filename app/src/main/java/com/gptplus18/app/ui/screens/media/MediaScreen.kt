@@ -53,6 +53,8 @@ private val SendBlue = Color(0xFF0A84FF)
 fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
     val state by vm.state.collectAsState()
     val ctx = LocalContext.current
+    // X2: viewer للصورة
+    var fullscreenImage by remember { mutableStateOf<String?>(null) }
 
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -73,16 +75,16 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                             vm.setPrompt("")
                         },
                         modifier = Modifier
-                            .padding(end = 6.dp)
-                            .size(30.dp)
+                            .padding(end = 2.dp, top = 4.dp)
+                            .size(24.dp)
                             .clip(CircleShape)
-                            .border(2.dp, TextSecondary, CircleShape),
+                            .border(2.5.dp, TextSecondary, CircleShape),
                     ) {
                         Icon(
                             Icons.Default.Add,
                             stringResource(R.string.new_chat),
                             tint = TextPrimary,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(12.dp),
                         )
                     }
                 },
@@ -477,6 +479,14 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
 
             Spacer(Modifier.height(80.dp))
         }
+    }
+
+    // X2: عرض الصورة بكامل الشاشة
+    fullscreenImage?.let { url ->
+        com.gptplus18.app.ui.components.FullscreenImageViewer(
+            imageUrl = url,
+            onDismiss = { fullscreenImage = null },
+        )
     }
 }
 

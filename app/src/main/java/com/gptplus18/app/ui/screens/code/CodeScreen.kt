@@ -46,6 +46,9 @@ import com.gptplus18.app.R
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
+
+    // X2: viewer
+    var fullscreenImage by remember { mutableStateOf<String?>(null) }
     val state by vm.state.collectAsState()
     val listState = rememberLazyListState()
     var input by remember { mutableStateOf("") }
@@ -99,16 +102,16 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                     IconButton(
                         onClick = { vm.newRequest() },
                         modifier = Modifier
-                            .padding(end = 6.dp)
-                            .size(30.dp)
+                            .padding(end = 2.dp, top = 4.dp)
+                            .size(24.dp)
                             .clip(CircleShape)
-                            .border(2.dp, TextSecondary, CircleShape),
+                            .border(2.5.dp, TextSecondary, CircleShape),
                     ) {
                         Icon(
                             Icons.Default.Add,
                             stringResource(R.string.t_160),
                             tint = TextPrimary,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(12.dp),
                         )
                     }
                 },
@@ -174,6 +177,14 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                 }
             },
             containerColor = BgSecondary,
+        )
+    }
+    
+    // X2: viewer
+    fullscreenImage?.let { url ->
+        com.gptplus18.app.ui.components.FullscreenImageViewer(
+            imageUrl = url,
+            onDismiss = { fullscreenImage = null },
         )
     }
 }
@@ -255,6 +266,7 @@ private fun CodeMessageItem(m: CodeMessage) {
             Spacer(Modifier.height(6.dp))
             MarkdownText(
                 text = m.content,
+                onImageClick = { url -> fullscreenImage = url },
                 textColor = TextPrimary,
                 fontSize = 13,
             )

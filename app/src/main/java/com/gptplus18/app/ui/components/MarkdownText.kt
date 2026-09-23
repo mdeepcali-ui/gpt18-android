@@ -1,5 +1,6 @@
 package com.gptplus18.app.ui.components
 
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.runtime.CompositionLocalProvider
@@ -59,6 +60,7 @@ object CodeBlockColors {
 @Composable
 fun MarkdownText(
     text: String,
+    onImageClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     textColor: Color = TextPrimary,
     fontSize: Int = 17,
@@ -68,6 +70,19 @@ fun MarkdownText(
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         blocks.forEach { block ->
             when (block) {
+                is MdBlock.Image -> {
+                    coil.compose.AsyncImage(
+                        model = block.url,
+                        contentDescription = block.alt.ifBlank { "صورة" },
+                        contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 120.dp, max = 320.dp)
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                            .clickable { onImageClick(block.url) },
+                    )
+                    Spacer(Modifier.height(6.dp))
+                }
                 is MdBlock.CodeBlock -> CodeBlockView(block.lang, block.content)
                 is MdBlock.Heading -> Text(
                     text = block.content,
@@ -290,6 +305,7 @@ private sealed class MdBlock {
     data class CodeBlock(val lang: String, val content: String) : MdBlock()
     data class Heading(val content: String) : MdBlock()
     data class Bullet(val content: String) : MdBlock()
+    data class Image(val alt: String, val url: String) : MdBlock()
 }
 
 private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
@@ -302,7 +318,31 @@ private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
 
     fun flushPara() {
         if (paraBuf.isNotBlank()) {
-            blocks.add(MdBlock.Paragraph(paraBuf.toString().trimEnd()))
+            // ⭐ X2: اكتشف الصور في النص أولاً
+            val rawPara = paraBuf.toString().trimEnd()
+            val imgRegex = Regex("""!\[([^\]]*)\]\(([^)]+)\)""")
+            val imgMatches = imgRegex.findAll(rawPara).toList()
+            if (imgMatches.isNotEmpty()) {
+                var lastIdx = 0
+                for (m in imgMatches) {
+                    val before = rawPara.substring(lastIdx, m.range.first).trim()
+                    if (before.isNotBlank()) {
+                        blocks.add(MdBlock.Paragraph(before))
+                    }
+                    val alt = m.groupValues.getOrNull(1) ?: ""
+                    val url = m.groupValues.getOrNull(2) ?: ""
+                    if (url.isNotBlank()) {
+                        blocks.add(MdBlock.Image(alt, url))
+                    }
+                    lastIdx = m.range.last + 1
+                }
+                val after = rawPara.substring(lastIdx).trim()
+                if (after.isNotBlank()) {
+                    blocks.add(MdBlock.Paragraph(after))
+                }
+            } else {
+                blocks.add(MdBlock.Paragraph(rawPara))
+            }
             paraBuf.clear()
         }
     }

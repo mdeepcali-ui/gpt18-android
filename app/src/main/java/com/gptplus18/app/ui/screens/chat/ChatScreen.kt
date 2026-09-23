@@ -253,16 +253,16 @@ fun ChatScreen(
                             IconButton(
                                 onClick = { vm.newChat() },
                                 modifier = Modifier
-                                    .padding(end = 6.dp)
-                                    .size(30.dp)
+                                    .padding(end = 2.dp, top = 4.dp)
+                                    .size(24.dp)
                                     .clip(CircleShape)
-                                    .border(2.dp, TextSecondary, CircleShape),
+                                    .border(2.5.dp, TextSecondary, CircleShape),
                             ) {
                                 Icon(
                                     Icons.Default.Add,
                                     stringResource(R.string.new_chat),
                                     tint = TextPrimary,
-                                    modifier = Modifier.size(16.dp),
+                                    modifier = Modifier.size(12.dp),
                                 )
                             }
                             if (showSessionsList) {
@@ -378,12 +378,6 @@ fun ChatScreen(
                             attachments = state.pendingAttachments,
                             onAttachClick = { showAttachSheet = true },
                             onSend = {
-                                if (input.isNotBlank()) {
-                                    val suggested = com.gptplus18.app.util.AutoRouter.suggestMode(input)
-                                    if (suggested != state.currentMode && suggested != ChatMode.CHAT) {
-                                        vm.setMode(suggested)
-                                    }
-                                }
                                 if (state.pendingAttachments.isNotEmpty()) {
                                     vm.sendWithAttachments(input)
                                 } else if (input.isNotBlank()) {

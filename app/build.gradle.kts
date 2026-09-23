@@ -28,7 +28,7 @@ android {
         // ⭐ versionCode يتزايد تلقائياً كل يوم
         // يمنع "already installed" ويسمح بالتحديث فوق النسخة القديمة
         versionCode = ((System.currentTimeMillis() / 1000L / 86400L) % 100000L).toInt()
-        versionName = "1.0.13"
+        versionName = "1.0.16"
         vectorDrawables { useSupportLibrary = true }
 
         buildConfigField("String", "BASE_URL", "\"https://gptplus18.com/\"")

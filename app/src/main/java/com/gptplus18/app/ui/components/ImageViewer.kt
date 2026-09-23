@@ -1,5 +1,6 @@
 package com.gptplus18.app.ui.components
 
+import android.content.Intent
 import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
@@ -83,16 +84,19 @@ fun FullscreenImageViewer(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                // ⭐ Save
                 IconButton(
                     onClick = {
-                        val dm = ctx.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-                        val req = DownloadManager.Request(Uri.parse(imageUrl))
-                        req.setDestinationInExternalPublicDir(
-                            Environment.DIRECTORY_PICTURES,
-                            "gpt18_${System.currentTimeMillis()}.jpg",
-                        )
-                        req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                        dm.enqueue(req)
+                        try {
+                            val dm = ctx.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                            val req = DownloadManager.Request(Uri.parse(imageUrl))
+                            req.setDestinationInExternalPublicDir(
+                                Environment.DIRECTORY_PICTURES,
+                                "GPT+18/gpt18_${System.currentTimeMillis()}.jpg",
+                            )
+                            req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                            dm.enqueue(req)
+                        } catch (_: Exception) { }
                         onDismiss()
                     },
                     modifier = Modifier
@@ -104,6 +108,27 @@ fun FullscreenImageViewer(
 
                 Spacer(Modifier.width(8.dp))
 
+                // ⭐ Share
+                IconButton(
+                    onClick = {
+                        try {
+                            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "image/*"
+                                putExtra(Intent.EXTRA_TEXT, imageUrl)
+                            }
+                            ctx.startActivity(Intent.createChooser(sendIntent, "مشاركة الصورة"))
+                        } catch (_: Exception) { }
+                    },
+                    modifier = Modifier
+                        .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(50))
+                        .size(44.dp),
+                ) {
+                    Icon(Icons.Default.Share, stringResource(R.string.t_233), tint = Color.White)
+                }
+
+                Spacer(Modifier.width(8.dp))
+
+                // ⭐ Close
                 IconButton(
                     onClick = onDismiss,
                     modifier = Modifier

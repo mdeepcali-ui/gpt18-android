@@ -150,11 +150,11 @@ fun SettingsScreen(
             SettingRow(
                 icon = Icons.Default.Email,
                 title = "التواصل مع الدعم",
-                subtitle = "m.deep.cali@gmail.com",
+                subtitle = "m.deep.cali@outlook.sa",
                 onClick = {
                     try {
                         val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:m.deep.cali@gmail.com")
+                            data = Uri.parse("mailto:m.deep.cali@outlook.sa")
                             putExtra(Intent.EXTRA_SUBJECT, "دعم GPT+18 — v${BuildConfig.VERSION_NAME}")
                             putExtra(
                                 Intent.EXTRA_TEXT,
@@ -166,7 +166,7 @@ fun SettingsScreen(
                         // إذا لا يوجد تطبيق بريد → نفتح Gmail web
                         try {
                             ctx.startActivity(
-                                Intent(Intent.ACTION_VIEW, Uri.parse("https://mail.google.com/mail/?view=cm&to=m.deep.cali@gmail.com"))
+                                Intent(Intent.ACTION_VIEW, Uri.parse("https://mail.google.com/mail/?view=cm&to=m.deep.cali@outlook.sa"))
                             )
                         } catch (_: Exception) { }
                     }

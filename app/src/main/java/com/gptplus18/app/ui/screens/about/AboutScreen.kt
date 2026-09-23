@@ -122,13 +122,14 @@ fun AboutScreen(onBack: () -> Unit = {}) {
 
             Spacer(Modifier.height(24.dp))
 
-            // روابط
-            SectionTitle(stringResource(R.string.t_093))
+            // ⭐ A1: معلومات عن التطبيق
+            SectionTitle("معلومات عن التطبيق")
 
-            LinkRow(stringResource(R.string.t_094), "@qesaasss", Icons.Default.Chat, "https://t.me/qesaasss")
-            LinkRow(stringResource(R.string.t_095), "@qisaasss", Icons.Default.Chat, "https://t.me/qisaasss")
-            LinkRow(stringResource(R.string.t_096), "@Qisas_Plus18_bot", Icons.Default.Send, "https://t.me/Qisas_Plus18_bot")
-            LinkRow(stringResource(R.string.t_097), "gptplus18.com", Icons.Default.Language, "https://gptplus18.com")
+            InfoRow("📱", "الإصدار", com.gptplus18.app.BuildConfig.VERSION_NAME)
+            InfoRow("🧠", "نماذج الذكاء", "Gemma 4 · Gemini · Claude")
+            InfoRow("🎨", "القدرات", "دردشة · برمجة · صور · أغاني · فيديو")
+            InfoRow("🌍", "اللغات المدعومة", "العربية · English")
+            InfoRow("🔒", "الخصوصية", "بياناتك مشفّرة وآمنة")
 
             Spacer(Modifier.height(24.dp))
             SectionTitle(stringResource(R.string.t_098))
@@ -155,6 +156,26 @@ fun AboutScreen(onBack: () -> Unit = {}) {
             Spacer(Modifier.height(24.dp))
         }
     }
+}
+
+@Composable
+private fun InfoRow(emoji: String, label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(BgSecondary, RoundedCornerShape(12.dp))
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(emoji, fontSize = 20.sp)
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(label, color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            Text(value, color = TextSecondary, fontSize = 12.sp,
+                modifier = Modifier.padding(top = 2.dp))
+        }
+    }
+    Spacer(Modifier.height(8.dp))
 }
 
 @Composable
