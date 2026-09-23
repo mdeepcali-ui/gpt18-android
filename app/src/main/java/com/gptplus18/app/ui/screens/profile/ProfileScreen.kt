@@ -301,6 +301,7 @@ private fun FontSizeOption(
     }
 }
 
+@androidx.compose.runtime.Composable
 private fun fontScaleLabel(scale: Float): String = when (scale) {
     0.85f -> stringResource(R.string.t_199)
     1.0f -> stringResource(R.string.t_200)

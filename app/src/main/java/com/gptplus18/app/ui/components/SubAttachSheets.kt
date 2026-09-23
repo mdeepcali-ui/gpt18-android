@@ -56,16 +56,25 @@ fun AddonsSheet(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
             )
-            SubItem(Icons.Default.Code, stringResource(R.string.t_241), stringResource(R.string.t_242)) {
-                onSelect(stringResource(R.string.t_243))
+            val s241 = stringResource(R.string.t_241)
+            val s242 = stringResource(R.string.t_242)
+            val s243 = stringResource(R.string.t_243)
+            SubItem(Icons.Default.Code, s241, s242) {
+                onSelect(s243)
                 onDismiss()
             }
-            SubItem(Icons.Default.Translate, stringResource(R.string.t_244), stringResource(R.string.t_245)) {
-                onSelect(stringResource(R.string.t_246))
+            val s244 = stringResource(R.string.t_244)
+            val s245 = stringResource(R.string.t_245)
+            val s246 = stringResource(R.string.t_246)
+            SubItem(Icons.Default.Translate, s244, s245) {
+                onSelect(s246)
                 onDismiss()
             }
-            SubItem(Icons.Default.Brush, stringResource(R.string.t_247), stringResource(R.string.t_248)) {
-                onSelect(stringResource(R.string.t_249))
+            val s247 = stringResource(R.string.t_247)
+            val s248 = stringResource(R.string.t_248)
+            val s249 = stringResource(R.string.t_249)
+            SubItem(Icons.Default.Brush, s247, s248) {
+                onSelect(s249)
                 onDismiss()
             }
             Spacer(Modifier.height(16.dp))
@@ -100,12 +109,18 @@ fun DeepThinkSheet(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
             )
-            SubItem(Icons.Default.Psychology, stringResource(R.string.t_250), stringResource(R.string.t_251)) {
-                onSelect(stringResource(R.string.t_252))
+            val s250 = stringResource(R.string.t_250)
+            val s251 = stringResource(R.string.t_251)
+            val s252 = stringResource(R.string.t_252)
+            SubItem(Icons.Default.Psychology, s250, s251) {
+                onSelect(s252)
                 onDismiss()
             }
-            SubItem(Icons.Default.Lightbulb, stringResource(R.string.t_253), stringResource(R.string.t_254)) {
-                onSelect(stringResource(R.string.t_255))
+            val s253 = stringResource(R.string.t_253)
+            val s254 = stringResource(R.string.t_254)
+            val s255 = stringResource(R.string.t_255)
+            SubItem(Icons.Default.Lightbulb, s253, s254) {
+                onSelect(s255)
                 onDismiss()
             }
             Spacer(Modifier.height(16.dp))

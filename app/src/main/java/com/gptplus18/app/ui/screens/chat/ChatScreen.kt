@@ -438,11 +438,12 @@ fun ChatScreen(
             msg = msg,
             onCopy = { clip.setText(AnnotatedString(msg.content)) },
             onShare = {
+                val chooserTitle = ctx.getString(R.string.t_133)
                 val intent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, msg.content)
                 }
-                ctx.startActivity(Intent.createChooser(intent, stringResource(R.string.t_133)))
+                ctx.startActivity(Intent.createChooser(intent, chooserTitle))
             },
             onReply = { vm.setReplyTo(msg) },
             onDelete = null,
