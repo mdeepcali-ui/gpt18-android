@@ -149,7 +149,7 @@ fun ChatScreen(
 
     // 🆕 عند فتح الشاشة لأول مرة — لو ما في sessions، افتح شات جديدة
     LaunchedEffect(Unit) {
-        if (state.currentSessionId == null && state.sessions.isEmpty() && !state.isLoadingSessions) {
+        if (state.currentSessionId == null && state.sessions.isEmpty()) {
             vm.newChat()
         }
     }
