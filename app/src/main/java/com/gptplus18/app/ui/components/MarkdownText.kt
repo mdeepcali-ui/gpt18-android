@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -83,7 +84,6 @@ fun MarkdownText(
                     text = SensitiveMarkers.apply(block.content, textColor),
                     color = textColor,
                     fontSize = fontSize.sp,
-                    textDirection = TextDirection.Content,
                 )
             }
         }
@@ -150,7 +150,7 @@ private fun CodeBlockView(lang: String, code: String) {
                     fontFamily = FontFamily.Monospace,
                     fontSize = 14.sp,
                     softWrap = false,
-                    textDirection = TextDirection.Ltr,
+                    style = TextStyle(textDirection = TextDirection.Ltr),
                 )
             }
         }
