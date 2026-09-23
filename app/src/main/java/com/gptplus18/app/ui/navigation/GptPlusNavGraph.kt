@@ -26,7 +26,6 @@ import com.gptplus18.app.ui.screens.subscription.SubscriptionScreen
 import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.BgPrimary
 import com.gptplus18.app.ui.theme.BgSecondary
-import com.gptplus18.app.ui.theme.TextSecondary
 
 object Routes {
     const val SPLASH = "splash"
@@ -57,36 +56,9 @@ fun GptPlusNavGraph(
         }
     }
 
-    val showBottomBar = currentRoute in setOf(
-        Routes.CHAT, Routes.CODE, Routes.MEDIA, Routes.SUBSCRIPTION, Routes.PROFILE
-    )
-
     Scaffold(
         containerColor = BgPrimary,
-        bottomBar = {
-            if (showBottomBar) {
-                NavigationBar(containerColor = BgSecondary) {
-                    BottomNavItem.entries.forEach { item ->
-                        NavigationBarItem(
-                            selected = currentRoute == item.route,
-                            onClick = {
-                                navController.navigate(item.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = { Icon(item.icon, item.label,
-                                tint = if (currentRoute == item.route) Accent else TextSecondary) },
-                            label = { Text(item.label,
-                                color = if (currentRoute == item.route) Accent else TextSecondary,
-                                fontSize = 10.sp) },
-                            colors = NavigationBarItemDefaults.colors(indicatorColor = Color.Transparent),
-                        )
-                    }
-                }
-            }
-        },
+        // 🗑️ تم حذف BottomNav — التنقل عبر Drawer + ModeDropdown
     ) { padding ->
         NavHost(
             navController = navController,

@@ -64,7 +64,10 @@ class GptPlus18App : Application(), ImageLoaderFactory {
                     .maxSizeBytes(100L * 1024 * 1024)
                     .build()
             }
-            .crossfade(true)
+            // ❌ لا crossfade — يكسر تشغيل GIF
+            .crossfade(false)
+            // ⚠️ مهم للـ GIF: Bitmap عادي بدل Hardware
+            .allowHardware(false)
             .build()
     }
 }

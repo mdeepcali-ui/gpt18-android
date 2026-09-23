@@ -18,21 +18,20 @@ private val Context.prefsDataStore by preferencesDataStore(name = "app_prefs")
 class PreferencesRepository @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
-    // ─── المفاتيح ───
     private val KEY_DARK = booleanPreferencesKey("dark_mode")
     private val KEY_LANG = stringPreferencesKey("app_lang")
     private val KEY_FONT_SCALE = floatPreferencesKey("font_scale")
     private val KEY_ONBOARDING = booleanPreferencesKey("onboarding_done")
     private val KEY_CODE_MODEL = stringPreferencesKey("code_model")
+    private val KEY_NOTIFICATIONS = booleanPreferencesKey("notifications_enabled")
 
-    // ─── Flows ───
     val darkModeFlow: Flow<Boolean> = context.prefsDataStore.data.map { it[KEY_DARK] ?: true }
     val langFlow: Flow<String> = context.prefsDataStore.data.map { it[KEY_LANG] ?: "ar" }
     val fontScaleFlow: Flow<Float> = context.prefsDataStore.data.map { it[KEY_FONT_SCALE] ?: 1.0f }
     val onboardingDoneFlow: Flow<Boolean> = context.prefsDataStore.data.map { it[KEY_ONBOARDING] ?: false }
     val codeModelFlow: Flow<String> = context.prefsDataStore.data.map { it[KEY_CODE_MODEL] ?: "auto" }
+    val notificationsFlow: Flow<Boolean> = context.prefsDataStore.data.map { it[KEY_NOTIFICATIONS] ?: false }
 
-    // ─── Setters ───
     suspend fun setDarkMode(enabled: Boolean) {
         context.prefsDataStore.edit { it[KEY_DARK] = enabled }
     }
@@ -52,5 +51,9 @@ class PreferencesRepository @Inject constructor(
 
     suspend fun setCodeModel(key: String) {
         context.prefsDataStore.edit { it[KEY_CODE_MODEL] = key }
+    }
+
+    suspend fun setNotifications(enabled: Boolean) {
+        context.prefsDataStore.edit { it[KEY_NOTIFICATIONS] = enabled }
     }
 }

@@ -1,9 +1,7 @@
 package com.gptplus18.app.ui.screens.chat
 
-import android.Manifest
 import android.content.Intent
 import android.net.Uri
-import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -16,14 +14,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -31,7 +30,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -41,23 +42,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.gptplus18.app.data.models.ChatMode
 import com.gptplus18.app.data.models.Message
 import com.gptplus18.app.data.models.Session
-import com.gptplus18.app.util.AutoRouter
-import com.gptplus18.app.ui.components.AppDrawerContent
 import com.gptplus18.app.ui.components.AddonsSheet
+import com.gptplus18.app.ui.components.AppDrawerContent
 import com.gptplus18.app.ui.components.AttachMenuSheet
-import com.gptplus18.app.ui.components.DeepThinkSheet
 import com.gptplus18.app.ui.components.ChatGptComposer
+import com.gptplus18.app.ui.components.DeepThinkSheet
 import com.gptplus18.app.ui.components.FullscreenImageViewer
 import com.gptplus18.app.ui.components.MarkdownText
 import com.gptplus18.app.ui.components.MessageActionsSheet
 import com.gptplus18.app.ui.components.MessageTimestamp
-import com.gptplus18.app.ui.components.ModeSelector
-import com.gptplus18.app.ui.components.ThinkingProcess
 import com.gptplus18.app.ui.components.TypingIndicator
 import com.gptplus18.app.ui.theme.*
 import kotlinx.coroutines.launch
+
+private val UserBubbleBg = Color(0xFF0D0D0D)
+private val UserBubbleBorder = Color(0xFF2A2A2A)
+private val DrawerSheetBg = Color(0xFF0D0D0D)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -87,40 +90,6 @@ fun ChatScreen(
     var fullscreenImage by remember { mutableStateOf<String?>(null) }
     var actionsSheetFor by remember { mutableStateOf<Message?>(null) }
 
-    // ─── Voice Input ───
-    val voiceLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult(),
-    ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
-            val text = result.data
-                ?.getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS)
-                ?.firstOrNull()
-            if (!text.isNullOrBlank()) input = text
-        }
-    }
-
-    val micPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { granted ->
-        if (granted) {
-            val intent = Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                putExtra(
-                    android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                    android.speech.RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
-                )
-                putExtra(
-                    android.speech.RecognizerIntent.EXTRA_LANGUAGE,
-                    java.util.Locale.getDefault().toString(),
-                )
-                putExtra(android.speech.RecognizerIntent.EXTRA_PROMPT, "تحدث الآن...")
-            }
-            try {
-                voiceLauncher.launch(intent)
-            } catch (_: Exception) { }
-        }
-    }
-
-    // ─── Camera Launcher ───
     var cameraUri by remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture(),
@@ -135,14 +104,9 @@ fun ChatScreen(
 
     fun launchCamera() {
         try {
-            val file = java.io.File(
-                ctx.cacheDir,
-                "cam_${System.currentTimeMillis()}.jpg"
-            )
+            val file = java.io.File(ctx.cacheDir, "cam_${System.currentTimeMillis()}.jpg")
             val uri = androidx.core.content.FileProvider.getUriForFile(
-                ctx,
-                "${ctx.packageName}.fileprovider",
-                file,
+                ctx, "${ctx.packageName}.fileprovider", file,
             )
             cameraUri = uri
             cameraLauncher.launch(uri)
@@ -224,50 +188,54 @@ fun ChatScreen(
                                 Icon(Icons.Default.Close, "إغلاق", tint = Accent)
                             }
                         },
-                        colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPrimary),
                     )
                 } else {
                     TopAppBar(
                         title = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                if (state.currentSessionId == null) {
-                                    Text("محادثاتك", color = TextPrimary, fontWeight = FontWeight.Bold)
-                                } else {
-                                    ModeSelector(
-                                        currentMode = state.currentMode,
-                                        isSubscribed = state.isSubscribed,
-                                        onModeSelected = { vm.setMode(it) },
-                                    )
-                                }
+                            if (state.currentSessionId == null) {
+                                Text("محادثاتك", color = TextPrimary,
+                                    fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            } else {
+                                ModeDropdown(
+                                    current = state.currentMode,
+                                    onSelect = { mode ->
+                                        vm.setMode(mode)
+                                        when (mode) {
+                                            ChatMode.CODE -> onNavigateToCode()
+                                            ChatMode.MEDIA -> onNavigateToMedia()
+                                            else -> {}
+                                        }
+                                    },
+                                )
                             }
                         },
                         navigationIcon = {
-                            if (state.currentSessionId != null) {
-                                IconButton(onClick = { vm.backToList() }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "رجوع", tint = Accent)
-                                }
-                            } else {
-                                IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                    Icon(Icons.Default.Menu, "القائمة", tint = Accent)
-                                }
+                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                Icon(Icons.Default.Menu, "القائمة", tint = TextPrimary)
                             }
                         },
                         actions = {
                             if (state.currentSessionId == null) {
                                 IconButton(onClick = { showSearch = true }) {
-                                    Icon(Icons.Default.Search, "بحث", tint = Accent)
+                                    Icon(Icons.Default.Search, "بحث", tint = TextPrimary)
                                 }
                                 IconButton(onClick = { vm.newChat() }) {
                                     Icon(Icons.Default.Add, "جديدة", tint = Accent)
                                 }
                             }
                         },
-                        colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPrimary),
                     )
                 }
             },
         ) { padding ->
-            Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .imePadding(),
+            ) {
                 if (state.currentSessionId == null) {
                     var isRefreshing by remember { mutableStateOf(false) }
                     LaunchedEffect(state.sessions) { isRefreshing = false }
@@ -286,11 +254,12 @@ fun ChatScreen(
                     Column(Modifier.fillMaxSize()) {
                         LazyColumn(
                             state = listState,
-                            modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(vertical = 12.dp),
+                            modifier = Modifier.weight(1f).fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         ) {
-                            items(state.messages, key = { it.id.toString() + it.ts }) { msg ->
+                            val visibleMessages = state.messages.filter { it.role != "thinking" }
+                            items(visibleMessages, key = { it.id.toString() + it.ts }) { msg ->
                                 MessageBubble(
                                     msg = msg,
                                     onImageClick = { url -> fullscreenImage = url },
@@ -302,7 +271,7 @@ fun ChatScreen(
                             if (state.isSending || state.isUploading) {
                                 item {
                                     Column(
-                                        Modifier.fillMaxWidth().padding(8.dp),
+                                        Modifier.fillMaxWidth().padding(vertical = 8.dp),
                                         verticalArrangement = Arrangement.spacedBy(8.dp),
                                     ) {
                                         TypingIndicator(
@@ -313,14 +282,33 @@ fun ChatScreen(
                                                 else -> "think"
                                             }
                                         )
-                                        // نعرض التفكير الحقيقي إذا موجود
-                                        val lastThinking = state.thinkingByMessage.values.lastOrNull()
-                                        if (lastThinking != null) {
-                                            ThinkingProcess(
-                                                status = state.statusLabel,
-                                                steps = lastThinking.steps,
-                                                rawText = lastThinking.rawText,
-                                            )
+
+                                        // 🎨 التفكير — نص رمادي صغير (يختفي لما الرد يبدأ)
+                                        if (state.statusLabel != "يكتب") {
+                                            val lastThinking = state.thinkingByMessage.values.lastOrNull()
+                                            val thinkingText = buildString {
+                                                val raw = lastThinking?.rawText?.trim().orEmpty()
+                                                if (raw.isNotBlank()) {
+                                                    append(raw)
+                                                } else {
+                                                    val steps = lastThinking?.steps.orEmpty()
+                                                    if (steps.isNotEmpty()) {
+                                                        append(steps.joinToString("
+") { "• $it" })
+                                                    }
+                                                }
+                                            }
+                                            if (thinkingText.isNotBlank()) {
+                                                Text(
+                                                    text = thinkingText,
+                                                    color = TextTertiary,
+                                                    fontSize = 11.sp,
+                                                    lineHeight = 16.sp,
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(horizontal = 4.dp),
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -337,19 +325,13 @@ fun ChatScreen(
                             enabled = !state.isSending && !state.isUploading,
                             attachments = state.pendingAttachments,
                             onAttachClick = { showAttachSheet = true },
-                            onVoiceClick = {
-                                micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                            },
                             onSend = {
-                                // ─── Auto-Routing ───
                                 if (input.isNotBlank()) {
-                                    val suggested = AutoRouter.suggestMode(input)
-                                    // فقط إذا كان مختلف عن الحالي ومش CHAT
-                                    if (suggested != state.currentMode && suggested != com.gptplus18.app.data.models.ChatMode.CHAT) {
+                                    val suggested = com.gptplus18.app.util.AutoRouter.suggestMode(input)
+                                    if (suggested != state.currentMode && suggested != ChatMode.CHAT) {
                                         vm.setMode(suggested)
                                     }
                                 }
-
                                 if (state.pendingAttachments.isNotEmpty()) {
                                     vm.sendWithAttachments(input)
                                 } else if (input.isNotBlank()) {
@@ -431,6 +413,73 @@ fun ChatScreen(
     }
 }
 
+@Composable
+private fun ModeDropdown(
+    current: ChatMode,
+    onSelect: (ChatMode) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val (label, icon) = when (current) {
+        ChatMode.CODE -> "Code" to Icons.Default.Code
+        ChatMode.MEDIA -> "Media" to Icons.Default.Movie
+        else -> "Chat" to Icons.AutoMirrored.Filled.Chat
+    }
+
+    Box {
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .clickable { expanded = true }
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(icon, null, tint = TextPrimary, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text(label, color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+            Icon(Icons.Default.ExpandMore, null, tint = TextSecondary,
+                modifier = Modifier.size(18.dp))
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            containerColor = DrawerSheetBg,
+        ) {
+            ModeMenuItem("دردشة", Icons.AutoMirrored.Filled.Chat,
+                current == ChatMode.CHAT || current == ChatMode.MAX) {
+                onSelect(ChatMode.CHAT); expanded = false
+            }
+            ModeMenuItem("برمجة", Icons.Default.Code, current == ChatMode.CODE) {
+                onSelect(ChatMode.CODE); expanded = false
+            }
+            ModeMenuItem("ميديا", Icons.Default.Movie, current == ChatMode.MEDIA) {
+                onSelect(ChatMode.MEDIA); expanded = false
+            }
+        }
+    }
+}
+
+@Composable
+private fun ModeMenuItem(
+    label: String,
+    icon: ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    DropdownMenuItem(
+        text = {
+            Text(
+                label,
+                color = if (selected) Accent else TextPrimary,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            )
+        },
+        onClick = onClick,
+        leadingIcon = {
+            Icon(icon, null, tint = if (selected) Accent else TextSecondary)
+        },
+    )
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SessionsList(
@@ -455,14 +504,17 @@ private fun SessionsList(
     ) {
         items(sessions, key = { it.id }) { s ->
             Card(
-                modifier = Modifier.fillMaxWidth().combinedClickable(
-                    onClick = { onOpen(s) },
-                    onLongClick = { onLongPress(s) },
-                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(4.dp, RoundedCornerShape(14.dp))
+                    .combinedClickable(
+                        onClick = { onOpen(s) },
+                        onLongClick = { onLongPress(s) },
+                    ),
                 colors = CardDefaults.cardColors(containerColor = BgSecondary),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(14.dp),
             ) {
-                Column(Modifier.padding(14.dp)) {
+                Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(s.title, color = TextPrimary, fontWeight = FontWeight.SemiBold,
                             fontSize = 15.sp, modifier = Modifier.weight(1f))
@@ -501,21 +553,56 @@ private fun MessageBubble(
     ) {
         Column(
             horizontalAlignment = if (isUser) Alignment.End else Alignment.Start,
-            modifier = Modifier.widthIn(max = 320.dp),
+            modifier = if (isUser) Modifier.widthIn(max = 320.dp) else Modifier.fillMaxWidth(),
         ) {
-            Surface(
-                color = if (isUser) Color(0xFF2F2F2F) else Color(0xFF1E1E1E),
-                shape = RoundedCornerShape(
-                    topStart = 20.dp, topEnd = 20.dp,
-                    bottomStart = if (isUser) 20.dp else 6.dp,
-                    bottomEnd = if (isUser) 6.dp else 20.dp,
-                ),
-                modifier = Modifier.combinedClickable(
-                    onClick = { },
-                    onLongClick = onLongPress,
-                ),
-            ) {
-                Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+            if (isUser) {
+                Surface(
+                    color = UserBubbleBg,
+                    shape = RoundedCornerShape(20.dp),
+                    border = androidx.compose.foundation.BorderStroke(0.5.dp, UserBubbleBorder),
+                    shadowElevation = 4.dp,
+                    modifier = Modifier.combinedClickable(
+                        onClick = { },
+                        onLongClick = onLongPress,
+                    ),
+                ) {
+                    Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                        if (imageUrl != null) {
+                            AsyncImage(
+                                model = imageUrl,
+                                contentDescription = "صورة",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 300.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .combinedClickable(
+                                        onClick = { onImageClick(imageUrl) },
+                                        onLongClick = onLongPress,
+                                    ),
+                            )
+                            if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
+                        }
+                        if (cleanText.isNotBlank()) {
+                            Text(
+                                cleanText,
+                                color = TextPrimary,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                lineHeight = 22.sp,
+                            )
+                        }
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .combinedClickable(
+                            onClick = { },
+                            onLongClick = onLongPress,
+                        ),
+                ) {
                     if (imageUrl != null) {
                         AsyncImage(
                             model = imageUrl,
@@ -523,7 +610,8 @@ private fun MessageBubble(
                             contentScale = ContentScale.Fit,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .heightIn(max = 300.dp)
+                                .heightIn(max = 320.dp)
+                                .clip(RoundedCornerShape(12.dp))
                                 .combinedClickable(
                                     onClick = { onImageClick(imageUrl) },
                                     onLongClick = onLongPress,
@@ -531,7 +619,6 @@ private fun MessageBubble(
                         )
                         if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
-
                     if (audioUrl != null) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -539,19 +626,13 @@ private fun MessageBubble(
                         ) {
                             Text("🎵", fontSize = 20.sp)
                             Spacer(Modifier.width(8.dp))
-                            Text("مقطع صوتي",
-                                color = if (isUser) Color.White else TextPrimary,
+                            Text("مقطع صوتي", color = TextPrimary,
                                 fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         }
                         if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
-
                     if (cleanText.isNotBlank()) {
-                        if (isUser) {
-                            Text(cleanText, color = Color.White, fontSize = 16.sp)
-                        } else {
-                            MarkdownText(cleanText, textColor = TextPrimary, fontSize = 16)
-                        }
+                        MarkdownText(cleanText, textColor = TextPrimary, fontSize = 16)
                     }
                 }
             }
@@ -565,18 +646,13 @@ private fun MessageBubble(
             ) {
                 MessageTimestamp(msg.ts)
 
-                if (!isUser) {
-                    ActionButton(
-                        icon = Icons.Default.ContentCopy,
-                        label = "نسخ",
-                        onClick = { onCopy(cleanText) },
-                    )
-                } else {
-                    ActionButton(
-                        icon = Icons.Default.ContentCopy,
-                        label = "نسخ",
-                        onClick = { onCopy(cleanText) },
-                    )
+                ActionButton(
+                    icon = Icons.Default.ContentCopy,
+                    label = "نسخ",
+                    onClick = { onCopy(cleanText) },
+                )
+
+                if (isUser) {
                     ActionButton(
                         icon = Icons.Default.Edit,
                         label = "تعديل",
@@ -590,7 +666,7 @@ private fun MessageBubble(
 
 @Composable
 private fun ActionButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     label: String,
     onClick: () -> Unit,
 ) {

@@ -72,12 +72,12 @@ fun MarkdownText(
                 is MdBlock.Bullet -> Row(Modifier.fillMaxWidth()) {
                     Text("• ", color = Accent, fontSize = fontSize.sp)
                     Text(
-                        text = inlineMarkdown(block.content, textColor),
+                        text = SensitiveMarkers.apply(block.content, textColor),
                         fontSize = fontSize.sp,
                     )
                 }
                 is MdBlock.Paragraph -> Text(
-                    text = inlineMarkdown(block.content, textColor),
+                    text = SensitiveMarkers.apply(block.content, textColor),
                     color = textColor,
                     fontSize = fontSize.sp,
                 )

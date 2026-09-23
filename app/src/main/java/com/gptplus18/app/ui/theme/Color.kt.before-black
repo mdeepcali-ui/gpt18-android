@@ -3,19 +3,18 @@ package com.gptplus18.app.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // ═══════════════════════════════════════════
-// 🌙 Dark Theme — أسود قاتم صافي
+// 🌙 Dark Theme
 // ═══════════════════════════════════════════
-val DarkBg = Color(0xFF000000)              // أسود صافي
-val DarkSurface = Color(0xFF0D0D0D)         // أسود خفيف للبطاقات
-val DarkSurfaceVariant = Color(0xFF1A1A1A)  // رمادي غامق جداً
+val DarkBg = Color(0xFF0A0A0C)
+val DarkSurface = Color(0xFF141418)
+val DarkSurfaceVariant = Color(0xFF1C1C22)
 
 val DarkTextPrimary = Color(0xFFECECEC)
-val DarkTextSecondary = Color(0xFFA0A0A0)
-val DarkTextTertiary = Color(0xFF6B6B6B)
+val DarkTextSecondary = Color(0xFFA8A8B0)
+val DarkTextTertiary = Color(0xFF7A7A82)
 
-// ✨ Accent — أخضر ChatGPT
-val DarkAccent = Color(0xFF10A37F)
-val DarkAccentContainer = Color(0xFF0D8B6C)
+val DarkAccent = Color(0xFFA78BFA)
+val DarkAccentContainer = Color(0xFF7C5CFF)
 
 // ═══════════════════════════════════════════
 // ☀️ Light Theme
@@ -28,8 +27,8 @@ val LightTextPrimary = Color(0xFF1A1A1C)
 val LightTextSecondary = Color(0xFF5A5A62)
 val LightTextTertiary = Color(0xFF8A8A92)
 
-val LightAccent = Color(0xFF10A37F)
-val LightAccentContainer = Color(0xFF0D8B6C)
+val LightAccent = Color(0xFF7C5CFF)
+val LightAccentContainer = Color(0xFF9B7BFF)
 
 // ═══════════════════════════════════════════
 // Semantic (ثابتة)

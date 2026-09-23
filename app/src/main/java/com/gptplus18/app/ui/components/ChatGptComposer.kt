@@ -1,9 +1,13 @@
 package com.gptplus18.app.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,10 +16,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -32,8 +44,9 @@ import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.ui.theme.TextTertiary
 
 private val BgBlack = Color(0xFF000000)
-private val ComposerBg = Color(0xFF2F2F2F)
-private val SendBlue = Color(0xFF0A84FF)
+private val ComposerBg = Color(0xFF0D0D0D)
+private val ComposerBorder = Color(0xFF2A2A2A)
+private val SendGreen = Color(0xFF10A37F)
 private val IconGray = Color(0xFFB4B4B4)
 private val CloseBtnBg = Color(0xFF4A4A4A)
 
@@ -44,11 +57,11 @@ fun ChatGptComposer(
     enabled: Boolean,
     attachments: List<Attachment>,
     onAttachClick: () -> Unit,
-    onVoiceClick: () -> Unit,
     onSend: () -> Unit,
     onRemoveAttachment: (Long) -> Unit,
 ) {
     val hasText = value.isNotBlank()
+    var showEmojiSheet by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -61,16 +74,16 @@ fun ChatGptComposer(
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(
-                    elevation = 8.dp,
+                    elevation = 12.dp,
                     shape = RoundedCornerShape(26.dp),
-                    ambientColor = Color.Black.copy(alpha = 0.4f),
-                    spotColor = Color.Black.copy(alpha = 0.4f),
+                    ambientColor = Color.Black.copy(alpha = 0.6f),
+                    spotColor = Color.Black.copy(alpha = 0.6f),
                 )
                 .clip(RoundedCornerShape(26.dp))
                 .background(ComposerBg)
+                .border(0.5.dp, ComposerBorder, RoundedCornerShape(26.dp))
                 .padding(6.dp),
         ) {
-            // ═══ المرفقات ═══
             if (attachments.isNotEmpty()) {
                 LazyRow(
                     modifier = Modifier
@@ -88,7 +101,6 @@ fun ChatGptComposer(
                 Spacer(Modifier.height(4.dp))
             }
 
-            // ═══ حقل الإدخال ═══
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -110,7 +122,7 @@ fun ChatGptComposer(
                         fontSize = 16.sp,
                         lineHeight = 22.sp,
                     ),
-                    cursorBrush = SolidColor(SendBlue),
+                    cursorBrush = SolidColor(SendGreen),
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 24.dp, max = 160.dp),
@@ -118,21 +130,42 @@ fun ChatGptComposer(
                 )
             }
 
-            // ═══ صف الأزرار ═══
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 2.dp, vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // يسار: waveform/إرسال + مايك
+                // إيموجي
+                Icon(
+                    Icons.Default.EmojiEmotions,
+                    "إيموجي",
+                    tint = IconGray,
+                    modifier = Modifier
+                        .size(26.dp)
+                        .clickable(enabled = enabled) { showEmojiSheet = true },
+                )
+                Spacer(Modifier.width(10.dp))
+
+                // +
+                Icon(
+                    Icons.Default.Add,
+                    "إرفاق",
+                    tint = IconGray,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clickable(enabled = enabled, onClick = onAttachClick),
+                )
+
+                Spacer(Modifier.weight(1f))
+
+                // إرسال (يظهر فقط عند الكتابة)
                 if (hasText) {
-                    // زر إرسال
                     Box(
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(38.dp)
                             .clip(CircleShape)
-                            .background(SendBlue)
+                            .background(SendGreen)
                             .clickable(enabled = enabled, onClick = onSend),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -143,48 +176,79 @@ fun ChatGptComposer(
                             modifier = Modifier.size(20.dp),
                         )
                     }
-                    Spacer(Modifier.width(6.dp))
-                    Icon(
-                        Icons.Default.Mic,
-                        "صوت",
-                        tint = IconGray,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable(enabled = enabled, onClick = onVoiceClick),
-                    )
-                } else {
-                    // waveform + مايك
-                    Box(
-                        modifier = Modifier.clickable(enabled = enabled, onClick = onVoiceClick),
-                    ) {
-                        WaveformButton()
-                    }
-                    Spacer(Modifier.width(6.dp))
-                    Icon(
-                        Icons.Default.Mic,
-                        "صوت",
-                        tint = IconGray,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable(enabled = enabled, onClick = onVoiceClick),
-                    )
                 }
-
-                Spacer(Modifier.weight(1f))
-
-                // يمين: +
-                Icon(
-                    Icons.Default.Add,
-                    "إرفاق",
-                    tint = IconGray,
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clickable(enabled = enabled, onClick = onAttachClick),
-                )
             }
         }
     }
+
+    if (showEmojiSheet) {
+        EmojiPickerSheet(
+            onDismiss = { showEmojiSheet = false },
+            onSelect = { emoji ->
+                onValueChange(value + emoji)
+            },
+        )
+    }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EmojiPickerSheet(
+    onDismiss: () -> Unit,
+    onSelect: (String) -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState()
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color(0xFF0D0D0D),
+    ) {
+        Column(Modifier.fillMaxWidth().padding(16.dp)) {
+            Text(
+                "الإيموجيات",
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 12.dp),
+            )
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(7),
+                modifier = Modifier.fillMaxWidth().heightIn(max = 360.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                items(COMMON_EMOJIS) { emoji ->
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { onSelect(emoji) },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(emoji, fontSize = 26.sp)
+                    }
+                }
+            }
+            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+private val COMMON_EMOJIS = listOf(
+    "😀","😃","😄","😁","😅","😂","🤣","😊",
+    "😇","🙂","🙃","😉","😌","😍","🥰","😘",
+    "😗","😙","😚","😋","😛","😝","😜","🤪",
+    "🤨","🧐","🤓","😎","🥳","😏","😒","😞",
+    "😔","😟","😕","🙁","😣","😖","😫","😩",
+    "🥺","😢","😭","😤","😠","😡","🤬","🤯",
+    "😳","🥵","🥶","😱","😨","😰","😥","😓",
+    "🤗","🤔","🤭","🤫","🤥","😶","😐","😑",
+    "❤️","🧡","💛","💚","💙","💜","🖤","🤍",
+    "👍","👎","👌","✌️","🤞","🤟","🤘","🤙",
+    "👋","🤚","🖐️","✋","🖖","👏","🙌","🤝",
+    "🙏","💪","🦾","✨","🔥","⭐","🌟","💫",
+    "🎉","🎊","🎁","🎈","🎂","🍕","🍔","☕",
+)
 
 @Composable
 private fun AttachmentChip(
@@ -213,7 +277,6 @@ private fun AttachmentChip(
             }
         }
 
-        // X
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
@@ -232,7 +295,6 @@ private fun AttachmentChip(
             )
         }
 
-        // Progress
         if (attachment.isUploading) {
             Box(
                 modifier = Modifier
@@ -245,7 +307,7 @@ private fun AttachmentChip(
                     modifier = Modifier
                         .fillMaxHeight()
                         .fillMaxWidth(attachment.progress)
-                        .background(SendBlue),
+                        .background(SendGreen),
                 )
             }
         }

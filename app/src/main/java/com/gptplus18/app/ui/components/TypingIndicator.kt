@@ -10,6 +10,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.platform.LocalContext
 import com.gptplus18.app.ui.theme.TextSecondary
 
 @Composable
@@ -33,13 +35,18 @@ fun TypingIndicator(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // الـ GIF — كبير وواضح
+        val ctx = LocalContext.current
         AsyncImage(
-            model = gifUrl,
+            model = ImageRequest.Builder(ctx)
+                .data(gifUrl)
+                .crossfade(false)
+                .allowHardware(false)
+                .build(),
             contentDescription = label,
             contentScale = ContentScale.Fit,
             modifier = Modifier
-                .height(40.dp)
-                .widthIn(min = 100.dp, max = 180.dp),
+                .height(48.dp)
+                .widthIn(min = 120.dp, max = 220.dp),
         )
 
         Spacer(Modifier.width(8.dp))

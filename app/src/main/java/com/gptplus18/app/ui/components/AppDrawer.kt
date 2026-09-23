@@ -4,15 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AdminPanelSettings
-import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -46,7 +43,7 @@ fun AppDrawerContent(
     ) {
         Spacer(Modifier.height(20.dp))
 
-        // Header
+        // ═══ Header: صورة + اسم + إيميل ═══
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -59,7 +56,9 @@ fun AppDrawerContent(
             ) {
                 Text(
                     userName.take(1).uppercase().ifEmpty { "?" },
-                    fontSize = 22.sp, fontWeight = FontWeight.Bold, color = BgPrimary,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
                 )
             }
             Spacer(Modifier.width(12.dp))
@@ -73,16 +72,14 @@ fun AppDrawerContent(
         Divider(color = TextSecondary.copy(alpha = 0.15f))
         Spacer(Modifier.height(8.dp))
 
-        // New Chat
+        // ═══ محادثة جديدة ═══
         DrawerItem("محادثة جديدة", Icons.Default.Add, onNewChat, Accent)
 
         Spacer(Modifier.height(4.dp))
         Divider(color = TextSecondary.copy(alpha = 0.15f))
         Spacer(Modifier.height(4.dp))
 
-        DrawerItem("الدردشة", Icons.Default.Person, onChat)
-        DrawerItem("البرمجة", Icons.Default.Code, onCode)
-        DrawerItem("الوسائط", Icons.Default.Movie, onMedia)
+        // ═══ الأقسام الأساسية ═══
         DrawerItem("الاشتراك", Icons.Default.CreditCard, onSubscription)
         DrawerItem("الملف الشخصي", Icons.Default.Person, onProfile)
 
@@ -95,6 +92,7 @@ fun AppDrawerContent(
 
         Spacer(Modifier.weight(1f))
 
+        // ═══ الأسفل ═══
         Divider(color = TextSecondary.copy(alpha = 0.15f))
         DrawerItem("اللغة (AR/EN)", Icons.Default.Language, onLanguageToggle)
         DrawerItem("تسجيل خروج", Icons.AutoMirrored.Filled.Logout, onLogout, Color(0xFFEF4444))

@@ -17,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -105,21 +106,52 @@ fun SettingsScreen(
                 }
             }
 
-            // ─── الإشعارات ───
-            SectionTitle("الإشعارات")
+              // ─── الإشعارات ───
+              SectionTitle("الإشعارات")
 
-            SettingRow(
-                icon = Icons.Default.Notifications,
-                title = "إشعارات Push",
-                subtitle = "قريباً",
-            ) {
-                Switch(
-                    checked = false,
-                    onCheckedChange = { },
-                    enabled = false,
-                    colors = SwitchDefaults.colors(checkedTrackColor = Accent),
-                )
-            }
+              SettingRow(
+                  icon = Icons.Default.Notifications,
+                  title = "إشعارات Push",
+                  subtitle = when {
+                      state.notificationsLoading -> "جاري التفعيل..."
+                      state.notificationsEnabled -> "مفعّلة — رح توصلك تنبيهات"
+                      else -> "معطّلة"
+                  },
+              ) {
+                  if (state.notificationsLoading) {
+                      CircularProgressIndicator(
+                          modifier = Modifier.size(22.dp),
+                          color = Accent,
+                          strokeWidth = 2.dp,
+                      )
+                  } else {
+                      Switch(
+                          checked = state.notificationsEnabled,
+                          onCheckedChange = { vm.setNotificationsEnabled(it) },
+                          colors = SwitchDefaults.colors(checkedTrackColor = Accent),
+                      )
+                  }
+              }
+
+              // خطأ الإشعارات
+              state.notificationsError?.let { err ->
+                  Row(
+                      modifier = Modifier
+                          .fillMaxWidth()
+                          .padding(horizontal = 4.dp, vertical = 4.dp),
+                      verticalAlignment = Alignment.CenterVertically,
+                  ) {
+                      Text(
+                          text = "⚠️ $err",
+                          color = Color(0xFFFF6B6B),
+                          fontSize = 12.sp,
+                          modifier = Modifier.weight(1f),
+                      )
+                      TextButton(onClick = { vm.dismissNotificationError() }) {
+                          Text("حسناً", color = Accent, fontSize = 12.sp)
+                      }
+                  }
+              }
 
             // ─── أخرى ───
             SectionTitle("أخرى")
