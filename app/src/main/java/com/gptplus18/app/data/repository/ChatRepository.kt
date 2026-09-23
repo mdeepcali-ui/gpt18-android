@@ -24,6 +24,15 @@ class ChatRepository @Inject constructor(
     }
 
     suspend fun listSessions(): Result<List<Session>> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.listSessions(b)
+            if (r.isSuccessful) Result.Success(r.body()!!.items)
+            else Result.Error("فشل تحميل الجلسات (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ")
+        }
+    }
 
     // 📋 جلسات موحّدة (Chat + Code)
     suspend fun listAllSessions(): Result<List<AllSession>> {
@@ -37,15 +46,6 @@ class ChatRepository @Inject constructor(
             }
         } catch (e: Exception) {
             Result.Error(e.message ?: "خطأ شبكة")
-        }
-    }
-        val b = bearer() ?: return Result.Error("غير مصرح")
-        return try {
-            val r = api.listSessions(b)
-            if (r.isSuccessful) Result.Success(r.body()!!.items)
-            else Result.Error("فشل تحميل الجلسات (${r.code()})")
-        } catch (e: Exception) {
-            Result.Error(e.message ?: "خطأ")
         }
     }
 
