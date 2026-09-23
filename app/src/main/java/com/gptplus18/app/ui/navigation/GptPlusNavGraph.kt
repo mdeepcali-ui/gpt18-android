@@ -1,5 +1,10 @@
 package com.gptplus18.app.ui.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -64,6 +69,31 @@ fun GptPlusNavGraph(
             navController = navController,
             startDestination = Routes.SPLASH,
             modifier = Modifier.padding(padding),
+            // ✨ Animations بين الشاشات
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { it / 4 },
+                    animationSpec = tween(300),
+                ) + fadeIn(animationSpec = tween(300))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { -it / 4 },
+                    animationSpec = tween(300),
+                ) + fadeOut(animationSpec = tween(200))
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { -it / 4 },
+                    animationSpec = tween(300),
+                ) + fadeIn(animationSpec = tween(300))
+            },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { it / 4 },
+                    animationSpec = tween(300),
+                ) + fadeOut(animationSpec = tween(200))
+            },
         ) {
             composable(Routes.SPLASH) {
                 SplashScreen(
@@ -119,6 +149,9 @@ fun GptPlusNavGraph(
                             launchSingleTop = true
                             restoreState = true
                         }
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate(Routes.SETTINGS)
                     },
                     onNavigateToAdmin = {
                         navController.navigate(Routes.ADMIN)

@@ -8,21 +8,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 
 /**
- * 🎨 علامات الكلمات الحساسة
- * النموذج يلف الكلمات الحساسة بـ [[حساس]]...[[/حساس]]
- * هذه الدالة تحولها إلى نص ملون
+ * 🎨 علامات الكلمات الحساسة — 3 ألوان
+ * - [[حساس_احمر]]...[[/حساس_احمر]]       🔴
+ * - [[حساس_برتقالي]]...[[/حساس_برتقالي]] 🟠
+ * - [[حساس_اخضر]]...[[/حساس_اخضر]]       🟢
  */
 object SensitiveMarkers {
 
-    private const val OPEN = "[[حساس]]"
-    private const val CLOSE = "[[/حساس]]"
+    // ─── الألوان ───
+    val RED = Color(0xFFFF6B6B)
+    val ORANGE = Color(0xFFFFA657)
+    val GREEN = Color(0xFF7EE787)
 
-    // 🔴 لون الكلمات الحساسة
-    val HIGHLIGHT_COLOR = Color(0xFFFF6B6B)
+    private data class Marker(
+        val open: String,
+        val close: String,
+        val color: Color,
+    )
+
+    private val MARKERS = listOf(
+        Marker("[[حساس_احمر]]", "[[/حساس_احمر]]", RED),
+        Marker("[[حساس_برتقالي]]", "[[/حساس_برتقالي]]", ORANGE),
+        Marker("[[حساس_اخضر]]", "[[/حساس_اخضر]]", GREEN),
+    )
 
     fun apply(text: String, baseColor: Color): AnnotatedString {
-        // إذا ما في علامات — نص عادي
-        if (!text.contains(OPEN)) {
+        // نتحقق إذا في أي علامة
+        if (MARKERS.none { text.contains(it.open) }) {
             return buildAnnotatedString {
                 withStyle(SpanStyle(color = baseColor)) { append(text) }
             }
@@ -31,10 +43,27 @@ object SensitiveMarkers {
         return buildAnnotatedString {
             var i = 0
             while (i < text.length) {
-                val start = text.indexOf(OPEN, i)
+                // نبحث عن أقرب علامة
+                var nearest: Pair<Int, Marker>? = null
+                for (m in MARKERS) {
+                    val idx = text.indexOf(m.open, i)
+                    if (idx >= 0 && (nearest == null || idx < nearest!!.first)) {
+                        nearest = idx to m
+                    }
+                }
 
-                if (start < 0) {
-                    // ما في علامات بعد i
+                if (nearest == null) {
+                    withStyle(SpanStyle(color = baseColor)) {
+                        append(text.substring(i))
+                    }
+                    break
+                }
+
+                val (start, marker) = nearest!!
+                val contentStart = start + marker.open.length
+                val end = text.indexOf(marker.close, contentStart)
+
+                if (end < 0) {
                     withStyle(SpanStyle(color = baseColor)) {
                         append(text.substring(i))
                     }
@@ -48,29 +77,18 @@ object SensitiveMarkers {
                     }
                 }
 
-                val contentStart = start + OPEN.length
-                val end = text.indexOf(CLOSE, contentStart)
-
-                if (end < 0) {
-                    // ما في إغلاق
-                    withStyle(SpanStyle(color = baseColor)) {
-                        append(text.substring(start))
-                    }
-                    break
-                }
-
-                // الكلمة الحساسة → ملونة
+                // الكلمة الحساسة → لون
                 val sensitive = text.substring(contentStart, end)
                 withStyle(
                     SpanStyle(
-                        color = HIGHLIGHT_COLOR,
+                        color = marker.color,
                         fontWeight = FontWeight.Bold,
                     )
                 ) {
                     append(sensitive)
                 }
 
-                i = end + CLOSE.length
+                i = end + marker.close.length
             }
         }
     }

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,6 +34,7 @@ fun AppDrawerContent(
     onMedia: () -> Unit,
     onSubscription: () -> Unit,
     onProfile: () -> Unit,
+    onSettings: () -> Unit = {},
     onAdmin: () -> Unit,
     onLanguageToggle: () -> Unit,
     onLogout: () -> Unit,
@@ -82,6 +84,7 @@ fun AppDrawerContent(
         // ═══ الأقسام الأساسية ═══
         DrawerItem("الاشتراك", Icons.Default.CreditCard, onSubscription)
         DrawerItem("الملف الشخصي", Icons.Default.Person, onProfile)
+        DrawerItem("الإعدادات", Icons.Default.Settings, onSettings)
 
         if (isOwner) {
             Spacer(Modifier.height(4.dp))

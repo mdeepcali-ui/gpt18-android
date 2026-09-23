@@ -46,7 +46,7 @@ import com.gptplus18.app.ui.theme.TextTertiary
 private val BgBlack = Color(0xFF000000)
 private val ComposerBg = Color(0xFF0D0D0D)
 private val ComposerBorder = Color(0xFF2A2A2A)
-private val SendGreen = Color(0xFF10A37F)
+private val SendBlue = Color(0xFF0A84FF)  // أزرق زيك
 private val IconGray = Color(0xFFB4B4B4)
 private val CloseBtnBg = Color(0xFF4A4A4A)
 
@@ -75,13 +75,13 @@ fun ChatGptComposer(
                 .fillMaxWidth()
                 .shadow(
                     elevation = 12.dp,
-                    shape = RoundedCornerShape(26.dp),
+                    shape = RoundedCornerShape(28.dp),
                     ambientColor = Color.Black.copy(alpha = 0.6f),
                     spotColor = Color.Black.copy(alpha = 0.6f),
                 )
-                .clip(RoundedCornerShape(26.dp))
+                .clip(RoundedCornerShape(28.dp))
                 .background(ComposerBg)
-                .border(0.5.dp, ComposerBorder, RoundedCornerShape(26.dp))
+                .border(0.5.dp, ComposerBorder, RoundedCornerShape(28.dp))
                 .padding(6.dp),
         ) {
             if (attachments.isNotEmpty()) {
@@ -122,7 +122,7 @@ fun ChatGptComposer(
                         fontSize = 16.sp,
                         lineHeight = 22.sp,
                     ),
-                    cursorBrush = SolidColor(SendGreen),
+                    cursorBrush = SolidColor(SendBlue),
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 24.dp, max = 160.dp),
@@ -165,7 +165,7 @@ fun ChatGptComposer(
                         modifier = Modifier
                             .size(38.dp)
                             .clip(CircleShape)
-                            .background(SendGreen)
+                            .background(SendBlue)
                             .clickable(enabled = enabled, onClick = onSend),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -307,7 +307,7 @@ private fun AttachmentChip(
                     modifier = Modifier
                         .fillMaxHeight()
                         .fillMaxWidth(attachment.progress)
-                        .background(SendGreen),
+                        .background(SendBlue),
                 )
             }
         }

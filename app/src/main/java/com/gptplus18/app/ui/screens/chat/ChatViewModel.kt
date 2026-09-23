@@ -242,10 +242,11 @@ class ChatViewModel @Inject constructor(
                     when (ev) {
                         is StreamEvent.Delta -> {
                             sb.append(ev.text)
+                            val cleaned = cleanStreamingText(sb.toString())
                             _state.value = _state.value.copy(
                                 messages = _state.value.messages.map { m ->
                                     if (m.id == -2 && m.ts == assistantTs) {
-                                        m.copy(content = sb.toString())
+                                        m.copy(content = cleaned)
                                     } else m
                                 },
                                 statusLabel = "يكتب",
@@ -262,10 +263,11 @@ class ChatViewModel @Inject constructor(
                             } else {
                                 _state.value.thinkingByMessage
                             }
+                            val cleanedFinal = cleanStreamingText(sb.toString())
                             _state.value = _state.value.copy(
                                 messages = _state.value.messages.map { m ->
                                     if (m.id == -2 && m.ts == assistantTs) {
-                                        m.copy(id = finalSessionId ?: 0)
+                                        m.copy(id = finalSessionId ?: 0, content = cleanedFinal)
                                     } else m
                                 },
                                 currentSessionId = finalSessionId,
@@ -295,6 +297,25 @@ class ChatViewModel @Inject constructor(
                     error = "لم يصل رد من السيرفر",
                 )
             }
+        }
+    }
+
+    /**
+     * 🎨 تنقية نص الستريم من وسوم التفكير
+     * - لو النموذج لسا ما وصل [[رد]] → يرجع فاضي
+     * - لو في [[رد]]...[[/رد]] → يرجع النص بينهم فقط
+     */
+    private fun cleanStreamingText(raw: String): String {
+        val replyStart = raw.indexOf("[[رد]]")
+        if (replyStart == -1) return ""
+
+        val afterReply = raw.substring(replyStart + "[[رد]]".length)
+        val replyEnd = afterReply.indexOf("[[/رد]]")
+
+        return if (replyEnd == -1) {
+            afterReply.trimStart()
+        } else {
+            afterReply.substring(0, replyEnd).trimStart()
         }
     }
 

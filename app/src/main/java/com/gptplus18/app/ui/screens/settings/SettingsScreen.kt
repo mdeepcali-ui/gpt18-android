@@ -73,7 +73,7 @@ fun SettingsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(BgSecondary, RoundedCornerShape(12.dp))
+                    .background(BgSecondary, RoundedCornerShape(20.dp))
                     .padding(14.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -197,7 +197,7 @@ private fun SettingRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(BgSecondary, RoundedCornerShape(12.dp))
+            .background(BgSecondary, RoundedCornerShape(20.dp))
             .then(
                 if (onClick != null)
                     Modifier.padding(14.dp)

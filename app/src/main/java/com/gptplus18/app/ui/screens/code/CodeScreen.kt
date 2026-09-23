@@ -31,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gptplus18.app.data.models.CodeMessage
 import com.gptplus18.app.data.models.CodeModel
 import com.gptplus18.app.data.models.CodeSession
+import com.gptplus18.app.ui.components.ChatGptComposer
 import com.gptplus18.app.ui.theme.*
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Check
@@ -103,16 +104,19 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                             item { RunningIndicator(state.jobStatus, state.logs) }
                         }
                     }
-                    CodeComposer(
+                    ChatGptComposer(
                         value = input,
                         onValueChange = { input = it },
                         enabled = !state.isRunning,
+                        attachments = emptyList(),
+                        onAttachClick = { /* TODO: attach in code mode */ },
                         onSend = {
                             if (input.isNotBlank()) {
                                 vm.submit(input)
                                 input = ""
                             }
                         },
+                        onRemoveAttachment = { /* لا شي */ },
                     )
                 }
             }
@@ -264,53 +268,6 @@ private fun RunningIndicator(status: String, logs: List<com.gptplus18.app.data.m
     }
 }
 
-@Composable
-private fun CodeComposer(
-    value: String,
-    onValueChange: (String) -> Unit,
-    enabled: Boolean,
-    onSend: () -> Unit,
-) {
-    Surface(color = BgSecondary) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(10.dp).navigationBarsPadding(),
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            OutlinedTextField(
-                value = value,
-                onValueChange = onValueChange,
-                placeholder = { Text("اشرح المطلوب برمجياً...", color = TextTertiary) },
-                modifier = Modifier.weight(1f),
-                enabled = enabled,
-                minLines = 1,
-                maxLines = 6,
-                shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = TextPrimary,
-                    unfocusedTextColor = TextPrimary,
-                    focusedBorderColor = Accent,
-                    unfocusedBorderColor = Color.Transparent,
-                    cursorColor = Accent,
-                    focusedContainerColor = BgPrimary,
-                    unfocusedContainerColor = BgPrimary,
-                ),
-            )
-            Spacer(Modifier.width(8.dp))
-            IconButton(
-                onClick = onSend,
-                enabled = enabled && value.isNotBlank(),
-                modifier = Modifier
-                    .size(46.dp)
-                    .background(if (value.isNotBlank()) Accent else BgTertiary, RoundedCornerShape(50)),
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.Send, "إرسال",
-                    tint = if (value.isNotBlank()) BgPrimary else TextTertiary,
-                )
-            }
-        }
-    }
-}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
