@@ -1,5 +1,11 @@
 package com.gptplus18.app.ui.screens.settings
 
+import com.gptplus18.app.BuildConfig
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.foundation.clickable
+import android.net.Uri
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -139,6 +145,34 @@ fun SettingsScreen(
                 onClick = onAbout,
             )
 
+            // ⭐ E1: التواصل مع الدعم عبر البريد
+            val ctx = LocalContext.current
+            SettingRow(
+                icon = Icons.Default.Email,
+                title = "التواصل مع الدعم",
+                subtitle = "m.deep.cali@gmail.com",
+                onClick = {
+                    try {
+                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = Uri.parse("mailto:m.deep.cali@gmail.com")
+                            putExtra(Intent.EXTRA_SUBJECT, "دعم GPT+18 — v${BuildConfig.VERSION_NAME}")
+                            putExtra(
+                                Intent.EXTRA_TEXT,
+                                "\n\n\n---\nاسم المستخدم: ${state.userName}\nالإصدار: ${BuildConfig.VERSION_NAME}\nالمعرّف: ${state.uid}"
+                            )
+                        }
+                        ctx.startActivity(intent)
+                    } catch (e: Exception) {
+                        // إذا لا يوجد تطبيق بريد → نفتح Gmail web
+                        try {
+                            ctx.startActivity(
+                                Intent(Intent.ACTION_VIEW, Uri.parse("https://mail.google.com/mail/?view=cm&to=m.deep.cali@gmail.com"))
+                            )
+                        } catch (_: Exception) { }
+                    }
+                },
+            )
+
             Spacer(Modifier.height(60.dp))
         }
     }
@@ -167,11 +201,8 @@ private fun SettingRow(
         modifier = Modifier
             .fillMaxWidth()
             .background(BgSecondary, RoundedCornerShape(20.dp))
-            .then(
-                if (onClick != null)
-                    Modifier.padding(14.dp)
-                else Modifier.padding(14.dp)
-            ),
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(icon, null, tint = Accent, modifier = Modifier.size(22.dp))

@@ -8,6 +8,7 @@ import android.os.LocaleList
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gptplus18.app.data.local.TokenStorage
 import com.gptplus18.app.data.local.PreferencesRepository
 import com.gptplus18.app.data.repository.NotificationsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,6 +28,9 @@ data class SettingsState(
     val notificationsEnabled: Boolean = false,
     val notificationsLoading: Boolean = false,
     val notificationsError: String? = null,
+    // ⭐ E1: بيانات المستخدم للدعم
+    val userName: String = "",
+    val uid: Long = 0L,
 )
 
 @HiltViewModel
@@ -34,6 +38,7 @@ class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val prefs: PreferencesRepository,
     private val notificationsRepo: NotificationsRepository,
+    private val tokenStorage: TokenStorage,
 ) : ViewModel() {
 
     companion object {
@@ -44,6 +49,15 @@ class SettingsViewModel @Inject constructor(
     val state: StateFlow<SettingsState> = _state.asStateFlow()
 
     init {
+        // ⭐ E1: قراءة بيانات المستخدم للدعم
+        viewModelScope.launch {
+            try {
+                val n = tokenStorage.getName() ?: ""
+                val u = tokenStorage.getUid()
+                _state.value = _state.value.copy(userName = n, uid = u)
+            } catch (_: Exception) { }
+        }
+
         // 📌 طبّق اللغة المحفوظة عند الإقلاع
         viewModelScope.launch {
             val saved = prefs.langFlow.first()
