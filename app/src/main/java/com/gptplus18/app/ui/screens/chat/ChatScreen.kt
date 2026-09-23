@@ -417,7 +417,7 @@ fun ChatScreen(
         AlertDialog(
             onDismissRequest = { deleteDialogFor = null },
             title = { Text(stringResource(R.string.t_045), color = TextPrimary) },
-            text = { Text("متأكد بدك تحذف \"${s.title}\stringResource(R.string.t_132), color = TextSecondary) },
+            text = { Text("متأكد بدك تحذف \"${s.title}\"؟", color = TextSecondary) },
             confirmButton = {
                 TextButton(onClick = { vm.deleteSession(s.id); deleteDialogFor = null }) {
                     Text(stringResource(R.string.t_046), color = Color(0xFFEF4444))

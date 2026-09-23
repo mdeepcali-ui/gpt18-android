@@ -144,7 +144,7 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
         AlertDialog(
             onDismissRequest = { deleteDialogFor = null },
             title = { Text(stringResource(R.string.t_052), color = TextPrimary) },
-            text = { Text("حذف \"${s.title}\stringResource(R.string.t_132), color = TextSecondary) },
+            text = { Text("حذف \"${s.title}\"؟", color = TextSecondary) },
             confirmButton = {
                 TextButton(onClick = {
                     vm.deleteSession(s.id)
