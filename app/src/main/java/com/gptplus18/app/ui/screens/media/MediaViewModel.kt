@@ -32,6 +32,9 @@ data class MediaUiState(
     val videoUrl: String? = null,
     val videoModelUsed: String? = null,
     val error: String? = null,
+    // ⭐ M4-b: سجل الوسائط
+    val history: List<MediaHistoryItem> = emptyList(),
+    val historyLoading: Boolean = false,
 )
 
 @HiltViewModel
@@ -41,6 +44,10 @@ class MediaViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MediaUiState())
+    
+    init {
+        loadHistory()
+    }
     val state: StateFlow<MediaUiState> = _state.asStateFlow()
 
     private var currentJob: Job? = null
@@ -101,6 +108,7 @@ class MediaViewModel @Inject constructor(
                         is Result.Success -> {
                             analytics.logImageGenerated(preset = presetSnapshot)
                             _state.value = _state.value.copy(isLoading = false, imageUrl = r.data.imageUrl)
+                            loadHistory()
                         }
                         is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
                         else -> {}
@@ -116,6 +124,7 @@ class MediaViewModel @Inject constructor(
                                 songTitle = r.data.title,
                                 songLyrics = r.data.lyrics,
                             )
+                            loadHistory()
                         }
                         is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
                         else -> {}
@@ -133,6 +142,7 @@ class MediaViewModel @Inject constructor(
                                 videoUrl = r.data.videoUrl,
                                 videoModelUsed = r.data.modelUsed,
                             )
+                            loadHistory()
                         }
                         is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
                         else -> {}
@@ -161,6 +171,7 @@ class MediaViewModel @Inject constructor(
                 is Result.Success -> {
                     analytics.logImageGenerated(preset = "edit")
                     _state.value = _state.value.copy(isLoading = false, imageUrl = r.data.imageUrl)
+                    loadHistory()
                 }
                 is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
                 else -> {}
@@ -169,6 +180,47 @@ class MediaViewModel @Inject constructor(
     }
 
     fun clearError() { _state.value = _state.value.copy(error = null) }
+
+    // ⭐ M4-b: سجل الوسائط
+    fun loadHistory() {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(historyLoading = true)
+            when (val r = repo.getHistory()) {
+                is Result.Success -> {
+                    _state.value = _state.value.copy(
+                        history = r.data.items,
+                        historyLoading = false,
+                    )
+                }
+                is Result.Error -> {
+                    _state.value = _state.value.copy(historyLoading = false)
+                }
+                else -> _state.value = _state.value.copy(historyLoading = false)
+            }
+        }
+    }
+
+    fun deleteHistoryItem(id: Int) {
+        viewModelScope.launch {
+            when (repo.deleteHistoryItem(id)) {
+                is Result.Success -> {
+                    _state.value = _state.value.copy(
+                        history = _state.value.history.filterNot { it.id == id },
+                    )
+                }
+                else -> {}
+            }
+        }
+    }
+
+    fun clearHistory() {
+        viewModelScope.launch {
+            when (repo.clearHistory()) {
+                is Result.Success -> _state.value = _state.value.copy(history = emptyList())
+                else -> {}
+            }
+        }
+    }
 
     override fun onCleared() {
         currentJob?.cancel()

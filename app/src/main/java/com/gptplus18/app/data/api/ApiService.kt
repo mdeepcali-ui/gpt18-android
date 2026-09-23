@@ -1,5 +1,8 @@
 package com.gptplus18.app.data.api
 
+import retrofit2.http.Path
+import retrofit2.http.Query
+import retrofit2.http.DELETE
 import com.gptplus18.app.data.models.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -194,4 +197,24 @@ interface ApiService {
     suspend fun adminNotifTokens(
         @Header("Authorization") bearer: String,
     ): Response<Map<String, Any>>
+
+    
+    // ⭐ M4-b: سجل الوسائط
+    @GET("api/chat/history")
+    suspend fun getMediaHistory(
+        @Header("Authorization") auth: String,
+        @Query("limit") limit: Int = 50,
+    ): retrofit2.Response<com.gptplus18.app.data.models.MediaHistoryResponse>
+    
+    @DELETE("api/chat/history/{id}")
+    suspend fun deleteMediaHistoryItem(
+        @Header("Authorization") auth: String,
+        @Path("id") id: Int,
+    ): retrofit2.Response<Map<String, Any>>
+    
+    @DELETE("api/chat/history")
+    suspend fun clearMediaHistory(
+        @Header("Authorization") auth: String,
+    ): retrofit2.Response<Map<String, Any>>
+
 }

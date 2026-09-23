@@ -107,4 +107,45 @@ class MediaRepository @Inject constructor(
             Result.Error(e.message ?: "خطأ شبكة")
         }
     }
+
+    
+    // ⭐ M4-b: سجل الوسائط
+    suspend fun getHistory(limit: Int = 50): Result<MediaHistoryResponse> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.getMediaHistory(b, limit)
+            if (r.isSuccessful) {
+                val body = r.body() ?: return Result.Error("رد فارغ")
+                Result.Success(body)
+            } else Result.Error("فشل تحميل السجل (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ شبكة")
+        }
+    }
+    
+    suspend fun deleteHistoryItem(id: Int): Result<Boolean> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.deleteMediaHistoryItem(b, id)
+            if (r.isSuccessful) Result.Success(true)
+            else Result.Error("فشل الحذف (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ شبكة")
+        }
+    }
+    
+    suspend fun clearHistory(): Result<Int> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.clearMediaHistory(b)
+            if (r.isSuccessful) {
+                @Suppress("UNCHECKED_CAST")
+                val n = (r.body()?.get("deleted") as? Number)?.toInt() ?: 0
+                Result.Success(n)
+            } else Result.Error("فشل المسح (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ شبكة")
+        }
+    }
+
 }

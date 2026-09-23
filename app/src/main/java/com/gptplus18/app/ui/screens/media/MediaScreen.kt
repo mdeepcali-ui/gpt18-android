@@ -1,5 +1,7 @@
 package com.gptplus18.app.ui.screens.media
 
+import com.gptplus18.app.data.models.MediaHistoryItem
+import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Download
 import com.gptplus18.app.ui.theme.TextSecondary
@@ -430,8 +432,126 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 }
             }
 
+            // ⭐ M4-b: سجل الوسائط
+            Spacer(Modifier.height(24.dp))
+
+            if (state.historyLoading) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    CircularProgressIndicator(
+                        color = Accent,
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Text("تحميل السجل...", color = TextSecondary, fontSize = 13.sp)
+                }
+            } else if (state.history.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        "📜 أعمالي الأخيرة (${state.history.size})",
+                        color = TextPrimary,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f),
+                    )
+                    TextButton(onClick = { vm.clearHistory() }) {
+                        Text("مسح", color = TextSecondary, fontSize = 12.sp)
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+
+                state.history.take(20).forEach { item ->
+                    MediaHistoryRow(
+                        item = item,
+                        onDelete = { vm.deleteHistoryItem(item.id) },
+                    )
+                }
+            }
+
             Spacer(Modifier.height(80.dp))
         }
+    }
+}
+
+// ⭐ M4-b: صف عنصر من السجل
+@Composable
+private fun MediaHistoryRow(
+    item: MediaHistoryItem,
+    onDelete: () -> Unit,
+) {
+    val ctx = LocalContext.current
+    val icon = when (item.type) {
+        "image" -> "🖼️"
+        "song" -> "🎵"
+        "video" -> "🎬"
+        else -> "📎"
+    }
+    val label = when (item.type) {
+        "image" -> "صورة"
+        "song" -> "أغنية"
+        "video" -> "فيديو"
+        else -> item.type
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clickable {
+                try {
+                    ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.url)))
+                } catch (_: Exception) { }
+            },
+        colors = CardDefaults.cardColors(containerColor = BgSecondary),
+        shape = RoundedCornerShape(12.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(icon, fontSize = 24.sp)
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    item.title ?: item.prompt?.take(40) ?: label,
+                    color = TextPrimary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                )
+                Text(
+                    "$label — ${formatTimeAgo(item.createdAt)}",
+                    color = TextSecondary,
+                    fontSize = 11.sp,
+                )
+            }
+            IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
+                Icon(
+                    Icons.Default.Close,
+                    "حذف",
+                    tint = TextSecondary,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
+        }
+    }
+}
+
+private fun formatTimeAgo(ts: Double): String {
+    val now = System.currentTimeMillis() / 1000.0
+    val diff = now - ts
+    return when {
+        diff < 60 -> "الآن"
+        diff < 3600 -> "${(diff / 60).toInt()} د"
+        diff < 86400 -> "${(diff / 3600).toInt()} س"
+        else -> "${(diff / 86400).toInt()} ي"
     }
 }
 

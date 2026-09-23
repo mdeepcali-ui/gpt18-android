@@ -44,3 +44,19 @@ data class VideoResponse(
     @SerializedName("reply") val reply: String? = null,
     @SerializedName("error") val error: String? = null,
 )
+
+// ⭐ M4-b: سجل الوسائط
+data class MediaHistoryItem(
+    @SerializedName("id") val id: Int,
+    @SerializedName("type") val type: String,       // image/song/video
+    @SerializedName("prompt") val prompt: String? = null,
+    @SerializedName("url") val url: String,
+    @SerializedName("preset") val preset: String? = null,
+    @SerializedName("title") val title: String? = null,
+    @SerializedName("created_at") val createdAt: Double,
+)
+
+data class MediaHistoryResponse(
+    @SerializedName("items") val items: List<MediaHistoryItem> = emptyList(),
+    @SerializedName("count") val count: Int = 0,
+)
