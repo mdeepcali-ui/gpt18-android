@@ -21,53 +21,57 @@ object SensitiveMarkers {
     val HIGHLIGHT_COLOR = Color(0xFFFF6B6B)
 
     fun apply(text: String, baseColor: Color): AnnotatedString {
+        // إذا ما في علامات — نص عادي
         if (!text.contains(OPEN)) {
             return buildAnnotatedString {
                 withStyle(SpanStyle(color = baseColor)) { append(text) }
             }
         }
 
-        val builder = buildAnnotatedString {}
-        var i = 0
+        return buildAnnotatedString {
+            var i = 0
+            while (i < text.length) {
+                val start = text.indexOf(OPEN, i)
 
-        while (i < text.length) {
-            val start = text.indexOf(OPEN, i)
-            if (start < 0) {
-                builder.withStyle(SpanStyle(color = baseColor)) {
-                    append(text.substring(i))
+                if (start < 0) {
+                    // ما في علامات بعد i
+                    withStyle(SpanStyle(color = baseColor)) {
+                        append(text.substring(i))
+                    }
+                    break
                 }
-                break
-            }
 
-            if (start > i) {
-                builder.withStyle(SpanStyle(color = baseColor)) {
-                    append(text.substring(i, start))
+                // نص عادي قبل العلامة
+                if (start > i) {
+                    withStyle(SpanStyle(color = baseColor)) {
+                        append(text.substring(i, start))
+                    }
                 }
-            }
 
-            val contentStart = start + OPEN.length
-            val end = text.indexOf(CLOSE, contentStart)
+                val contentStart = start + OPEN.length
+                val end = text.indexOf(CLOSE, contentStart)
 
-            if (end < 0) {
-                builder.withStyle(SpanStyle(color = baseColor)) {
-                    append(text.substring(start))
+                if (end < 0) {
+                    // ما في إغلاق
+                    withStyle(SpanStyle(color = baseColor)) {
+                        append(text.substring(start))
+                    }
+                    break
                 }
-                break
-            }
 
-            val sensitive = text.substring(contentStart, end)
-            builder.withStyle(
-                SpanStyle(
-                    color = HIGHLIGHT_COLOR,
-                    fontWeight = FontWeight.Bold,
-                )
-            ) {
-                append(sensitive)
-            }
+                // الكلمة الحساسة → ملونة
+                val sensitive = text.substring(contentStart, end)
+                withStyle(
+                    SpanStyle(
+                        color = HIGHLIGHT_COLOR,
+                        fontWeight = FontWeight.Bold,
+                    )
+                ) {
+                    append(sensitive)
+                }
 
-            i = end + CLOSE.length
+                i = end + CLOSE.length
+            }
         }
-
-        return builder
     }
 }
