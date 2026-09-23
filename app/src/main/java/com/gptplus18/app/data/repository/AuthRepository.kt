@@ -14,7 +14,6 @@ import javax.inject.Singleton
 class AuthRepository @Inject constructor(
     private val api: ApiService,
     private val tokenStorage: TokenStorage,
-,
     private val deviceIdProvider: DeviceIdProvider,
 ) {
     suspend fun login(email: String, password: String): Result<User> {
