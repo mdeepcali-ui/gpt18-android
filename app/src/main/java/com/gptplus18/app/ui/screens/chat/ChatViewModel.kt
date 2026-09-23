@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gptplus18.app.data.api.StreamEvent
 import com.gptplus18.app.data.local.TokenStorage
+import com.gptplus18.app.data.models.AllSession
 import com.gptplus18.app.data.models.Attachment
 import com.gptplus18.app.data.models.ChatMode
 import com.gptplus18.app.data.models.Message
