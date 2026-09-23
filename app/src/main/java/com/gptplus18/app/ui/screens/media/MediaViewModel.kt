@@ -3,6 +3,7 @@ package com.gptplus18.app.ui.screens.media
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gptplus18.app.data.models.MediaHistoryItem
 import com.gptplus18.app.data.repository.MediaRepository
 import com.gptplus18.app.util.AnalyticsHelper
 import com.gptplus18.app.util.Result
