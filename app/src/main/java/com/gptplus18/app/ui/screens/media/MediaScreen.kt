@@ -585,7 +585,6 @@ private fun PresetChip(label: String, active: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-@Composable
 private fun ResultActions(
     url: String,
     type: String,
