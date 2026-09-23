@@ -30,9 +30,19 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    // 🔗 Deep Link state — في مستوى Activity (بدل recreate)
+    private var deepLinkRoute by mutableStateOf<String?>(null)
+    private var deepLinkTick by mutableStateOf(0)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // نعالج الـ deep link الأولي
+        deepLinkRoute = parseDeepLink(intent)
+        if (deepLinkRoute != null) deepLinkTick = 1
+
         setContent {
             val ctx = LocalContext.current
 
@@ -50,9 +60,7 @@ class MainActivity : ComponentActivity() {
             val tokenStorage = entry.tokenStorage()
             val notificationsRepo = entry.notificationsRepo()
 
-            // ═══ معالجة Deep Link: gptplus18://auth?token=X&name=Y ═══
-            var deepLinkRoute by remember { mutableStateOf(parseDeepLink(intent)) }
-
+            // Deep Link معالجة (cold start)
             LaunchedEffect(intent) {
                 val data = intent?.data
                 if (data?.scheme == "gptplus18" && data.host == "auth") {
@@ -61,6 +69,7 @@ class MainActivity : ComponentActivity() {
                     if (!tok.isNullOrBlank()) {
                         tokenStorage.save(tok, name, "", 0)
                         deepLinkRoute = Routes.CHAT
+                        deepLinkTick++
                     }
                 }
             }
@@ -69,15 +78,12 @@ class MainActivity : ComponentActivity() {
                 darkMode = prefs.darkModeFlow.first()
                 fontScale = prefs.fontScaleFlow.first()
 
-                // 🔔 تسجيل FCM Token (لو المستخدم مسجل دخول)
-                try {
-                    notificationsRepo.registerCurrentToken()
-                } catch (_: Exception) { /* نتجاهل */ }
+                try { notificationsRepo.registerCurrentToken() } catch (_: Exception) {}
 
-                // فحص التحديثات
                 val updateRepo = UpdateRepository()
                 updateInfo = updateRepo.checkUpdate()
             }
+
             LaunchedEffect(prefs) {
                 prefs.darkModeFlow.collect { darkMode = it }
             }
@@ -91,7 +97,12 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background,
                     ) {
-                        GptPlusApp(deepLink = deepLinkRoute)
+                        val navController = rememberNavController()
+                        GptPlusNavGraph(
+                            navController = navController,
+                            deepLinkRoute = deepLinkRoute,
+                            deepLinkTick = deepLinkTick,
+                        )
 
                         updateInfo?.let { info ->
                             UpdateDialog(
@@ -120,12 +131,15 @@ class MainActivity : ComponentActivity() {
                         MainEntryPoint::class.java,
                     )
                     entry.tokenStorage().save(tok, name, "", 0)
-                    // 🔔 نحدث FCM token بعد تسجيل الدخول
+
                     try {
                         entry.notificationsRepo().registerCurrentToken()
-                    } catch (_: Exception) { /* نتجاهل */ }
+                    } catch (_: Exception) {}
+
+                    // 🔥 بدل recreate() — نحدّث الـ state
+                    deepLinkRoute = Routes.CHAT
+                    deepLinkTick++
                 }
-                recreate()
             }
         }
     }
@@ -148,13 +162,4 @@ interface MainEntryPoint {
     fun prefs(): PreferencesRepository
     fun tokenStorage(): TokenStorage
     fun notificationsRepo(): NotificationsRepository
-}
-
-@Composable
-fun GptPlusApp(deepLink: String? = null) {
-    val navController = rememberNavController()
-    GptPlusNavGraph(
-        navController = navController,
-        deepLinkRoute = deepLink,
-    )
 }

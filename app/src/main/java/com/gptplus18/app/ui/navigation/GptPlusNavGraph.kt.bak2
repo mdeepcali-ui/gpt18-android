@@ -50,19 +50,14 @@ object Routes {
 fun GptPlusNavGraph(
     navController: NavHostController,
     deepLinkRoute: String? = null,
-    deepLinkTick: Int = 0,
 ) {
     val backStack by navController.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
 
-    // Deep link handling — يتفعل كل مرة tick يتغير
-    androidx.compose.runtime.LaunchedEffect(deepLinkTick) {
-        if (deepLinkTick > 0 && deepLinkRoute != null) {
-            navController.navigate(deepLinkRoute) {
-                popUpTo(navController.graph.findStartDestination().id) {
-                    inclusive = true
-                }
-            }
+    // Deep link handling
+    androidx.compose.runtime.LaunchedEffect(deepLinkRoute) {
+        if (deepLinkRoute != null && currentRoute != deepLinkRoute) {
+            navController.navigate(deepLinkRoute)
         }
     }
 
