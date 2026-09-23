@@ -16,6 +16,9 @@ data class Message(
     @SerializedName("role") val role: String,  // "user" | "assistant"
     @SerializedName("content") val content: String,
     @SerializedName("ts") val ts: Double,
+    // ⭐ محلي فقط — لا يُرسل للسيرفر
+    val localImageUri: String? = null,
+    val isAnalyzing: Boolean = false,
 )
 
 data class SessionsList(

@@ -1,5 +1,7 @@
 package com.gptplus18.app.ui.screens.media
 
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Download
 import com.gptplus18.app.ui.theme.TextSecondary
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.IconButton
@@ -70,15 +72,15 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                         },
                         modifier = Modifier
                             .padding(end = 6.dp)
-                            .size(34.dp)
+                            .size(30.dp)
                             .clip(CircleShape)
-                            .border(1.5.dp, TextSecondary, CircleShape),
+                            .border(2.dp, TextSecondary, CircleShape),
                     ) {
                         Icon(
                             Icons.Default.Add,
                             stringResource(R.string.new_chat),
                             tint = TextPrimary,
-                            modifier = Modifier.size(20.dp),
+                            modifier = Modifier.size(16.dp),
                         )
                     }
                 },
@@ -276,6 +278,50 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 }
             }
 
+            // ⭐ M4-a: Banner Loading واضح
+            if (state.isLoading) {
+                Spacer(Modifier.height(16.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = BgSecondary),
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        CircularProgressIndicator(
+                            color = SendBlue,
+                            modifier = Modifier.size(28.dp),
+                            strokeWidth = 3.dp,
+                        )
+                        Spacer(Modifier.width(14.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                when (state.tab) {
+                                    MediaTab.IMAGE -> "جاري إنشاء الصورة..."
+                                    MediaTab.SONG -> "جاري إنشاء الأغنية..."
+                                    MediaTab.VIDEO -> "جاري إنشاء الفيديو..."
+                                },
+                                color = TextPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                            )
+                            Spacer(Modifier.height(2.dp))
+                            Text(
+                                when (state.tab) {
+                                    MediaTab.IMAGE -> "قد يستغرق 10-30 ثانية"
+                                    MediaTab.SONG -> "قد يستغرق 30-60 ثانية"
+                                    MediaTab.VIDEO -> "قد يستغرق 60-180 ثانية"
+                                },
+                                color = TextSecondary,
+                                fontSize = 12.sp,
+                            )
+                        }
+                    }
+                }
+            }
+
             state.error?.let { err ->
                 Spacer(Modifier.height(16.dp))
                 Card(
@@ -298,7 +344,21 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                         contentScale = ContentScale.Fit,
                     )
                     Spacer(Modifier.height(10.dp))
-                    CopyRow(stringResource(R.string.t_183), state.imageUrl!!)
+                    ResultActions(
+                        url = state.imageUrl!!,
+                        onDownload = {
+                            try {
+                                ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(state.imageUrl!!)))
+                            } catch (_: Exception) { }
+                        },
+                        onShare = {
+                            val i = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, state.imageUrl!!)
+                            }
+                            ctx.startActivity(Intent.createChooser(i, "مشاركة"))
+                        },
+                    )
                 }
             }
 
@@ -313,7 +373,21 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                             fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                     Spacer(Modifier.height(10.dp))
-                    CopyRow(stringResource(R.string.t_184), state.songUrl!!)
+                    ResultActions(
+                        url = state.songUrl!!,
+                        onDownload = {
+                            try {
+                                ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(state.songUrl!!)))
+                            } catch (_: Exception) { }
+                        },
+                        onShare = {
+                            val i = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, state.songUrl!!)
+                            }
+                            ctx.startActivity(Intent.createChooser(i, "مشاركة"))
+                        },
+                    )
                     state.songLyrics?.let {
                         Spacer(Modifier.height(10.dp))
                         Text(stringResource(R.string.t_065), color = Accent, fontSize = 13.sp, fontWeight = FontWeight.Bold)
@@ -338,24 +412,21 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                             modifier = Modifier.padding(top = 4.dp))
                     }
                     Spacer(Modifier.height(10.dp))
-                    CopyRow(stringResource(R.string.t_186), state.videoUrl!!)
-                    Spacer(Modifier.height(8.dp))
-                    Button(
-                        onClick = {
+                    ResultActions(
+                        url = state.videoUrl!!,
+                        onDownload = {
                             try {
-                                ctx.startActivity(
-                                    Intent(Intent.ACTION_VIEW, Uri.parse(state.videoUrl!!)),
-                                )
+                                ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(state.videoUrl!!)))
                             } catch (_: Exception) { }
                         },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = SendBlue),
-                        shape = RoundedCornerShape(10.dp),
-                    ) {
-                        Icon(Icons.Default.PlayArrow, null, tint = Color.White)
-                        Spacer(Modifier.width(6.dp))
-                        Text(stringResource(R.string.t_067), color = Color.White, fontWeight = FontWeight.Bold)
-                    }
+                        onShare = {
+                            val i = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, state.videoUrl!!)
+                            }
+                            ctx.startActivity(Intent.createChooser(i, "مشاركة"))
+                        },
+                    )
                 }
             }
 
@@ -415,15 +486,34 @@ private fun PresetChip(label: String, active: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun CopyRow(label: String, value: String) {
-    val clip = LocalClipboardManager.current
+private fun ResultActions(
+    url: String,
+    onDownload: () -> Unit,
+    onShare: () -> Unit,
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(label, color = TextSecondary, fontSize = 12.sp, modifier = Modifier.weight(1f))
-        IconButton(onClick = { clip.setText(AnnotatedString(value)) }) {
-            Icon(Icons.Default.ContentCopy, stringResource(R.string.t_003), tint = Accent)
+        Button(
+            onClick = onDownload,
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(containerColor = SendBlue),
+            shape = RoundedCornerShape(10.dp),
+        ) {
+            Icon(Icons.Default.Download, null, tint = Color.White, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("تحميل", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+        }
+        OutlinedButton(
+            onClick = onShare,
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary),
+        ) {
+            Icon(Icons.Default.Share, null, tint = TextPrimary, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("مشاركة", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
         }
     }
 }

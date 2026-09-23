@@ -18,18 +18,17 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.gptplus18.app.ui.theme.BgSecondary
-import com.gptplus18.app.ui.theme.TextPrimary
-import androidx.compose.ui.res.stringResource
 import com.gptplus18.app.R
+import com.gptplus18.app.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,46 +41,49 @@ fun AttachMenuSheet(
     onDeepThink: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val colors = LocalAppColors.current
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = Color(0xFF1C1C1E),
-        dragHandle = null,
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 12.dp),
+    CompositionLocalProvider(LocalAppColors provides colors) {
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = sheetState,
+            containerColor = colors.surface,
+            dragHandle = null,
+            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         ) {
-            AttachItem(
-                icon = Icons.Default.CameraAlt,
-                label = stringResource(R.string.t_227),
-                onClick = { onCamera(); onDismiss() },
-            )
-            AttachItem(
-                icon = Icons.Default.Image,
-                label = stringResource(R.string.t_228),
-                onClick = { onPhotos(); onDismiss() },
-            )
-            AttachItem(
-                icon = Icons.Default.InsertDriveFile,
-                label = stringResource(R.string.t_229),
-                onClick = { onFiles(); onDismiss() },
-            )
-            AttachItem(
-                icon = Icons.Default.Extension,
-                label = stringResource(R.string.t_006),
-                onClick = { onAddons(); onDismiss() },
-            )
-            AttachItem(
-                icon = Icons.Default.Psychology,
-                label = stringResource(R.string.t_007),
-                onClick = { onDeepThink(); onDismiss() },
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+            ) {
+                AttachItem(
+                    icon = Icons.Default.CameraAlt,
+                    label = stringResource(R.string.t_227),
+                    onClick = { onCamera(); onDismiss() },
+                )
+                AttachItem(
+                    icon = Icons.Default.Image,
+                    label = stringResource(R.string.t_228),
+                    onClick = { onPhotos(); onDismiss() },
+                )
+                AttachItem(
+                    icon = Icons.Default.InsertDriveFile,
+                    label = stringResource(R.string.t_229),
+                    onClick = { onFiles(); onDismiss() },
+                )
+                AttachItem(
+                    icon = Icons.Default.Extension,
+                    label = stringResource(R.string.t_006),
+                    onClick = { onAddons(); onDismiss() },
+                )
+                AttachItem(
+                    icon = Icons.Default.Psychology,
+                    label = stringResource(R.string.t_007),
+                    onClick = { onDeepThink(); onDismiss() },
+                )
 
-            Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(16.dp))
+            }
         }
     }
 }
@@ -92,6 +94,8 @@ private fun AttachItem(
     label: String,
     onClick: () -> Unit,
 ) {
+    val colors = LocalAppColors.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -101,7 +105,7 @@ private fun AttachItem(
     ) {
         Text(
             text = label,
-            color = TextPrimary,
+            color = colors.textPrimary,
             fontSize = 17.sp,
             fontWeight = FontWeight.Normal,
             modifier = Modifier.weight(1f),
@@ -111,13 +115,13 @@ private fun AttachItem(
         Box(
             modifier = Modifier
                 .size(44.dp)
-                .background(Color(0xFF3A3A3C), CircleShape),
+                .background(colors.surfaceVariant, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 icon,
                 label,
-                tint = Color.White,
+                tint = colors.textPrimary,
                 modifier = Modifier.size(22.dp),
             )
         }

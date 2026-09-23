@@ -58,6 +58,8 @@ fun ChatGptComposer(
     onRemoveAttachment: (Long) -> Unit,
 ) {
     val hasText = value.isNotBlank()
+    // ⭐ زر Send يظهر عند وجود نص أو مرفق
+    val canSend = hasText || attachments.isNotEmpty()
     var showEmojiSheet by remember { mutableStateOf(false) }
     val colors = LocalAppColors.current
 
@@ -155,7 +157,7 @@ fun ChatGptComposer(
 
                 Spacer(Modifier.weight(1f))
 
-                if (hasText) {
+                if (canSend) {
                     Box(
                         modifier = Modifier
                             .size(38.dp)

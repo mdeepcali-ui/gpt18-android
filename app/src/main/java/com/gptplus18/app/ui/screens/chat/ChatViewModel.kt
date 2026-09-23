@@ -476,32 +476,82 @@ class ChatViewModel @Inject constructor(
             return
         }
 
-        if (caption.isNotBlank()) {
-            send(caption)
-        }
-
         val sessionId = _state.value.currentSessionId
+        val firstAtt = atts.firstOrNull()
+        val localUri = firstAtt?.uri?.toString()
+
+        // ⭐ 1) user bubble فيه صورة + caption
+        val userMsg = Message(
+            id = -1,
+            role = "user",
+            content = caption.ifBlank { "" },
+            ts = System.currentTimeMillis() / 1000.0,
+            localImageUri = if (firstAtt?.mimeType?.startsWith("image/") == true) localUri else null,
+        )
+
+        // ⭐ 2) assistant bubble فيه مؤشر "يحلل"
+        val analyzingTs = System.currentTimeMillis() / 1000.0 + 1
+        val analyzingMsg = Message(
+            id = -2,
+            role = "assistant",
+            content = "",
+            ts = analyzingTs,
+            isAnalyzing = true,
+        )
+
+        _state.value = _state.value.copy(
+            messages = _state.value.messages + userMsg + analyzingMsg,
+            isSending = true,
+            isUploading = false,
+            error = null,
+            statusLabel = "يحلل",
+            pendingAttachments = emptyList(),
+        )
+
         viewModelScope.launch {
+            var finalSessionId = sessionId
+            var lastError: String? = null
+
             for (att in atts) {
                 val fid = att.uploadedFileId ?: continue
-                when (val r = uploadRepo.processUploaded(fid, "", sessionId)) {
+                when (val r = uploadRepo.processUploaded(fid, caption, finalSessionId)) {
                     is Result.Success -> {
                         val reply = r.data.reply ?: "تم"
-                        val assistant = Message(
-                            id = (r.data.sessionId ?: 0),
-                            role = "assistant",
-                            content = reply,
-                            ts = System.currentTimeMillis() / 1000.0,
-                        )
+                        finalSessionId = r.data.sessionId ?: finalSessionId
+                        // استبدل الـ analyzing msg بالرد
                         _state.value = _state.value.copy(
-                            messages = _state.value.messages + assistant,
-                            currentSessionId = r.data.sessionId ?: _state.value.currentSessionId,
+                            messages = _state.value.messages.map { m ->
+                                if (m.id == -2 && m.ts == analyzingTs) {
+                                    m.copy(
+                                        id = finalSessionId ?: 0,
+                                        content = reply,
+                                        isAnalyzing = false,
+                                    )
+                                } else m
+                            },
+                            currentSessionId = finalSessionId,
                         )
+                    }
+                    is Result.Error -> {
+                        lastError = r.message
                     }
                     else -> {}
                 }
             }
-            _state.value = _state.value.copy(pendingAttachments = emptyList())
+
+            // ⭐ 3) إذا صار خطأ → احذف الـ analyzing bubble + اعرض الخطأ
+            if (lastError != null) {
+                _state.value = _state.value.copy(
+                    messages = _state.value.messages.filterNot { it.id == -2 && it.ts == analyzingTs },
+                    error = lastError,
+                )
+            }
+
+            _state.value = _state.value.copy(
+                isSending = false,
+                isUploading = false,
+                statusLabel = "يفكر",
+            )
         }
     }
 

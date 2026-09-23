@@ -1,5 +1,9 @@
 package com.gptplus18.app.ui.screens.chat
 
+import androidx.compose.material3.CircularProgressIndicator
+import com.gptplus18.app.ui.theme.LocalAppColors
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.border
 import android.content.Intent
@@ -64,7 +68,6 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import com.gptplus18.app.R
 
-private val DrawerSheetBg = Color(0xFF0D0D0D)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -251,15 +254,15 @@ fun ChatScreen(
                                 onClick = { vm.newChat() },
                                 modifier = Modifier
                                     .padding(end = 6.dp)
-                                    .size(34.dp)
+                                    .size(30.dp)
                                     .clip(CircleShape)
-                                    .border(1.5.dp, TextSecondary, CircleShape),
+                                    .border(2.dp, TextSecondary, CircleShape),
                             ) {
                                 Icon(
                                     Icons.Default.Add,
                                     stringResource(R.string.new_chat),
                                     tint = TextPrimary,
-                                    modifier = Modifier.size(20.dp),
+                                    modifier = Modifier.size(16.dp),
                                 )
                             }
                             if (showSessionsList) {
@@ -470,6 +473,7 @@ private fun ModeDropdown(
     onSelect: (ChatMode) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val colors = LocalAppColors.current
     val (label, icon) = when (current) {
         ChatMode.CODE -> "Code" to Icons.Default.Code
         ChatMode.MEDIA -> "Media" to Icons.Default.Movie
@@ -484,26 +488,28 @@ private fun ModeDropdown(
                 .padding(horizontal = 10.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(icon, null, tint = TextPrimary, modifier = Modifier.size(18.dp))
+            Icon(icon, null, tint = colors.textPrimary, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(6.dp))
-            Text(label, color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-            Icon(Icons.Default.ExpandMore, null, tint = TextSecondary,
+            Text(label, color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+            Icon(Icons.Default.ExpandMore, null, tint = colors.textSecondary,
                 modifier = Modifier.size(18.dp))
         }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            containerColor = DrawerSheetBg,
-        ) {
-            ModeMenuItem(stringResource(R.string.chat), Icons.AutoMirrored.Filled.Chat,
-                current == ChatMode.CHAT || current == ChatMode.MAX) {
-                onSelect(ChatMode.CHAT); expanded = false
-            }
-            ModeMenuItem(stringResource(R.string.code), Icons.Default.Code, current == ChatMode.CODE) {
-                onSelect(ChatMode.CODE); expanded = false
-            }
-            ModeMenuItem(stringResource(R.string.t_134), Icons.Default.Movie, current == ChatMode.MEDIA) {
-                onSelect(ChatMode.MEDIA); expanded = false
+        CompositionLocalProvider(LocalAppColors provides colors) {
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                containerColor = colors.surface,
+            ) {
+                ModeMenuItem(stringResource(R.string.chat), Icons.AutoMirrored.Filled.Chat,
+                    current == ChatMode.CHAT || current == ChatMode.MAX) {
+                    onSelect(ChatMode.CHAT); expanded = false
+                }
+                ModeMenuItem(stringResource(R.string.code), Icons.Default.Code, current == ChatMode.CODE) {
+                    onSelect(ChatMode.CODE); expanded = false
+                }
+                ModeMenuItem(stringResource(R.string.t_134), Icons.Default.Movie, current == ChatMode.MEDIA) {
+                    onSelect(ChatMode.MEDIA); expanded = false
+                }
             }
         }
     }
@@ -516,17 +522,23 @@ private fun ModeMenuItem(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
+    val colors = LocalAppColors.current
     DropdownMenuItem(
+        modifier = Modifier.background(colors.surface),
+        colors = MenuDefaults.itemColors(
+            textColor = colors.textPrimary,
+            leadingIconColor = colors.textPrimary,
+        ),
         text = {
             Text(
                 label,
-                color = if (selected) Accent else TextPrimary,
+                color = if (selected) colors.accent else colors.textPrimary,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
             )
         },
         onClick = onClick,
         leadingIcon = {
-            Icon(icon, null, tint = if (selected) Accent else TextSecondary)
+            Icon(icon, null, tint = if (selected) colors.accent else colors.textSecondary)
         },
     )
 }
@@ -597,6 +609,8 @@ private fun MessageBubble(
     val imageUrl = MessageHelpers.extractImageUrl(msg.content)
     val audioUrl = MessageHelpers.extractAudioUrl(msg.content)
     val cleanText = MessageHelpers.stripMediaMarkers(msg.content)
+    // ⭐ محلي: صورة مرفوعة لم تُرفع للسيرفر بعد
+    val localImage = msg.localImageUri
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -618,6 +632,20 @@ private fun MessageBubble(
                     ),
                 ) {
                     Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                        // ⭐ صورة محلية (مرفوعة من الجهاز)
+                        if (localImage != null && imageUrl == null) {
+                            AsyncImage(
+                                model = localImage,
+                                contentDescription = stringResource(R.string.t_135),
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .widthIn(max = 220.dp)
+                                    .heightIn(max = 260.dp)
+                                    .clip(RoundedCornerShape(12.dp)),
+                            )
+                            if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
+                        }
+                        // ⭐ صورة من السيرفر
                         if (imageUrl != null) {
                             AsyncImage(
                                 model = imageUrl,
@@ -654,6 +682,29 @@ private fun MessageBubble(
                             onLongClick = onLongPress,
                         ),
                 ) {
+                    // ⭐ مؤشر جاري التحليل
+                    if (msg.isAnalyzing) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(BubbleBg)
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                        ) {
+                            androidx.compose.material3.CircularProgressIndicator(
+                                color = Accent,
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                            )
+                            Spacer(Modifier.width(10.dp))
+                            Text(
+                                "🔍 جاري تحليل الصورة...",
+                                color = TextPrimary,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        }
+                    }
                     if (imageUrl != null) {
                         AsyncImage(
                             model = imageUrl,
