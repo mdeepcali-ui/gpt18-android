@@ -60,12 +60,20 @@ class ChatViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val name = tokenStorage.getName() ?: "صديقي"
+            val name = tokenStorage.getName()?.takeIf { it.isNotBlank() } ?: "المستخدم"
             _state.value = _state.value.copy(userName = name)
             loadSessions()
         }
         viewModelScope.launch {
-            val owner = runCatching { adminRepo.isOwner() }.getOrDefault(false)
+            // 🔁 محاولة 3 مرات مع تأخير
+            var owner = false
+            repeat(3) { attempt ->
+                try {
+                    owner = adminRepo.isOwner()
+                    if (owner) return@repeat
+                } catch (_: Exception) { }
+                if (attempt < 2) kotlinx.coroutines.delay(1000L * (attempt + 1))
+            }
             _state.value = _state.value.copy(isOwner = owner)
         }
     }
@@ -145,8 +153,9 @@ class ChatViewModel @Inject constructor(
     fun newChat() {
         // 📊 Analytics
         analytics.logChatStart()
+        // 🆕 -1 = شات جديدة غير محفوظة (يظهر شاشة دردشة فاضية)
         _state.value = _state.value.copy(
-            currentSessionId = null,
+            currentSessionId = -1,
             messages = emptyList(),
             replyTo = null,
             pendingAttachments = emptyList(),
@@ -237,7 +246,9 @@ class ChatViewModel @Inject constructor(
             var finalSessionId = current.currentSessionId
             var gotError = false
 
-            chatRepo.streamMessage(current.currentSessionId, finalText)
+            // 🆕 -1 = شات جديدة → نمرر null للسيرفر (ينشئ session جديدة)
+            val sidForServer = if (current.currentSessionId == -1) null else current.currentSessionId
+            chatRepo.streamMessage(sidForServer, finalText)
                 .collect { ev ->
                     when (ev) {
                         is StreamEvent.Delta -> {

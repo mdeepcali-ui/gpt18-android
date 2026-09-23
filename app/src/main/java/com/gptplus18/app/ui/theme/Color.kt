@@ -1,5 +1,7 @@
 package com.gptplus18.app.ui.theme
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 
 // ═══════════════════════════════════════════
@@ -13,7 +15,6 @@ val DarkTextPrimary = Color(0xFFFFFFFF)
 val DarkTextSecondary = Color(0xFFA0A0A0)
 val DarkTextTertiary = Color(0xFF6B6B6B)
 
-// ✨ Accent — أبيض (بدل أخضر)
 val DarkAccent = Color(0xFFFFFFFF)
 val DarkAccentContainer = Color(0xFFE0E0E0)
 
@@ -32,19 +33,45 @@ val LightAccent = Color(0xFF1A1A1C)
 val LightAccentContainer = Color(0xFF3A3A3C)
 
 // ═══════════════════════════════════════════
-// Semantic
+// Semantic (ثابتة)
 // ═══════════════════════════════════════════
 val Success = Color(0xFF7EE787)
 val Warning = Color(0xFFFFC58F)
 val Error = Color(0xFFFF6B6B)
 val Info = Color(0xFF93E0FF)
 
-val BgPrimary = DarkBg
-val BgSecondary = DarkSurface
-val BgTertiary = DarkSurfaceVariant
-val TextPrimary = DarkTextPrimary
-val TextSecondary = DarkTextSecondary
-val TextTertiary = DarkTextTertiary
-val Accent = DarkAccent
-val AccentDark = DarkAccentContainer
-// rebuild 1790134165
+// ═══════════════════════════════════════════
+// 🎨 Legacy names — ديناميكية (تتبع الوضع الحالي)
+// استخدمها داخل @Composable فقط
+// ═══════════════════════════════════════════
+val BgPrimary: Color
+    @Composable @ReadOnlyComposable
+    get() = LocalAppColors.current.bg
+
+val BgSecondary: Color
+    @Composable @ReadOnlyComposable
+    get() = LocalAppColors.current.surface
+
+val BgTertiary: Color
+    @Composable @ReadOnlyComposable
+    get() = LocalAppColors.current.surfaceVariant
+
+val TextPrimary: Color
+    @Composable @ReadOnlyComposable
+    get() = LocalAppColors.current.textPrimary
+
+val TextSecondary: Color
+    @Composable @ReadOnlyComposable
+    get() = LocalAppColors.current.textSecondary
+
+val TextTertiary: Color
+    @Composable @ReadOnlyComposable
+    get() = LocalAppColors.current.textTertiary
+
+val Accent: Color
+    @Composable @ReadOnlyComposable
+    get() = LocalAppColors.current.accent
+
+val AccentDark: Color
+    @Composable @ReadOnlyComposable
+    get() = LocalAppColors.current.accentContainer

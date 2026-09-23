@@ -137,14 +137,21 @@ fun ChatScreen(
         }
     }
 
-    LaunchedEffect(state.messages.size, state.isSending, state.isUploading) {
+    LaunchedEffect(state.messages.size, state.isSending, state.isUploading, state.messages.lastOrNull()?.content?.length) {
         val total = state.messages.size + if (state.isSending || state.isUploading) 1 else 0
-        if (total > 0) listState.animateScrollToItem(total - 1)
+        if (total > 0) listState.scrollToItem(total - 1)
     }
 
     // 🚪 BackHandler — لا يسجل خروج
     BackHandler(enabled = state.currentSessionId != null) {
         vm.backToList()
+    }
+
+    // 🆕 عند فتح الشاشة لأول مرة — لو ما في sessions، افتح شات جديدة
+    LaunchedEffect(Unit) {
+        if (state.currentSessionId == null && state.sessions.isEmpty() && !state.isLoadingSessions) {
+            vm.newChat()
+        }
     }
 
     ModalNavigationDrawer(

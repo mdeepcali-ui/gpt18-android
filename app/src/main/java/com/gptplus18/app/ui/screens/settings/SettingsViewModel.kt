@@ -59,7 +59,10 @@ class SettingsViewModel @Inject constructor(
     fun toggleLanguage() {
         viewModelScope.launch {
             val current = prefs.langFlow.first()
-            prefs.setLanguage(if (current == "ar") "en" else "ar")
+            val newLang = if (current == "ar") "en" else "ar"
+            prefs.setLanguage(newLang)
+            // force UI update
+            _state.value = _state.value.copy(language = newLang)
         }
     }
 
