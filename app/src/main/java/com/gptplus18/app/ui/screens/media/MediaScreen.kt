@@ -15,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -25,6 +26,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.border
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Edit
 import coil.compose.AsyncImage
 import com.gptplus18.app.ui.theme.*
 
@@ -33,6 +40,12 @@ import com.gptplus18.app.ui.theme.*
 fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
     val state by vm.state.collectAsState()
     val ctx = LocalContext.current
+
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+    ) { uri ->
+        if (uri != null) vm.setEditImage(uri)
+    }
 
     Scaffold(
         containerColor = BgPrimary,
@@ -110,6 +123,53 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                             PresetChip(label, state.preset == k) { vm.setPreset(k) }
                         }
                     }
+
+                    Spacer(Modifier.height(16.dp))
+                    Text("أو عدّل صورة موجودة", color = TextSecondary, fontSize = 13.sp)
+                    Spacer(Modifier.height(6.dp))
+
+                    if (state.editImageUri == null) {
+                        Button(
+                            onClick = { imagePicker.launch("image/*") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = BgTertiary,
+                                contentColor = TextPrimary,
+                            ),
+                        ) {
+                            Icon(Icons.Default.Image, null, tint = TextPrimary, modifier = Modifier.size(20.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("اختر صورة للتعديل", fontWeight = FontWeight.Bold)
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 200.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .border(0.5.dp, BubbleBorder, RoundedCornerShape(12.dp)),
+                        ) {
+                            AsyncImage(
+                                model = state.editImageUri,
+                                contentDescription = "صورة للتعديل",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp),
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(6.dp)
+                                    .size(28.dp)
+                                    .clip(RoundedCornerShape(50))
+                                    .background(Error.copy(alpha = 0.9f))
+                                    .clickable { vm.clearEditImage() },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(Icons.Default.Close, "إزالة", tint = Color.White, modifier = Modifier.size(16.dp))
+                            }
+                        }
+                    }
                 }
                 MediaTab.SONG -> {
                     Text("المدة", color = TextSecondary, fontSize = 13.sp)
@@ -152,8 +212,9 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
 
             Spacer(Modifier.height(20.dp))
 
+            val isEditMode = state.tab == MediaTab.IMAGE && state.editImageUri != null
             Button(
-                onClick = { vm.generate() },
+                onClick = { if (isEditMode) vm.editImage() else vm.generate() },
                 enabled = !state.isLoading,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(12.dp),
@@ -168,13 +229,20 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     Spacer(Modifier.width(8.dp))
                     Text(
                         if (state.tab == MediaTab.VIDEO) "جاري التوليد (قد يأخذ دقائق)..."
+                        else if (isEditMode) "جاري التعديل..."
                         else "جاري الإنشاء...",
                         color = BgPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
                     )
                 } else {
-                    Text("إنشاء", color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    if (isEditMode) {
+                        Icon(Icons.Default.Edit, null, tint = BgPrimary, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("تعديل", color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    } else {
+                        Text("إنشاء", color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    }
                 }
             }
 

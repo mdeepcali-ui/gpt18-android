@@ -26,6 +26,10 @@ data class AppColors(
     val textTertiary: Color,
     val accent: Color,
     val accentContainer: Color,
+    val bubbleBg: Color,
+    val bubbleBorder: Color,
+    val composerBg: Color,
+    val composerBorder: Color,
     val isLight: Boolean,
 )
 
@@ -38,6 +42,10 @@ val DarkAppColors = AppColors(
     textTertiary = DarkTextTertiary,
     accent = DarkAccent,
     accentContainer = DarkAccentContainer,
+    bubbleBg = Color(0xFF0D0D0D),
+    bubbleBorder = Color(0xFF2A2A2A),
+    composerBg = Color(0xFF0D0D0D),
+    composerBorder = Color(0xFF2A2A2A),
     isLight = false,
 )
 
@@ -50,6 +58,10 @@ val LightAppColors = AppColors(
     textTertiary = LightTextTertiary,
     accent = LightAccent,
     accentContainer = LightAccentContainer,
+    bubbleBg = Color(0xFFFFFFFF),
+    bubbleBorder = Color(0xFFD5D5DD),
+    composerBg = Color(0xFFFFFFFF),
+    composerBorder = Color(0xFFD5D5DD),
     isLight = true,
 )
 

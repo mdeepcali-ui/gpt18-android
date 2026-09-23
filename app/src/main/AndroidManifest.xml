@@ -10,6 +10,7 @@
         android:maxSdkVersion="32" />
 
     <application
+        android:localeConfig="@xml/locales_config"
         android:name=".GptPlus18App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

@@ -60,8 +60,6 @@ import com.gptplus18.app.ui.components.TypingIndicator
 import com.gptplus18.app.ui.theme.*
 import kotlinx.coroutines.launch
 
-private val UserBubbleBg = Color(0xFF0D0D0D)
-private val UserBubbleBorder = Color(0xFF2A2A2A)
 private val DrawerSheetBg = Color(0xFF0D0D0D)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -600,9 +598,9 @@ private fun MessageBubble(
         ) {
             if (isUser) {
                 Surface(
-                    color = UserBubbleBg,
+                    color = BubbleBg,
                     shape = RoundedCornerShape(22.dp),
-                    border = androidx.compose.foundation.BorderStroke(0.5.dp, UserBubbleBorder),
+                    border = androidx.compose.foundation.BorderStroke(0.5.dp, BubbleBorder),
                     shadowElevation = 4.dp,
                     modifier = Modifier.combinedClickable(
                         onClick = { },

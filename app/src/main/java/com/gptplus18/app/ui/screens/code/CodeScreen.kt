@@ -32,6 +32,7 @@ import com.gptplus18.app.data.models.CodeMessage
 import com.gptplus18.app.data.models.CodeModel
 import com.gptplus18.app.data.models.CodeSession
 import com.gptplus18.app.ui.components.ChatGptComposer
+import com.gptplus18.app.ui.components.MarkdownText
 import com.gptplus18.app.ui.theme.*
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Check
@@ -79,10 +80,8 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                     }
                 },
                 actions = {
-                    if (state.currentSessionId == null) {
-                        IconButton(onClick = { vm.newRequest() }) {
-                            Icon(Icons.Default.Add, "جديد", tint = Accent)
-                        }
+                    IconButton(onClick = { vm.newRequest() }) {
+                        Icon(Icons.Default.Add, "جديد", tint = Accent)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
@@ -226,11 +225,10 @@ private fun CodeMessageItem(m: CodeMessage) {
                 }
             }
             Spacer(Modifier.height(6.dp))
-            Text(
-                m.content,
-                color = TextPrimary,
-                fontSize = 13.sp,
-                fontFamily = if (!isUser) FontFamily.Monospace else FontFamily.Default,
+            MarkdownText(
+                text = m.content,
+                textColor = TextPrimary,
+                fontSize = 13,
             )
         }
     }

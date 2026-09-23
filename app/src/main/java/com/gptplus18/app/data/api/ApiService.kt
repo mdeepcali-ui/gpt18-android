@@ -2,6 +2,7 @@ package com.gptplus18.app.data.api
 
 import com.gptplus18.app.data.models.*
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -130,6 +131,14 @@ interface ApiService {
     suspend fun generateImage(
         @Header("Authorization") bearer: String,
         @Body body: ImageRequest,
+    ): Response<ImageResponse>
+
+    @Multipart
+    @POST("api/chat/edit")
+    suspend fun editImage(
+        @Header("Authorization") bearer: String,
+        @Part file: MultipartBody.Part,
+        @Part("prompt") prompt: RequestBody,
     ): Response<ImageResponse>
 
     @POST("api/chat/song")

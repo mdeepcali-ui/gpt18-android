@@ -88,10 +88,12 @@ class CodeViewModel @Inject constructor(
 
     fun newRequest() {
         _state.value = _state.value.copy(
-            currentSessionId = null,
+            currentSessionId = -1,
             messages = emptyList(),
             liveOutput = "",
             logs = emptyList(),
+            error = null,
+            jobStatus = "idle",
         )
     }
 
@@ -122,6 +124,7 @@ class CodeViewModel @Inject constructor(
         if (_state.value.isRunning) return
 
         val sid = _state.value.currentSessionId
+        val sidForApi = if (sid == -1) null else sid
         val model = _state.value.currentModel
         _state.value = _state.value.copy(
             isRunning = true,
@@ -133,7 +136,7 @@ class CodeViewModel @Inject constructor(
 
         viewModelScope.launch {
             val modelKey = model.key
-            when (val r = repo.generate(request, sid, modelKey)) {
+            when (val r = repo.generate(request, sidForApi, modelKey)) {
                 is Result.Success -> {
                     // 📊 Analytics
                     analytics.logCodeJobStarted(model = modelKey)
@@ -198,7 +201,7 @@ class CodeViewModel @Inject constructor(
             isRunning = false,
             jobStatus = "done",
         )
-        if (sid != null) {
+        if (sid != null && sid > 0) {
             viewModelScope.launch {
                 when (val r = repo.getMessages(sid)) {
                     is Result.Success -> _state.value = _state.value.copy(messages = r.data)

@@ -1,5 +1,7 @@
 package com.gptplus18.app.ui.screens.media
 
+import android.net.Uri
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gptplus18.app.data.repository.MediaRepository
@@ -23,6 +25,7 @@ data class MediaUiState(
     val videoModel: String = "auto",
     val isLoading: Boolean = false,
     val imageUrl: String? = null,
+    val editImageUri: Uri? = null,
     val songUrl: String? = null,
     val songTitle: String? = null,
     val songLyrics: String? = null,
@@ -45,6 +48,7 @@ class MediaViewModel @Inject constructor(
             tab = t,
             error = null,
             imageUrl = null,
+            editImageUri = null,
             songUrl = null,
             songTitle = null,
             songLyrics = null,
@@ -138,6 +142,30 @@ class MediaViewModel @Inject constructor(
                         else -> {}
                     }
                 }
+            }
+        }
+    }
+
+    fun setEditImage(uri: Uri?) {
+        _state.value = _state.value.copy(editImageUri = uri, error = null)
+    }
+
+    fun clearEditImage() {
+        _state.value = _state.value.copy(editImageUri = null)
+    }
+
+    fun editImage() {
+        val uri = _state.value.editImageUri ?: return
+        val prompt = _state.value.prompt.trim()
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null, imageUrl = null)
+            when (val r = repo.editImage(uri, prompt)) {
+                is Result.Success -> {
+                    analytics.logImageGenerated(preset = "edit")
+                    _state.value = _state.value.copy(isLoading = false, imageUrl = r.data.imageUrl)
+                }
+                is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
+                else -> {}
             }
         }
     }

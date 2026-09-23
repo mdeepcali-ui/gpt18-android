@@ -75,3 +75,22 @@ val Accent: Color
 val AccentDark: Color
     @Composable @ReadOnlyComposable
     get() = LocalAppColors.current.accentContainer
+
+// ═══════════════════════════════════════════
+// 🎨 ألوان الفقاعات والـ Composer (تتبع الوضع)
+// ═══════════════════════════════════════════
+val BubbleBg: Color
+    @Composable @ReadOnlyComposable
+    get() = LocalAppColors.current.bubbleBg
+
+val BubbleBorder: Color
+    @Composable @ReadOnlyComposable
+    get() = LocalAppColors.current.bubbleBorder
+
+val ComposerBgColor: Color
+    @Composable @ReadOnlyComposable
+    get() = LocalAppColors.current.composerBg
+
+val ComposerBorderColor: Color
+    @Composable @ReadOnlyComposable
+    get() = LocalAppColors.current.composerBorder

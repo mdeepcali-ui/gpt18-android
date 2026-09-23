@@ -1,16 +1,23 @@
 package com.gptplus18.app.ui.screens.settings
 
+import android.app.LocaleManager
+import android.content.Context
+import android.content.res.Configuration
+import android.os.Build
+import android.os.LocaleList
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gptplus18.app.data.local.PreferencesRepository
 import com.gptplus18.app.data.repository.NotificationsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 data class SettingsState(
@@ -24,6 +31,7 @@ data class SettingsState(
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val prefs: PreferencesRepository,
     private val notificationsRepo: NotificationsRepository,
 ) : ViewModel() {
@@ -36,6 +44,12 @@ class SettingsViewModel @Inject constructor(
     val state: StateFlow<SettingsState> = _state.asStateFlow()
 
     init {
+        // 📌 طبّق اللغة المحفوظة عند الإقلاع
+        viewModelScope.launch {
+            val saved = prefs.langFlow.first()
+            applyLocale(saved)
+            _state.value = _state.value.copy(language = saved)
+        }
         viewModelScope.launch {
             prefs.darkModeFlow.collect { _state.value = _state.value.copy(darkMode = it) }
         }
@@ -61,8 +75,39 @@ class SettingsViewModel @Inject constructor(
             val current = prefs.langFlow.first()
             val newLang = if (current == "ar") "en" else "ar"
             prefs.setLanguage(newLang)
-            // force UI update
             _state.value = _state.value.copy(language = newLang)
+            applyLocale(newLang)
+        }
+    }
+
+    /**
+     * يطبّق اللغة على مستوى النظام (per-app locale)
+     * - API 33+: LocaleManager (يتطلب localeConfig في manifest)
+     * - API < 33: Configuration override
+     */
+    private fun applyLocale(lang: String) {
+        try {
+            val tag = if (lang == "en") "en" else "ar"
+            val locale = Locale.forLanguageTag(tag)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val lm = context.getSystemService(LocaleManager::class.java)
+                if (lm != null) {
+                    lm.applicationLocales = LocaleList.forLanguageTags(tag)
+                    Log.d(TAG, "🌐 LocaleManager applied: $tag")
+                } else {
+                    Log.w(TAG, "⚠️ LocaleManager not available")
+                }
+            } else {
+                Locale.setDefault(locale)
+                val config = Configuration(context.resources.configuration)
+                config.setLocale(locale)
+                @Suppress("DEPRECATION")
+                context.resources.updateConfiguration(config, context.resources.displayMetrics)
+                Log.d(TAG, "🌐 Legacy locale applied: $tag")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ applyLocale failed: ${e.message}", e)
         }
     }
 
@@ -79,11 +124,9 @@ class SettingsViewModel @Inject constructor(
             )
 
             try {
-                // احفظ الاختيار أولاً
                 prefs.setNotifications(enabled)
 
                 if (enabled) {
-                    // سجّل FCM token على السيرفر
                     val ok = notificationsRepo.registerCurrentToken()
                     if (!ok) {
                         _state.value = _state.value.copy(
@@ -95,7 +138,6 @@ class SettingsViewModel @Inject constructor(
                         Log.d(TAG, "✅ تم تفعيل الإشعارات")
                     }
                 } else {
-                    // إلغاء التسجيل (اختياري)
                     Log.d(TAG, "🔕 تم إلغاء الإشعارات")
                 }
             } catch (e: Exception) {

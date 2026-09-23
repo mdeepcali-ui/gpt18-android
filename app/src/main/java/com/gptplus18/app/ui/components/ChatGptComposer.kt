@@ -41,11 +41,11 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.gptplus18.app.data.models.Attachment
 import com.gptplus18.app.ui.theme.TextPrimary
+import com.gptplus18.app.ui.theme.BgPrimary
+import com.gptplus18.app.ui.theme.ComposerBgColor
+import com.gptplus18.app.ui.theme.ComposerBorderColor
 import com.gptplus18.app.ui.theme.TextTertiary
 
-private val BgBlack = Color(0xFF000000)
-private val ComposerBg = Color(0xFF0D0D0D)
-private val ComposerBorder = Color(0xFF2A2A2A)
 private val SendBlue = Color(0xFF0A84FF)  // أزرق زيك
 private val IconGray = Color(0xFFB4B4B4)
 private val CloseBtnBg = Color(0xFF4A4A4A)
@@ -66,7 +66,7 @@ fun ChatGptComposer(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(BgBlack)
+            .background(BgPrimary)
             .padding(horizontal = 8.dp, vertical = 6.dp)
             .navigationBarsPadding(),
     ) {
@@ -80,8 +80,8 @@ fun ChatGptComposer(
                     spotColor = Color.Black.copy(alpha = 0.6f),
                 )
                 .clip(RoundedCornerShape(28.dp))
-                .background(ComposerBg)
-                .border(0.5.dp, ComposerBorder, RoundedCornerShape(28.dp))
+                .background(ComposerBgColor)
+                .border(0.5.dp, ComposerBorderColor, RoundedCornerShape(28.dp))
                 .padding(6.dp),
         ) {
             if (attachments.isNotEmpty()) {
