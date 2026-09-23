@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.sp
 import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.ui.theme.TextSecondary
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 // ═══════════════════════════════════════════
 // ألوان طبيعية (VSCode Dark+ / GitHub Dark)
@@ -134,7 +136,7 @@ private fun CodeBlockView(lang: String, code: String) {
                         modifier = Modifier.size(14.dp),
                     )
                     Spacer(Modifier.width(4.dp))
-                    Text("نسخ", color = Accent, fontSize = 12.sp)
+                    Text(stringResource(R.string.t_003), color = Accent, fontSize = 12.sp)
                 }
             }
             Box(

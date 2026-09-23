@@ -20,6 +20,8 @@ import com.gptplus18.app.ui.theme.BgSecondary
 import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.ui.theme.TextSecondary
 import com.gptplus18.app.ui.theme.TextTertiary
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +68,7 @@ fun ModeSelector(
             modifier = Modifier.width(260.dp),
         ) {
             Text(
-                "اختر الوضع",
+                stringResource(R.string.t_005),
                 color = TextSecondary,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,

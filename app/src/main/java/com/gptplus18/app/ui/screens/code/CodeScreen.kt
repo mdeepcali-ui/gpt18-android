@@ -37,6 +37,8 @@ import com.gptplus18.app.ui.theme.*
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -64,7 +66,7 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
             TopAppBar(
                 title = {
                     if (state.currentSessionId == null) {
-                        Text("وضع البرمجة", color = TextPrimary, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.t_051), color = TextPrimary, fontWeight = FontWeight.Bold)
                     } else {
                         CodeModelSelector(
                             currentModel = state.currentModel,
@@ -132,17 +134,17 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
     deleteDialogFor?.let { s ->
         AlertDialog(
             onDismissRequest = { deleteDialogFor = null },
-            title = { Text("حذف الجلسة", color = TextPrimary) },
+            title = { Text(stringResource(R.string.t_052), color = TextPrimary) },
             text = { Text("حذف \"${s.title}\"؟", color = TextSecondary) },
             confirmButton = {
                 TextButton(onClick = {
                     vm.deleteSession(s.id)
                     deleteDialogFor = null
-                }) { Text("حذف", color = Color(0xFFEF4444)) }
+                }) { Text(stringResource(R.string.t_046), color = Color(0xFFEF4444)) }
             },
             dismissButton = {
                 TextButton(onClick = { deleteDialogFor = null }) {
-                    Text("إلغاء", color = TextSecondary)
+                    Text(stringResource(R.string.t_026), color = TextSecondary)
                 }
             },
             containerColor = BgSecondary,
@@ -159,10 +161,10 @@ private fun SessionList(
     if (sessions.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("وضع البرمجة", color = Accent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text("اكتب طلبك البرمجي ودع الفريق يبني", color = TextSecondary, fontSize = 13.sp,
+                Text(stringResource(R.string.t_051), color = Accent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_053), color = TextSecondary, fontSize = 13.sp,
                     modifier = Modifier.padding(top = 8.dp))
-                Text("للمشتركين فقط", color = TextTertiary, fontSize = 12.sp,
+                Text(stringResource(R.string.t_054), color = TextTertiary, fontSize = 12.sp,
                     modifier = Modifier.padding(top = 4.dp))
             }
         }
@@ -318,7 +320,7 @@ private fun CodeModelSelector(
             modifier = Modifier.width(300.dp),
         ) {
             Text(
-                "اختر النموذج",
+                stringResource(R.string.t_055),
                 color = TextSecondary,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,

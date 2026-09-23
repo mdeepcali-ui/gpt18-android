@@ -27,6 +27,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gptplus18.app.ui.theme.*
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +39,7 @@ fun AboutScreen(onBack: () -> Unit = {}) {
         containerColor = BgPrimary,
         topBar = {
             TopAppBar(
-                title = { Text("عن التطبيق", color = TextPrimary, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.t_008), color = TextPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "رجوع", tint = Accent)
@@ -81,13 +83,13 @@ fun AboutScreen(onBack: () -> Unit = {}) {
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                "ذكاء اصطناعي بلا قيود",
+                stringResource(R.string.t_009),
                 color = TextSecondary,
                 fontSize = 14.sp,
                 modifier = Modifier.padding(top = 6.dp),
             )
             Text(
-                "الإصدار 1.0.0",
+                stringResource(R.string.t_010),
                 color = TextTertiary,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(top = 4.dp),
@@ -103,14 +105,14 @@ fun AboutScreen(onBack: () -> Unit = {}) {
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(
-                        "تطبيق ذكاء اصطناعي عربي متكامل",
+                        stringResource(R.string.t_011),
                         color = Accent,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "دردشة ذكية، فريق برمجة كامل، توليد صور وأغاني، وكل ما تحتاجه بأمر واحد.",
+                        stringResource(R.string.t_012),
                         color = TextSecondary,
                         fontSize = 14.sp,
                         lineHeight = 22.sp,
@@ -137,13 +139,13 @@ fun AboutScreen(onBack: () -> Unit = {}) {
             Spacer(Modifier.height(32.dp))
 
             Text(
-                "صُنع بـ ❤️ في سوريا",
+                stringResource(R.string.t_013),
                 color = TextTertiary,
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center,
             )
             Text(
-                "© 2026 GPT+18. جميع الحقوق محفوظة.",
+                stringResource(R.string.t_014),
                 color = TextTertiary,
                 fontSize = 11.sp,
                 textAlign = TextAlign.Center,

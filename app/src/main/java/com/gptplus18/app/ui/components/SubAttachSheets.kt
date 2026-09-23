@@ -26,6 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gptplus18.app.ui.theme.TextPrimary
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 // ═══════════════════════════════════════════
 // المكونات الإضافية
@@ -48,7 +50,7 @@ fun AddonsSheet(
             Modifier.fillMaxWidth().padding(vertical = 16.dp),
         ) {
             Text(
-                "المكونات الإضافية",
+                stringResource(R.string.t_006),
                 color = TextPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
@@ -92,7 +94,7 @@ fun DeepThinkSheet(
             Modifier.fillMaxWidth().padding(vertical = 16.dp),
         ) {
             Text(
-                "فكّر بعمق أكبر",
+                stringResource(R.string.t_007),
                 color = TextPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,

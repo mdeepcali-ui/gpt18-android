@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gptplus18.app.ui.theme.*
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +39,7 @@ fun SettingsScreen(
         containerColor = BgPrimary,
         topBar = {
             TopAppBar(
-                title = { Text("الإعدادات", color = TextPrimary, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.t_076), color = TextPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "رجوع", tint = Accent)
@@ -115,7 +117,7 @@ fun SettingsScreen(
                           modifier = Modifier.weight(1f),
                       )
                       TextButton(onClick = { vm.dismissNotificationError() }) {
-                          Text("حسناً", color = Accent, fontSize = 12.sp)
+                          Text(stringResource(R.string.t_078), color = Accent, fontSize = 12.sp)
                       }
                   }
               }

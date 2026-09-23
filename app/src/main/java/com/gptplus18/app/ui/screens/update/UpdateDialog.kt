@@ -20,6 +20,8 @@ import com.gptplus18.app.ui.theme.BgPrimary
 import com.gptplus18.app.ui.theme.BgSecondary
 import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.ui.theme.TextSecondary
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @Composable
 fun UpdateDialog(
@@ -63,7 +65,7 @@ fun UpdateDialog(
                 if (info.changelog.isNotBlank()) {
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        "التغييرات:",
+                        stringResource(R.string.t_089),
                         color = TextPrimary,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
@@ -89,13 +91,13 @@ fun UpdateDialog(
                 colors = ButtonDefaults.buttonColors(containerColor = Accent),
                 shape = RoundedCornerShape(10.dp),
             ) {
-                Text("تحميل الآن", color = BgPrimary, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_090), color = BgPrimary, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = if (!info.forceUpdate) {
             {
                 TextButton(onClick = onDismiss) {
-                    Text("لاحقاً", color = TextSecondary)
+                    Text(stringResource(R.string.t_091), color = TextSecondary)
                 }
             }
         } else null,

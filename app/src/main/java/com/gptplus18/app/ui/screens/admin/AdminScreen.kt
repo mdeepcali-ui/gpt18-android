@@ -25,6 +25,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gptplus18.app.data.models.AdminUser
 import com.gptplus18.app.ui.theme.*
 import kotlinx.coroutines.delay
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 enum class AdminTab { USERS, NOTIFICATIONS }
 
@@ -57,7 +59,7 @@ fun AdminScreen(vm: AdminViewModel = hiltViewModel()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.AdminPanelSettings, null, tint = Accent)
                         Spacer(Modifier.width(8.dp))
-                        Text("إعدادات المشتركين", color = TextPrimary, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.t_015), color = TextPrimary, fontWeight = FontWeight.Bold)
                     }
                 },
                 actions = {
@@ -85,8 +87,8 @@ fun AdminScreen(vm: AdminViewModel = hiltViewModel()) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("🔒", fontSize = 48.sp)
                     Spacer(Modifier.height(16.dp))
-                    Text("غير مصرح", color = Error, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                    Text("هذه الصفحة للمالك فقط", color = TextSecondary, fontSize = 14.sp,
+                    Text(stringResource(R.string.t_016), color = Error, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.t_017), color = TextSecondary, fontSize = 14.sp,
                         modifier = Modifier.padding(top = 8.dp))
                 }
             }
@@ -101,12 +103,12 @@ fun AdminScreen(vm: AdminViewModel = hiltViewModel()) {
                 Tab(
                     selected = currentTab == AdminTab.USERS,
                     onClick = { currentTab = AdminTab.USERS },
-                    text = { Text("👥 المستخدمون") },
+                    text = { Text(stringResource(R.string.t_018)) },
                 )
                 Tab(
                     selected = currentTab == AdminTab.NOTIFICATIONS,
                     onClick = { currentTab = AdminTab.NOTIFICATIONS },
-                    text = { Text("🔔 الإشعارات") },
+                    text = { Text(stringResource(R.string.t_019)) },
                 )
             }
             when (currentTab) {
@@ -163,7 +165,7 @@ private fun UsersTab(
             state.error?.let { InfoCard(it, false) }
         }
         item {
-            Text("الإحصائيات", color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.t_020), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard("كلياً", state.stats.total, Color(0xFF93E0FF), Modifier.weight(1f))
@@ -177,12 +179,12 @@ private fun UsersTab(
         }
         item {
             Spacer(Modifier.height(8.dp))
-            Text("منح اشتراك", color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.t_021), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = grantEmail,
                 onValueChange = onGrantEmailChange,
-                label = { Text("بريد المستخدم") },
+                label = { Text(stringResource(R.string.t_022)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = adminFieldColors(),
@@ -198,16 +200,16 @@ private fun UsersTab(
                 modifier = Modifier.fillMaxWidth().height(48.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Accent),
                 shape = RoundedCornerShape(10.dp),
-            ) { Text("منح", color = BgPrimary, fontWeight = FontWeight.Bold) }
+            ) { Text(stringResource(R.string.t_023), color = BgPrimary, fontWeight = FontWeight.Bold) }
         }
         item {
             Spacer(Modifier.height(8.dp))
-            Text("إجراءات على مستخدم", color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.t_024), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = actionEmail,
                 onValueChange = onActionEmailChange,
-                label = { Text("بريد المستخدم") },
+                label = { Text(stringResource(R.string.t_022)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = adminFieldColors(),
@@ -219,13 +221,13 @@ private fun UsersTab(
                     modifier = Modifier.weight(1f).height(44.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Warning),
                     shape = RoundedCornerShape(10.dp),
-                ) { Text("إعادة تجربة", color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp) }
+                ) { Text(stringResource(R.string.t_025), color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp) }
                 Button(
                     onClick = { vm.revoke(actionEmail) },
                     modifier = Modifier.weight(1f).height(44.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Error),
                     shape = RoundedCornerShape(10.dp),
-                ) { Text("إلغاء", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp) }
+                ) { Text(stringResource(R.string.t_026), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp) }
             }
         }
         item {
@@ -235,7 +237,7 @@ private fun UsersTab(
             OutlinedTextField(
                 value = state.search,
                 onValueChange = { vm.setSearch(it) },
-                placeholder = { Text("ابحث بالإيميل أو الاسم...", color = TextTertiary) },
+                placeholder = { Text(stringResource(R.string.t_027), color = TextTertiary) },
                 leadingIcon = { Icon(Icons.Default.Search, null, tint = TextSecondary) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -282,7 +284,7 @@ private fun NotificationsTab(
             state.error?.let { InfoCard(it, false) }
         }
         item {
-            Text("📊 إحصائيات الإشعارات", color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.t_028), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard("أجهزة", state.notifStats.tokensCount, Color(0xFF93E0FF), Modifier.weight(1f))
@@ -295,16 +297,16 @@ private fun NotificationsTab(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Campaign, null, tint = Warning, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("بث للكل", color = Warning, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_029), color = Warning, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             }
-            Text("⚠️ يرسل لكل المستخدمين — استخدمه بحكمة",
+            Text(stringResource(R.string.t_030),
                 color = TextTertiary, fontSize = 11.sp,
                 modifier = Modifier.padding(top = 4.dp))
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = broadcastTitle,
                 onValueChange = onBroadcastTitleChange,
-                label = { Text("العنوان") },
+                label = { Text(stringResource(R.string.t_031)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = adminFieldColors(),
@@ -313,7 +315,7 @@ private fun NotificationsTab(
             OutlinedTextField(
                 value = broadcastBody,
                 onValueChange = onBroadcastBodyChange,
-                label = { Text("النص") },
+                label = { Text(stringResource(R.string.t_032)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2, maxLines = 4,
                 colors = adminFieldColors(),
@@ -334,7 +336,7 @@ private fun NotificationsTab(
                 } else {
                     Icon(Icons.Default.Campaign, null, tint = BgPrimary, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("بث للكل", color = BgPrimary, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.t_029), color = BgPrimary, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -343,13 +345,13 @@ private fun NotificationsTab(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Send, null, tint = Accent, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("إرسال لمستخدم", color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_033), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = notifUid,
                 onValueChange = onNotifUidChange,
-                label = { Text("UID المستخدم (رقم)") },
+                label = { Text(stringResource(R.string.t_034)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = adminFieldColors(),
@@ -358,7 +360,7 @@ private fun NotificationsTab(
             OutlinedTextField(
                 value = notifTitle,
                 onValueChange = onNotifTitleChange,
-                label = { Text("العنوان") },
+                label = { Text(stringResource(R.string.t_031)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = adminFieldColors(),
@@ -367,7 +369,7 @@ private fun NotificationsTab(
             OutlinedTextField(
                 value = notifBody,
                 onValueChange = onNotifBodyChange,
-                label = { Text("النص") },
+                label = { Text(stringResource(R.string.t_032)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2, maxLines = 4,
                 colors = adminFieldColors(),
@@ -388,7 +390,7 @@ private fun NotificationsTab(
             ) {
                 Icon(Icons.Default.Send, null, tint = BgPrimary, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("إرسال", color = BgPrimary, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_035), color = BgPrimary, fontWeight = FontWeight.Bold)
             }
         }
         item {
@@ -396,12 +398,12 @@ private fun NotificationsTab(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Notifications, null, tint = Accent, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("آخر الإشعارات المُرسلة", color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_036), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             }
         }
         if (state.notifStats.recent.isEmpty()) {
             item {
-                Text("ما في إشعارات مُرسلة بعد", color = TextTertiary, fontSize = 13.sp,
+                Text(stringResource(R.string.t_037), color = TextTertiary, fontSize = 13.sp,
                     modifier = Modifier.padding(vertical = 12.dp))
             }
         } else {

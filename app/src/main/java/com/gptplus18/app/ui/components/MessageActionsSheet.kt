@@ -15,6 +15,8 @@ import com.gptplus18.app.data.models.Message
 import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.BgSecondary
 import com.gptplus18.app.ui.theme.TextPrimary
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +34,7 @@ fun MessageActionsSheet(
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
             Text(
-                "خيارات",
+                stringResource(R.string.t_004),
                 color = Accent,
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.titleMedium,

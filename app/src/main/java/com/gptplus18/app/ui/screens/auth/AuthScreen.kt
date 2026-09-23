@@ -34,6 +34,7 @@ import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.BgPrimary
 import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.ui.theme.TextSecondary
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun AuthScreen(
@@ -82,7 +83,7 @@ fun AuthScreen(
                 color = Accent,
             )
             Text(
-                "ذكاء اصطناعي بلا قيود",
+                stringResource(R.string.t_009),
                 fontSize = 14.sp,
                 color = TextSecondary,
                 modifier = Modifier.padding(top = 4.dp, bottom = 32.dp),
@@ -101,7 +102,7 @@ fun AuthScreen(
             if (!isLoginTab) {
                 OutlinedTextField(
                     value = name, onValueChange = { name = it },
-                    label = { Text("الاسم") },
+                    label = { Text(stringResource(R.string.t_038)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
@@ -114,7 +115,7 @@ fun AuthScreen(
             // ═══ الإيميل ═══
             OutlinedTextField(
                 value = email, onValueChange = { email = it },
-                label = { Text("الإيميل") },
+                label = { Text(stringResource(R.string.t_039)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
@@ -129,7 +130,7 @@ fun AuthScreen(
             // ═══ كلمة السر ═══
             OutlinedTextField(
                 value = password, onValueChange = { password = it },
-                label = { Text("كلمة السر") },
+                label = { Text(stringResource(R.string.t_040)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
@@ -202,7 +203,7 @@ fun AuthScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 HorizontalDivider(Modifier.weight(1f), color = TextSecondary.copy(alpha = 0.2f))
-                Text("  أو  ", color = TextSecondary, fontSize = 13.sp)
+                Text(stringResource(R.string.t_041), color = TextSecondary, fontSize = 13.sp)
                 HorizontalDivider(Modifier.weight(1f), color = TextSecondary.copy(alpha = 0.2f))
             }
 
@@ -230,7 +231,7 @@ fun AuthScreen(
                 shape = RoundedCornerShape(50),
             ) {
                 Text(
-                    "الدخول بحساب Google",
+                    stringResource(R.string.t_042),
                     color = TextPrimary,
                     fontWeight = FontWeight.SemiBold,
                 )

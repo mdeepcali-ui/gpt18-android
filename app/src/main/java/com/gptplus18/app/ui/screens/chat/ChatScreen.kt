@@ -59,6 +59,8 @@ import com.gptplus18.app.ui.components.MessageTimestamp
 import com.gptplus18.app.ui.components.TypingIndicator
 import com.gptplus18.app.ui.theme.*
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 private val DrawerSheetBg = Color(0xFF0D0D0D)
 
@@ -196,7 +198,7 @@ fun ChatScreen(
                             OutlinedTextField(
                                 value = searchQuery,
                                 onValueChange = { searchQuery = it; vm.setSearch(it) },
-                                placeholder = { Text("ابحث...", color = TextTertiary) },
+                                placeholder = { Text(stringResource(R.string.t_043), color = TextTertiary) },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -219,7 +221,7 @@ fun ChatScreen(
                     TopAppBar(
                         title = {
                             if (showSessionsList) {
-                                Text("سجل المحادثات", color = TextPrimary,
+                                Text(stringResource(R.string.t_044), color = TextPrimary,
                                     fontWeight = FontWeight.Bold, fontSize = 18.sp)
                             } else {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -415,16 +417,16 @@ fun ChatScreen(
     deleteDialogFor?.let { s ->
         AlertDialog(
             onDismissRequest = { deleteDialogFor = null },
-            title = { Text("حذف المحادثة", color = TextPrimary) },
+            title = { Text(stringResource(R.string.t_045), color = TextPrimary) },
             text = { Text("متأكد بدك تحذف \"${s.title}\"؟", color = TextSecondary) },
             confirmButton = {
                 TextButton(onClick = { vm.deleteSession(s.id); deleteDialogFor = null }) {
-                    Text("حذف", color = Color(0xFFEF4444))
+                    Text(stringResource(R.string.t_046), color = Color(0xFFEF4444))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { deleteDialogFor = null }) {
-                    Text("إلغاء", color = TextSecondary)
+                    Text(stringResource(R.string.t_026), color = TextSecondary)
                 }
             },
             containerColor = BgSecondary,
@@ -531,8 +533,8 @@ private fun SessionsList(
     if (sessions.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("ما في محادثات بعد", color = TextSecondary, fontSize = 15.sp)
-                Text("اضغط + لبدء محادثة", color = TextTertiary, fontSize = 13.sp,
+                Text(stringResource(R.string.t_047), color = TextSecondary, fontSize = 15.sp)
+                Text(stringResource(R.string.t_048), color = TextTertiary, fontSize = 13.sp,
                     modifier = Modifier.padding(top = 6.dp))
             }
         }
@@ -667,7 +669,7 @@ private fun MessageBubble(
                         ) {
                             Text("🎵", fontSize = 20.sp)
                             Spacer(Modifier.width(8.dp))
-                            Text("مقطع صوتي", color = TextPrimary,
+                            Text(stringResource(R.string.t_049), color = TextPrimary,
                                 fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         }
                         if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
@@ -739,7 +741,7 @@ private fun ReplyBar(content: String, onCancel: () -> Unit) {
             )
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text("رد على", color = Accent, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_050), color = Accent, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 Text(content.take(60), color = TextSecondary, fontSize = 12.sp, maxLines = 1)
             }
             IconButton(onClick = onCancel, modifier = Modifier.size(28.dp)) {
@@ -764,8 +766,8 @@ private fun AllSessionsListView(
     if (sessions.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("ما في محادثات بعد", color = TextSecondary, fontSize = 15.sp)
-                Text("اضغط + لبدء محادثة", color = TextTertiary, fontSize = 13.sp,
+                Text(stringResource(R.string.t_047), color = TextSecondary, fontSize = 15.sp)
+                Text(stringResource(R.string.t_048), color = TextTertiary, fontSize = 13.sp,
                     modifier = Modifier.padding(top = 6.dp))
             }
         }

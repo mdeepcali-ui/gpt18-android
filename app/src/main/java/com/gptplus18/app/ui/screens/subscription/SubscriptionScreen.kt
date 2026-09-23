@@ -27,6 +27,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gptplus18.app.data.models.Plan
 import com.gptplus18.app.ui.theme.*
 import com.gptplus18.app.util.QrGenerator
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +39,7 @@ fun SubscriptionScreen(vm: SubscriptionViewModel = hiltViewModel()) {
         containerColor = BgPrimary,
         topBar = {
             TopAppBar(
-                title = { Text("الاشتراك", color = TextPrimary, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.t_079), color = TextPrimary, fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
             )
         },
@@ -59,7 +61,7 @@ fun SubscriptionScreen(vm: SubscriptionViewModel = hiltViewModel()) {
             StatusCard(state)
 
             Spacer(Modifier.height(20.dp))
-            Text("اختر الباقة", color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.t_080), color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(10.dp))
 
             state.plans.forEach { (key, plan) ->
@@ -74,7 +76,7 @@ fun SubscriptionScreen(vm: SubscriptionViewModel = hiltViewModel()) {
 
             if (state.selectedPlan != null) {
                 Spacer(Modifier.height(20.dp))
-                Text("اختر الشبكة", color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_081), color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(10.dp))
                 NetworkSelector(
                     networks = state.wallets.keys.toList(),
@@ -120,11 +122,11 @@ private fun StatusCard(state: SubscriptionState) {
         shape = RoundedCornerShape(16.dp),
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text("حالة حسابك", color = Accent, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.t_082), color = Accent, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Spacer(Modifier.height(10.dp))
             when {
                 st?.hasSub == true -> {
-                    Text("مشترك", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Text(stringResource(R.string.t_083), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                     if (st.subExpires > 0) {
                         val days = ((st.subExpires - st.now) / 86400).toInt()
                         Text("متبقي $days يوم", color = TextSecondary, fontSize = 14.sp,
@@ -132,14 +134,14 @@ private fun StatusCard(state: SubscriptionState) {
                     }
                 }
                 st?.hasTrial == true -> {
-                    Text("تجربة مجانية", color = Accent, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Text(stringResource(R.string.t_084), color = Accent, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                     if (st.trialExpires > 0) {
                         val mins = ((st.trialExpires - st.now) / 60).toInt()
                         Text("متبقي $mins دقيقة", color = TextSecondary, fontSize = 14.sp,
                             modifier = Modifier.padding(top = 4.dp))
                     }
                 }
-                else -> Text("بدون اشتراك", color = TextSecondary, fontSize = 16.sp)
+                else -> Text(stringResource(R.string.t_085), color = TextSecondary, fontSize = 16.sp)
             }
         }
     }
@@ -248,7 +250,7 @@ private fun PaymentBox(
                 Spacer(Modifier.height(16.dp))
             }
 
-            Text("عنوان المحفظة", color = TextSecondary, fontSize = 13.sp)
+            Text(stringResource(R.string.t_086), color = TextSecondary, fontSize = 13.sp)
             Spacer(Modifier.height(6.dp))
             Row(
                 Modifier
@@ -273,7 +275,7 @@ private fun PaymentBox(
             OutlinedTextField(
                 value = txHash,
                 onValueChange = onTxChange,
-                label = { Text("رقم العملية (TX Hash)") },
+                label = { Text(stringResource(R.string.t_087)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
@@ -296,7 +298,7 @@ private fun PaymentBox(
                 if (isVerifying) {
                     CircularProgressIndicator(color = BgPrimary, modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
                 } else {
-                    Text("تحقق وتفعيل", color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    Text(stringResource(R.string.t_088), color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 }
             }
         }

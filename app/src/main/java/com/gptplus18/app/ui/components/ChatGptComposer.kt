@@ -45,6 +45,8 @@ import com.gptplus18.app.ui.theme.BgPrimary
 import com.gptplus18.app.ui.theme.ComposerBgColor
 import com.gptplus18.app.ui.theme.ComposerBorderColor
 import com.gptplus18.app.ui.theme.TextTertiary
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 private val SendBlue = Color(0xFF0A84FF)  // أزرق زيك
 private val IconGray = Color(0xFFB4B4B4)
@@ -108,7 +110,7 @@ fun ChatGptComposer(
             ) {
                 if (value.isEmpty()) {
                     Text(
-                        text = "اسأل GPT+18",
+                        text = stringResource(R.string.t_001),
                         color = TextTertiary,
                         fontSize = 16.sp,
                     )
@@ -205,7 +207,7 @@ private fun EmojiPickerSheet(
     ) {
         Column(Modifier.fillMaxWidth().padding(16.dp)) {
             Text(
-                "الإيموجيات",
+                stringResource(R.string.t_002),
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,

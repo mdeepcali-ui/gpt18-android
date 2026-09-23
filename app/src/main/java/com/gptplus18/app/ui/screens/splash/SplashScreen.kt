@@ -18,6 +18,8 @@ import com.gptplus18.app.ui.theme.BgPrimary
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @Composable
 fun SplashScreen(
@@ -54,7 +56,7 @@ fun SplashScreen(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("GPT+18", fontSize = 42.sp, fontWeight = FontWeight.Bold, color = Accent)
-            Text("ذكاء اصطناعي بلا قيود", fontSize = 15.sp, color = Color(0xFF9A9AA0),
+            Text(stringResource(R.string.t_009), fontSize = 15.sp, color = Color(0xFF9A9AA0),
                 modifier = Modifier.padding(top = 8.dp))
         }
     }

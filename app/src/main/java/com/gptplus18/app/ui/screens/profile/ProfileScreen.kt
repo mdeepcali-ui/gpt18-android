@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gptplus18.app.ui.theme.*
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +40,7 @@ fun ProfileScreen(
         containerColor = BgPrimary,
         topBar = {
             TopAppBar(
-                title = { Text("الملف الشخصي", color = TextPrimary, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.t_069), color = TextPrimary, fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
             )
         },
@@ -76,7 +78,7 @@ fun ProfileScreen(
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Column(Modifier.padding(16.dp)) {
-                    Text("حالة الاشتراك", color = Accent, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    Text(stringResource(R.string.t_070), color = Accent, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     Spacer(Modifier.height(8.dp))
                     Text(
                         when {
@@ -105,7 +107,7 @@ fun ProfileScreen(
                     ) {
                         Icon(Icons.Default.AdminPanelSettings, null, tint = Accent)
                         Spacer(Modifier.width(12.dp))
-                        Text("لوحة المالك", color = Accent, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Text(stringResource(R.string.t_071), color = Accent, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         Spacer(Modifier.weight(1f))
                         Text("→", color = Accent, fontSize = 18.sp)
                     }
@@ -120,7 +122,7 @@ fun ProfileScreen(
             ) {
                 Icon(Icons.Default.DarkMode, null, tint = Accent)
                 Spacer(Modifier.width(12.dp))
-                Text("الوضع الليلي", color = TextPrimary, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.t_072), color = TextPrimary, modifier = Modifier.weight(1f))
                 Switch(
                     checked = state.darkMode,
                     onCheckedChange = { vm.toggleDarkMode(it) },
@@ -135,7 +137,7 @@ fun ProfileScreen(
             ) {
                 Icon(Icons.Default.Language, null, tint = Accent)
                 Spacer(Modifier.width(12.dp))
-                Text("اللغة", color = TextPrimary, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.t_073), color = TextPrimary, modifier = Modifier.weight(1f))
                 TextButton(onClick = { vm.toggleLanguage() }) {
                     Text(if (state.language == "ar") "العربية" else "English", color = Accent)
                 }
@@ -151,7 +153,7 @@ fun ProfileScreen(
                 ) {
                     Icon(Icons.Default.FormatSize, null, tint = Accent)
                     Spacer(Modifier.width(12.dp))
-                    Text("حجم النص", color = TextPrimary, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.t_074), color = TextPrimary, modifier = Modifier.weight(1f))
                     Text(
                         text = fontScaleLabel(state.fontScale),
                         color = Accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
@@ -207,7 +209,7 @@ fun ProfileScreen(
                     shape = RoundedCornerShape(10.dp),
                 ) {
                     Text(
-                        text = "هذا نص تجريبي لمعاينة حجم الخط",
+                        text = stringResource(R.string.t_075),
                         color = TextSecondary,
                         fontSize = (15 * state.fontScale).sp,
                         modifier = Modifier.padding(12.dp),
@@ -230,7 +232,7 @@ fun ProfileScreen(
                 ) {
                     Icon(Icons.Default.Settings, null, tint = Accent)
                     Spacer(Modifier.width(12.dp))
-                    Text("الإعدادات", color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                    Text(stringResource(R.string.t_076), color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                     Spacer(Modifier.weight(1f))
                     Text("→", color = Accent, fontSize = 18.sp)
                 }
@@ -250,7 +252,7 @@ fun ProfileScreen(
             ) {
                 Icon(Icons.Default.Logout, null, tint = Color.White)
                 Spacer(Modifier.width(8.dp))
-                Text("تسجيل خروج", color = Color.White, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_077), color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
     }

@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gptplus18.app.ui.theme.*
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 data class OnboardingPage(
     val icon: ImageVector,
@@ -137,7 +139,7 @@ fun OnboardingScreen(
                         onClick = onFinish,
                         modifier = Modifier.padding(top = 8.dp),
                     ) {
-                        Text("تخطي", color = TextSecondary, fontSize = 14.sp)
+                        Text(stringResource(R.string.t_068), color = TextSecondary, fontSize = 14.sp)
                     }
                 }
             }
