@@ -135,7 +135,7 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                         contentPadding = PaddingValues(vertical = 12.dp),
                     ) {
                         items(state.messages, key = { it.id.toString() + it.ts }) { m ->
-                            CodeMessageItem(m)
+                            CodeMessageItem(m) { url -> fullscreenImage = url }
                         }
                         if (state.isRunning) {
                             item { RunningIndicator(state.jobStatus, state.logs) }
@@ -235,7 +235,7 @@ private fun SessionList(
 }
 
 @Composable
-private fun CodeMessageItem(m: CodeMessage) {
+private fun CodeMessageItem(m: CodeMessage, onImageClick: (String) -> Unit = {}) {
     val isUser = m.role == "user"
     val clip = LocalClipboardManager.current
 
@@ -266,7 +266,7 @@ private fun CodeMessageItem(m: CodeMessage) {
             Spacer(Modifier.height(6.dp))
             MarkdownText(
                 text = m.content,
-                onImageClick = { url -> fullscreenImage = url },
+                onImageClick = onImageClick,
                 textColor = TextPrimary,
                 fontSize = 13,
             )
