@@ -73,8 +73,6 @@ fun AuthScreen(
                     .size(96.dp)
                     .padding(bottom = 12.dp),
             )
-                    .padding(bottom = 12.dp),
-            )
 
             // ═══ العنوان ═══
             Text(
