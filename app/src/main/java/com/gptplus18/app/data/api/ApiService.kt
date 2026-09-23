@@ -58,6 +58,10 @@ interface ApiService {
     @GET("api/chat/sessions")
     suspend fun listSessions(@Header("Authorization") bearer: String): Response<SessionsList>
 
+    // 📋 All Sessions (Chat + Code)
+    @GET("api/chat/sessions/all")
+    suspend fun listAllSessions(@Header("Authorization") bearer: String): Response<AllSessionsList>
+
     @POST("api/chat/sessions")
     suspend fun createSession(@Header("Authorization") bearer: String): Response<Session>
 

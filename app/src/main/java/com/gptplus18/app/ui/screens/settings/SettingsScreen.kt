@@ -57,41 +57,8 @@ fun SettingsScreen(
             // ─── المظهر ───
             SectionTitle("المظهر")
 
-            SettingRow(
-                icon = Icons.Default.DarkMode,
-                title = "الوضع الليلي",
-                subtitle = if (state.darkMode) "مفعّل" else "معطّل",
-            ) {
-                Switch(
-                    checked = state.darkMode,
-                    onCheckedChange = { vm.toggleDarkMode(it) },
-                    colors = SwitchDefaults.colors(checkedTrackColor = Accent),
-                )
-            }
 
-            // حجم الخط
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(BgSecondary, RoundedCornerShape(20.dp))
-                    .padding(14.dp),
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.FormatSize, null, tint = Accent, modifier = Modifier.size(22.dp))
-                    Spacer(Modifier.width(12.dp))
-                    Text("حجم النص", color = TextPrimary, fontSize = 15.sp, modifier = Modifier.weight(1f))
-                    Text(fontScaleLabel(state.fontScale), color = Accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                }
-                Spacer(Modifier.height(12.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FontSizeChip("صغير", state.fontScale == 0.85f) { vm.setFontScale(0.85f) }
-                    FontSizeChip("عادي", state.fontScale == 1.0f) { vm.setFontScale(1.0f) }
-                    FontSizeChip("كبير", state.fontScale == 1.15f) { vm.setFontScale(1.15f) }
-                    FontSizeChip("ضخم", state.fontScale == 1.3f) { vm.setFontScale(1.3f) }
-                }
-            }
-
-            Spacer(Modifier.height(10.dp))
+                        Spacer(Modifier.height(10.dp))
 
             // ─── اللغة ───
             SectionTitle("اللغة")

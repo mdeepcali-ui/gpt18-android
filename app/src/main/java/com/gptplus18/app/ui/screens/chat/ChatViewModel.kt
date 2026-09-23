@@ -27,6 +27,7 @@ import javax.inject.Inject
 
 data class ChatUiState(
     val sessions: List<Session> = emptyList(),
+    val allSessions: List<AllSession> = emptyList(),
     val filteredSessions: List<Session> = emptyList(),
     val messages: List<Message> = emptyList(),
     val currentSessionId: Int? = null,
@@ -62,7 +63,7 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             val name = tokenStorage.getName()?.takeIf { it.isNotBlank() } ?: "المستخدم"
             _state.value = _state.value.copy(userName = name)
-            loadSessions()
+            loadAllSessions()
         }
         viewModelScope.launch {
             // 🔁 محاولة 3 مرات مع تأخير
@@ -87,6 +88,18 @@ class ChatViewModel @Inject constructor(
                     filteredSessions = filterSessions(cached, _state.value.searchQuery),
                 )
             }
+
+    // 📋 تحميل كل الجلسات (Chat + Code) موحّدة
+    fun loadAllSessions() {
+        viewModelScope.launch {
+            when (val r = chatRepo.listAllSessions()) {
+                is Result.Success -> {
+                    _state.value = _state.value.copy(allSessions = r.data)
+                }
+                else -> { /* ما نعمل شي */ }
+            }
+        }
+    }
             when (val r = chatRepo.listSessions()) {
                 is Result.Success -> {
                     _state.value = _state.value.copy(

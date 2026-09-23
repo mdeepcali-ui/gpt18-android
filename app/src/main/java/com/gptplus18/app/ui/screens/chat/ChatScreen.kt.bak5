@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.gptplus18.app.data.models.ChatMode
-import com.gptplus18.app.data.models.AllSession
 import com.gptplus18.app.data.models.Message
 import com.gptplus18.app.data.models.Session
 import com.gptplus18.app.ui.components.AddonsSheet
@@ -92,8 +91,6 @@ fun ChatScreen(
     var searchQuery by remember { mutableStateOf("") }
     var fullscreenImage by remember { mutableStateOf<String?>(null) }
     var actionsSheetFor by remember { mutableStateOf<Message?>(null) }
-    // 📋 قائمة المحادثات — تُفتح من Drawer فقط
-    var showSessionsList by remember { mutableStateOf(false) }
 
     var cameraUri by remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -145,14 +142,14 @@ fun ChatScreen(
         if (total > 0) listState.scrollToItem(total - 1)
     }
 
-    // 🚪 BackHandler — من سجل المحادثات → للشات، ومن الشات → خروج
-    BackHandler(enabled = showSessionsList) {
-        showSessionsList = false
+    // 🚪 BackHandler — لا يسجل خروج
+    BackHandler(enabled = state.currentSessionId != null) {
+        vm.backToList()
     }
 
-    // 🆕 عند فتح الشاشة لأول مرة — افتح شات جديدة دائماً
+    // 🆕 عند فتح الشاشة لأول مرة — لو ما في sessions، افتح شات جديدة
     LaunchedEffect(Unit) {
-        if (state.currentSessionId == null) {
+        if (state.currentSessionId == null && state.sessions.isEmpty()) {
             vm.newChat()
         }
     }
@@ -164,16 +161,7 @@ fun ChatScreen(
                 userName = state.userName,
                 userEmail = "",
                 isOwner = state.isOwner,
-                onNewChat = {
-                    vm.newChat()
-                    showSessionsList = false
-                    scope.launch { drawerState.close() }
-                },
-                onSessionsClick = {
-                    showSessionsList = true
-                    scope.launch { drawerState.close() }
-                },
-                lastSessionTitle = state.sessions.firstOrNull()?.title,
+                onNewChat = { vm.newChat(); scope.launch { drawerState.close() } },
                 onChat = { scope.launch { drawerState.close() } },
                 onCode = { scope.launch { drawerState.close() }; onNavigateToCode() },
                 onMedia = { scope.launch { drawerState.close() }; onNavigateToMedia() },
@@ -220,33 +208,35 @@ fun ChatScreen(
                 } else {
                     TopAppBar(
                         title = {
-                            if (showSessionsList) {
-                                Text("سجل المحادثات", color = TextPrimary,
-                                    fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            } else {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    ModeDropdown(
-                                        current = state.currentMode,
-                                        onSelect = { mode ->
-                                            vm.setMode(mode)
-                                            when (mode) {
-                                                ChatMode.CODE -> onNavigateToCode()
-                                                ChatMode.MEDIA -> onNavigateToMedia()
-                                                else -> {}
-                                            }
-                                        },
-                                    )
+                            if (state.currentSessionId == null) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text("محادثاتك", color = TextPrimary,
+                                        fontWeight = FontWeight.Bold, fontSize = 18.sp)
                                     Spacer(Modifier.width(8.dp))
-                                    // 🎯 زر + داخل الشات
+                                    // 🎯 زر + بجانب العنوان
                                     IconButton(
                                         onClick = { vm.newChat() },
-                                        modifier = Modifier.size(36.dp),
+                                        modifier = Modifier.size(32.dp),
                                     ) {
                                         Icon(Icons.Default.Add, "محادثة جديدة",
                                             tint = TextPrimary,
                                             modifier = Modifier.size(22.dp))
                                     }
                                 }
+                            } else {
+                                ModeDropdown(
+                                    current = state.currentMode,
+                                    onSelect = { mode ->
+                                        vm.setMode(mode)
+                                        when (mode) {
+                                            ChatMode.CODE -> onNavigateToCode()
+                                            ChatMode.MEDIA -> onNavigateToMedia()
+                                            else -> {}
+                                        }
+                                    },
+                                )
                             }
                         },
                         navigationIcon = {
@@ -255,7 +245,7 @@ fun ChatScreen(
                             }
                         },
                         actions = {
-                            if (showSessionsList) {
+                            if (state.currentSessionId == null) {
                                 IconButton(onClick = { showSearch = true }) {
                                     Icon(Icons.Default.Search, "بحث", tint = TextPrimary)
                                 }
@@ -272,25 +262,18 @@ fun ChatScreen(
                     .padding(padding)
                     .imePadding(),
             ) {
-                if (showSessionsList) {
+                if (state.currentSessionId == null) {
                     var isRefreshing by remember { mutableStateOf(false) }
-                    LaunchedEffect(state.allSessions) { isRefreshing = false }
+                    LaunchedEffect(state.sessions) { isRefreshing = false }
                     PullToRefreshBox(
                         isRefreshing = isRefreshing,
-                        onRefresh = { isRefreshing = true; vm.loadAllSessions() },
+                        onRefresh = { isRefreshing = true; vm.loadSessions() },
                         modifier = Modifier.fillMaxSize(),
                     ) {
-                        AllSessionsListView(
-                            sessions = state.allSessions,
-                            onOpenChat = {
-                                vm.openSession(it.id)
-                                showSessionsList = false
-                            },
-                            onOpenCode = {
-                                onNavigateToCode()
-                                showSessionsList = false
-                            },
-                            onLongPressChat = { deleteDialogFor = it.toChatSession() },
+                        SessionsList(
+                            sessions = if (searchQuery.isBlank()) state.sessions else state.filteredSessions,
+                            onOpen = { vm.openSession(it.id) },
+                            onLongPress = { deleteDialogFor = it },
                         )
                     }
                 } else {
@@ -751,94 +734,6 @@ private fun ReplyBar(content: String, onCancel: () -> Unit) {
         }
     }
 }
-
-// ═══════════════════════════════════════════════════════════
-// 📋 AllSessionsListView — Chat + Code مع أيقونة نوع
-// ═══════════════════════════════════════════════════════════
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun AllSessionsListView(
-    sessions: List<AllSession>,
-    onOpenChat: (AllSession) -> Unit,
-    onOpenCode: (AllSession) -> Unit,
-    onLongPressChat: (AllSession) -> Unit,
-) {
-    if (sessions.isEmpty()) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("ما في محادثات بعد", color = TextSecondary, fontSize = 15.sp)
-                Text("اضغط + لبدء محادثة", color = TextTertiary, fontSize = 13.sp,
-                    modifier = Modifier.padding(top = 6.dp))
-            }
-        }
-        return
-    }
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(sessions, key = { "${it.type}_${it.id}" }) { s ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(4.dp, RoundedCornerShape(20.dp))
-                    .combinedClickable(
-                        onClick = {
-                            if (s.type == "code") onOpenCode(s)
-                            else onOpenChat(s)
-                        },
-                        onLongClick = {
-                            if (s.type == "chat") onLongPressChat(s)
-                        },
-                    ),
-                colors = CardDefaults.cardColors(containerColor = BgSecondary),
-                shape = RoundedCornerShape(20.dp),
-            ) {
-                Row(
-                    Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    // أيقونة النوع
-                    Icon(
-                        if (s.type == "code") Icons.Default.Code else Icons.AutoMirrored.Filled.Chat,
-                        contentDescription = null,
-                        tint = if (s.type == "code") Info else Accent,
-                        modifier = Modifier.size(20.dp),
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            s.title,
-                            color = TextPrimary,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 15.sp,
-                        )
-                        s.lastMsg?.let {
-                            Text(
-                                it.take(80),
-                                color = TextSecondary,
-                                fontSize = 13.sp,
-                                modifier = Modifier.padding(top = 4.dp),
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-// Helper: AllSession → Session (للحذف)
-private fun AllSession.toChatSession(): Session = Session(
-    id = this.id,
-    title = this.title,
-    createdAt = this.createdAt,
-    updatedAt = this.updatedAt,
-    msgCount = this.msgCount,
-    lastMsg = this.lastMsg,
-)
 
 private fun getFileSize(ctx: android.content.Context, uri: Uri): Long {
     return try {

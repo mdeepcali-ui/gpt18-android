@@ -9,6 +9,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
@@ -29,6 +30,8 @@ fun AppDrawerContent(
     userEmail: String,
     isOwner: Boolean,
     onNewChat: () -> Unit,
+    onSessionsClick: () -> Unit = {},
+    lastSessionTitle: String? = null,
     onChat: () -> Unit,
     onCode: () -> Unit,
     onMedia: () -> Unit,
@@ -77,6 +80,15 @@ fun AppDrawerContent(
         // ═══ محادثة جديدة ═══
         DrawerItem("محادثة جديدة", Icons.Default.Add, onNewChat, Accent)
 
+        // ═══ سجل محادثات ═══
+        DrawerItem(
+            label = "سجل محادثات",
+            icon = Icons.Default.History,
+            onClick = onSessionsClick,
+            tint = TextPrimary,
+            subtitle = lastSessionTitle,
+        )
+
         Spacer(Modifier.height(4.dp))
         Divider(color = TextSecondary.copy(alpha = 0.15f))
         Spacer(Modifier.height(4.dp))
@@ -110,6 +122,7 @@ private fun DrawerItem(
     icon: ImageVector,
     onClick: () -> Unit,
     tint: Color = TextPrimary,
+    subtitle: String? = null,
 ) {
     Row(
         modifier = Modifier
@@ -120,6 +133,17 @@ private fun DrawerItem(
     ) {
         Icon(icon, label, tint = tint, modifier = Modifier.size(22.dp))
         Spacer(Modifier.width(16.dp))
-        Text(label, color = tint, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+        Column(Modifier.weight(1f)) {
+            Text(label, color = tint, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+            subtitle?.let {
+                Text(
+                    it.take(30),
+                    color = TextSecondary,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 2.dp),
+                    maxLines = 1,
+                )
+            }
+        }
     }
 }

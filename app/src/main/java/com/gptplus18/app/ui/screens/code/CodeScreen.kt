@@ -47,7 +47,14 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
 
     LaunchedEffect(state.messages.size, state.isRunning) {
         val total = state.messages.size + if (state.isRunning) 1 else 0
-        if (total > 0) listState.animateScrollToItem(total - 1)
+        if (total > 0) listState.scrollToItem(total - 1)
+    }
+
+    // 🆕 عند فتح الشاشة — افتح جلسة برمجة جديدة تلقائياً
+    LaunchedEffect(Unit) {
+        if (state.currentSessionId == null) {
+            vm.newRequest()
+        }
     }
 
     Scaffold(
@@ -90,7 +97,7 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                     onLongPress = { deleteDialogFor = it },
                 )
             } else {
-                Column(Modifier.fillMaxSize()) {
+                Column(Modifier.fillMaxSize().imePadding()) {
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp),

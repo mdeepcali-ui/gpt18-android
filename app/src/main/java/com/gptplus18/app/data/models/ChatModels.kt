@@ -38,3 +38,20 @@ data class SendMessageResponse(
     @SerializedName("thinking") val thinking: String? = null,
     @SerializedName("limited") val limited: Boolean = false,
 )
+
+// ═══════════════════════════════════════════════
+// 📋 All Sessions — Chat + Code (موحّد)
+// ═══════════════════════════════════════════════
+data class AllSession(
+    @SerializedName("id") val id: Int,
+    @SerializedName("type") val type: String,       // "chat" | "code"
+    @SerializedName("title") val title: String,
+    @SerializedName("last_msg") val lastMsg: String? = null,
+    @SerializedName("msg_count") val msgCount: Int = 0,
+    @SerializedName("created_at") val createdAt: Double,
+    @SerializedName("updated_at") val updatedAt: Double,
+)
+
+data class AllSessionsList(
+    @SerializedName("sessions") val sessions: List<AllSession> = emptyList(),
+)

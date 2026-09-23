@@ -24,6 +24,21 @@ class ChatRepository @Inject constructor(
     }
 
     suspend fun listSessions(): Result<List<Session>> {
+
+    // 📋 جلسات موحّدة (Chat + Code)
+    suspend fun listAllSessions(): Result<List<AllSession>> {
+        return try {
+            val token = tokenStorage.getToken() ?: return Result.Error("غير مصرح")
+            val r = api.listAllSessions("Bearer $token")
+            if (r.isSuccessful) {
+                Result.Success(r.body()?.sessions ?: emptyList())
+            } else {
+                Result.Error("خطأ (${r.code()})")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ شبكة")
+        }
+    }
         val b = bearer() ?: return Result.Error("غير مصرح")
         return try {
             val r = api.listSessions(b)
