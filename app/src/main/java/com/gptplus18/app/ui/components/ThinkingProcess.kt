@@ -22,6 +22,8 @@ import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.BgSecondary
 import com.gptplus18.app.ui.theme.TextSecondary
 import com.gptplus18.app.ui.theme.TextTertiary
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @Composable
 fun ThinkingProcess(
@@ -36,11 +38,11 @@ fun ThinkingProcess(
     var expanded by remember { mutableStateOf(true) }
 
     val label = when (status) {
-        "think" -> "يفكر"
-        "analyze" -> "يحلل"
-        "create" -> "ينشئ"
-        "write" -> "يكتب"
-        else -> "يفكر"
+        "think" -> stringResource(R.string.t_136)
+        "analyze" -> stringResource(R.string.t_129)
+        "create" -> stringResource(R.string.t_130)
+        "write" -> stringResource(R.string.t_131)
+        else -> stringResource(R.string.t_136)
     }
 
     Column(
@@ -61,7 +63,7 @@ fun ThinkingProcess(
             Spacer(Modifier.weight(1f))
             Icon(
                 if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                contentDescription = "طي",
+                contentDescription = stringResource(R.string.t_256),
                 tint = TextTertiary,
                 modifier = Modifier.size(14.dp),
             )

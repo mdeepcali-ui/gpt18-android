@@ -65,7 +65,7 @@ fun ProfileScreen(
             }
 
             Spacer(Modifier.height(16.dp))
-            Text(state.userName.ifEmpty { "مستخدم" }, color = TextPrimary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Text(state.userName.ifEmpty { stringResource(R.string.t_196) }, color = TextPrimary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(4.dp))
             Text(state.userEmail, color = TextSecondary, fontSize = 14.sp)
 
@@ -82,9 +82,9 @@ fun ProfileScreen(
                     Spacer(Modifier.height(8.dp))
                     Text(
                         when {
-                            state.hasSubscription -> "مشترك ✅"
-                            state.hasTrial -> "تجربة مجانية"
-                            else -> "بدون اشتراك"
+                            state.hasSubscription -> stringResource(R.string.t_197)
+                            state.hasTrial -> stringResource(R.string.t_084)
+                            else -> stringResource(R.string.t_085)
                         },
                         color = TextPrimary, fontSize = 16.sp,
                     )
@@ -139,7 +139,7 @@ fun ProfileScreen(
                 Spacer(Modifier.width(12.dp))
                 Text(stringResource(R.string.t_073), color = TextPrimary, modifier = Modifier.weight(1f))
                 TextButton(onClick = { vm.toggleLanguage() }) {
-                    Text(if (state.language == "ar") "العربية" else "English", color = Accent)
+                    Text(if (state.language == "ar") stringResource(R.string.t_198) else "English", color = Accent)
                 }
             }
 
@@ -167,7 +167,7 @@ fun ProfileScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     FontSizeOption(
-                        label = "صغير",
+                        label = stringResource(R.string.t_199),
                         sample = "Aa",
                         sampleSize = 13.sp,
                         selected = state.fontScale == 0.85f,
@@ -175,7 +175,7 @@ fun ProfileScreen(
                         modifier = Modifier.weight(1f),
                     )
                     FontSizeOption(
-                        label = "عادي",
+                        label = stringResource(R.string.t_200),
                         sample = "Aa",
                         sampleSize = 15.sp,
                         selected = state.fontScale == 1.0f,
@@ -183,7 +183,7 @@ fun ProfileScreen(
                         modifier = Modifier.weight(1f),
                     )
                     FontSizeOption(
-                        label = "كبير",
+                        label = stringResource(R.string.t_201),
                         sample = "Aa",
                         sampleSize = 17.sp,
                         selected = state.fontScale == 1.15f,
@@ -191,7 +191,7 @@ fun ProfileScreen(
                         modifier = Modifier.weight(1f),
                     )
                     FontSizeOption(
-                        label = "ضخم",
+                        label = stringResource(R.string.t_202),
                         sample = "Aa",
                         sampleSize = 19.sp,
                         selected = state.fontScale == 1.3f,
@@ -302,9 +302,9 @@ private fun FontSizeOption(
 }
 
 private fun fontScaleLabel(scale: Float): String = when (scale) {
-    0.85f -> "صغير"
-    1.0f -> "عادي"
-    1.15f -> "كبير"
-    1.3f -> "ضخم"
-    else -> "عادي"
+    0.85f -> stringResource(R.string.t_199)
+    1.0f -> stringResource(R.string.t_200)
+    1.15f -> stringResource(R.string.t_201)
+    1.3f -> stringResource(R.string.t_202)
+    else -> stringResource(R.string.t_200)
 }

@@ -29,7 +29,6 @@ class PreferencesRepository @Inject constructor(
     val langFlow: Flow<String> = context.prefsDataStore.data.map { it[KEY_LANG] ?: "ar" }
     val fontScaleFlow: Flow<Float> = context.prefsDataStore.data.map { it[KEY_FONT_SCALE] ?: 1.0f }
     val onboardingDoneFlow: Flow<Boolean> = context.prefsDataStore.data.map { it[KEY_ONBOARDING] ?: false }
-    val codeModelFlow: Flow<String> = context.prefsDataStore.data.map { it[KEY_CODE_MODEL] ?: "auto" }
     val notificationsFlow: Flow<Boolean> = context.prefsDataStore.data.map { it[KEY_NOTIFICATIONS] ?: false }
 
     suspend fun setDarkMode(enabled: Boolean) {
@@ -47,10 +46,6 @@ class PreferencesRepository @Inject constructor(
 
     suspend fun setOnboardingDone() {
         context.prefsDataStore.edit { it[KEY_ONBOARDING] = true }
-    }
-
-    suspend fun setCodeModel(key: String) {
-        context.prefsDataStore.edit { it[KEY_CODE_MODEL] = key }
     }
 
     suspend fun setNotifications(enabled: Boolean) {

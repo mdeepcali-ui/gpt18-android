@@ -35,14 +35,14 @@ fun UpdateDialog(
         icon = {
             Icon(
                 Icons.Default.CloudDownload,
-                "تحديث",
+                stringResource(R.string.t_101),
                 tint = Accent,
                 modifier = Modifier.size(48.dp),
             )
         },
         title = {
             Text(
-                if (info.forceUpdate) "تحديث إجباري" else "تحديث جديد",
+                if (info.forceUpdate) stringResource(R.string.t_222) else stringResource(R.string.t_223),
                 color = TextPrimary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,

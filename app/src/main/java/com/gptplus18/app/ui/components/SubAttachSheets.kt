@@ -56,16 +56,16 @@ fun AddonsSheet(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
             )
-            SubItem(Icons.Default.Code, "شرح كود", "اشرحلي كود معقد") {
-                onSelect("اشرحلي هذا الكود بالتفصيل")
+            SubItem(Icons.Default.Code, stringResource(R.string.t_241), stringResource(R.string.t_242)) {
+                onSelect(stringResource(R.string.t_243))
                 onDismiss()
             }
-            SubItem(Icons.Default.Translate, "ترجم", "ترجم نص للعربية") {
-                onSelect("ترجم لي هذا النص إلى العربية")
+            SubItem(Icons.Default.Translate, stringResource(R.string.t_244), stringResource(R.string.t_245)) {
+                onSelect(stringResource(R.string.t_246))
                 onDismiss()
             }
-            SubItem(Icons.Default.Brush, "صمم لي", "تصميم إبداعي") {
-                onSelect("صمم لي تصميماً احترافياً")
+            SubItem(Icons.Default.Brush, stringResource(R.string.t_247), stringResource(R.string.t_248)) {
+                onSelect(stringResource(R.string.t_249))
                 onDismiss()
             }
             Spacer(Modifier.height(16.dp))
@@ -100,12 +100,12 @@ fun DeepThinkSheet(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
             )
-            SubItem(Icons.Default.Psychology, "تحليل عميق", "حلّل بأكثر من زاوية") {
-                onSelect("حلّل الموضوع بأكثر من زاوية وبعمق، واذكر الاحتمالات المختلفة")
+            SubItem(Icons.Default.Psychology, stringResource(R.string.t_250), stringResource(R.string.t_251)) {
+                onSelect(stringResource(R.string.t_252))
                 onDismiss()
             }
-            SubItem(Icons.Default.Lightbulb, "أفكار إبداعية", "اقترح أفكار جديدة") {
-                onSelect("اقترح 5 أفكار إبداعية مختلفة")
+            SubItem(Icons.Default.Lightbulb, stringResource(R.string.t_253), stringResource(R.string.t_254)) {
+                onSelect(stringResource(R.string.t_255))
                 onDismiss()
             }
             Spacer(Modifier.height(16.dp))

@@ -181,7 +181,6 @@ fun ChatScreen(
                 onProfile = { scope.launch { drawerState.close() }; onNavigateToProfile() },
                 onSettings = { scope.launch { drawerState.close() }; onNavigateToSettings() },
                 onAdmin = { scope.launch { drawerState.close() }; onNavigateToAdmin() },
-                onLanguageToggle = { scope.launch { drawerState.close() } },
                 onLogout = {
                     scope.launch { drawerState.close() }
                     onNavigateToAuth()
@@ -212,7 +211,7 @@ fun ChatScreen(
                         },
                         navigationIcon = {
                             IconButton(onClick = { showSearch = false; searchQuery = ""; vm.setSearch("") }) {
-                                Icon(Icons.Default.Close, "إغلاق", tint = Accent)
+                                Icon(Icons.Default.Close, stringResource(R.string.t_126), tint = Accent)
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPrimary),
@@ -242,7 +241,7 @@ fun ChatScreen(
                                         onClick = { vm.newChat() },
                                         modifier = Modifier.size(36.dp),
                                     ) {
-                                        Icon(Icons.Default.Add, "محادثة جديدة",
+                                        Icon(Icons.Default.Add, stringResource(R.string.new_chat),
                                             tint = TextPrimary,
                                             modifier = Modifier.size(22.dp))
                                     }
@@ -251,13 +250,13 @@ fun ChatScreen(
                         },
                         navigationIcon = {
                             IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                Icon(Icons.Default.Menu, "القائمة", tint = TextPrimary)
+                                Icon(Icons.Default.Menu, stringResource(R.string.t_127), tint = TextPrimary)
                             }
                         },
                         actions = {
                             if (showSessionsList) {
                                 IconButton(onClick = { showSearch = true }) {
-                                    Icon(Icons.Default.Search, "بحث", tint = TextPrimary)
+                                    Icon(Icons.Default.Search, stringResource(R.string.t_128), tint = TextPrimary)
                                 }
                             }
                         },
@@ -319,15 +318,15 @@ fun ChatScreen(
                                     ) {
                                         TypingIndicator(
                                             type = when (state.statusLabel) {
-                                                "يحلل" -> "analyze"
-                                                "ينشئ" -> "create"
-                                                "يكتب" -> "write"
+                                                stringResource(R.string.t_129) -> "analyze"
+                                                stringResource(R.string.t_130) -> "create"
+                                                stringResource(R.string.t_131) -> "write"
                                                 else -> "think"
                                             }
                                         )
 
                                         // 🎨 التفكير — نص رمادي صغير (يختفي لما الرد يبدأ)
-                                        if (state.statusLabel != "يكتب") {
+                                        if (state.statusLabel != stringResource(R.string.t_131)) {
                                             val lastThinking = state.thinkingByMessage.values.lastOrNull()
                                             val thinkingText = buildString {
                                                 val raw = lastThinking?.rawText?.trim().orEmpty()
@@ -418,7 +417,7 @@ fun ChatScreen(
         AlertDialog(
             onDismissRequest = { deleteDialogFor = null },
             title = { Text(stringResource(R.string.t_045), color = TextPrimary) },
-            text = { Text("متأكد بدك تحذف \"${s.title}\"؟", color = TextSecondary) },
+            text = { Text("متأكد بدك تحذف \"${s.title}\stringResource(R.string.t_132), color = TextSecondary) },
             confirmButton = {
                 TextButton(onClick = { vm.deleteSession(s.id); deleteDialogFor = null }) {
                     Text(stringResource(R.string.t_046), color = Color(0xFFEF4444))
@@ -443,7 +442,7 @@ fun ChatScreen(
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, msg.content)
                 }
-                ctx.startActivity(Intent.createChooser(intent, "مشاركة"))
+                ctx.startActivity(Intent.createChooser(intent, stringResource(R.string.t_133)))
             },
             onReply = { vm.setReplyTo(msg) },
             onDelete = null,
@@ -487,14 +486,14 @@ private fun ModeDropdown(
             onDismissRequest = { expanded = false },
             containerColor = DrawerSheetBg,
         ) {
-            ModeMenuItem("دردشة", Icons.AutoMirrored.Filled.Chat,
+            ModeMenuItem(stringResource(R.string.chat), Icons.AutoMirrored.Filled.Chat,
                 current == ChatMode.CHAT || current == ChatMode.MAX) {
                 onSelect(ChatMode.CHAT); expanded = false
             }
-            ModeMenuItem("برمجة", Icons.Default.Code, current == ChatMode.CODE) {
+            ModeMenuItem(stringResource(R.string.code), Icons.Default.Code, current == ChatMode.CODE) {
                 onSelect(ChatMode.CODE); expanded = false
             }
-            ModeMenuItem("ميديا", Icons.Default.Movie, current == ChatMode.MEDIA) {
+            ModeMenuItem(stringResource(R.string.t_134), Icons.Default.Movie, current == ChatMode.MEDIA) {
                 onSelect(ChatMode.MEDIA); expanded = false
             }
         }
@@ -613,7 +612,7 @@ private fun MessageBubble(
                         if (imageUrl != null) {
                             AsyncImage(
                                 model = imageUrl,
-                                contentDescription = "صورة",
+                                contentDescription = stringResource(R.string.t_135),
                                 contentScale = ContentScale.Fit,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -649,7 +648,7 @@ private fun MessageBubble(
                     if (imageUrl != null) {
                         AsyncImage(
                             model = imageUrl,
-                            contentDescription = "صورة",
+                            contentDescription = stringResource(R.string.t_135),
                             contentScale = ContentScale.Fit,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -691,14 +690,14 @@ private fun MessageBubble(
 
                 ActionButton(
                     icon = Icons.Default.ContentCopy,
-                    label = "نسخ",
+                    label = stringResource(R.string.t_003),
                     onClick = { onCopy(cleanText) },
                 )
 
                 if (isUser) {
                     ActionButton(
                         icon = Icons.Default.Edit,
-                        label = "تعديل",
+                        label = stringResource(R.string.t_063),
                         onClick = { onEdit(msg) },
                     )
                 }
@@ -745,7 +744,7 @@ private fun ReplyBar(content: String, onCancel: () -> Unit) {
                 Text(content.take(60), color = TextSecondary, fontSize = 12.sp, maxLines = 1)
             }
             IconButton(onClick = onCancel, modifier = Modifier.size(28.dp)) {
-                Icon(Icons.Default.Close, "إلغاء", tint = TextSecondary,
+                Icon(Icons.Default.Close, stringResource(R.string.t_026), tint = TextSecondary,
                     modifier = Modifier.size(18.dp))
             }
         }

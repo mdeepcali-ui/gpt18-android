@@ -27,6 +27,8 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.BgPrimary
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @Composable
 fun FullscreenImageViewer(
@@ -97,7 +99,7 @@ fun FullscreenImageViewer(
                         .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(50))
                         .size(44.dp),
                 ) {
-                    Icon(Icons.Default.Download, "حفظ", tint = Color.White)
+                    Icon(Icons.Default.Download, stringResource(R.string.t_232), tint = Color.White)
                 }
 
                 Spacer(Modifier.width(8.dp))
@@ -108,7 +110,7 @@ fun FullscreenImageViewer(
                         .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(50))
                         .size(44.dp),
                 ) {
-                    Icon(Icons.Default.Close, "إغلاق", tint = Color.White)
+                    Icon(Icons.Default.Close, stringResource(R.string.t_126), tint = Color.White)
                 }
             }
         }

@@ -91,9 +91,9 @@ fun AuthScreen(
 
             // ═══ Tabs ═══
             Row(horizontalArrangement = Arrangement.Center) {
-                TabButton("تسجيل دخول", isLoginTab) { isLoginTab = true }
+                TabButton(stringResource(R.string.login), isLoginTab) { isLoginTab = true }
                 Spacer(Modifier.width(8.dp))
-                TabButton("حساب جديد", !isLoginTab) { isLoginTab = false }
+                TabButton(stringResource(R.string.signup), !isLoginTab) { isLoginTab = false }
             }
 
             Spacer(Modifier.height(20.dp))
@@ -187,7 +187,7 @@ fun AuthScreen(
                     )
                 } else {
                     Text(
-                        if (isLoginTab) "دخول" else "إنشاء حساب",
+                        if (isLoginTab) stringResource(R.string.enter) else stringResource(R.string.create_account),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = BgPrimary,

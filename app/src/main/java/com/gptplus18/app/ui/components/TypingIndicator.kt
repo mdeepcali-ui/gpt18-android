@@ -9,6 +9,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @Composable
 fun TypingIndicator(
@@ -36,7 +38,7 @@ fun TypingIndicator(
                 .crossfade(false)
                 .allowHardware(false)
                 .build(),
-            contentDescription = "جارٍ الكتابة",
+            contentDescription = stringResource(R.string.t_257),
             contentScale = ContentScale.Fit,
             modifier = Modifier
                 .height(28.dp)

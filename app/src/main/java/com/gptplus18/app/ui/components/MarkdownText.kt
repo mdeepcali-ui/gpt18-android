@@ -105,7 +105,7 @@ private fun CodeBlockView(lang: String, code: String) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(CodeBlockColors.HeaderBg, RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                    .padding(horizontal = 10.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -118,7 +118,7 @@ private fun CodeBlockView(lang: String, code: String) {
                 Text(
                     text = if (lang.isBlank()) "code" else lang,
                     color = Color(0xFF858585),
-                    fontSize = 14.sp,
+                    fontSize = 11.sp,
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.weight(1f),
@@ -131,24 +131,25 @@ private fun CodeBlockView(lang: String, code: String) {
                 ) {
                     Icon(
                         Icons.Default.ContentCopy,
-                        "نسخ",
+                        stringResource(R.string.t_003),
                         tint = Accent,
-                        modifier = Modifier.size(14.dp),
+                        modifier = Modifier.size(12.dp),
                     )
                     Spacer(Modifier.width(4.dp))
-                    Text(stringResource(R.string.t_003), color = Accent, fontSize = 12.sp)
+                    Text(stringResource(R.string.t_003), color = Accent, fontSize = 11.sp)
                 }
             }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(scrollState)
-                    .padding(14.dp),
+                    .padding(10.dp),
             ) {
                 Text(
                     text = highlightSyntax(code, lang),
                     fontFamily = FontFamily.Monospace,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
                     softWrap = false,
                     style = TextStyle(textDirection = TextDirection.Ltr),
                 )

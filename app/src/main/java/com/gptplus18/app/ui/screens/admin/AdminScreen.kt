@@ -68,7 +68,7 @@ fun AdminScreen(vm: AdminViewModel = hiltViewModel()) {
                             vm.loadUsers()
                             vm.loadNotifStats()
                         }) {
-                            Icon(Icons.Default.Refresh, "تحديث", tint = Accent)
+                            Icon(Icons.Default.Refresh, stringResource(R.string.t_101), tint = Accent)
                         }
                     }
                 },
@@ -168,13 +168,13 @@ private fun UsersTab(
             Text(stringResource(R.string.t_020), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatCard("كلياً", state.stats.total, Color(0xFF93E0FF), Modifier.weight(1f))
-                StatCard("مشترك", state.stats.subscribed, Success, Modifier.weight(1f))
+                StatCard(stringResource(R.string.t_102), state.stats.total, Color(0xFF93E0FF), Modifier.weight(1f))
+                StatCard(stringResource(R.string.t_083), state.stats.subscribed, Success, Modifier.weight(1f))
             }
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatCard("تجربة", state.stats.trial, Warning, Modifier.weight(1f))
-                StatCard("مجاني", state.stats.free, TextSecondary, Modifier.weight(1f))
+                StatCard(stringResource(R.string.t_103), state.stats.trial, Warning, Modifier.weight(1f))
+                StatCard(stringResource(R.string.t_104), state.stats.free, TextSecondary, Modifier.weight(1f))
             }
         }
         item {
@@ -245,10 +245,10 @@ private fun UsersTab(
             )
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                FilterChip("الكل", state.filter == AdminFilter.ALL) { vm.setFilter(AdminFilter.ALL) }
-                FilterChip("مشترك", state.filter == AdminFilter.SUBSCRIBED) { vm.setFilter(AdminFilter.SUBSCRIBED) }
-                FilterChip("تجربة", state.filter == AdminFilter.TRIAL) { vm.setFilter(AdminFilter.TRIAL) }
-                FilterChip("مجاني", state.filter == AdminFilter.NONE) { vm.setFilter(AdminFilter.NONE) }
+                FilterChip(stringResource(R.string.t_108), state.filter == AdminFilter.ALL) { vm.setFilter(AdminFilter.ALL) }
+                FilterChip(stringResource(R.string.t_083), state.filter == AdminFilter.SUBSCRIBED) { vm.setFilter(AdminFilter.SUBSCRIBED) }
+                FilterChip(stringResource(R.string.t_103), state.filter == AdminFilter.TRIAL) { vm.setFilter(AdminFilter.TRIAL) }
+                FilterChip(stringResource(R.string.t_104), state.filter == AdminFilter.NONE) { vm.setFilter(AdminFilter.NONE) }
             }
         }
         items(state.filtered, key = { it.id }) { u -> UserRow(u) }
@@ -287,9 +287,9 @@ private fun NotificationsTab(
             Text(stringResource(R.string.t_028), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatCard("أجهزة", state.notifStats.tokensCount, Color(0xFF93E0FF), Modifier.weight(1f))
-                StatCard("مستخدمون", state.notifStats.usersCount, Success, Modifier.weight(1f))
-                StatCard("مُرسل", state.notifStats.sentCount, Accent, Modifier.weight(1f))
+                StatCard(stringResource(R.string.t_109), state.notifStats.tokensCount, Color(0xFF93E0FF), Modifier.weight(1f))
+                StatCard(stringResource(R.string.t_110), state.notifStats.usersCount, Success, Modifier.weight(1f))
+                StatCard(stringResource(R.string.t_111), state.notifStats.sentCount, Accent, Modifier.weight(1f))
             }
         }
         item {
@@ -419,7 +419,7 @@ private fun NotificationsTab(
 private fun NotifLogRow(event: String, title: String, uid: Int, sentAt: Double) {
     val ago = System.currentTimeMillis() / 1000.0 - sentAt
     val timeText = when {
-        ago < 60 -> "قبل قليل"
+        ago < 60 -> stringResource(R.string.t_112)
         ago < 3600 -> "قبل ${(ago / 60).toInt()} د"
         ago < 86400 -> "قبل ${(ago / 3600).toInt()} س"
         else -> "قبل ${(ago / 86400).toInt()} ي"
@@ -535,9 +535,9 @@ private fun UserRow(u: AdminUser) {
     val status: String
     val statusColor: Color
     when {
-        u.subExpires > now -> { status = "مشترك"; statusColor = Success }
-        u.trialExpires > now -> { status = "تجربة"; statusColor = Warning }
-        else -> { status = "مجاني"; statusColor = TextTertiary }
+        u.subExpires > now -> { status = stringResource(R.string.t_083); statusColor = Success }
+        u.trialExpires > now -> { status = stringResource(R.string.t_103); statusColor = Warning }
+        else -> { status = stringResource(R.string.t_104); statusColor = TextTertiary }
     }
 
     Card(

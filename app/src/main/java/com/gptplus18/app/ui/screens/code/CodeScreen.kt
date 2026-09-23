@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gptplus18.app.data.models.CodeMessage
-import com.gptplus18.app.data.models.CodeModel
 import com.gptplus18.app.data.models.CodeSession
 import com.gptplus18.app.ui.components.ChatGptComposer
 import com.gptplus18.app.ui.components.MarkdownText
@@ -68,22 +67,32 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                     if (state.currentSessionId == null) {
                         Text(stringResource(R.string.t_051), color = TextPrimary, fontWeight = FontWeight.Bold)
                     } else {
-                        CodeModelSelector(
-                            currentModel = state.currentModel,
-                            onSelect = { vm.setModel(it) },
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .background(Accent, RoundedCornerShape(50)),
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                stringResource(R.string.t_159),
+                                color = TextPrimary,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
                     }
                 },
                 navigationIcon = {
                     if (state.currentSessionId != null) {
                         IconButton(onClick = { vm.backToList() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "رجوع", tint = Accent)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.t_092), tint = Accent)
                         }
                     }
                 },
                 actions = {
                     IconButton(onClick = { vm.newRequest() }) {
-                        Icon(Icons.Default.Add, "جديد", tint = Accent)
+                        Icon(Icons.Default.Add, stringResource(R.string.t_160), tint = Accent)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
@@ -135,7 +144,7 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
         AlertDialog(
             onDismissRequest = { deleteDialogFor = null },
             title = { Text(stringResource(R.string.t_052), color = TextPrimary) },
-            text = { Text("حذف \"${s.title}\"؟", color = TextSecondary) },
+            text = { Text("حذف \"${s.title}\stringResource(R.string.t_132), color = TextSecondary) },
             confirmButton = {
                 TextButton(onClick = {
                     vm.deleteSession(s.id)
@@ -212,7 +221,7 @@ private fun CodeMessageItem(m: CodeMessage) {
         Column(Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    if (isUser) "أنت" else "الفريق",
+                    if (isUser) stringResource(R.string.t_161) else stringResource(R.string.t_162),
                     color = if (isUser) Accent else Success,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
@@ -222,7 +231,7 @@ private fun CodeMessageItem(m: CodeMessage) {
                     onClick = { clip.setText(AnnotatedString(m.content)) },
                     modifier = Modifier.size(28.dp),
                 ) {
-                    Icon(Icons.Default.ContentCopy, "نسخ", tint = TextTertiary,
+                    Icon(Icons.Default.ContentCopy, stringResource(R.string.t_003), tint = TextTertiary,
                         modifier = Modifier.size(16.dp))
                 }
             }
@@ -253,9 +262,9 @@ private fun RunningIndicator(status: String, logs: List<com.gptplus18.app.data.m
                 Spacer(Modifier.width(8.dp))
                 Text(
                     when (status) {
-                        "starting" -> "جاري التحضير..."
-                        "running" -> "الفريق يعمل..."
-                        else -> "قيد التنفيذ..."
+                        "starting" -> stringResource(R.string.t_163)
+                        "running" -> stringResource(R.string.t_164)
+                        else -> stringResource(R.string.t_165)
                     },
                     color = TextSecondary, fontSize = 13.sp,
                 )
@@ -277,93 +286,4 @@ private fun RunningIndicator(status: String, logs: List<com.gptplus18.app.data.m
 
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CodeModelSelector(
-    currentModel: CodeModel,
-    onSelect: (CodeModel) -> Unit,
-) {
-    var expanded by remember { mutableStateOf(false) }
 
-    Box {
-        Row(
-            modifier = Modifier
-                .background(BgSecondary, RoundedCornerShape(20.dp))
-                .clickable { expanded = true }
-                .padding(horizontal = 12.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .background(currentModel.color, RoundedCornerShape(50)),
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                currentModel.label,
-                color = TextPrimary,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Icon(
-                Icons.Default.ExpandMore,
-                contentDescription = "اختر",
-                tint = TextSecondary,
-                modifier = Modifier.size(18.dp),
-            )
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            containerColor = BgSecondary,
-            modifier = Modifier.width(300.dp),
-        ) {
-            Text(
-                stringResource(R.string.t_055),
-                color = TextSecondary,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            )
-
-            CodeModel.values().forEach { m ->
-                DropdownMenuItem(
-                    text = {
-                        Column(Modifier.padding(vertical = 4.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(m.emoji, fontSize = 16.sp)
-                                Spacer(Modifier.width(10.dp))
-                                Text(
-                                    m.label,
-                                    color = TextPrimary,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                )
-                                Spacer(Modifier.weight(1f))
-                                if (m == currentModel) {
-                                    Icon(
-                                        Icons.Default.Check,
-                                        null,
-                                        tint = Accent,
-                                        modifier = Modifier.size(16.dp),
-                                    )
-                                }
-                            }
-                            Text(
-                                m.description,
-                                color = TextSecondary,
-                                fontSize = 11.sp,
-                                modifier = Modifier.padding(start = 26.dp, top = 2.dp),
-                            )
-                        }
-                    },
-                    onClick = {
-                        expanded = false
-                        onSelect(m)
-                    },
-                )
-            }
-        }
-    }
-}

@@ -42,7 +42,7 @@ fun SettingsScreen(
                 title = { Text(stringResource(R.string.t_076), color = TextPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "رجوع", tint = Accent)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.t_092), tint = Accent)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
@@ -57,34 +57,34 @@ fun SettingsScreen(
                 .padding(16.dp),
         ) {
             // ─── المظهر ───
-            SectionTitle("المظهر")
+            SectionTitle(stringResource(R.string.t_203))
 
 
                         Spacer(Modifier.height(10.dp))
 
             // ─── اللغة ───
-            SectionTitle("اللغة")
+            SectionTitle(stringResource(R.string.t_073))
 
             SettingRow(
                 icon = Icons.Default.Language,
-                title = "لغة التطبيق",
-                subtitle = if (state.language == "ar") "العربية" else "English",
+                title = stringResource(R.string.t_204),
+                subtitle = if (state.language == "ar") stringResource(R.string.t_198) else "English",
             ) {
                 TextButton(onClick = { vm.toggleLanguage() }) {
-                    Text(if (state.language == "ar") "العربية" else "English", color = Accent, fontSize = 13.sp)
+                    Text(if (state.language == "ar") stringResource(R.string.t_198) else "English", color = Accent, fontSize = 13.sp)
                 }
             }
 
               // ─── الإشعارات ───
-              SectionTitle("الإشعارات")
+              SectionTitle(stringResource(R.string.t_205))
 
               SettingRow(
                   icon = Icons.Default.Notifications,
-                  title = "إشعارات Push",
+                  title = stringResource(R.string.t_206),
                   subtitle = when {
-                      state.notificationsLoading -> "جاري التفعيل..."
-                      state.notificationsEnabled -> "مفعّلة — رح توصلك تنبيهات"
-                      else -> "معطّلة"
+                      state.notificationsLoading -> stringResource(R.string.t_207)
+                      state.notificationsEnabled -> stringResource(R.string.t_208)
+                      else -> stringResource(R.string.t_209)
                   },
               ) {
                   if (state.notificationsLoading) {
@@ -123,19 +123,19 @@ fun SettingsScreen(
               }
 
             // ─── أخرى ───
-            SectionTitle("أخرى")
+            SectionTitle(stringResource(R.string.t_210))
 
             SettingRow(
                 icon = Icons.Default.Refresh,
-                title = "فحص التحديثات",
-                subtitle = "الإصدار الحالي: 1.0.0",
+                title = stringResource(R.string.t_211),
+                subtitle = stringResource(R.string.t_212),
                 onClick = { vm.checkUpdates() },
             )
 
             SettingRow(
                 icon = Icons.Default.Info,
-                title = "عن التطبيق",
-                subtitle = "GPT+18 — ذكاء بلا قيود",
+                title = stringResource(R.string.t_008),
+                subtitle = stringResource(R.string.t_213),
                 onClick = onAbout,
             )
 
@@ -215,9 +215,9 @@ private fun FontSizeChip(
 }
 
 private fun fontScaleLabel(scale: Float): String = when (scale) {
-    0.85f -> "صغير"
-    1.0f -> "عادي"
-    1.15f -> "كبير"
-    1.3f -> "ضخم"
-    else -> "عادي"
+    0.85f -> stringResource(R.string.t_199)
+    1.0f -> stringResource(R.string.t_200)
+    1.15f -> stringResource(R.string.t_201)
+    1.3f -> stringResource(R.string.t_202)
+    else -> stringResource(R.string.t_200)
 }

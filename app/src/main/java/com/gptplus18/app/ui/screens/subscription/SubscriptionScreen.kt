@@ -268,7 +268,7 @@ private fun PaymentBox(
                     fontSize = 12.sp,
                     modifier = Modifier.weight(1f),
                 )
-                Icon(Icons.Default.ContentCopy, "نسخ", tint = Accent)
+                Icon(Icons.Default.ContentCopy, stringResource(R.string.t_003), tint = Accent)
             }
             Spacer(Modifier.height(20.dp))
 

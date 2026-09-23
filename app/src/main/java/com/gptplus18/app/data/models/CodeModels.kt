@@ -15,49 +15,14 @@ enum class CodeModel(
 ) {
     AUTO(
         key = "auto",
-        label = "Auto — الفريق الكامل",
-        description = "5 نماذج تتعاون: Claude + GLM + Qwen + Kimi + MiniMax",
+        label = "الفريق الكامل",
+        description = "5 نماذج تتعاون تلقائياً",
         emoji = "⚡",
         color = Color(0xFFC4B5FD),
-    ),
-    CLAUDE(
-        key = "anthropic/claude-sonnet-5",
-        label = "Claude Sonnet 5",
-        description = "القائد — يفكر ويخطط",
-        emoji = "👑",
-        color = Color(0xFFFFC58F),
-    ),
-    QWEN(
-        key = "qwen/qwen3-coder-plus",
-        label = "Qwen3 Coder Plus",
-        description = "متخصص بالبرمجة",
-        emoji = "💻",
-        color = Color(0xFF93E0FF),
-    ),
-    GLM(
-        key = "z-ai/glm-5.3",
-        label = "GLM 5.3",
-        description = "المخطط المعماري",
-        emoji = "🏗️",
-        color = Color(0xFF7EE787),
-    ),
-    KIMI(
-        key = "moonshotai/kimi-k3",
-        label = "Kimi K3",
-        description = "المدقق",
-        emoji = "🔍",
-        color = Color(0xFFA78BFA),
-    ),
-    MINIMAX(
-        key = "minimax/minimax-m3",
-        label = "MiniMax M3",
-        description = "متخصص بالواجهات",
-        emoji = "🎨",
-        color = Color(0xFFFF9EC7),
     );
 
     companion object {
-        fun fromKey(k: String?): CodeModel = values().firstOrNull { it.key == k } ?: AUTO
+        fun fromKey(k: String?): CodeModel = AUTO
     }
 }
 

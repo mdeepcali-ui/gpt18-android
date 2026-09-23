@@ -37,6 +37,8 @@ import com.gptplus18.app.ui.theme.*
 import androidx.compose.ui.res.stringResource
 import com.gptplus18.app.R
 
+private val SendBlue = Color(0xFF0A84FF)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
@@ -70,13 +72,13 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                TabCard("صورة", state.tab == MediaTab.IMAGE, Modifier.weight(1f)) {
+                TabCard(stringResource(R.string.t_135), state.tab == MediaTab.IMAGE, Modifier.weight(1f)) {
                     vm.setTab(MediaTab.IMAGE)
                 }
-                TabCard("أغنية", state.tab == MediaTab.SONG, Modifier.weight(1f)) {
+                TabCard(stringResource(R.string.t_168), state.tab == MediaTab.SONG, Modifier.weight(1f)) {
                     vm.setTab(MediaTab.SONG)
                 }
-                TabCard("فيديو", state.tab == MediaTab.VIDEO, Modifier.weight(1f)) {
+                TabCard(stringResource(R.string.t_169), state.tab == MediaTab.VIDEO, Modifier.weight(1f)) {
                     vm.setTab(MediaTab.VIDEO)
                 }
             }
@@ -89,9 +91,9 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 placeholder = {
                     Text(
                         when (state.tab) {
-                            MediaTab.IMAGE -> "اوصف الصورة..."
-                            MediaTab.SONG -> "اوصف الأغنية..."
-                            MediaTab.VIDEO -> "اوصف الفيديو..."
+                            MediaTab.IMAGE -> stringResource(R.string.t_170)
+                            MediaTab.SONG -> stringResource(R.string.t_171)
+                            MediaTab.VIDEO -> stringResource(R.string.t_172)
                         },
                         color = TextTertiary,
                     )
@@ -118,9 +120,9 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     Spacer(Modifier.height(6.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf(
-                            "square" to "مربع",
-                            "portrait" to "طولي",
-                            "landscape" to "عريض",
+                            "square" to stringResource(R.string.t_173),
+                            "portrait" to stringResource(R.string.t_174),
+                            "landscape" to stringResource(R.string.t_175),
                         ).forEach { (k, label) ->
                             PresetChip(label, state.preset == k) { vm.setPreset(k) }
                         }
@@ -154,7 +156,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                         ) {
                             AsyncImage(
                                 model = state.editImageUri,
-                                contentDescription = "صورة للتعديل",
+                                contentDescription = stringResource(R.string.t_176),
                                 contentScale = ContentScale.Fit,
                                 modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp),
                             )
@@ -168,7 +170,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                                     .clickable { vm.clearEditImage() },
                                 contentAlignment = Alignment.Center,
                             ) {
-                                Icon(Icons.Default.Close, "إزالة", tint = Color.White, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Close, stringResource(R.string.t_177), tint = Color.White, modifier = Modifier.size(16.dp))
                             }
                         }
                     }
@@ -199,7 +201,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     Spacer(Modifier.height(6.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf(
-                            "auto" to "تلقائي",
+                            "auto" to stringResource(R.string.t_179),
                             "ltx-2.3-spicy" to "LTX",
                             "wan-2.2-spicy" to "Wan",
                             "grok-imagine" to "Grok",
@@ -220,30 +222,30 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 enabled = !state.isLoading,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Accent),
+                colors = ButtonDefaults.buttonColors(containerColor = SendBlue),
             ) {
                 if (state.isLoading) {
                     CircularProgressIndicator(
-                        color = BgPrimary,
+                        color = Color.White,
                         modifier = Modifier.size(22.dp),
                         strokeWidth = 2.dp,
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        if (state.tab == MediaTab.VIDEO) "جاري التوليد (قد يأخذ دقائق)..."
-                        else if (isEditMode) "جاري التعديل..."
-                        else "جاري الإنشاء...",
-                        color = BgPrimary,
+                        if (state.tab == MediaTab.VIDEO) stringResource(R.string.t_180)
+                        else if (isEditMode) stringResource(R.string.t_181)
+                        else stringResource(R.string.t_182),
+                        color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
                     )
                 } else {
                     if (isEditMode) {
-                        Icon(Icons.Default.Edit, null, tint = BgPrimary, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Edit, null, tint = Color.White, modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.t_063), color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.t_063), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     } else {
-                        Text(stringResource(R.string.t_064), color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.t_064), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                 }
             }
@@ -270,7 +272,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                         contentScale = ContentScale.Fit,
                     )
                     Spacer(Modifier.height(10.dp))
-                    CopyRow("رابط الصورة", state.imageUrl!!)
+                    CopyRow(stringResource(R.string.t_183), state.imageUrl!!)
                 }
             }
 
@@ -281,11 +283,11 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.PlayArrow, null, tint = Accent, modifier = Modifier.size(28.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text(state.songTitle ?: "أغنية", color = TextPrimary,
+                        Text(state.songTitle ?: stringResource(R.string.t_168), color = TextPrimary,
                             fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                     Spacer(Modifier.height(10.dp))
-                    CopyRow("رابط الأغنية", state.songUrl!!)
+                    CopyRow(stringResource(R.string.t_184), state.songUrl!!)
                     state.songLyrics?.let {
                         Spacer(Modifier.height(10.dp))
                         Text(stringResource(R.string.t_065), color = Accent, fontSize = 13.sp, fontWeight = FontWeight.Bold)
@@ -310,7 +312,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                             modifier = Modifier.padding(top = 4.dp))
                     }
                     Spacer(Modifier.height(10.dp))
-                    CopyRow("رابط الفيديو", state.videoUrl!!)
+                    CopyRow(stringResource(R.string.t_186), state.videoUrl!!)
                     Spacer(Modifier.height(8.dp))
                     Button(
                         onClick = {
@@ -321,12 +323,12 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                             } catch (_: Exception) { }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = Accent),
+                        colors = ButtonDefaults.buttonColors(containerColor = SendBlue),
                         shape = RoundedCornerShape(10.dp),
                     ) {
-                        Icon(Icons.Default.PlayArrow, null, tint = BgPrimary)
+                        Icon(Icons.Default.PlayArrow, null, tint = Color.White)
                         Spacer(Modifier.width(6.dp))
-                        Text(stringResource(R.string.t_067), color = BgPrimary, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.t_067), color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -395,7 +397,7 @@ private fun CopyRow(label: String, value: String) {
     ) {
         Text(label, color = TextSecondary, fontSize = 12.sp, modifier = Modifier.weight(1f))
         IconButton(onClick = { clip.setText(AnnotatedString(value)) }) {
-            Icon(Icons.Default.ContentCopy, "نسخ", tint = Accent)
+            Icon(Icons.Default.ContentCopy, stringResource(R.string.t_003), tint = Accent)
         }
     }
 }

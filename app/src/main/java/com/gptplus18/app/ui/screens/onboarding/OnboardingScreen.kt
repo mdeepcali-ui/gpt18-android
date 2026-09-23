@@ -42,20 +42,20 @@ fun OnboardingScreen(
     val pages = listOf(
         OnboardingPage(
             icon = Icons.Default.Psychology,
-            title = "ذكاء بلا قيود",
-            description = "دردشة حقيقية مع ذكاء اصطناعي متقدم — بدون فلاتر ولا قيود",
+            title = stringResource(R.string.t_188),
+            description = stringResource(R.string.t_189),
             accentColor = Accent,
         ),
         OnboardingPage(
             icon = Icons.Default.Code,
-            title = "فريق برمجة كامل",
-            description = "5 نماذج ذكية تعمل معاً لبناء مشاريعك البرمجية باحترافية",
+            title = stringResource(R.string.t_190),
+            description = stringResource(R.string.t_191),
             accentColor = Color(0xFF93E0FF),
         ),
         OnboardingPage(
             icon = Icons.Default.Image,
-            title = "صور + أغاني + فيديو",
-            description = "أنشئ وسائط احترافية بأمر واحد — صور، أغاني، وتعديلات ذكية",
+            title = stringResource(R.string.t_192),
+            description = stringResource(R.string.t_193),
             accentColor = Color(0xFFFFC58F),
         ),
     )
@@ -127,7 +127,7 @@ fun OnboardingScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = Accent),
                 ) {
                     Text(
-                        if (isLastPage) "ابدأ الآن" else "التالي",
+                        if (isLastPage) stringResource(R.string.t_194) else stringResource(R.string.t_195),
                         color = BgPrimary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,

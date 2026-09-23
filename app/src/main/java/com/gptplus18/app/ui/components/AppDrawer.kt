@@ -10,7 +10,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -23,6 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gptplus18.app.ui.theme.*
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @Composable
 fun AppDrawerContent(
@@ -39,7 +40,6 @@ fun AppDrawerContent(
     onProfile: () -> Unit,
     onSettings: () -> Unit = {},
     onAdmin: () -> Unit,
-    onLanguageToggle: () -> Unit,
     onLogout: () -> Unit,
 ) {
     ModalDrawerSheet(
@@ -68,7 +68,7 @@ fun AppDrawerContent(
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(userName.ifEmpty { "مستخدم" }, color = TextPrimary,
+                Text(userName.ifEmpty { stringResource(R.string.t_196) }, color = TextPrimary,
                     fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 Text(userEmail, color = TextSecondary, fontSize = 12.sp)
             }
@@ -78,11 +78,11 @@ fun AppDrawerContent(
         Spacer(Modifier.height(8.dp))
 
         // ═══ محادثة جديدة ═══
-        DrawerItem("محادثة جديدة", Icons.Default.Add, onNewChat, Accent)
+        DrawerItem(stringResource(R.string.new_chat), Icons.Default.Add, onNewChat, Accent)
 
         // ═══ سجل محادثات ═══
         DrawerItem(
-            label = "سجل محادثات",
+            label = stringResource(R.string.t_226),
             icon = Icons.Default.History,
             onClick = onSessionsClick,
             tint = TextPrimary,
@@ -94,23 +94,22 @@ fun AppDrawerContent(
         Spacer(Modifier.height(4.dp))
 
         // ═══ الأقسام الأساسية ═══
-        DrawerItem("الاشتراك", Icons.Default.CreditCard, onSubscription)
-        DrawerItem("الملف الشخصي", Icons.Default.Person, onProfile)
-        DrawerItem("الإعدادات", Icons.Default.Settings, onSettings)
+        DrawerItem(stringResource(R.string.t_079), Icons.Default.CreditCard, onSubscription)
+        DrawerItem(stringResource(R.string.t_069), Icons.Default.Person, onProfile)
+        DrawerItem(stringResource(R.string.t_076), Icons.Default.Settings, onSettings)
 
         if (isOwner) {
             Spacer(Modifier.height(4.dp))
             Divider(color = TextSecondary.copy(alpha = 0.15f))
             Spacer(Modifier.height(4.dp))
-            DrawerItem("لوحة المالك", Icons.Default.AdminPanelSettings, onAdmin, Accent)
+            DrawerItem(stringResource(R.string.t_071), Icons.Default.AdminPanelSettings, onAdmin, Accent)
         }
 
         Spacer(Modifier.weight(1f))
 
         // ═══ الأسفل ═══
         Divider(color = TextSecondary.copy(alpha = 0.15f))
-        DrawerItem("اللغة (AR/EN)", Icons.Default.Language, onLanguageToggle)
-        DrawerItem("تسجيل خروج", Icons.AutoMirrored.Filled.Logout, onLogout, Color(0xFFEF4444))
+        DrawerItem(stringResource(R.string.t_077), Icons.AutoMirrored.Filled.Logout, onLogout, Color(0xFFEF4444))
 
         Spacer(Modifier.height(16.dp))
     }

@@ -55,7 +55,7 @@ fun ModeSelector(
             )
             Icon(
                 Icons.Default.ExpandMore,
-                contentDescription = "اختر",
+                contentDescription = stringResource(R.string.t_234),
                 tint = TextSecondary,
                 modifier = Modifier.size(18.dp),
             )
@@ -78,6 +78,7 @@ fun ModeSelector(
             ChatMode.values().forEach { mode ->
                 val locked = mode.requiresSub && !isSubscribed
                 DropdownMenuItem(
+                    modifier = Modifier.background(BgSecondary),
                     text = {
                         Column(Modifier.padding(vertical = 4.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {

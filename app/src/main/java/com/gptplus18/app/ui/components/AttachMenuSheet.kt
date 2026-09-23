@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gptplus18.app.ui.theme.BgSecondary
 import com.gptplus18.app.ui.theme.TextPrimary
+import androidx.compose.ui.res.stringResource
+import com.gptplus18.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,27 +57,27 @@ fun AttachMenuSheet(
         ) {
             AttachItem(
                 icon = Icons.Default.CameraAlt,
-                label = "كاميرا",
+                label = stringResource(R.string.t_227),
                 onClick = { onCamera(); onDismiss() },
             )
             AttachItem(
                 icon = Icons.Default.Image,
-                label = "الصور",
+                label = stringResource(R.string.t_228),
                 onClick = { onPhotos(); onDismiss() },
             )
             AttachItem(
                 icon = Icons.Default.InsertDriveFile,
-                label = "ملفات",
+                label = stringResource(R.string.t_229),
                 onClick = { onFiles(); onDismiss() },
             )
             AttachItem(
                 icon = Icons.Default.Extension,
-                label = "المكونات الإضافية",
+                label = stringResource(R.string.t_006),
                 onClick = { onAddons(); onDismiss() },
             )
             AttachItem(
                 icon = Icons.Default.Psychology,
-                label = "فكّر بعمق أكبر",
+                label = stringResource(R.string.t_007),
                 onClick = { onDeepThink(); onDismiss() },
             )
 

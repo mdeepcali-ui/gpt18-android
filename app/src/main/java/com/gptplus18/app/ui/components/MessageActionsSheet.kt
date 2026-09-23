@@ -39,19 +39,19 @@ fun MessageActionsSheet(
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.titleMedium,
             )
-            ActionRow("نسخ", Icons.Default.ContentCopy, Accent) {
+            ActionRow(stringResource(R.string.t_003), Icons.Default.ContentCopy, Accent) {
                 onCopy(); onDismiss()
             }
-            ActionRow("مشاركة", Icons.Default.Share, Accent) {
+            ActionRow(stringResource(R.string.t_133), Icons.Default.Share, Accent) {
                 onShare(); onDismiss()
             }
             if (msg.role == "user") {
-                ActionRow("رد", Icons.Default.Reply, Accent) {
+                ActionRow(stringResource(R.string.t_233), Icons.Default.Reply, Accent) {
                     onReply(); onDismiss()
                 }
             }
             if (onDelete != null) {
-                ActionRow("حذف", Icons.Default.Delete, Color(0xFFEF4444)) {
+                ActionRow(stringResource(R.string.t_046), Icons.Default.Delete, Color(0xFFEF4444)) {
                     onDelete(); onDismiss()
                 }
             }

@@ -42,7 +42,7 @@ fun AboutScreen(onBack: () -> Unit = {}) {
                 title = { Text(stringResource(R.string.t_008), color = TextPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "رجوع", tint = Accent)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.t_092), tint = Accent)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
@@ -123,18 +123,18 @@ fun AboutScreen(onBack: () -> Unit = {}) {
             Spacer(Modifier.height(24.dp))
 
             // روابط
-            SectionTitle("تواصل معنا")
+            SectionTitle(stringResource(R.string.t_093))
 
-            LinkRow("قناة المحتوى", "@qesaasss", Icons.Default.Chat, "https://t.me/qesaasss")
-            LinkRow("قناة الدفع", "@qisaasss", Icons.Default.Chat, "https://t.me/qisaasss")
-            LinkRow("بوت AI", "@Qisas_Plus18_bot", Icons.Default.Send, "https://t.me/Qisas_Plus18_bot")
-            LinkRow("الموقع الرسمي", "gptplus18.com", Icons.Default.Language, "https://gptplus18.com")
+            LinkRow(stringResource(R.string.t_094), "@qesaasss", Icons.Default.Chat, "https://t.me/qesaasss")
+            LinkRow(stringResource(R.string.t_095), "@qisaasss", Icons.Default.Chat, "https://t.me/qisaasss")
+            LinkRow(stringResource(R.string.t_096), "@Qisas_Plus18_bot", Icons.Default.Send, "https://t.me/Qisas_Plus18_bot")
+            LinkRow(stringResource(R.string.t_097), "gptplus18.com", Icons.Default.Language, "https://gptplus18.com")
 
             Spacer(Modifier.height(24.dp))
-            SectionTitle("قانوني")
+            SectionTitle(stringResource(R.string.t_098))
 
-            LinkRow("الشروط والأحكام", "", Icons.Default.PrivacyTip, "https://gptplus18.com/terms")
-            LinkRow("سياسة الخصوصية", "", Icons.Default.PrivacyTip, "https://gptplus18.com/privacy")
+            LinkRow(stringResource(R.string.t_099), "", Icons.Default.PrivacyTip, "https://gptplus18.com/terms")
+            LinkRow(stringResource(R.string.t_100), "", Icons.Default.PrivacyTip, "https://gptplus18.com/privacy")
 
             Spacer(Modifier.height(32.dp))
 

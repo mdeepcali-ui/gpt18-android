@@ -141,7 +141,7 @@ fun ChatGptComposer(
                 // إيموجي
                 Icon(
                     Icons.Default.EmojiEmotions,
-                    "إيموجي",
+                    stringResource(R.string.t_230),
                     tint = IconGray,
                     modifier = Modifier
                         .size(26.dp)
@@ -152,7 +152,7 @@ fun ChatGptComposer(
                 // +
                 Icon(
                     Icons.Default.Add,
-                    "إرفاق",
+                    stringResource(R.string.t_231),
                     tint = IconGray,
                     modifier = Modifier
                         .size(28.dp)
@@ -173,7 +173,7 @@ fun ChatGptComposer(
                     ) {
                         Icon(
                             Icons.Default.ArrowUpward,
-                            "إرسال",
+                            stringResource(R.string.t_035),
                             tint = Color.White,
                             modifier = Modifier.size(20.dp),
                         )
@@ -291,7 +291,7 @@ private fun AttachmentChip(
         ) {
             Icon(
                 Icons.Default.Close,
-                "حذف",
+                stringResource(R.string.t_046),
                 tint = Color.White,
                 modifier = Modifier.size(14.dp),
             )
