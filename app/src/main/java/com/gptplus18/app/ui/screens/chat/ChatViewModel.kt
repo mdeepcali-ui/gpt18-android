@@ -89,17 +89,6 @@ class ChatViewModel @Inject constructor(
                 )
             }
 
-    // 📋 تحميل كل الجلسات (Chat + Code) موحّدة
-    fun loadAllSessions() {
-        viewModelScope.launch {
-            when (val r = chatRepo.listAllSessions()) {
-                is Result.Success -> {
-                    _state.value = _state.value.copy(allSessions = r.data)
-                }
-                else -> { /* ما نعمل شي */ }
-            }
-        }
-    }
             when (val r = chatRepo.listSessions()) {
                 is Result.Success -> {
                     _state.value = _state.value.copy(
@@ -118,6 +107,18 @@ class ChatViewModel @Inject constructor(
                     }
                 }
                 else -> {}
+            }
+        }
+    }
+
+    // 📋 تحميل كل الجلسات (Chat + Code) موحّدة
+    fun loadAllSessions() {
+        viewModelScope.launch {
+            when (val r = chatRepo.listAllSessions()) {
+                is Result.Success -> {
+                    _state.value = _state.value.copy(allSessions = r.data)
+                }
+                else -> { /* ما نعمل شي */ }
             }
         }
     }
