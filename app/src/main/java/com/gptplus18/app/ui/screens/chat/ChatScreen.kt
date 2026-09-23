@@ -293,8 +293,7 @@ fun ChatScreen(
                                                 } else {
                                                     val steps = lastThinking?.steps.orEmpty()
                                                     if (steps.isNotEmpty()) {
-                                                        append(steps.joinToString("
-") { "• $it" })
+                                                        append(steps.joinToString("\n") { "• $it" })
                                                     }
                                                 }
                                             }
