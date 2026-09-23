@@ -1,5 +1,7 @@
 package com.gptplus18.app.ui.components
 
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 import android.content.Intent
 import android.app.DownloadManager
 import android.content.Context
@@ -37,6 +39,7 @@ fun FullscreenImageViewer(
     onDismiss: () -> Unit,
 ) {
     val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
     var scale by remember { mutableStateOf(1f) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
@@ -84,20 +87,10 @@ fun FullscreenImageViewer(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // ⭐ Save
+                // ⭐ Save — حفظ محلي
                 IconButton(
                     onClick = {
-                        try {
-                            val dm = ctx.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-                            val req = DownloadManager.Request(Uri.parse(imageUrl))
-                            req.setDestinationInExternalPublicDir(
-                                Environment.DIRECTORY_PICTURES,
-                                "GPT+18/gpt18_${System.currentTimeMillis()}.jpg",
-                            )
-                            req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                            dm.enqueue(req)
-                        } catch (_: Exception) { }
-                        onDismiss()
+                        com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, imageUrl, "image")
                     },
                     modifier = Modifier
                         .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(50))
@@ -108,16 +101,12 @@ fun FullscreenImageViewer(
 
                 Spacer(Modifier.width(8.dp))
 
-                // ⭐ Share
+                // ⭐ Share — مشاركة الملف نفسه
                 IconButton(
                     onClick = {
-                        try {
-                            val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                                type = "image/*"
-                                putExtra(Intent.EXTRA_TEXT, imageUrl)
-                            }
-                            ctx.startActivity(Intent.createChooser(sendIntent, "مشاركة الصورة"))
-                        } catch (_: Exception) { }
+                        scope.launch {
+                            com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, imageUrl, "image")
+                        }
                     },
                     modifier = Modifier
                         .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(50))

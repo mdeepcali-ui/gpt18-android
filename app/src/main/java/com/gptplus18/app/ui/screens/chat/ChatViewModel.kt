@@ -431,8 +431,10 @@ class ChatViewModel @Inject constructor(
             statusLabel = newLabel,
         )
         viewModelScope.launch {
-            updateAttachment(id) { it.copy(progress = 0.3f) }
-            when (val up = uploadRepo.uploadFile(uri, mimeType, fileName)) {
+            // progress حقيقي من CountingRequestBody
+            when (val up = uploadRepo.uploadFile(uri, mimeType, fileName) { p ->
+                updateAttachment(id) { it.copy(progress = p) }
+            }) {
                 is Result.Success -> {
                     updateAttachment(id) {
                         it.copy(progress = 1f, uploadedFileId = up.data.fileId)
@@ -460,6 +462,21 @@ class ChatViewModel @Inject constructor(
         )
     }
 
+    /**
+     * ينتظر حتى يكتمل رفع المرفق أو يفشل (timeout 90 ثانية)
+     */
+    private suspend fun awaitUpload(id: Long, timeoutMs: Long = 90_000): Attachment? {
+        val start = System.currentTimeMillis()
+        while (System.currentTimeMillis() - start < timeoutMs) {
+            val att = _state.value.pendingAttachments.find { it.id == id }
+            if (att == null) return null  // أُزيل
+            if (att.error != null) return att  // فشل
+            if (att.isUploaded) return att  // تم
+            kotlinx.coroutines.delay(150)
+        }
+        return _state.value.pendingAttachments.find { it.id == id }
+    }
+
     fun sendWithAttachments(caption: String) {
         RateLimiter.checkChat()?.let { err ->
             _state.value = _state.value.copy(error = err)
@@ -471,16 +488,12 @@ class ChatViewModel @Inject constructor(
             if (caption.isNotBlank()) send(caption)
             return
         }
-        if (atts.any { !it.isUploaded }) {
-            _state.value = _state.value.copy(error = "انتظر انتهاء الرفع")
-            return
-        }
 
         val sessionId = _state.value.currentSessionId
         val firstAtt = atts.firstOrNull()
         val localUri = firstAtt?.uri?.toString()
 
-        // ⭐ 1) user bubble فيه صورة + caption
+        // ─── 1) عرض user bubble فوراً (مع الصورة حتى لو لم تكتمل) ───
         val userMsg = Message(
             id = -1,
             role = "user",
@@ -489,7 +502,7 @@ class ChatViewModel @Inject constructor(
             localImageUri = if (firstAtt?.mimeType?.startsWith("image/") == true) localUri else null,
         )
 
-        // ⭐ 2) assistant bubble فيه مؤشر "يحلل"
+        // ─── 2) عرض assistant bubble مع مؤشر "يحلل" فوراً ───
         val analyzingTs = System.currentTimeMillis() / 1000.0 + 1
         val analyzingMsg = Message(
             id = -2,
@@ -502,23 +515,55 @@ class ChatViewModel @Inject constructor(
         _state.value = _state.value.copy(
             messages = _state.value.messages + userMsg + analyzingMsg,
             isSending = true,
-            isUploading = false,
+            isUploading = true,
             error = null,
-            statusLabel = "يحلل",
-            pendingAttachments = emptyList(),
+            statusLabel = "يرفع",
         )
 
         viewModelScope.launch {
             var finalSessionId = sessionId
             var lastError: String? = null
+            val uploaded: MutableList<Attachment> = mutableListOf()
 
+            // ─── 3) ننتظر اكتمال الرفع ───
             for (att in atts) {
+                val ready = awaitUpload(att.id)
+                if (ready == null) {
+                    // أُزيل أثناء الرفع — تجاهل
+                    continue
+                }
+                if (ready.error != null) {
+                    lastError = "فشل رفع الملف: ${ready.error}"
+                    break
+                }
+                if (!ready.isUploaded) {
+                    lastError = "انتهت مدة الرفع"
+                    break
+                }
+                uploaded.add(ready)
+            }
+
+            if (lastError != null || uploaded.isEmpty()) {
+                _state.value = _state.value.copy(
+                    messages = _state.value.messages.filterNot { it.id == -2 && it.ts == analyzingTs },
+                    error = lastError ?: "لا ملفات جاهزة",
+                    isSending = false,
+                    isUploading = false,
+                    statusLabel = "يفكر",
+                )
+                return@launch
+            }
+
+            // ─── 4) إزالة المرفقات من composer بعد الرفع الناجح ───
+            _state.value = _state.value.copy(pendingAttachments = emptyList())
+
+            // ─── 5) المعالجة على السيرفر ───
+            for (att in uploaded) {
                 val fid = att.uploadedFileId ?: continue
                 when (val r = uploadRepo.processUploaded(fid, caption, finalSessionId)) {
                     is Result.Success -> {
                         val reply = r.data.reply ?: "تم"
                         finalSessionId = r.data.sessionId ?: finalSessionId
-                        // استبدل الـ analyzing msg بالرد
                         _state.value = _state.value.copy(
                             messages = _state.value.messages.map { m ->
                                 if (m.id == -2 && m.ts == analyzingTs) {
@@ -539,7 +584,7 @@ class ChatViewModel @Inject constructor(
                 }
             }
 
-            // ⭐ 3) إذا صار خطأ → احذف الـ analyzing bubble + اعرض الخطأ
+            // ─── 6) في حال الخطأ: احذف analyzing bubble + اعرض الخطأ ───
             if (lastError != null) {
                 _state.value = _state.value.copy(
                     messages = _state.value.messages.filterNot { it.id == -2 && it.ts == analyzingTs },

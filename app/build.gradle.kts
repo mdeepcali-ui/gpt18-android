@@ -25,10 +25,9 @@ android {
         applicationId = "com.gptplus18.app"
         minSdk = 24
         targetSdk = 35
-        // ⭐ versionCode يتزايد تلقائياً كل يوم
-        // يمنع "already installed" ويسمح بالتحديث فوق النسخة القديمة
-        versionCode = ((System.currentTimeMillis() / 1000L / 86400L) % 100000L).toInt()
-        versionName = "1.0.16"
+        // versionCode يتزايد دقيقة بدقيقة — فريد لكل build
+        versionCode = ((System.currentTimeMillis() / 60_000L) % 2_000_000_000L).toInt()
+        versionName = "1.0.17"
         vectorDrawables { useSupportLibrary = true }
 
         buildConfigField("String", "BASE_URL", "\"https://gptplus18.com/\"")

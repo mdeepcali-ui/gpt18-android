@@ -1,5 +1,7 @@
 package com.gptplus18.app.ui.screens.media
 
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 import com.gptplus18.app.data.models.MediaHistoryItem
 import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.filled.Share
@@ -75,16 +77,16 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                             vm.setPrompt("")
                         },
                         modifier = Modifier
-                            .padding(end = 2.dp, top = 4.dp)
-                            .size(24.dp)
+                            .padding(end = 8.dp, top = 2.dp)
+                            .size(26.dp)
                             .clip(CircleShape)
-                            .border(2.5.dp, TextSecondary, CircleShape),
+                            .border(1.2.dp, TextSecondary, CircleShape),
                     ) {
                         Icon(
                             Icons.Default.Add,
                             stringResource(R.string.new_chat),
                             tint = TextPrimary,
-                            modifier = Modifier.size(12.dp),
+                            modifier = Modifier.size(16.dp),
                         )
                     }
                 },
@@ -174,7 +176,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                                 contentColor = TextPrimary,
                             ),
                         ) {
-                            Icon(Icons.Default.Image, null, tint = TextPrimary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Image, null, tint = TextPrimary, modifier = Modifier.size(28.dp))
                             Spacer(Modifier.width(8.dp))
                             Text(stringResource(R.string.t_060), fontWeight = FontWeight.Bold)
                         }
@@ -273,7 +275,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     )
                 } else {
                     if (isEditMode) {
-                        Icon(Icons.Default.Edit, null, tint = Color.White, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Edit, null, tint = Color.White, modifier = Modifier.size(28.dp))
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.t_063), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     } else {
@@ -350,18 +352,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     Spacer(Modifier.height(10.dp))
                     ResultActions(
                         url = state.imageUrl!!,
-                        onDownload = {
-                            try {
-                                ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(state.imageUrl!!)))
-                            } catch (_: Exception) { }
-                        },
-                        onShare = {
-                            val i = Intent(Intent.ACTION_SEND).apply {
-                                type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, state.imageUrl!!)
-                            }
-                            ctx.startActivity(Intent.createChooser(i, "مشاركة"))
-                        },
+                        type = "image",
                     )
                 }
             }
@@ -379,18 +370,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     Spacer(Modifier.height(10.dp))
                     ResultActions(
                         url = state.songUrl!!,
-                        onDownload = {
-                            try {
-                                ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(state.songUrl!!)))
-                            } catch (_: Exception) { }
-                        },
-                        onShare = {
-                            val i = Intent(Intent.ACTION_SEND).apply {
-                                type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, state.songUrl!!)
-                            }
-                            ctx.startActivity(Intent.createChooser(i, "مشاركة"))
-                        },
+                        type = "song",
                     )
                     state.songLyrics?.let {
                         Spacer(Modifier.height(10.dp))
@@ -418,18 +398,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     Spacer(Modifier.height(10.dp))
                     ResultActions(
                         url = state.videoUrl!!,
-                        onDownload = {
-                            try {
-                                ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(state.videoUrl!!)))
-                            } catch (_: Exception) { }
-                        },
-                        onShare = {
-                            val i = Intent(Intent.ACTION_SEND).apply {
-                                type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, state.videoUrl!!)
-                            }
-                            ctx.startActivity(Intent.createChooser(i, "مشاركة"))
-                        },
+                        type = "video",
                     )
                 }
             }
@@ -445,7 +414,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 ) {
                     CircularProgressIndicator(
                         color = Accent,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(28.dp),
                         strokeWidth = 2.dp,
                     )
                     Spacer(Modifier.width(10.dp))
@@ -616,17 +585,23 @@ private fun PresetChip(label: String, active: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
+@Composable
 private fun ResultActions(
     url: String,
-    onDownload: () -> Unit,
-    onShare: () -> Unit,
+    type: String,
 ) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Button(
-            onClick = onDownload,
+            onClick = {
+                // ⭐ X3: حفظ محلي — بدون متصفح
+                com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, url, type)
+            },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(containerColor = SendBlue),
             shape = RoundedCornerShape(10.dp),
@@ -636,7 +611,12 @@ private fun ResultActions(
             Text("تحميل", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
         }
         OutlinedButton(
-            onClick = onShare,
+            onClick = {
+                // ⭐ X3: مشاركة الملف نفسه
+                scope.launch {
+                    com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, url, type)
+                }
+            },
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary),

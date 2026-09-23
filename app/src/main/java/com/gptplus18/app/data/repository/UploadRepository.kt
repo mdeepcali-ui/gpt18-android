@@ -8,6 +8,7 @@ import com.gptplus18.app.data.models.ProcessUploadRequest
 import com.gptplus18.app.data.models.ProcessUploadResponse
 import com.gptplus18.app.data.models.UploadTempResponse
 import com.gptplus18.app.util.Result
+import com.gptplus18.app.util.CountingRequestBody
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,7 +30,16 @@ class UploadRepository @Inject constructor(
         return "Bearer $t"
     }
 
-    suspend fun uploadFile(uri: Uri, mimeType: String, fileName: String): Result<UploadTempResponse> {
+    /**
+     * رفع ملف مع تتبع التقدم الحقيقي
+     * @param onProgress callback(progress 0f..1f)
+     */
+    suspend fun uploadFile(
+        uri: Uri,
+        mimeType: String,
+        fileName: String,
+        onProgress: ((Float) -> Unit)? = null,
+    ): Result<UploadTempResponse> {
         val b = bearer() ?: return Result.Error("غير مصرح")
         return withContext(Dispatchers.IO) {
             try {
@@ -42,12 +52,18 @@ class UploadRepository @Inject constructor(
                     return@withContext Result.Error("الملف أكبر من 100MB")
                 }
 
-                val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
-                val part = MultipartBody.Part.createFormData("file", fileName, requestBody)
+                val rawBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+                val countingBody = CountingRequestBody(rawBody) { written, total ->
+                    val p = if (total > 0) (written.toFloat() / total.toFloat()) else 0f
+                    onProgress?.invoke(p.coerceIn(0f, 1f))
+                }
+                val part = MultipartBody.Part.createFormData("file", fileName, countingBody)
 
                 val r = api.uploadTemp(b, part)
-                if (r.isSuccessful) Result.Success(r.body()!!)
-                else Result.Error("فشل الرفع (${r.code()})")
+                if (r.isSuccessful) {
+                    onProgress?.invoke(1f)
+                    Result.Success(r.body()!!)
+                } else Result.Error("فشل الرفع (${r.code()})")
             } catch (e: Exception) {
                 Result.Error(e.message ?: "خطأ رفع")
             }

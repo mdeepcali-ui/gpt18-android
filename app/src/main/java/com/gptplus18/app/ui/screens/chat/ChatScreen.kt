@@ -253,16 +253,16 @@ fun ChatScreen(
                             IconButton(
                                 onClick = { vm.newChat() },
                                 modifier = Modifier
-                                    .padding(end = 2.dp, top = 4.dp)
-                                    .size(24.dp)
+                                    .padding(end = 8.dp, top = 2.dp)
+                                    .size(26.dp)
                                     .clip(CircleShape)
-                                    .border(2.5.dp, TextSecondary, CircleShape),
+                                    .border(1.2.dp, TextSecondary, CircleShape),
                             ) {
                                 Icon(
                                     Icons.Default.Add,
                                     stringResource(R.string.new_chat),
                                     tint = TextPrimary,
-                                    modifier = Modifier.size(12.dp),
+                                    modifier = Modifier.size(16.dp),
                                 )
                             }
                             if (showSessionsList) {
@@ -858,7 +858,7 @@ private fun AllSessionsListView(
                         if (s.type == "code") Icons.Default.Code else Icons.AutoMirrored.Filled.Chat,
                         contentDescription = null,
                         tint = if (s.type == "code") Info else Accent,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(28.dp),
                     )
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {

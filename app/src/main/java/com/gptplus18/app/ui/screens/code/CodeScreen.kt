@@ -102,16 +102,16 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                     IconButton(
                         onClick = { vm.newRequest() },
                         modifier = Modifier
-                            .padding(end = 2.dp, top = 4.dp)
-                            .size(24.dp)
+                            .padding(end = 8.dp, top = 2.dp)
+                            .size(26.dp)
                             .clip(CircleShape)
-                            .border(2.5.dp, TextSecondary, CircleShape),
+                            .border(1.2.dp, TextSecondary, CircleShape),
                     ) {
                         Icon(
                             Icons.Default.Add,
                             stringResource(R.string.t_160),
                             tint = TextPrimary,
-                            modifier = Modifier.size(12.dp),
+                            modifier = Modifier.size(16.dp),
                         )
                     }
                 },
