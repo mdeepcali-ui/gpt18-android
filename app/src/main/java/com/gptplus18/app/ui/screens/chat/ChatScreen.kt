@@ -168,27 +168,30 @@ fun ChatScreen(
     // ⭐ تتبّع ارتفاع الكيبورد — لتجنب scroll غير مرغوب
     val density = androidx.compose.ui.platform.LocalDensity.current
     val imeHeight = androidx.compose.foundation.layout.WindowInsets.ime.getBottom(density)
-    var prevImeHeight by remember { androidx.compose.runtime.mutableIntStateOf(imeHeight) }
 
+    // ⏱ آخر وقت تغيّر فيه الكيبورد (لكشف فتح/غلق تو)
+    var lastImeChangeAt by remember { androidx.compose.runtime.mutableLongStateOf(0L) }
     LaunchedEffect(imeHeight) {
-        // نحدّث القيمة فوراً لتجنب تشغيل auto-scroll
-        prevImeHeight = imeHeight
+        lastImeChangeAt = System.currentTimeMillis()
     }
 
     // 🎯 auto-scroll — يشتغل فقط:
     //   1) عند إضافة رسالة جديدة
     //   2) أو أثناء streaming والمستخدم عند الأسفل
-    //   3) وليس بسبب فتح/إغلاق الكيبورد
+    //   3) وليس بسبب فتح/إغلاق الكيبورد (نتجاهل 350ms بعد تغيّر الـ ime)
     LaunchedEffect(
         state.messages.size,
         state.messages.lastOrNull()?.content?.length,
     ) {
-        // إذا الكيبورد فُتح/أُغلق التو — نتجاهل هذه المرة
-        if (imeHeight != prevImeHeight) {
+        // إذا الكيبورد فُتح/أُغلق تواً — نتجاهل هذه المرة
+        val msSinceImeChange = System.currentTimeMillis() - lastImeChangeAt
+        if (msSinceImeChange < 350) {
             return@LaunchedEffect
         }
 
-        kotlinx.coroutines.delay(60)
+        // تأخير بسيط للسماح للـ layout يكتمل
+        kotlinx.coroutines.delay(80)
+
         val count = listState.layoutInfo.totalItemsCount
         if (count > 0 && !isScrolledUp) {
             try {
@@ -268,7 +271,7 @@ fun ChatScreen(
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPrimary),
-                        modifier = Modifier.height(48.dp),
+                        modifier = Modifier.height(40.dp),
                         windowInsets = WindowInsets(0, 0, 0, 0),
                     )
                 } else {
@@ -323,7 +326,7 @@ fun ChatScreen(
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPrimary),
-                        modifier = Modifier.height(48.dp),
+                        modifier = Modifier.height(40.dp),
                         windowInsets = WindowInsets(0, 0, 0, 0),
                     )
                 }

@@ -1,5 +1,11 @@
 package com.gptplus18.app.ui.screens.media
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.ContextCompat
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import com.gptplus18.app.data.models.MediaHistoryItem
@@ -37,8 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
@@ -65,6 +69,57 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
         contract = ActivityResultContracts.GetContent(),
     ) { uri ->
         if (uri != null) vm.setEditImage(uri)
+    }
+
+    // 🔐 طلب أذونات التخزين عند الحاجة (قبل الحفظ)
+    var pendingSave by remember { mutableStateOf<Pair<String, String>?>(null) }
+
+    fun neededStoragePerms(): Array<String> {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.READ_MEDIA_VIDEO,
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+            )
+        }
+    }
+
+    fun hasAllStoragePerms(): Boolean {
+        val perms = neededStoragePerms()
+        return perms.all {
+            ContextCompat.checkSelfPermission(ctx, it) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    val storagePermLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+    ) { result ->
+        val allGranted = result.values.all { it }
+        val pending = pendingSave
+        pendingSave = null
+        if (pending != null && allGranted) {
+            com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, pending.first, pending.second)
+        } else if (pending != null && !allGranted) {
+            android.widget.Toast.makeText(
+                ctx,
+                "❌ نحتاج إذن التخزين للحفظ",
+                android.widget.Toast.LENGTH_LONG,
+            ).show()
+        }
+    }
+
+    // 🔐 دالة موحدة: احفظ مع فحص الإذن
+    fun saveWithPermission(url: String, type: String) {
+        if (hasAllStoragePerms()) {
+            com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, url, type)
+        } else {
+            pendingSave = url to type
+            storagePermLauncher.launch(neededStoragePerms())
+        }
     }
 
     Scaffold(
@@ -572,7 +627,7 @@ private fun ResultActions(
         // ⭐ زر حفظ واحد فقط
         Button(
             onClick = {
-                com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, url, type)
+                saveWithPermission(url, type)
             },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(containerColor = SendBlue),

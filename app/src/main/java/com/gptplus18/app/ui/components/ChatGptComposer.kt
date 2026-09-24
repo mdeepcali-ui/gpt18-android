@@ -306,17 +306,40 @@ private fun AttachmentChip(
         }
 
         if (attachment.isUploading) {
+            // 🌑 طبقة تعتيم خلف المؤشر
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.55f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                // 🎯 دائرة progress + نسبة مئوية
+                androidx.compose.material3.CircularProgressIndicator(
+                    progress = { attachment.progress.coerceIn(0f, 1f) },
+                    color = SendBlue,
+                    trackColor = Color.White.copy(alpha = 0.25f),
+                    strokeWidth = 3.dp,
+                    modifier = Modifier.size(38.dp),
+                )
+                Text(
+                    text = "${(attachment.progress * 100).toInt().coerceIn(0, 100)}%",
+                    color = Color.White,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            // 📊 شريط progress سفلي واضح
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .height(3.dp)
-                    .background(colors.surfaceVariant),
+                    .height(5.dp)
+                    .background(Color.Black.copy(alpha = 0.4f)),
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(attachment.progress)
+                        .fillMaxWidth(attachment.progress.coerceIn(0f, 1f))
                         .background(SendBlue),
                 )
             }

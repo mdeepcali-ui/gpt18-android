@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <!-- ⭐ نضمن نسخ auth_backup (نسخة احتياطية للتوكن) -->
+    <!-- ⭐ نضمن نسخ auth_backup (SharedPreferences) + DataStore -->
     <include domain="sharedpref" path="auth_backup.xml"/>
+    <include domain="file" path="datastore/auth_prefs.preferences_pb"/>
 </full-backup-content>

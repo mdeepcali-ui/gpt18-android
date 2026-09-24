@@ -33,12 +33,14 @@ class TokenStorage @Inject constructor(
         context.getSharedPreferences("auth_backup", Context.MODE_PRIVATE)
 
     private fun backupSave(token: String, name: String, email: String, uid: Long) {
-        backupPrefs.edit()
+        // ⭐ commit() بدل apply() — كتابة فورية مضمونة قبل رجوع الدالة
+        val ok = backupPrefs.edit()
             .putString("token", token)
             .putString("name", name)
             .putString("email", email)
             .putLong("uid", uid)
-            .apply()
+            .commit()
+        android.util.Log.d("TokenStorage", "backupSave commit=$ok")
     }
 
     private fun backupClear() {
@@ -64,29 +66,34 @@ class TokenStorage @Inject constructor(
 
     // ─── القراءة مع fallback ───
     suspend fun getToken(): String? {
-        // جرّب DataStore أولاً
+        // ⭐ نقرأ الاثنين ونختار الأفضل
+        val backup = backupPrefs.getString("token", null)
         val ds = try {
             context.authDataStore.data.map { it[KEY_TOKEN] }.first()
         } catch (_: Exception) {
             null
         }
-        if (!ds.isNullOrBlank()) return ds
 
-        // fallback: من SharedPreferences
-        val backup = backupPrefs.getString("token", null)
+        android.util.Log.d("TokenStorage", "getToken: ds=${!ds.isNullOrBlank()} backup=${!backup.isNullOrBlank()}")
+
+        // نعطي الأولوية للـ backup (أضمن بعد قتل Process)
         if (!backup.isNullOrBlank()) {
-            // ✅ نرجع التوكن ونعيد كتابته في DataStore
-            try {
-                context.authDataStore.edit { prefs ->
-                    prefs[KEY_TOKEN] = backup
-                    backupPrefs.getString("name", null)?.let { prefs[KEY_NAME] = it }
-                    backupPrefs.getString("email", null)?.let { prefs[KEY_EMAIL] = it }
-                    val u = backupPrefs.getLong("uid", 0L)
-                    if (u > 0) prefs[KEY_UID] = u
-                }
-            } catch (_: Exception) { /* تجاهل */ }
+            // نعيد كتابته لـ DataStore لو ناقص
+            if (ds != backup) {
+                try {
+                    context.authDataStore.edit { prefs ->
+                        prefs[KEY_TOKEN] = backup
+                        backupPrefs.getString("name", null)?.let { prefs[KEY_NAME] = it }
+                        backupPrefs.getString("email", null)?.let { prefs[KEY_EMAIL] = it }
+                        val u = backupPrefs.getLong("uid", 0L)
+                        if (u > 0) prefs[KEY_UID] = u
+                    }
+                } catch (_: Exception) { /* تجاهل */ }
+            }
             return backup
         }
+
+        if (!ds.isNullOrBlank()) return ds
         return null
     }
 
