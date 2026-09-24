@@ -372,7 +372,6 @@ fun ChatScreen(
                                     }
                                 }
                             }
-                        }
 
                         state.replyTo?.let { r ->
                             ReplyBar(content = r.content, onCancel = { vm.setReplyTo(null) })
