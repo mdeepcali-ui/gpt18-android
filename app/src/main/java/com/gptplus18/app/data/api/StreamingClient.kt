@@ -22,8 +22,11 @@ class StreamingClient {
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(0, TimeUnit.MILLISECONDS)   // ما ننتهي تلقائياً
+        // ⭐ 180 ثانية كحد أقصى للقراءة — يمنع التعليق للأبد
+        .readTimeout(180, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
+        // ⭐ ping كل 20 ثانية للتأكد من الاتصال
+        .pingInterval(20, TimeUnit.SECONDS)
         .build()
 
     /**
@@ -49,6 +52,8 @@ class StreamingClient {
             .addHeader("Cache-Control", "no-cache")
             .post(jsonBody.toRequestBody("application/json".toMediaType()))
             .build()
+
+        var doneEmitted = false
 
         val listener = object : EventSourceListener() {
             override fun onEvent(
@@ -77,10 +82,12 @@ class StreamingClient {
                         obj.optBoolean("done", false) -> {
                             val sid = obj.optInt("session_id", -1)
                             val thinking = obj.optString("thinking", "")
+                            doneEmitted = true
                             trySend(StreamEvent.Done(sessionId = sid, thinking = thinking))
                             close()
                         }
                         obj.has("error") -> {
+                            doneEmitted = true
                             trySend(StreamEvent.Error(obj.optString("error", "خطأ")))
                             close()
                         }
@@ -95,11 +102,17 @@ class StreamingClient {
                 t: Throwable?,
                 response: Response?,
             ) {
+                doneEmitted = true
                 trySend(StreamEvent.Error(t?.message ?: "فشل الاتصال"))
                 close()
             }
 
             override fun onClosed(eventSource: EventSource) {
+                // ⭐ إذا SSE سكر بدون ما يبعث Done → نبعث Done يدوياً
+                if (!doneEmitted) {
+                    doneEmitted = true
+                    trySend(StreamEvent.Done(sessionId = -1, thinking = ""))
+                }
                 close()
             }
         }

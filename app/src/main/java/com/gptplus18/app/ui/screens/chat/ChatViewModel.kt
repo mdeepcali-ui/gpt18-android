@@ -269,6 +269,7 @@ class ChatViewModel @Inject constructor(
             val sidForServer = if (current.currentSessionId == -1) null else current.currentSessionId
             val thinkingSb = StringBuilder()
 
+            try {
             chatRepo.streamMessage(sidForServer, finalText)
                 .collect { ev ->
                     when (ev) {
@@ -344,6 +345,26 @@ class ChatViewModel @Inject constructor(
                     isSending = false,
                     error = "لم يصل رد من السيرفر",
                 )
+            }
+            } catch (e: Exception) {
+                // ⭐ ضمانات: أي خطأ في الـ stream → نحرر isSending
+                android.util.Log.e("ChatVM", "stream error: ${e.message}", e)
+                _state.value = _state.value.copy(
+                    messages = _state.value.messages.filterNot { it.id == -2 && it.ts == assistantTs },
+                    isSending = false,
+                    statusLabel = "يفكر",
+                    error = "انقطع الاتصال — حاول مرة ثانية",
+                )
+            } finally {
+                // ⭐ ضمان أخير: ما نسمح يبقى isSending عالق
+                if (_state.value.isSending) {
+                    _state.value = _state.value.copy(
+                        messages = _state.value.messages.filterNot { it.id == -2 && it.ts == assistantTs },
+                        isSending = false,
+                    )
+                }
+                // تحديث السجل حتى لو فشل
+                loadAllSessions()
             }
         }
     }
@@ -537,6 +558,7 @@ class ChatViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
+          try {
             // ⭐ -1 تعني محادثة جديدة — نحوّلها لـ null
             var finalSessionId: Int? = if (sessionId == -1) null else sessionId
             var lastError: String? = null
@@ -631,6 +653,25 @@ class ChatViewModel @Inject constructor(
                 isUploading = false,
                 statusLabel = "يفكر",
             )
+          } catch (e: Exception) {
+            // ⭐ ضمان: أي خطأ → نحرر isSending/isUploading
+            android.util.Log.e("ChatVM", "sendWithAttachments error: ${e.message}", e)
+            _state.value = _state.value.copy(
+                isSending = false,
+                isUploading = false,
+                statusLabel = "يفكر",
+                error = "انقطع الاتصال — حاول مرة ثانية",
+            )
+          } finally {
+            // ⭐ ضمان أخير
+            if (_state.value.isSending || _state.value.isUploading) {
+                _state.value = _state.value.copy(
+                    isSending = false,
+                    isUploading = false,
+                )
+            }
+            loadAllSessions()
+          }
         }
     }
 

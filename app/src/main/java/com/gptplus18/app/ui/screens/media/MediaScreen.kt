@@ -368,23 +368,37 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 }
             }
 
-            // ─── نتيجة الصورة ───
+            // ─── نتيجة الصورة ─── (ChatGPT style — بدون أزرار)
             if (state.tab == MediaTab.IMAGE && state.imageUrl != null) {
                 Spacer(Modifier.height(20.dp))
                 ResultCard {
                     AsyncImage(
                         model = state.imageUrl,
                         contentDescription = "Generated",
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 200.dp, max = 400.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 200.dp, max = 400.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { fullscreenImage = state.imageUrl },
                         contentScale = ContentScale.Fit,
                     )
-                    Spacer(Modifier.height(10.dp))
-                    ResultActions(
-                        url = state.imageUrl!!,
-                        type = "image",
-                        onSave = { u, t -> saveWithPermission(u, t) },
-                        onRegenerate = { vm.regenerate() },
-                    )
+                    // 🔄 زر إعادة التوليد (صغير تحت الصورة — بدون زر حفظ)
+                    Spacer(Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .clickable { vm.regenerate() },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            androidx.compose.material.icons.Icons.Default.Refresh,
+                            "إعادة توليد",
+                            tint = Accent,
+                            modifier = Modifier.size(22.dp),
+                        )
+                    }
                 }
             }
 
