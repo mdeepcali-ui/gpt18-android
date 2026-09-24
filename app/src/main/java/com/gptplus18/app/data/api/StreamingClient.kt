@@ -65,6 +65,21 @@ class StreamingClient {
                 try {
                     val obj = JSONObject(data)
                     when {
+                        // ⭐ حالة الإنشاء (مثل: جاري إنشاء الصورة)
+                        obj.has("status") -> {
+                            val st = obj.optString("status", "")
+                            if (st.isNotEmpty()) {
+                                trySend(StreamEvent.Status(st))
+                            }
+                        }
+                        // ⭐ رابط صورة جديدة من Backend
+                        obj.has("image_url") -> {
+                            val url = obj.optString("image_url", "")
+                            val prompt = obj.optString("image_prompt", "")
+                            if (url.isNotEmpty()) {
+                                trySend(StreamEvent.ImageUrl(url, prompt))
+                            }
+                        }
                         // ⭐ التفكير (يُعرض في سحابة التفكير)
                         obj.has("thinking_delta") -> {
                             val td = obj.optString("thinking_delta", "")
@@ -132,6 +147,8 @@ class StreamingClient {
 sealed class StreamEvent {
     data class ThinkingDelta(val text: String) : StreamEvent()
     data class Delta(val text: String) : StreamEvent()
+    data class Status(val text: String) : StreamEvent()
+    data class ImageUrl(val url: String, val prompt: String) : StreamEvent()
     data class Done(val sessionId: Int, val thinking: String) : StreamEvent()
     data class Error(val message: String) : StreamEvent()
 }
