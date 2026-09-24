@@ -21,11 +21,49 @@ import java.net.URL
  */
 object MediaShareHelper {
 
-    private fun extFor(type: String): String = when (type) {
-        "image" -> "jpg"
-        "song" -> "mp3"
-        "video" -> "mp4"
-        else -> "bin"
+    /**
+     * ⭐ يستخرج الامتداد الحقيقي من الرابط (png/jpg/webp/...)
+     * fallback: القيمة الافتراضية حسب النوع
+     */
+    private fun extFor(url: String, type: String): String {
+        val path = url.substringBefore('?').lowercase()
+        val candidates: List<String> = when (type) {
+            "image" -> listOf("png", "jpg", "jpeg", "webp", "gif")
+            "song"  -> listOf("mp3", "m4a", "wav", "ogg")
+            "video" -> listOf("mp4", "webm", "mov")
+            else    -> emptyList()
+        }
+        for (e in candidates) {
+            if (path.endsWith(".$e")) return e
+        }
+        return when (type) {
+            "image" -> "jpg"
+            "song"  -> "mp3"
+            "video" -> "mp4"
+            else    -> "bin"
+        }
+    }
+
+    /** يحدد MIME الصحيح بناءً على الامتداد الفعلي */
+    private fun mimeFor(name: String, type: String): String {
+        val n = name.lowercase()
+        return when {
+            n.endsWith(".png")  -> "image/png"
+            n.endsWith(".jpg") || n.endsWith(".jpeg") -> "image/jpeg"
+            n.endsWith(".webp") -> "image/webp"
+            n.endsWith(".gif")  -> "image/gif"
+            n.endsWith(".mp3")  -> "audio/mpeg"
+            n.endsWith(".m4a")  -> "audio/mp4"
+            n.endsWith(".wav")  -> "audio/wav"
+            n.endsWith(".ogg")  -> "audio/ogg"
+            n.endsWith(".mp4")  -> "video/mp4"
+            n.endsWith(".webm") -> "video/webm"
+            n.endsWith(".mov")  -> "video/quicktime"
+            type == "image" -> "image/jpeg"
+            type == "song"  -> "audio/mpeg"
+            type == "video" -> "video/mp4"
+            else -> "application/octet-stream"
+        }
     }
 
     private fun subDirFor(type: String): String = when (type) {
@@ -43,7 +81,7 @@ object MediaShareHelper {
      */
     fun saveToGallery(context: Context, url: String, type: String) {
         try {
-            val ext = extFor(type)
+            val ext = extFor(url, type)
             val name = "GPT18_${type}_${System.currentTimeMillis()}.$ext"
             val subDir = subDirFor(type)
 
@@ -94,12 +132,7 @@ object MediaShareHelper {
             // 2) احفظ حسب API
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                 // Android 10+ — MediaStore
-                val mime = when (type) {
-                    "image" -> "image/jpeg"
-                    "song"  -> "audio/mpeg"
-                    "video" -> "video/mp4"
-                    else    -> "application/octet-stream"
-                }
+                val mime = mimeFor(name, type)
                 val collection = when (type) {
                     "image" -> android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                     "song"  -> android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -146,7 +179,7 @@ object MediaShareHelper {
     suspend fun shareMedia(context: Context, url: String, type: String): Boolean =
         withContext(Dispatchers.IO) {
             try {
-                val ext = extFor(type)
+                val ext = extFor(url, type)
                 val fileName = "share_${System.currentTimeMillis()}.$ext"
                 val cacheDir = File(context.cacheDir, "shared_media")
                 if (!cacheDir.exists()) cacheDir.mkdirs()

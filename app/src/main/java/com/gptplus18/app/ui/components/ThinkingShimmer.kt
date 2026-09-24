@@ -127,10 +127,10 @@ private fun ShimmerText(
     translateX: Float,
     maxLines: Int,
 ) {
-    // ⭐ نص أبيض ناصع ليبان بوضوح
+    // ⭐ نص رمادي غامق هادئ (طلب المستخدم)
     Text(
         text = text,
-        color = androidx.compose.ui.graphics.Color(0xFFEAEAEE),
+        color = androidx.compose.ui.graphics.Color(0xFF6E6E75),
         fontSize = 12.sp,
         lineHeight = 17.sp,
         maxLines = maxLines,

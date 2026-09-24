@@ -16,6 +16,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
+
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -239,6 +243,7 @@ fun ChatScreen(
         Scaffold(
             containerColor = BgPrimary,
             topBar = {
+              Column(Modifier.fillMaxWidth().background(BgPrimary).statusBarsPadding()) {
                 if (showSearch && state.currentSessionId == null) {
                     TopAppBar(
                         title = {
@@ -263,6 +268,8 @@ fun ChatScreen(
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPrimary),
+                        modifier = Modifier.height(48.dp),
+                        windowInsets = WindowInsets(0, 0, 0, 0),
                     )
                 } else {
                     TopAppBar(
@@ -316,15 +323,17 @@ fun ChatScreen(
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPrimary),
+                        modifier = Modifier.height(48.dp),
+                        windowInsets = WindowInsets(0, 0, 0, 0),
                     )
                 }
+              }
             },
         ) { padding ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
-                    .imePadding(),
+                    .padding(padding),
             ) {
                 if (showSessionsList) {
                     var isRefreshing by remember { mutableStateOf(false) }
@@ -357,19 +366,7 @@ fun ChatScreen(
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         ) {
                             val visibleMessages = state.messages.filter { it.role != "thinking" }
-                            items(visibleMessages, key = { it.id.toString() + it.ts }) { msg ->
-                                val isUserMsg = msg.role == "user"
-                                var visible by remember(msg.ts) { mutableStateOf(false) }
-                                LaunchedEffect(msg.ts) { visible = true }
-                                androidx.compose.animation.AnimatedVisibility(
-                                    visible = visible,
-                                    enter = androidx.compose.animation.fadeIn(
-                                        animationSpec = androidx.compose.animation.core.tween(250)
-                                    ) + androidx.compose.animation.slideInHorizontally(
-                                        initialOffsetX = { if (isUserMsg) it / 4 else -it / 4 },
-                                        animationSpec = androidx.compose.animation.core.tween(300),
-                                    ),
-                                ) {
+                            items(visibleMessages, key = { it.ts.toString() }) { msg ->
                                 MessageBubble(
                                     msg = msg,
                                     onImageClick = { url -> fullscreenImage = url },
@@ -377,7 +374,6 @@ fun ChatScreen(
                                     onCopy = { text -> clip.setText(AnnotatedString(text)) },
                                     onEdit = { m -> input = m.content },
                                 )
-                                }
                             }
                             if (state.isSending || state.isUploading) {
                                 item {

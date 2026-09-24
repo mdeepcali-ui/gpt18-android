@@ -416,7 +416,6 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 state.history.take(20).forEach { item ->
                     MediaHistoryRow(
                         item = item,
-                        onDelete = { vm.deleteHistoryItem(item.id) },
                     )
                 }
             }
@@ -438,7 +437,6 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
 @Composable
 private fun MediaHistoryRow(
     item: MediaHistoryItem,
-    onDelete: () -> Unit,
 ) {
     val ctx = LocalContext.current
     val icon = when (item.type) {
@@ -484,14 +482,6 @@ private fun MediaHistoryRow(
                     "$label — ${formatTimeAgo(item.createdAt)}",
                     color = TextSecondary,
                     fontSize = 11.sp,
-                )
-            }
-            IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
-                Icon(
-                    Icons.Default.Close,
-                    "حذف",
-                    tint = TextSecondary,
-                    modifier = Modifier.size(16.dp),
                 )
             }
         }

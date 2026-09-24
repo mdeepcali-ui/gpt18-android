@@ -184,13 +184,17 @@ class ChatViewModel @Inject constructor(
             replyTo = null,
         )
         loadSessions()
+        loadAllSessions()
     }
 
     fun deleteSession(sid: Int) {
         viewModelScope.launch {
             cacheRepo.deleteSession(sid)
             when (chatRepo.deleteSession(sid)) {
-                is Result.Success -> loadSessions()
+                is Result.Success -> {
+                    loadSessions()
+                    loadAllSessions()
+                }
                 is Result.Error -> _state.value = _state.value.copy(error = "فشل الحذف")
                 else -> {}
             }
@@ -320,6 +324,8 @@ class ChatViewModel @Inject constructor(
                             finalSessionId?.let { sid ->
                                 cacheRepo.saveMessages(sid, _state.value.messages)
                             }
+                            // 📋 تحديث سجل الجلسات الموحّد بعد وصول الرد
+                            loadAllSessions()
                         }
                         is StreamEvent.Error -> {
                             gotError = true
@@ -408,6 +414,8 @@ class ChatViewModel @Inject constructor(
                                 currentSessionId = r.data.sessionId ?: current.currentSessionId,
                                 isUploading = false,
                             )
+                            // 📋 تحديث سجل الجلسات الموحّد بعد رفع الملف
+                            loadAllSessions()
                         }
                         is Result.Error -> _state.value = _state.value.copy(
                             isUploading = false,
