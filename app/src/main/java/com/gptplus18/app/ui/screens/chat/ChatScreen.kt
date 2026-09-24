@@ -146,6 +146,44 @@ fun ChatScreen(
     }
 
     // 🎯 auto-scroll محسّن — يلتقط آخر عنصر فعلي من الـ layout
+    // ═══════════════════════════════════════════════════════
+    // 🐛 Toasts تشخيصية — نزيلها بعد ما نصلح مشكلة الرفع
+    // ═══════════════════════════════════════════════════════
+    LaunchedEffect(state.pendingAttachments.map { it.id to it.progress to it.isUploaded to it.error }) {
+        val last = state.pendingAttachments.lastOrNull() ?: return@LaunchedEffect
+        val msg = when {
+            last.error != null -> "❌ ${last.error}"
+            last.isUploaded -> "✅ uploaded id=${last.uploadedFileId?.take(15)}"
+            last.progress >= 1f -> "✅ 100% waiting state"
+            last.progress > 0f -> "⬆️ ${(last.progress * 100).toInt()}%"
+            else -> "🔵 waiting"
+        }
+        try {
+            android.widget.Toast.makeText(ctx, msg, android.widget.Toast.LENGTH_SHORT).show()
+        } catch (_: Exception) {}
+    }
+
+    LaunchedEffect(state.error) {
+        state.error?.let {
+            try {
+                android.widget.Toast.makeText(ctx, "🔴 $it", android.widget.Toast.LENGTH_LONG).show()
+            } catch (_: Exception) {}
+        }
+    }
+
+    LaunchedEffect(state.isSending, state.isUploading) {
+        val msg = when {
+            state.isUploading -> "⏳ يرفع..."
+            state.isSending -> "⏳ يرسل..."
+            else -> null
+        }
+        if (msg != null) {
+            try {
+                android.widget.Toast.makeText(ctx, msg, android.widget.Toast.LENGTH_SHORT).show()
+            } catch (_: Exception) {}
+        }
+    }
+
     LaunchedEffect(state.messages.size, state.isSending, state.isUploading, state.messages.lastOrNull()?.content?.length) {
         // تأخير بسيط ليكتمل الـ recomposition
         kotlinx.coroutines.delay(40)
