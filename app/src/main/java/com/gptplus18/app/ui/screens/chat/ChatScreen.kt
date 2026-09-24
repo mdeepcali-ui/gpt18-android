@@ -145,9 +145,14 @@ fun ChatScreen(
         }
     }
 
+    // 🎯 auto-scroll محسّن — يلتقط آخر عنصر فعلي من الـ layout
     LaunchedEffect(state.messages.size, state.isSending, state.isUploading, state.messages.lastOrNull()?.content?.length) {
-        val total = state.messages.size + if (state.isSending || state.isUploading) 1 else 0
-        if (total > 0) listState.scrollToItem(total - 1)
+        // تأخير بسيط ليكتمل الـ recomposition
+        kotlinx.coroutines.delay(40)
+        val count = listState.layoutInfo.totalItemsCount
+        if (count > 0) {
+            listState.animateScrollToItem(count - 1)
+        }
     }
 
     // 🚪 BackHandler — من سجل المحادثات → للشات، ومن الشات → خروج
@@ -663,12 +668,14 @@ private fun MessageBubble(
                             if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                         }
                         if (cleanText.isNotBlank()) {
+                            // ✨ streaming: رمادي صغير — بعد الاكتمال: أبيض عادي
+                            val isStreaming = (msg.id == -2)
                             Text(
                                 cleanText,
-                                color = TextPrimary,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                lineHeight = 22.sp,
+                                color = if (isStreaming) TextTertiary else TextPrimary,
+                                fontSize = if (isStreaming) 13.sp else 16.sp,
+                                fontWeight = if (isStreaming) FontWeight.Normal else FontWeight.SemiBold,
+                                lineHeight = if (isStreaming) 19.sp else 22.sp,
                             )
                         }
                     }

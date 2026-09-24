@@ -506,30 +506,9 @@ class ChatViewModel @Inject constructor(
         }
 
         val sessionId = _state.value.currentSessionId
-        val firstAtt = atts.firstOrNull()
-        val localUri = firstAtt?.uri?.toString()
 
-        // ─── 1) عرض user bubble فوراً (مع الصورة حتى لو لم تكتمل) ───
-        val userMsg = Message(
-            id = -1,
-            role = "user",
-            content = caption.ifBlank { "" },
-            ts = System.currentTimeMillis() / 1000.0,
-            localImageUri = if (firstAtt?.mimeType?.startsWith("image/") == true) localUri else null,
-        )
-
-        // ─── 2) عرض assistant bubble مع مؤشر "يحلل" فوراً ───
-        val analyzingTs = System.currentTimeMillis() / 1000.0 + 1
-        val analyzingMsg = Message(
-            id = -2,
-            role = "assistant",
-            content = "",
-            ts = analyzingTs,
-            isAnalyzing = true,
-        )
-
+        // ⭐ ننتظر الرفع أولاً — لا نضيف أي bubble للشات
         _state.value = _state.value.copy(
-            messages = _state.value.messages + userMsg + analyzingMsg,
             isSending = true,
             isUploading = true,
             error = null,
@@ -541,13 +520,10 @@ class ChatViewModel @Inject constructor(
             var lastError: String? = null
             val uploaded: MutableList<Attachment> = mutableListOf()
 
-            // ─── 3) ننتظر اكتمال الرفع ───
+            // ─── 1) ننتظر اكتمال الرفع ───
             for (att in atts) {
-                val ready = awaitUpload(att.id)
-                if (ready == null) {
-                    // أُزيل أثناء الرفع — تجاهل
-                    continue
-                }
+                val ready = awaitUpload(att.id, 300_000)
+                if (ready == null) continue
                 if (ready.error != null) {
                     lastError = "فشل رفع الملف: ${ready.error}"
                     break
@@ -559,11 +535,10 @@ class ChatViewModel @Inject constructor(
                 uploaded.add(ready)
             }
 
+            // ─── 2) فشل الرفع — نُبقي المرفقات في الـ composer ───
             if (lastError != null || uploaded.isEmpty()) {
                 _state.value = _state.value.copy(
-                    messages = _state.value.messages.filterNot { it.id == -2 && it.ts == analyzingTs },
-                    error = lastError ?: "لا ملفات جاهزة",
-                    pendingAttachments = emptyList(),
+                    error = lastError ?: "لم يكتمل الرفع — حاول مرة أخرى",
                     isSending = false,
                     isUploading = false,
                     statusLabel = "يفكر",
@@ -571,10 +546,30 @@ class ChatViewModel @Inject constructor(
                 return@launch
             }
 
-            // ─── 4) إزالة المرفقات من composer بعد الرفع الناجح ───
-            _state.value = _state.value.copy(pendingAttachments = emptyList())
+            // ─── 3) نجح الرفع — الآن نضيف الرسائل للشات ───
+            val firstAtt = uploaded.firstOrNull()
+            val localUri = firstAtt?.uri?.toString()
+            val userMsg = Message(
+                id = -1,
+                role = "user",
+                content = caption.ifBlank { "" },
+                ts = System.currentTimeMillis() / 1000.0,
+                localImageUri = if (firstAtt?.mimeType?.startsWith("image/") == true) localUri else null,
+            )
+            val analyzingTs = System.currentTimeMillis() / 1000.0 + 1
+            val analyzingMsg = Message(
+                id = -2,
+                role = "assistant",
+                content = "",
+                ts = analyzingTs,
+                isAnalyzing = true,
+            )
+            _state.value = _state.value.copy(
+                messages = _state.value.messages + userMsg + analyzingMsg,
+                pendingAttachments = emptyList(),
+            )
 
-            // ─── 5) المعالجة على السيرفر ───
+            // ─── 4) المعالجة على السيرفر ───
             for (att in uploaded) {
                 val fid = att.uploadedFileId ?: continue
                 when (val r = uploadRepo.processUploaded(fid, caption, finalSessionId)) {
@@ -601,7 +596,7 @@ class ChatViewModel @Inject constructor(
                 }
             }
 
-            // ─── 6) في حال الخطأ: احذف analyzing bubble + اعرض الخطأ ───
+            // ─── 5) خطأ في processUploaded ───
             if (lastError != null) {
                 _state.value = _state.value.copy(
                     messages = _state.value.messages.filterNot { it.id == -2 && it.ts == analyzingTs },

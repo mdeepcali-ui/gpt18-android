@@ -7,6 +7,8 @@ import android.net.Uri
 import android.os.Environment
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.HttpURLConnection
@@ -35,6 +37,9 @@ object MediaShareHelper {
 
     /**
      * حفظ الملف في معرض/موسيقى الجهاز (بدون متصفح)
+     * ✅ يعرض Toast للمستخدم في كل الحالات
+     * ✅ يعمل على Android 10+ بدون permission
+     * ✅ يجرّب DownloadManager أولاً ثم fallback إلى تحميل يدوي
      */
     fun saveToGallery(context: Context, url: String, type: String) {
         try {
@@ -42,19 +47,127 @@ object MediaShareHelper {
             val name = "GPT18_${type}_${System.currentTimeMillis()}.$ext"
             val subDir = subDirFor(type)
 
-            val request = DownloadManager.Request(Uri.parse(url))
-                .setTitle(name)
-                .setDescription("جاري التحميل...")
-                .setNotificationVisibility(
-                    DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
-                )
-                .setDestinationInExternalPublicDir("GPT+18/$subDir", name)
-                .setAllowedOverMetered(true)
-                .setAllowedOverRoaming(true)
+            // ─── محاولة 1: DownloadManager ───
+            try {
+                val request = DownloadManager.Request(Uri.parse(url))
+                    .setTitle(name)
+                    .setDescription("GPT+18 — جاري التحميل...")
+                    .setNotificationVisibility(
+                        DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
+                    )
+                    .setDestinationInExternalPublicDir(subDir, name)
+                    .setAllowedOverMetered(true)
+                    .setAllowedOverRoaming(true)
 
-            val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            dm.enqueue(request)
-        } catch (_: Exception) { }
+                val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                dm.enqueue(request)
+
+                android.widget.Toast.makeText(
+                    context,
+                    "✅ بدأ التحميل — تحقق من الإشعارات",
+                    android.widget.Toast.LENGTH_SHORT,
+                ).show()
+                return
+            } catch (e: Exception) {
+                // فشل DownloadManager — نجرّب fallback
+                android.util.Log.w("MediaShareHelper", "DownloadManager فشل: ${e.message}")
+            }
+
+            // ─── محاولة 2 (fallback): تحميل يدوي + MediaStore ───
+            android.widget.Toast.makeText(
+                context,
+                "⏳ جاري التحميل...",
+                android.widget.Toast.LENGTH_SHORT,
+            ).show()
+
+            kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                val result = downloadAndSave(context, url, type, name, subDir)
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    android.widget.Toast.makeText(
+                        context,
+                        if (result) "✅ تم الحفظ في المجلد GPT+18/$subDir" else "❌ فشل التحميل",
+                        android.widget.Toast.LENGTH_LONG,
+                    ).show()
+                }
+            }
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(
+                context,
+                "❌ خطأ: ${e.message ?: "غير معروف"}",
+                android.widget.Toast.LENGTH_LONG,
+            ).show()
+        }
+    }
+
+    /**
+     * تحميل يدوي + حفظ عبر MediaStore (Android 10+)
+     * أو في المجلد العام (Android 9-)
+     */
+    private suspend fun downloadAndSave(
+        context: Context,
+        url: String,
+        type: String,
+        name: String,
+        subDir: String,
+    ): Boolean = withContext(Dispatchers.IO) {
+        try {
+            // 1) نزّل البايتات
+            val conn = (URL(url).openConnection() as HttpURLConnection).apply {
+                connectTimeout = 30_000
+                readTimeout = 120_000
+                requestMethod = "GET"
+                instanceFollowRedirects = true
+            }
+            val bytes: ByteArray = conn.inputStream.use { it.readBytes() }
+            conn.disconnect()
+            if (bytes.isEmpty()) return@withContext false
+
+            // 2) احفظ حسب API
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                // Android 10+ — MediaStore
+                val mime = when (type) {
+                    "image" -> "image/jpeg"
+                    "song"  -> "audio/mpeg"
+                    "video" -> "video/mp4"
+                    else    -> "application/octet-stream"
+                }
+                val collection = when (type) {
+                    "image" -> android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                    "song"  -> android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                    "video" -> android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                    else    -> android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI
+                }
+                val values = android.content.ContentValues().apply {
+                    put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, name)
+                    put(android.provider.MediaStore.MediaColumns.MIME_TYPE, mime)
+                    put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, "GPT+18/$subDir")
+                }
+                val resolver = context.contentResolver
+                val uri = resolver.insert(collection, values) ?: return@withContext false
+                resolver.openOutputStream(uri)?.use { it.write(bytes) }
+                true
+            } else {
+                // Android 9- — حفظ مباشر في المجلد العام
+                val dir = File(
+                    Environment.getExternalStoragePublicDirectory(subDir),
+                    "GPT+18",
+                )
+                if (!dir.exists()) dir.mkdirs()
+                val file = File(dir, name)
+                file.outputStream().use { it.write(bytes) }
+                // نعلم النظام بالملف الجديد
+                android.media.MediaScannerConnection.scanFile(
+                    context,
+                    arrayOf(file.absolutePath),
+                    null,
+                    null,
+                )
+                true
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("MediaShareHelper", "downloadAndSave فشل: ${e.message}")
+            false
+        }
     }
 
     /**
