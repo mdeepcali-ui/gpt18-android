@@ -66,6 +66,16 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
     val scope = rememberCoroutineScope()
     // X2: viewer للصورة
     var fullscreenImage by remember { mutableStateOf<String?>(null) }
+    // ⭐ فقاعة الإشعار (نجاح/فشل الحفظ)
+    var notifyMessage by remember { mutableStateOf<String?>(null) }
+    var notifySuccess by remember { mutableStateOf(true) }
+    // مؤقت يخفي الفقاعة تلقائياً
+    LaunchedEffect(notifyMessage) {
+        if (notifyMessage != null) {
+            kotlinx.coroutines.delay(2500)
+            notifyMessage = null
+        }
+    }
 
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -104,7 +114,10 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
         val pending = pendingSave
         pendingSave = null
         if (pending != null && allGranted) {
-            com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, pending.first, pending.second)
+            com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, pending.first, pending.second) { ok ->
+                notifySuccess = ok
+                notifyMessage = if (ok) "✅ تم الحفظ بنجاح" else "❌ فشل الحفظ"
+            }
         } else if (pending != null && !allGranted) {
             android.widget.Toast.makeText(
                 ctx,
@@ -116,8 +129,12 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
 
     // 🔐 دالة موحدة: احفظ مع فحص الإذن
     fun saveWithPermission(url: String, type: String) {
+        val onResult: (Boolean) -> Unit = { ok ->
+            notifySuccess = ok
+            notifyMessage = if (ok) "✅ تم الحفظ بنجاح" else "❌ فشل الحفظ"
+        }
         if (hasAllStoragePerms()) {
-            com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, url, type)
+            com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, url, type, onResult)
         } else {
             pendingSave = url to type
             storagePermLauncher.launch(neededStoragePerms())
@@ -505,6 +522,29 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
             imageUrl = url,
             onDismiss = { fullscreenImage = null },
         )
+    }
+
+    // ⭐ فقاعة الإشعار (سوداء + كتابة خضراء/حمراء ناعمة)
+    notifyMessage?.let { msg ->
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter,
+        ) {
+            androidx.compose.foundation.layout.Box(
+                modifier = Modifier
+                    .padding(bottom = 100.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(Color(0xFF0A0A0A))
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+            ) {
+                Text(
+                    text = msg,
+                    color = if (notifySuccess) Color(0xFF7FE58F) else Color(0xFFE85C5C),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        }
     }
 }
 

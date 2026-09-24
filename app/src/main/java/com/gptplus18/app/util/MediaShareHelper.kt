@@ -79,34 +79,32 @@ object MediaShareHelper {
      * - يحفظ مباشرة في المعرض
      * - Toast واحد فقط في النهاية
      */
-    fun saveToGallery(context: Context, url: String, type: String) {
+    /**
+     * ⭐ الحفظ مع callback (بدون Toast)
+     * @param onResult callback يُستدعى بالنتيجة: true = نجح، false = فشل
+     */
+    fun saveToGallery(
+        context: Context,
+        url: String,
+        type: String,
+        onResult: ((Boolean) -> Unit)? = null,
+    ) {
         try {
             val ext = extFor(url, type)
             val name = "GPT18_${type}_${System.currentTimeMillis()}.$ext"
             val subDir = subDirFor(type)
 
-            android.widget.Toast.makeText(
-                context,
-                "⏳ جارٍ الحفظ...",
-                android.widget.Toast.LENGTH_SHORT,
-            ).show()
-
             kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                 val result = downloadAndSave(context, url, type, name, subDir)
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                    android.widget.Toast.makeText(
-                        context,
-                        if (result) "✅ تم الحفظ في المعرض" else "❌ فشل التحميل",
-                        android.widget.Toast.LENGTH_LONG,
-                    ).show()
+                    onResult?.invoke(result)
                 }
             }
         } catch (e: Exception) {
-            android.widget.Toast.makeText(
-                context,
-                "❌ خطأ: ${e.message ?: "غير معروف"}",
-                android.widget.Toast.LENGTH_LONG,
-            ).show()
+            android.util.Log.e("MediaShareHelper", "saveToGallery error: ${e.message}")
+            kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                onResult?.invoke(false)
+            }
         }
     }
 
@@ -139,15 +137,30 @@ object MediaShareHelper {
                     "video" -> android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI
                     else    -> android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI
                 }
+                // ⭐ ترتيب صحيح: المجلد الرئيسي/اسم التطبيق
+                //    مثال: "Pictures/GPT+18" أو "Music/GPT+18"
+                val relativePath = "$subDir/GPT+18"
                 val values = android.content.ContentValues().apply {
                     put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, name)
                     put(android.provider.MediaStore.MediaColumns.MIME_TYPE, mime)
-                    put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, "GPT+18/$subDir")
+                    put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
+                    put(android.provider.MediaStore.MediaColumns.IS_PENDING, 1)
                 }
                 val resolver = context.contentResolver
                 val uri = resolver.insert(collection, values) ?: return@withContext false
-                resolver.openOutputStream(uri)?.use { it.write(bytes) }
-                true
+                try {
+                    resolver.openOutputStream(uri)?.use { it.write(bytes) }
+                    // ⭐ نعلن اكتمال الحفظ
+                    values.clear()
+                    values.put(android.provider.MediaStore.MediaColumns.IS_PENDING, 0)
+                    resolver.update(uri, values, null, null)
+                    true
+                } catch (e: Exception) {
+                    // نحذف الإدخال الفاشل
+                    try { resolver.delete(uri, null, null) } catch (_: Exception) {}
+                    android.util.Log.e("MediaShareHelper", "write failed: ${e.message}")
+                    false
+                }
             } else {
                 // Android 9- — حفظ مباشر في المجلد العام
                 val dir = File(

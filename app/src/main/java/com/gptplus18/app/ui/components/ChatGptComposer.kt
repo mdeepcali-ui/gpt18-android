@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -50,7 +51,8 @@ import com.gptplus18.app.R
 import com.gptplus18.app.data.models.Attachment
 import com.gptplus18.app.ui.theme.LocalAppColors
 
-private val SendBlue = Color(0xFF0A84FF)  // زر الإرسال — يبقى ثابت
+private val SendBlue = Color(0xFF0A84FF)  // زر الإرسال — أزرق
+private val SendGray = Color(0xFF3A3A3E)  // زر الإرسال — رمادي أثناء الرفع
 
 @Composable
 fun ChatGptComposer(
@@ -66,7 +68,9 @@ fun ChatGptComposer(
     val hasAttachments = attachments.isNotEmpty()
     // ⭐ كل المرفقات مرفوعة 100؟
     val allUploaded = attachments.all { it.isUploaded }
-    val canSend = (hasText || hasAttachments) && allUploaded
+    val hasContent = hasText || hasAttachments
+    val isUploading = hasAttachments && !allUploaded
+    val canSend = hasContent && allUploaded
     var showEmojiSheet by remember { mutableStateOf(false) }
     val colors = LocalAppColors.current
 
@@ -164,21 +168,35 @@ fun ChatGptComposer(
 
                 Spacer(Modifier.weight(1f))
 
-                if (canSend) {
+                if (hasContent) {
+                    // ⭐ الزر يظهر دائماً عند وجود محتوى:
+                    //    - رمادي أثناء الرفع (disabled)
+                    //    - أزرق عند اكتمال الرفع (enabled)
+                    val btnColor = if (canSend && enabled) SendBlue else SendGray
+                    val btnEnabled = canSend && enabled
                     Box(
                         modifier = Modifier
                             .size(38.dp)
                             .clip(CircleShape)
-                            .background(SendBlue)
-                            .clickable(enabled = enabled, onClick = onSend),
+                            .background(btnColor)
+                            .clickable(enabled = btnEnabled, onClick = onSend),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Icon(
-                            Icons.Default.ArrowUpward,
-                            stringResource(R.string.t_035),
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp),
-                        )
+                        if (isUploading) {
+                            // ⭐ دائرة تحميل صغيرة بدل السهم
+                            androidx.compose.material3.CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.ArrowUpward,
+                                stringResource(R.string.t_035),
+                                tint = if (btnEnabled) Color.White else Color.White.copy(alpha = 0.5f),
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
                     }
                 }
             }

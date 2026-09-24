@@ -67,7 +67,6 @@ import com.gptplus18.app.ui.components.FullscreenImageViewer
 import com.gptplus18.app.ui.components.MarkdownText
 import com.gptplus18.app.ui.components.MessageActionsSheet
 import com.gptplus18.app.ui.components.MessageTimestamp
-import com.gptplus18.app.ui.components.TypingIndicator
 import com.gptplus18.app.ui.theme.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
@@ -89,6 +88,7 @@ fun ChatScreen(
     val state by vm.state.collectAsState()
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
+    val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val listState = rememberLazyListState()
     val clip = LocalClipboardManager.current
@@ -354,6 +354,44 @@ fun ChatScreen(
                     .fillMaxSize()
                     .padding(padding),
             ) {
+                // ⭐ فقاعة الحالة (يفكر / يحلل / إلخ) — تظهر تحت البار العلوي من اليمين
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = (state.isSending || state.isUploading) && !showSessionsList,
+                    enter = androidx.compose.animation.slideInHorizontally(initialOffsetX = { it }) +
+                            androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(220)),
+                    exit = androidx.compose.animation.slideOutHorizontally(targetOffsetX = { it }) +
+                           androidx.compose.animation.fadeOut(animationSpec = androidx.compose.animation.core.tween(180)),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 6.dp, end = 12.dp),
+                ) {
+                    androidx.compose.foundation.layout.Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(Color(0xFF1A1A1E))
+                            .padding(horizontal = 12.dp, vertical = 5.dp),
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            // نقطة نابضة صغيرة
+                            androidx.compose.foundation.layout.Box(
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .clip(CircleShape)
+                                    .background(Accent),
+                            )
+                            Text(
+                                text = state.statusLabel,
+                                color = TextSecondary,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        }
+                    }
+                }
+
                 if (showSessionsList) {
                     var isRefreshing by remember { mutableStateOf(false) }
                     LaunchedEffect(state.allSessions) { isRefreshing = false }
@@ -396,38 +434,23 @@ fun ChatScreen(
                             }
                             if (state.isSending || state.isUploading) {
                                 item {
-                                    Column(
-                                        Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        TypingIndicator(
-                                            type = when (state.statusLabel) {
-                                                stringResource(R.string.t_129) -> "analyze"
-                                                stringResource(R.string.t_130) -> "create"
-                                                stringResource(R.string.t_131) -> "write"
-                                                else -> "think"
-                                            }
-                                        )
-
-                                        // ☁️ سحابة التفكير مع Shimmer
-                                            val lastThinking = state.thinkingByMessage.values.lastOrNull()
-                                            val thinkingText = buildString {
-                                                val raw = lastThinking?.rawText?.trim().orEmpty()
-                                                if (raw.isNotBlank()) {
-                                                    append(raw)
-                                                } else {
-                                                    val steps = lastThinking?.steps.orEmpty()
-                                                    if (steps.isNotEmpty()) {
-                                                        append(steps.joinToString("\n") { "• $it" })
-                                                    }
-                                                }
-                                            }
-                                            if (state.statusLabel != stringResource(R.string.t_131)) {
-                                                com.gptplus18.app.ui.components.ThinkingShimmer(
-                                                    text = thinkingText.ifBlank { "يجهّز الرد..." },
-                                                )
+                                    // ☁️ سحابة التفكير فقط (بدون TypingIndicator)
+                                    val lastThinking = state.thinkingByMessage.values.lastOrNull()
+                                    val thinkingText = buildString {
+                                        val raw = lastThinking?.rawText?.trim().orEmpty()
+                                        if (raw.isNotBlank()) {
+                                            append(raw)
+                                        } else {
+                                            val steps = lastThinking?.steps.orEmpty()
+                                            if (steps.isNotEmpty()) {
+                                                append(steps.joinToString("\n") { "• $it" })
                                             }
                                         }
+                                    }
+                                    if (state.statusLabel != stringResource(R.string.t_131)) {
+                                        com.gptplus18.app.ui.components.ThinkingShimmer(
+                                            text = thinkingText.ifBlank { "يجهّز الرد..." },
+                                        )
                                     }
                                 }
                             }
@@ -449,6 +472,8 @@ fun ChatScreen(
                                     vm.send(input)
                                 }
                                 input = ""
+                                // ⭐ إغلاق الكيبورد تلقائياً بعد الإرسال
+                                keyboardController?.hide()
                             },
                             onRemoveAttachment = { vm.removeAttachment(it) },
                         )
