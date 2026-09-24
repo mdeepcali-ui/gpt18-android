@@ -175,26 +175,6 @@ fun ChatScreen(
         }
     }
 
-    LaunchedEffect(state.error) {
-        state.error?.let {
-            try {
-                android.widget.Toast.makeText(ctx, "🔴 $it", android.widget.Toast.LENGTH_LONG).show()
-            } catch (_: Exception) {}
-        }
-    }
-
-    LaunchedEffect(state.isSending, state.isUploading) {
-        val msg = when {
-            state.isUploading -> "⏳ يرفع..."
-            state.isSending -> "⏳ يرسل..."
-            else -> null
-        }
-        if (msg != null) {
-            try {
-                android.widget.Toast.makeText(ctx, msg, android.widget.Toast.LENGTH_SHORT).show()
-            } catch (_: Exception) {}
-        }
-    }
 
     // 🎯 auto-scroll محسّن — ينزل لأسفل الصفحة فعلاً
     LaunchedEffect(
