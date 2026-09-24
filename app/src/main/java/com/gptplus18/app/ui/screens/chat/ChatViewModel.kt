@@ -263,16 +263,32 @@ class ChatViewModel @Inject constructor(
 
             // 🆕 -1 = شات جديدة → نمرر null للسيرفر (ينشئ session جديدة)
             val sidForServer = if (current.currentSessionId == -1) null else current.currentSessionId
+            val thinkingSb = StringBuilder()
+
             chatRepo.streamMessage(sidForServer, finalText)
                 .collect { ev ->
                     when (ev) {
+                        // ⭐ التفكير — يُجمع في السحابة (لا يظهر في الرسالة)
+                        is StreamEvent.ThinkingDelta -> {
+                            thinkingSb.append(ev.text)
+                            val current = _state.value.thinkingByMessage[thinkId]
+                            _state.value = _state.value.copy(
+                                thinkingByMessage = _state.value.thinkingByMessage + (thinkId to ThinkingData(
+                                    steps = current?.steps ?: thinkingSteps,
+                                    status = "think",
+                                    rawText = thinkingSb.toString(),
+                                )),
+                                statusLabel = "يفكر",
+                            )
+                        }
+                        // ⭐ الرد — يظهر حرف بحرف مباشرة (بدون clean)
                         is StreamEvent.Delta -> {
                             sb.append(ev.text)
-                            val cleaned = cleanStreamingText(sb.toString())
+                            val currentText = sb.toString()
                             _state.value = _state.value.copy(
                                 messages = _state.value.messages.map { m ->
                                     if (m.id == -2 && m.ts == assistantTs) {
-                                        m.copy(content = cleaned)
+                                        m.copy(content = currentText)
                                     } else m
                                 },
                                 statusLabel = "يكتب",
@@ -289,7 +305,7 @@ class ChatViewModel @Inject constructor(
                             } else {
                                 _state.value.thinkingByMessage
                             }
-                            val cleanedFinal = cleanStreamingText(sb.toString())
+                            val cleanedFinal = sb.toString().trim()
                             _state.value = _state.value.copy(
                                 messages = _state.value.messages.map { m ->
                                     if (m.id == -2 && m.ts == assistantTs) {
@@ -465,7 +481,7 @@ class ChatViewModel @Inject constructor(
     /**
      * ينتظر حتى يكتمل رفع المرفق أو يفشل (timeout 90 ثانية)
      */
-    private suspend fun awaitUpload(id: Long, timeoutMs: Long = 90_000): Attachment? {
+    private suspend fun awaitUpload(id: Long, timeoutMs: Long = 300_000): Attachment? {
         val start = System.currentTimeMillis()
         while (System.currentTimeMillis() - start < timeoutMs) {
             val att = _state.value.pendingAttachments.find { it.id == id }
@@ -547,6 +563,7 @@ class ChatViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     messages = _state.value.messages.filterNot { it.id == -2 && it.ts == analyzingTs },
                     error = lastError ?: "لا ملفات جاهزة",
+                    pendingAttachments = emptyList(),
                     isSending = false,
                     isUploading = false,
                     statusLabel = "يفكر",

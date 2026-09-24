@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
+        <!-- ⭐ نضمن نسخ auth_backup عبر السحابة -->
+        <include domain="sharedpref" path="auth_backup.xml"/>
     </cloud-backup>
     <device-transfer>
+        <include domain="sharedpref" path="auth_backup.xml"/>
     </device-transfer>
 </data-extraction-rules>

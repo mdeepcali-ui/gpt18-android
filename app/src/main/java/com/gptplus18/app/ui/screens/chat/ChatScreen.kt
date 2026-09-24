@@ -250,19 +250,20 @@ fun ChatScreen(
                         },
                         actions = {
                             // ⭐ زر + دائري في الزاوية اليسرى
-                            IconButton(
-                                onClick = { vm.newChat() },
+                            Box(
                                 modifier = Modifier
                                     .padding(end = 8.dp, top = 2.dp)
-                                    .size(26.dp)
+                                    .size(24.dp)
                                     .clip(CircleShape)
-                                    .border(1.2.dp, TextSecondary, CircleShape),
+                                    .border(1.0.dp, TextSecondary, CircleShape)
+                                    .clickable { vm.newChat() },
+                                contentAlignment = Alignment.Center,
                             ) {
                                 Icon(
                                     Icons.Default.Add,
                                     stringResource(R.string.new_chat),
                                     tint = TextPrimary,
-                                    modifier = Modifier.size(16.dp),
+                                    modifier = Modifier.size(14.dp),
                                 )
                             }
                             if (showSessionsList) {
@@ -313,6 +314,18 @@ fun ChatScreen(
                         ) {
                             val visibleMessages = state.messages.filter { it.role != "thinking" }
                             items(visibleMessages, key = { it.id.toString() + it.ts }) { msg ->
+                                val isUserMsg = msg.role == "user"
+                                var visible by remember(msg.ts) { mutableStateOf(false) }
+                                LaunchedEffect(msg.ts) { visible = true }
+                                androidx.compose.animation.AnimatedVisibility(
+                                    visible = visible,
+                                    enter = androidx.compose.animation.fadeIn(
+                                        animationSpec = androidx.compose.animation.core.tween(250)
+                                    ) + androidx.compose.animation.slideInHorizontally(
+                                        initialOffsetX = { if (isUserMsg) it / 4 else -it / 4 },
+                                        animationSpec = androidx.compose.animation.core.tween(300),
+                                    ),
+                                ) {
                                 MessageBubble(
                                     msg = msg,
                                     onImageClick = { url -> fullscreenImage = url },
@@ -320,6 +333,7 @@ fun ChatScreen(
                                     onCopy = { text -> clip.setText(AnnotatedString(text)) },
                                     onEdit = { m -> input = m.content },
                                 )
+                                }
                             }
                             if (state.isSending || state.isUploading) {
                                 item {
@@ -336,8 +350,7 @@ fun ChatScreen(
                                             }
                                         )
 
-                                        // 🎨 التفكير — نص رمادي صغير (يختفي لما الرد يبدأ)
-                                        if (state.statusLabel != stringResource(R.string.t_131)) {
+                                        // ☁️ سحابة التفكير مع Shimmer
                                             val lastThinking = state.thinkingByMessage.values.lastOrNull()
                                             val thinkingText = buildString {
                                                 val raw = lastThinking?.rawText?.trim().orEmpty()
@@ -350,15 +363,9 @@ fun ChatScreen(
                                                     }
                                                 }
                                             }
-                                            if (thinkingText.isNotBlank()) {
-                                                Text(
-                                                    text = thinkingText,
-                                                    color = TextTertiary,
-                                                    fontSize = 11.sp,
-                                                    lineHeight = 16.sp,
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(horizontal = 4.dp),
+                                            if (state.statusLabel != stringResource(R.string.t_131)) {
+                                                com.gptplus18.app.ui.components.ThinkingShimmer(
+                                                    text = thinkingText.ifBlank { "يجهّز الرد..." },
                                                 )
                                             }
                                         }

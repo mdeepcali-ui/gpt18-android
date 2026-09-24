@@ -182,6 +182,26 @@ class MediaViewModel @Inject constructor(
 
     fun clearError() { _state.value = _state.value.copy(error = null) }
 
+    /**
+     * 🔄 إعادة توليد الصورة/الأغنية/الفيديو بنفس الوصف
+     */
+    fun regenerate() {
+        val current = _state.value
+        val p = current.prompt.trim()
+        if (p.isBlank()) {
+            _state.value = current.copy(error = "لا يوجد وصف لإعادة التوليد")
+            return
+        }
+        // تنظيف النتيجة السابقة ثم إعادة التوليد
+        _state.value = current.copy(
+            imageUrl = null,
+            songUrl = null,
+            videoUrl = null,
+            error = null,
+        )
+        generate()
+    }
+
     // ⭐ M4-b: سجل الوسائط
     fun loadHistory() {
         viewModelScope.launch {

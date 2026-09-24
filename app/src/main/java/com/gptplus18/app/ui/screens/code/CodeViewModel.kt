@@ -3,6 +3,7 @@ package com.gptplus18.app.ui.screens.code
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gptplus18.app.data.local.PreferencesRepository
+import com.gptplus18.app.data.models.CodeFile
 import com.gptplus18.app.data.models.CodeJobStatus
 import com.gptplus18.app.data.models.CodeLogEntry
 import com.gptplus18.app.data.models.CodeMessage
@@ -30,6 +31,9 @@ data class CodeUiState(
     val error: String? = null,
     val jobStatus: String = "idle",
     val currentModel: CodeModel = CodeModel.AUTO,
+    // ⭐ الملفات الجاهزة للتحميل من آخر مهمة
+    val files: List<CodeFile> = emptyList(),
+    val zipUrl: String? = null,
 )
 
 @HiltViewModel
@@ -184,9 +188,15 @@ class CodeViewModel @Inject constructor(
 
     private fun onJobDone(js: CodeJobStatus) {
         val sid = _state.value.currentSessionId
+        // ⭐ استخراج الملفات من نتيجة الـ job
+        val res = js.result
+        val filesList = res?.files ?: emptyList()
+        val zip = res?.zipUrl
         _state.value = _state.value.copy(
             isRunning = false,
             jobStatus = "done",
+            files = filesList,
+            zipUrl = zip,
         )
         if (sid != null && sid > 0) {
             viewModelScope.launch {

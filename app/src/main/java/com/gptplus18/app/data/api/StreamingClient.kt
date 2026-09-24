@@ -60,6 +60,14 @@ class StreamingClient {
                 try {
                     val obj = JSONObject(data)
                     when {
+                        // ⭐ التفكير (يُعرض في سحابة التفكير)
+                        obj.has("thinking_delta") -> {
+                            val td = obj.optString("thinking_delta", "")
+                            if (td.isNotEmpty()) {
+                                trySend(StreamEvent.ThinkingDelta(td))
+                            }
+                        }
+                        // ⭐ الرد الفعلي (يُضاف حرف بحرف)
                         obj.has("delta") -> {
                             val delta = obj.optString("delta", "")
                             if (delta.isNotEmpty()) {
@@ -109,6 +117,7 @@ class StreamingClient {
  * أحداث Streaming
  */
 sealed class StreamEvent {
+    data class ThinkingDelta(val text: String) : StreamEvent()
     data class Delta(val text: String) : StreamEvent()
     data class Done(val sessionId: Int, val thinking: String) : StreamEvent()
     data class Error(val message: String) : StreamEvent()

@@ -47,6 +47,9 @@ import coil.compose.AsyncImage
 import com.gptplus18.app.ui.theme.*
 import androidx.compose.ui.res.stringResource
 import com.gptplus18.app.R
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.ui.draw.rotate
 
 private val SendBlue = Color(0xFF0A84FF)
 
@@ -71,22 +74,23 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 title = { Text(stringResource(R.string.t_056), color = TextPrimary, fontWeight = FontWeight.Bold) },
                 actions = {
                     // ⭐ زر + دائري في الزاوية اليسرى (طلب جديد)
-                    IconButton(
-                        onClick = {
-                            vm.setTab(MediaTab.IMAGE)
-                            vm.setPrompt("")
-                        },
+                    Box(
                         modifier = Modifier
                             .padding(end = 8.dp, top = 2.dp)
-                            .size(26.dp)
+                            .size(24.dp)
                             .clip(CircleShape)
-                            .border(1.2.dp, TextSecondary, CircleShape),
+                            .border(1.0.dp, TextSecondary, CircleShape)
+                            .clickable {
+                                vm.setTab(MediaTab.IMAGE)
+                                vm.setPrompt("")
+                            },
+                        contentAlignment = Alignment.Center,
                     ) {
                         Icon(
                             Icons.Default.Add,
                             stringResource(R.string.new_chat),
                             tint = TextPrimary,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(14.dp),
                         )
                     }
                 },
@@ -284,48 +288,16 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 }
             }
 
-            // ⭐ M4-a: Banner Loading واضح
+            // ☁️ سحابة التفكير مع Shimmer
             if (state.isLoading) {
                 Spacer(Modifier.height(16.dp))
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = BgSecondary),
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        CircularProgressIndicator(
-                            color = SendBlue,
-                            modifier = Modifier.size(28.dp),
-                            strokeWidth = 3.dp,
-                        )
-                        Spacer(Modifier.width(14.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                when (state.tab) {
-                                    MediaTab.IMAGE -> "جاري إنشاء الصورة..."
-                                    MediaTab.SONG -> "جاري إنشاء الأغنية..."
-                                    MediaTab.VIDEO -> "جاري إنشاء الفيديو..."
-                                },
-                                color = TextPrimary,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp,
-                            )
-                            Spacer(Modifier.height(2.dp))
-                            Text(
-                                when (state.tab) {
-                                    MediaTab.IMAGE -> "قد يستغرق 10-30 ثانية"
-                                    MediaTab.SONG -> "قد يستغرق 30-60 ثانية"
-                                    MediaTab.VIDEO -> "قد يستغرق 60-180 ثانية"
-                                },
-                                color = TextSecondary,
-                                fontSize = 12.sp,
-                            )
-                        }
-                    }
-                }
+                com.gptplus18.app.ui.components.ThinkingShimmer(
+                    text = when (state.tab) {
+                        MediaTab.IMAGE -> "جاري إنشاء الصورة...\nقد يستغرق 10-30 ثانية"
+                        MediaTab.SONG -> "جاري إنشاء الأغنية...\nقد يستغرق 30-60 ثانية"
+                        MediaTab.VIDEO -> "جاري إنشاء الفيديو...\nقد يستغرق 60-180 ثانية"
+                    },
+                )
             }
 
             state.error?.let { err ->
@@ -353,6 +325,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     ResultActions(
                         url = state.imageUrl!!,
                         type = "image",
+                        onRegenerate = { vm.regenerate() },
                     )
                 }
             }
@@ -371,6 +344,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     ResultActions(
                         url = state.songUrl!!,
                         type = "song",
+                        onRegenerate = { vm.regenerate() },
                     )
                     state.songLyrics?.let {
                         Spacer(Modifier.height(10.dp))
@@ -399,6 +373,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     ResultActions(
                         url = state.videoUrl!!,
                         type = "video",
+                        onRegenerate = { vm.regenerate() },
                     )
                 }
             }
@@ -588,13 +563,23 @@ private fun PresetChip(label: String, active: Boolean, onClick: () -> Unit) {
 private fun ResultActions(
     url: String,
     type: String,
+    onRegenerate: (() -> Unit)? = null,
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
+    // 🎬 دوران عند الضغط
+    var spinning by remember { mutableStateOf(false) }
+    val rotation by animateFloatAsState(
+        targetValue = if (spinning) 360f else 0f,
+        animationSpec = androidx.compose.animation.core.tween(600),
+        finishedListener = { spinning = false },
+        label = "regen_rotation",
+    )
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Button(
             onClick = {
@@ -623,6 +608,28 @@ private fun ResultActions(
             Icon(Icons.Default.Share, null, tint = TextPrimary, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(6.dp))
             Text("مشاركة", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+        }
+        // 🔄 إعادة توليد — زر أيقونة شفاف
+        if (onRegenerate != null) {
+            androidx.compose.foundation.layout.Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable {
+                        spinning = true
+                        onRegenerate()
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    Icons.Default.Refresh,
+                    contentDescription = "إعادة توليد",
+                    tint = TextSecondary,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .rotate(rotation),
+                )
+            }
         }
     }
 }

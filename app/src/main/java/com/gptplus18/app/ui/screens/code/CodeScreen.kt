@@ -99,19 +99,20 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                 },
                 actions = {
                     // ⭐ زر + دائري في الزاوية اليسرى
-                    IconButton(
-                        onClick = { vm.newRequest() },
+                    Box(
                         modifier = Modifier
                             .padding(end = 8.dp, top = 2.dp)
-                            .size(26.dp)
+                            .size(24.dp)
                             .clip(CircleShape)
-                            .border(1.2.dp, TextSecondary, CircleShape),
+                            .border(1.0.dp, TextSecondary, CircleShape)
+                            .clickable { vm.newRequest() },
+                        contentAlignment = Alignment.Center,
                     ) {
                         Icon(
                             Icons.Default.Add,
                             stringResource(R.string.t_160),
                             tint = TextPrimary,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(14.dp),
                         )
                     }
                 },
@@ -139,6 +140,15 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                         }
                         if (state.isRunning) {
                             item { RunningIndicator(state.jobStatus, state.logs) }
+                        }
+                        // ⭐ ملفات جاهزة للتحميل
+                        if (!state.isRunning && (state.files.isNotEmpty() || state.zipUrl != null)) {
+                            item {
+                                FilesDownloadSection(
+                                    files = state.files,
+                                    zipUrl = state.zipUrl,
+                                )
+                            }
                         }
                     }
                     ChatGptComposer(
@@ -186,6 +196,79 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
             imageUrl = url,
             onDismiss = { fullscreenImage = null },
         )
+    }
+}
+
+@Composable
+private fun FilesDownloadSection(
+    files: List<com.gptplus18.app.data.models.CodeFile>,
+    zipUrl: String?,
+) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    androidx.compose.material3.Surface(
+        color = BgSecondary,
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(0.5.dp, TextSecondary.copy(alpha = 0.3f)),
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+    ) {
+        Column(Modifier.padding(12.dp)) {
+            Text(
+                "📥 الملفات الجاهزة",
+                color = TextPrimary,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+            )
+            Spacer(Modifier.height(8.dp))
+
+            // ZIP أولاً
+            if (zipUrl != null) {
+                androidx.compose.material3.Button(
+                    onClick = {
+                        try {
+                            val i = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(zipUrl))
+                            ctx.startActivity(i)
+                        } catch (_: Exception) {}
+                    },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = Accent,
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("📦 تحميل الكل (ZIP)", color = androidx.compose.ui.graphics.Color.White)
+                }
+                Spacer(Modifier.height(6.dp))
+            }
+
+            // ملفات فردية
+            files.forEach { f ->
+                androidx.compose.foundation.layout.Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clickable {
+                            try {
+                                val i = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(f.url))
+                                ctx.startActivity(i)
+                            } catch (_: Exception) {}
+                        },
+                ) {
+                    Text("📄", fontSize = 16.sp)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        f.name,
+                        color = TextPrimary,
+                        fontSize = 13.sp,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                        "${f.size / 1024} KB",
+                        color = TextSecondary,
+                        fontSize = 11.sp,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -276,41 +359,21 @@ private fun CodeMessageItem(m: CodeMessage, onImageClick: (String) -> Unit = {})
 
 @Composable
 private fun RunningIndicator(status: String, logs: List<com.gptplus18.app.data.models.CodeLogEntry>) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = BgSecondary),
-        shape = RoundedCornerShape(12.dp),
-    ) {
-        Column(Modifier.padding(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                CircularProgressIndicator(
-                    color = Accent,
-                    modifier = Modifier.size(16.dp),
-                    strokeWidth = 2.dp,
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    when (status) {
-                        "starting" -> stringResource(R.string.t_163)
-                        "running" -> stringResource(R.string.t_164)
-                        else -> stringResource(R.string.t_165)
-                    },
-                    color = TextSecondary, fontSize = 13.sp,
-                )
-            }
-            if (logs.isNotEmpty()) {
-                Spacer(Modifier.height(8.dp))
-                logs.takeLast(4).forEach { log ->
-                    Text(
-                        "• ${log.msg}",
-                        color = TextTertiary, fontSize = 11.sp,
-                        fontFamily = FontFamily.Monospace,
-                        modifier = Modifier.padding(vertical = 1.dp),
-                    )
-                }
-            }
-        }
+    // ☁️ سحابة التفكير مع Shimmer
+    val statusText = when (status) {
+        "starting" -> stringResource(R.string.t_163)
+        "running" -> stringResource(R.string.t_164)
+        else -> stringResource(R.string.t_165)
     }
+    val logsText = if (logs.isNotEmpty()) {
+        logs.takeLast(4).joinToString("\n") { "• ${it.msg}" }
+    } else {
+        statusText
+    }
+    com.gptplus18.app.ui.components.ThinkingShimmer(
+        text = logsText,
+        modifier = Modifier.fillMaxWidth(),
+    )
 }
 
 

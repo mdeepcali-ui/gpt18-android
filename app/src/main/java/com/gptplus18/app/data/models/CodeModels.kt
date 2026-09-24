@@ -50,8 +50,25 @@ data class CodeLogEntry(
 data class CodeJobStatus(
     @SerializedName("status") val status: String,
     @SerializedName("log") val log: List<CodeLogEntry> = emptyList(),
-    @SerializedName("result") val result: Any? = null,
+    @SerializedName("result") val result: CodeResult? = null,
     @SerializedName("error") val error: String? = null,
+)
+
+// ⭐ ملف جاهز للتحميل
+data class CodeFile(
+    @SerializedName("name") val name: String,
+    @SerializedName("url") val url: String,
+    @SerializedName("size") val size: Long = 0L,
+)
+
+// ⭐ نتيجة job البرمجة الكاملة
+data class CodeResult(
+    @SerializedName("final_decision") val finalDecision: String? = null,
+    @SerializedName("quality_score") val qualityScore: Int = 0,
+    @SerializedName("summary_ar") val summaryAr: String? = null,
+    @SerializedName("deliverables") val deliverables: List<String> = emptyList(),
+    @SerializedName("files") val files: List<CodeFile> = emptyList(),
+    @SerializedName("zip_url") val zipUrl: String? = null,
 )
 
 data class CodeSession(

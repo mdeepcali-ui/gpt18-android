@@ -2,6 +2,7 @@ package com.gptplus18.app.data.api
 
 import com.gptplus18.app.BuildConfig
 import okhttp3.Interceptor
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
@@ -20,15 +21,23 @@ object RetrofitClient {
     }
 
     // ═══ Retry Interceptor ═══
+    // ⚠️ مهم: لا نعيد المحاولة لطلبات رفع الملفات (MultipartBody)
+    // لأن الـ body يُستهلك مرة واحدة فقط، وإعادة المحاولة تفشل فوراً.
     private val retryInterceptor = Interceptor { chain ->
         val request = chain.request()
+
+        // تخطي retry لطلبات الرفع (multipart)
+        val isUpload = request.body is MultipartBody
+        if (isUpload) {
+            return@Interceptor chain.proceed(request)
+        }
+
         var response: Response? = null
         var lastError: IOException? = null
 
         for (attempt in 1..3) {
             try {
                 response = chain.proceed(request)
-                // نعيد المحاولة فقط لأخطاء السيرفر (5xx)
                 if (response.isSuccessful || response.code < 500) {
                     return@Interceptor response
                 }
@@ -49,8 +58,9 @@ object RetrofitClient {
         .addInterceptor(retryInterceptor)
         .addInterceptor(logging)
         .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(120, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(180, TimeUnit.SECONDS)       // كان 120 — رفعناه لدعم الردود الطويلة
+        .writeTimeout(300, TimeUnit.SECONDS)      // كان 60 — رفعناه لدعم رفع الصور على 4G
+        .callTimeout(600, TimeUnit.SECONDS)       // جديد — 10 دقائق إجمالية لكل طلب
         .retryOnConnectionFailure(true)
         .build()
 
