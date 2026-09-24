@@ -104,7 +104,7 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                             .padding(end = 8.dp, top = 2.dp)
                             .size(24.dp)
                             .clip(CircleShape)
-                            .border(3.0.dp, TextSecondary, CircleShape)
+                            .border(3.0.dp, TextPrimary, CircleShape)
                             .clickable { vm.newRequest() },
                         contentAlignment = Alignment.Center,
                     ) {

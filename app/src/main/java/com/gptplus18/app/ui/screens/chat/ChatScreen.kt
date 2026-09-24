@@ -161,13 +161,29 @@ fun ChatScreen(
     }
 
 
-    // 🎯 auto-scroll محسّن — يحترم المستخدم
+    // ⭐ تتبّع ارتفاع الكيبورد — لتجنب scroll غير مرغوب
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val imeHeight = androidx.compose.foundation.layout.WindowInsets.ime.getBottom(density)
+    var prevImeHeight by remember { androidx.compose.runtime.mutableIntStateOf(imeHeight) }
+
+    LaunchedEffect(imeHeight) {
+        // نحدّث القيمة فوراً لتجنب تشغيل auto-scroll
+        prevImeHeight = imeHeight
+    }
+
+    // 🎯 auto-scroll — يشتغل فقط:
+    //   1) عند إضافة رسالة جديدة
+    //   2) أو أثناء streaming والمستخدم عند الأسفل
+    //   3) وليس بسبب فتح/إغلاق الكيبورد
     LaunchedEffect(
         state.messages.size,
-        state.isSending,
-        state.isUploading,
         state.messages.lastOrNull()?.content?.length,
     ) {
+        // إذا الكيبورد فُتح/أُغلق التو — نتجاهل هذه المرة
+        if (imeHeight != prevImeHeight) {
+            return@LaunchedEffect
+        }
+
         kotlinx.coroutines.delay(60)
         val count = listState.layoutInfo.totalItemsCount
         if (count > 0 && !isScrolledUp) {
@@ -282,7 +298,7 @@ fun ChatScreen(
                                     .padding(end = 8.dp, top = 2.dp)
                                     .size(24.dp)
                                     .clip(CircleShape)
-                                    .border(3.0.dp, TextSecondary, CircleShape)
+                                    .border(3.0.dp, TextPrimary, CircleShape)
                                     .clickable { vm.newChat() },
                                 contentAlignment = Alignment.Center,
                             ) {

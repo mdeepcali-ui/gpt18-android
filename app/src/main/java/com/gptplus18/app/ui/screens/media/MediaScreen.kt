@@ -79,7 +79,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                             .padding(end = 8.dp, top = 2.dp)
                             .size(24.dp)
                             .clip(CircleShape)
-                            .border(3.0.dp, TextSecondary, CircleShape)
+                            .border(3.0.dp, TextPrimary, CircleShape)
                             .clickable {
                                 vm.setTab(MediaTab.IMAGE)
                                 vm.setPrompt("")
@@ -566,7 +566,6 @@ private fun ResultActions(
     onRegenerate: (() -> Unit)? = null,
 ) {
     val ctx = LocalContext.current
-    val scope = rememberCoroutineScope()
     // 🎬 دوران عند الضغط
     var spinning by remember { mutableStateOf(false) }
     val rotation by animateFloatAsState(
@@ -575,15 +574,14 @@ private fun ResultActions(
         finishedListener = { spinning = false },
         label = "regen_rotation",
     )
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // ⭐ زر حفظ واحد فقط
         Button(
             onClick = {
-                // ⭐ X3: حفظ محلي — بدون متصفح
                 com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, url, type)
             },
             modifier = Modifier.weight(1f),
@@ -592,24 +590,9 @@ private fun ResultActions(
         ) {
             Icon(Icons.Default.Download, null, tint = Color.White, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(6.dp))
-            Text("تحميل", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Text("حفظ", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
         }
-        OutlinedButton(
-            onClick = {
-                // ⭐ X3: مشاركة الملف نفسه
-                scope.launch {
-                    com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, url, type)
-                }
-            },
-            modifier = Modifier.weight(1f),
-            shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary),
-        ) {
-            Icon(Icons.Default.Share, null, tint = TextPrimary, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text("مشاركة", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-        }
-        // 🔄 إعادة توليد — زر أيقونة شفاف
+        // 🔄 إعادة توليد
         if (onRegenerate != null) {
             androidx.compose.foundation.layout.Box(
                 modifier = Modifier
