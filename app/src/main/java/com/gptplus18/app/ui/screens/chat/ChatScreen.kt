@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -355,45 +356,26 @@ fun ChatScreen(
                     .fillMaxSize()
                     .padding(padding),
             ) {
-                // ⭐ فقاعة الحالة (يفكر / يحلل) — تنبثق من اليمين تحت البار العلوي
+                // ⭐ فقاعة الحالة (يفكر / يحلل) — أعلى اليمين في RTL
                 androidx.compose.animation.AnimatedVisibility(
                     visible = (state.isSending || state.isUploading) && !showSessionsList,
-                    enter = androidx.compose.animation.slideInHorizontally(initialOffsetX = { it }) +
-                            androidx.compose.animation.fadeIn(
-                                animationSpec = androidx.compose.animation.core.tween(220)
-                            ),
-                    exit = androidx.compose.animation.slideOutHorizontally(targetOffsetX = { it }) +
-                           androidx.compose.animation.fadeOut(
-                               animationSpec = androidx.compose.animation.core.tween(180)
-                           ),
+                    enter = androidx.compose.animation.slideInHorizontally(
+                        initialOffsetX = { it },
+                        animationSpec = androidx.compose.animation.core.tween(260)
+                    ) + androidx.compose.animation.fadeIn(
+                        animationSpec = androidx.compose.animation.core.tween(220)
+                    ),
+                    exit = androidx.compose.animation.slideOutHorizontally(
+                        targetOffsetX = { it },
+                        animationSpec = androidx.compose.animation.core.tween(200)
+                    ) + androidx.compose.animation.fadeOut(
+                        animationSpec = androidx.compose.animation.core.tween(180)
+                    ),
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = 6.dp, end = 12.dp),
+                        .align(Alignment.TopStart)
+                        .padding(top = 8.dp, start = 12.dp),
                 ) {
-                    androidx.compose.foundation.layout.Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(Color(0xFF1A1A1E))
-                            .padding(horizontal = 12.dp, vertical = 5.dp),
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            androidx.compose.foundation.layout.Box(
-                                modifier = Modifier
-                                    .size(6.dp)
-                                    .clip(CircleShape)
-                                    .background(Accent),
-                            )
-                            Text(
-                                text = state.statusLabel,
-                                color = TextSecondary,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium,
-                            )
-                        }
-                    }
+                    StatusBubble(label = state.statusLabel)
                 }
 
                 if (showSessionsList) {
@@ -1029,4 +1011,120 @@ private fun getFileSize(ctx: android.content.Context, uri: Uri): Long {
     return try {
         ctx.contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length } ?: 0L
     } catch (_: Exception) { 0L }
+}
+
+
+/**
+ * ⭐ فقاعة الحالة (يفكر / يحلل / يرفع) — تحت البار العلوي
+ * - موقع: أعلى اليمين (TopStart في RTL)
+ * - شعاع لامع يمر من اليسار لليمين كل 0.7s
+ * - نقطة زرقاء نابضة
+ */
+@Composable
+fun StatusBubble(label: String) {
+    val transition = androidx.compose.animation.core.rememberInfiniteTransition(label = "shimmer")
+
+    // 🌟 حركة الشعاع
+    val shimmerX by transition.animateFloat(
+        initialValue = -1f,
+        targetValue = 2f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(
+                durationMillis = 700,
+                easing = androidx.compose.animation.core.LinearEasing,
+            ),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Restart,
+        ),
+        label = "shimmer_x",
+    )
+
+    // 🔵 نبضة النقطة
+    val pulseScale by transition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.4f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(1400),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
+        ),
+        label = "pulse_scale",
+    )
+    val pulseAlpha by transition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.5f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(1400),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
+        ),
+        label = "pulse_alpha",
+    )
+
+    androidx.compose.foundation.layout.Box(
+        modifier = Modifier
+            .shadow(
+                elevation = 6.dp,
+                shape = RoundedCornerShape(20.dp),
+                ambientColor = Color.Black.copy(alpha = 0.5f),
+                spotColor = Color.Black.copy(alpha = 0.7f),
+            )
+            .clip(RoundedCornerShape(20.dp))
+            .background(
+                Brush.horizontalGradient(
+                    colors = listOf(Color(0xFF1C1C22), Color(0xFF15151A)),
+                )
+            )
+            .border(
+                width = 0.5.dp,
+                color = Accent.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(20.dp),
+            ),
+    ) {
+        // 🌟 طبقة الشعاع (تتحرك)
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clip(RoundedCornerShape(20.dp))
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Transparent,
+                            Color.White.copy(alpha = 0.08f),
+                            Color.White.copy(alpha = 0.18f),
+                            Color.White.copy(alpha = 0.08f),
+                            Color.Transparent,
+                            Color.Transparent,
+                        ),
+                        startX = shimmerX * 400f,
+                        endX = shimmerX * 400f + 200f,
+                    )
+                ),
+        )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
+        ) {
+            androidx.compose.foundation.layout.Box(
+                modifier = Modifier
+                    .size((7 * pulseScale).dp)
+                    .clip(CircleShape)
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                Accent.copy(alpha = pulseAlpha),
+                                Accent.copy(alpha = pulseAlpha * 0.4f),
+                            )
+                        )
+                    ),
+            )
+            Text(
+                text = label,
+                color = Color(0xFFE8E8EC),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.3.sp,
+            )
+        }
+    }
 }
