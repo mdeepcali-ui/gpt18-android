@@ -67,6 +67,7 @@ import com.gptplus18.app.ui.components.FullscreenImageViewer
 import com.gptplus18.app.ui.components.MarkdownText
 import com.gptplus18.app.ui.components.MessageActionsSheet
 import com.gptplus18.app.ui.components.MessageTimestamp
+import com.gptplus18.app.ui.components.TypingIndicator
 import com.gptplus18.app.ui.theme.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
@@ -354,13 +355,17 @@ fun ChatScreen(
                     .fillMaxSize()
                     .padding(padding),
             ) {
-                // ⭐ فقاعة الحالة (يفكر / يحلل / إلخ) — تظهر تحت البار العلوي من اليمين
+                // ⭐ فقاعة الحالة (يفكر / يحلل) — تنبثق من اليمين تحت البار العلوي
                 androidx.compose.animation.AnimatedVisibility(
                     visible = (state.isSending || state.isUploading) && !showSessionsList,
                     enter = androidx.compose.animation.slideInHorizontally(initialOffsetX = { it }) +
-                            androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(220)),
+                            androidx.compose.animation.fadeIn(
+                                animationSpec = androidx.compose.animation.core.tween(220)
+                            ),
                     exit = androidx.compose.animation.slideOutHorizontally(targetOffsetX = { it }) +
-                           androidx.compose.animation.fadeOut(animationSpec = androidx.compose.animation.core.tween(180)),
+                           androidx.compose.animation.fadeOut(
+                               animationSpec = androidx.compose.animation.core.tween(180)
+                           ),
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(top = 6.dp, end = 12.dp),
@@ -375,7 +380,6 @@ fun ChatScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
-                            // نقطة نابضة صغيرة
                             androidx.compose.foundation.layout.Box(
                                 modifier = Modifier
                                     .size(6.dp)
@@ -434,7 +438,7 @@ fun ChatScreen(
                             }
                             if (state.isSending || state.isUploading) {
                                 item {
-                                    // ☁️ سحابة التفكير فقط (بدون TypingIndicator)
+                                    // ☁️ سحابة التفكير فقط
                                     val lastThinking = state.thinkingByMessage.values.lastOrNull()
                                     val thinkingText = buildString {
                                         val raw = lastThinking?.rawText?.trim().orEmpty()
@@ -454,6 +458,7 @@ fun ChatScreen(
                                     }
                                 }
                             }
+                            }
 
                         state.replyTo?.let { r ->
                             ReplyBar(content = r.content, onCancel = { vm.setReplyTo(null) })
@@ -472,7 +477,7 @@ fun ChatScreen(
                                     vm.send(input)
                                 }
                                 input = ""
-                                // ⭐ إغلاق الكيبورد تلقائياً بعد الإرسال
+                                // ⭐ إغلاق الكيبورد تلقائياً
                                 keyboardController?.hide()
                             },
                             onRemoveAttachment = { vm.removeAttachment(it) },
