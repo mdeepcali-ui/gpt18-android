@@ -269,11 +269,29 @@ class ChatViewModel @Inject constructor(
             val sidForServer = if (current.currentSessionId == -1) null else current.currentSessionId
             val thinkingSb = StringBuilder()
 
+            var gotImage = false
             try {
             chatRepo.streamMessage(sidForServer, finalText)
                 .collect { ev ->
                     when (ev) {
                         // ⭐ التفكير — يُجمع في السحابة (لا يظهر في الرسالة)
+                        is StreamEvent.Status -> {
+                            _state.value = _state.value.copy(statusLabel = ev.text)
+                        }
+                        is StreamEvent.ImageUrl -> {
+                            gotImage = true
+                            val md = "\n\n![صورة](${ev.url})\n"
+                            sb.append(md)
+                            val currentText = sb.toString()
+                            _state.value = _state.value.copy(
+                                messages = _state.value.messages.map { m ->
+                                    if (m.id == -2 && m.ts == assistantTs) {
+                                        m.copy(content = currentText)
+                                    } else m
+                                },
+                                statusLabel = "🎨 الصورة جاهزة",
+                            )
+                        }
                         is StreamEvent.ThinkingDelta -> {
                             thinkingSb.append(ev.text)
                             val current = _state.value.thinkingByMessage[thinkId]
@@ -339,7 +357,7 @@ class ChatViewModel @Inject constructor(
                     }
                 }
 
-            if (!gotError && sb.isEmpty()) {
+            if (!gotError && sb.isEmpty() && !gotImage) {
                 _state.value = _state.value.copy(
                     messages = _state.value.messages.filterNot { it.id == -2 && it.ts == assistantTs },
                     isSending = false,
