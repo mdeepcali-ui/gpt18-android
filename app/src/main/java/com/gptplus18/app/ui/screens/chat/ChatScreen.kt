@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
@@ -145,22 +146,6 @@ fun ChatScreen(
         }
     }
 
-    // 🎯 auto-scroll — ينزل لآخر رسالة بدون مبالغة
-    LaunchedEffect(
-        state.messages.size,
-        state.isSending,
-        state.isUploading,
-        state.messages.lastOrNull()?.content?.length,
-    ) {
-        kotlinx.coroutines.delay(60)
-        val count = listState.layoutInfo.totalItemsCount
-        if (count > 0 && !isScrolledUp) {
-            try {
-                listState.animateScrollToItem(count - 1)
-            } catch (_: Exception) {}
-        }
-    }
-
     // 🎯 هل المستخدم مبتعد عن الأسفل بمسافة كبيرة؟
     // يعني الـ auto-scroll يشتغل إلا إذا المستخدم صعد كتير فوق
     val isScrolledUp by remember {
@@ -176,7 +161,7 @@ fun ChatScreen(
     }
 
 
-    // 🎯 auto-scroll محسّن — ينزل لأسفل الصفحة فعلاً
+    // 🎯 auto-scroll محسّن — يحترم المستخدم
     LaunchedEffect(
         state.messages.size,
         state.isSending,
@@ -185,13 +170,10 @@ fun ChatScreen(
     ) {
         kotlinx.coroutines.delay(60)
         val count = listState.layoutInfo.totalItemsCount
-        if (count > 0) {
-            // نمرر إلى آخر عنصر مع offset كبير (لأسفل الصفحة)
+        if (count > 0 && !isScrolledUp) {
             try {
-                listState.scrollToItem(count - 1, Int.MAX_VALUE)
-            } catch (_: Exception) {
-                try { listState.scrollToItem(count - 1) } catch (_: Exception) {}
-            }
+                listState.animateScrollToItem(count - 1)
+            } catch (_: Exception) {}
         }
     }
 
