@@ -380,6 +380,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     ResultActions(
                         url = state.imageUrl!!,
                         type = "image",
+                        onSave = { u, t -> saveWithPermission(u, t) },
                         onRegenerate = { vm.regenerate() },
                     )
                 }
@@ -399,6 +400,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     ResultActions(
                         url = state.songUrl!!,
                         type = "song",
+                        onSave = { u, t -> saveWithPermission(u, t) },
                         onRegenerate = { vm.regenerate() },
                     )
                     state.songLyrics?.let {
@@ -428,6 +430,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     ResultActions(
                         url = state.videoUrl!!,
                         type = "video",
+                        onSave = { u, t -> saveWithPermission(u, t) },
                         onRegenerate = { vm.regenerate() },
                     )
                 }
@@ -608,6 +611,7 @@ private fun PresetChip(label: String, active: Boolean, onClick: () -> Unit) {
 private fun ResultActions(
     url: String,
     type: String,
+    onSave: (String, String) -> Unit,
     onRegenerate: (() -> Unit)? = null,
 ) {
     val ctx = LocalContext.current
@@ -627,7 +631,7 @@ private fun ResultActions(
         // ⭐ زر حفظ واحد فقط
         Button(
             onClick = {
-                saveWithPermission(url, type)
+                onSave(url, type)
             },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(containerColor = SendBlue),
