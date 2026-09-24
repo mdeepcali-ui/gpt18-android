@@ -27,8 +27,12 @@ class CountingRequestBody(
         try {
             delegate.writeTo(bufferedSink)
             bufferedSink.flush()
-        } finally {
-            bufferedSink.close()
+            // ⚠️ ممنوع استدعاء close() هنا!
+            // الـ sink هو اتصال الشبكة الذي يديره OkHttp،
+            // وإغلاقه يُلغي الطلب فوراً قبل إرسال حدود multipart.
+        } catch (e: Exception) {
+            // نعيد الرمي ليعرف OkHttp أن الـ write فشل
+            throw e
         }
     }
 
