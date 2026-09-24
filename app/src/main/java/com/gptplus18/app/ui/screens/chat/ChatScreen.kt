@@ -1,4 +1,5 @@
 package com.gptplus18.app.ui.screens.chat
+import androidx.compose.animation.core.animateFloat
 
 import androidx.compose.material3.CircularProgressIndicator
 import com.gptplus18.app.ui.theme.LocalAppColors
