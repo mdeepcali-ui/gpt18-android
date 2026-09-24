@@ -78,24 +78,13 @@ fun ThinkingShimmer(
                 .fillMaxWidth()
                 .padding(horizontal = 14.dp, vertical = 12.dp),
         ) {
-            // ─── رأس السحابة ───
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (showIcon) {
-                    Icon(
-                        Icons.Default.Cloud,
-                        contentDescription = null,
-                        tint = Accent,
-                        modifier = Modifier.size(16.dp),
-                    )
-                    Spacer(Modifier.width(8.dp))
-                }
-                Text(
-                    text = "أُفكّر...",
-                    color = Accent,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
+            // ─── رأس السحابة (بدون أيقونة) ───
+            Text(
+                text = "أُفكّر...",
+                color = Accent,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
 
             // ─── نص التفكير ───
             if (text.isNotBlank()) {
@@ -138,10 +127,10 @@ private fun ShimmerText(
     translateX: Float,
     maxLines: Int,
 ) {
-    // ✨ تدرّج لوني بسيط للنص نفسه (تباين خفيف)
+    // ⭐ نص أبيض ناصع ليبان بوضوح
     Text(
         text = text,
-        color = TextPrimary.copy(alpha = 0.75f),
+        color = androidx.compose.ui.graphics.Color(0xFFEAEAEE),
         fontSize = 12.sp,
         lineHeight = 17.sp,
         maxLines = maxLines,

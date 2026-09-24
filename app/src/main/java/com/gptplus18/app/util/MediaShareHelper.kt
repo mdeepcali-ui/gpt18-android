@@ -16,7 +16,7 @@ import java.net.URL
 
 /**
  * مساعد التحميل والمشاركة — بدون فتح المتصفح
- * - saveToGallery: DownloadManager (يشمل إشعار + معرض)
+ * - saveToGallery: حفظ مباشر في المعرض (بدون DownloadManager)
  * - shareMedia: تنزيل إلى cache ثم مشاركة الملف نفسه
  */
 object MediaShareHelper {
@@ -36,10 +36,10 @@ object MediaShareHelper {
     }
 
     /**
-     * حفظ الملف في معرض/موسيقى الجهاز (بدون متصفح)
-     * ✅ يعرض Toast للمستخدم في كل الحالات
-     * ✅ يعمل على Android 10+ بدون permission
-     * ✅ يجرّب DownloadManager أولاً ثم fallback إلى تحميل يدوي
+     * ⭐ الحفظ المباشر — يشتغل مثل ChatGPT / Facebook
+     * - بدون DownloadManager (ما يحتاج Wi-Fi)
+     * - يحفظ مباشرة في المعرض
+     * - Toast واحد فقط في النهاية
      */
     fun saveToGallery(context: Context, url: String, type: String) {
         try {
@@ -47,36 +47,9 @@ object MediaShareHelper {
             val name = "GPT18_${type}_${System.currentTimeMillis()}.$ext"
             val subDir = subDirFor(type)
 
-            // ─── محاولة 1: DownloadManager ───
-            try {
-                val request = DownloadManager.Request(Uri.parse(url))
-                    .setTitle(name)
-                    .setDescription("GPT+18 — جاري التحميل...")
-                    .setNotificationVisibility(
-                        DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
-                    )
-                    .setDestinationInExternalPublicDir(subDir, name)
-                    .setAllowedOverMetered(true)
-                    .setAllowedOverRoaming(true)
-
-                val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-                dm.enqueue(request)
-
-                android.widget.Toast.makeText(
-                    context,
-                    "✅ بدأ التحميل — تحقق من الإشعارات",
-                    android.widget.Toast.LENGTH_SHORT,
-                ).show()
-                return
-            } catch (e: Exception) {
-                // فشل DownloadManager — نجرّب fallback
-                android.util.Log.w("MediaShareHelper", "DownloadManager فشل: ${e.message}")
-            }
-
-            // ─── محاولة 2 (fallback): تحميل يدوي + MediaStore ───
             android.widget.Toast.makeText(
                 context,
-                "⏳ جاري التحميل...",
+                "⏳ جارٍ الحفظ...",
                 android.widget.Toast.LENGTH_SHORT,
             ).show()
 
@@ -85,7 +58,7 @@ object MediaShareHelper {
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                     android.widget.Toast.makeText(
                         context,
-                        if (result) "✅ تم الحفظ في المجلد GPT+18/$subDir" else "❌ فشل التحميل",
+                        if (result) "✅ تم الحفظ في المعرض" else "❌ فشل التحميل",
                         android.widget.Toast.LENGTH_LONG,
                     ).show()
                 }
@@ -99,10 +72,6 @@ object MediaShareHelper {
         }
     }
 
-    /**
-     * تحميل يدوي + حفظ عبر MediaStore (Android 10+)
-     * أو في المجلد العام (Android 9-)
-     */
     private suspend fun downloadAndSave(
         context: Context,
         url: String,

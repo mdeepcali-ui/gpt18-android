@@ -145,22 +145,34 @@ fun ChatScreen(
         }
     }
 
-    // 🎯 auto-scroll محسّن — يلتقط آخر عنصر فعلي من الـ layout
-    // ═══════════════════════════════════════════════════════
-    // 🐛 Toasts تشخيصية — نزيلها بعد ما نصلح مشكلة الرفع
-    // ═══════════════════════════════════════════════════════
-    LaunchedEffect(state.pendingAttachments.map { it.id to it.progress to it.isUploaded to it.error }) {
-        val last = state.pendingAttachments.lastOrNull() ?: return@LaunchedEffect
-        val msg = when {
-            last.error != null -> "❌ ${last.error}"
-            last.isUploaded -> "✅ uploaded id=${last.uploadedFileId?.take(15)}"
-            last.progress >= 1f -> "✅ 100% waiting state"
-            last.progress > 0f -> "⬆️ ${(last.progress * 100).toInt()}%"
-            else -> "🔵 waiting"
+    // 🎯 auto-scroll — ينزل لآخر رسالة بدون مبالغة
+    LaunchedEffect(
+        state.messages.size,
+        state.isSending,
+        state.isUploading,
+        state.messages.lastOrNull()?.content?.length,
+    ) {
+        kotlinx.coroutines.delay(60)
+        val count = listState.layoutInfo.totalItemsCount
+        if (count > 0 && !isScrolledUp) {
+            try {
+                listState.animateScrollToItem(count - 1)
+            } catch (_: Exception) {}
         }
-        try {
-            android.widget.Toast.makeText(ctx, msg, android.widget.Toast.LENGTH_SHORT).show()
-        } catch (_: Exception) {}
+    }
+
+    // 🎯 هل المستخدم مبتعد عن الأسفل بمسافة كبيرة؟
+    // يعني الـ auto-scroll يشتغل إلا إذا المستخدم صعد كتير فوق
+    val isScrolledUp by remember {
+        derivedStateOf {
+            val total = listState.layoutInfo.totalItemsCount
+            if (total == 0) return@derivedStateOf false
+            val last = listState.layoutInfo.visibleItemsInfo.lastOrNull() ?: return@derivedStateOf false
+            // نحسب الفرق بين العنصر الأخير المرئي والأخير الفعلي
+            val diff = total - 1 - last.index
+            // نعتبره "scrolled up" فقط إذا ابتعد 3 عناصر أو أكثر
+            diff >= 3
+        }
     }
 
     LaunchedEffect(state.error) {
@@ -184,12 +196,22 @@ fun ChatScreen(
         }
     }
 
-    LaunchedEffect(state.messages.size, state.isSending, state.isUploading, state.messages.lastOrNull()?.content?.length) {
-        // تأخير بسيط ليكتمل الـ recomposition
-        kotlinx.coroutines.delay(40)
+    // 🎯 auto-scroll محسّن — ينزل لأسفل الصفحة فعلاً
+    LaunchedEffect(
+        state.messages.size,
+        state.isSending,
+        state.isUploading,
+        state.messages.lastOrNull()?.content?.length,
+    ) {
+        kotlinx.coroutines.delay(60)
         val count = listState.layoutInfo.totalItemsCount
         if (count > 0) {
-            listState.animateScrollToItem(count - 1)
+            // نمرر إلى آخر عنصر مع offset كبير (لأسفل الصفحة)
+            try {
+                listState.scrollToItem(count - 1, Int.MAX_VALUE)
+            } catch (_: Exception) {
+                try { listState.scrollToItem(count - 1) } catch (_: Exception) {}
+            }
         }
     }
 
@@ -298,7 +320,7 @@ fun ChatScreen(
                                     .padding(end = 8.dp, top = 2.dp)
                                     .size(24.dp)
                                     .clip(CircleShape)
-                                    .border(1.0.dp, TextSecondary, CircleShape)
+                                    .border(3.0.dp, TextSecondary, CircleShape)
                                     .clickable { vm.newChat() },
                                 contentAlignment = Alignment.Center,
                             ) {
@@ -348,6 +370,7 @@ fun ChatScreen(
                         )
                     }
                 } else {
+                    androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
                     Column(Modifier.fillMaxSize()) {
                         LazyColumn(
                             state = listState,
@@ -436,6 +459,41 @@ fun ChatScreen(
                             },
                             onRemoveAttachment = { vm.removeAttachment(it) },
                         )
+                    }
+
+                    // ⬇ FAB للنزول السريع
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = isScrolledUp,
+                        enter = androidx.compose.animation.fadeIn(),
+                        exit = androidx.compose.animation.fadeOut(),
+                        modifier = Modifier
+                            .align(androidx.compose.ui.Alignment.BottomEnd)
+                            .padding(end = 16.dp, bottom = 96.dp),
+                    ) {
+                        androidx.compose.foundation.layout.Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .background(BgSecondary)
+                                .border(1.5.dp, TextSecondary.copy(alpha = 0.5f), androidx.compose.foundation.shape.CircleShape)
+                                .clickable {
+                                    scope.launch {
+                                        val total = listState.layoutInfo.totalItemsCount
+                                        if (total > 0) {
+                                            listState.animateScrollToItem(total - 1)
+                                        }
+                                    }
+                                },
+                            contentAlignment = androidx.compose.ui.Alignment.Center,
+                        ) {
+                            androidx.compose.material3.Icon(
+                                androidx.compose.material.icons.Icons.Default.KeyboardArrowDown,
+                                contentDescription = "انزل للأسفل",
+                                tint = TextPrimary,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
+                    }
                     }
                 }
             }
@@ -706,11 +764,11 @@ private fun MessageBubble(
                             if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                         }
                         if (cleanText.isNotBlank()) {
-                            // ✨ streaming: رمادي صغير — بعد الاكتمال: أبيض عادي
+                            // ✨ streaming: فضي ناعم — بعد الاكتمال: أبيض عادي
                             val isStreaming = (msg.id == -2)
                             Text(
                                 cleanText,
-                                color = if (isStreaming) TextTertiary else TextPrimary,
+                                color = if (isStreaming) androidx.compose.ui.graphics.Color(0xFFC8C8CC) else TextPrimary,
                                 fontSize = if (isStreaming) 13.sp else 16.sp,
                                 fontWeight = if (isStreaming) FontWeight.Normal else FontWeight.SemiBold,
                                 lineHeight = if (isStreaming) 19.sp else 22.sp,

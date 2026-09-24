@@ -348,17 +348,30 @@ class ChatViewModel @Inject constructor(
      * - لو في [[رد]]...[[/رد]] → يرجع النص بينهم فقط
      */
     private fun cleanStreamingText(raw: String): String {
+        if (raw.isBlank()) return ""
+
+        // ⭐ إذا فيه [[رد]] → نأخذ ما بعده فقط
         val replyStart = raw.indexOf("[[رد]]")
-        if (replyStart == -1) return ""
-
-        val afterReply = raw.substring(replyStart + "[[رد]]".length)
-        val replyEnd = afterReply.indexOf("[[/رد]]")
-
-        return if (replyEnd == -1) {
-            afterReply.trimStart()
+        var result: String = if (replyStart != -1) {
+            val afterReply = raw.substring(replyStart + "[[رد]]".length)
+            val replyEnd = afterReply.indexOf("[[/رد]]")
+            if (replyEnd == -1) afterReply.trimStart()
+            else afterReply.substring(0, replyEnd).trimStart()
         } else {
-            afterReply.substring(0, replyEnd).trimStart()
+            raw
         }
+
+        // ⭐ حماية: نحذف أي وسم متبقي
+        result = result
+            .replace("[[رد]]", "")
+            .replace("[[/رد]]", "")
+            .replace("[[تفكير]]", "")
+            .replace("[[/تفكير]]", "")
+            .replace("[[فكر]]", "")
+            .replace("[[/فكر]]", "")
+            .trim()
+
+        return result
     }
 
     fun uploadAndSend(uri: Uri, mimeType: String, fileName: String, caption: String) {
@@ -516,7 +529,8 @@ class ChatViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            var finalSessionId = sessionId
+            // ⭐ -1 تعني محادثة جديدة — نحوّلها لـ null
+            var finalSessionId: Int? = if (sessionId == -1) null else sessionId
             var lastError: String? = null
             val uploaded: MutableList<Attachment> = mutableListOf()
 
