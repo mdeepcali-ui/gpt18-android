@@ -104,7 +104,6 @@ fun GptPlusNavGraph(
                 SplashScreen(
                     onNavigateToChat = { navController.navigate(Routes.CHAT) { popUpTo(Routes.SPLASH) { inclusive = true } } },
                     onNavigateToLogin = { navController.navigate(Routes.AUTH) { popUpTo(Routes.SPLASH) { inclusive = true } } },
-                    onNavigateToOnboarding = { navController.navigate(Routes.ONBOARDING) { popUpTo(Routes.SPLASH) { inclusive = true } } },
                 )
             }
             composable(Routes.ONBOARDING) {

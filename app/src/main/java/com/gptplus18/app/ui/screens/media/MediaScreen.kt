@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.runtime.rememberCoroutineScope
 import com.gptplus18.app.data.models.MediaHistoryItem
 import androidx.compose.material3.TextButton
@@ -62,6 +63,7 @@ private val SendBlue = Color(0xFF0A84FF)
 fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
     val state by vm.state.collectAsState()
     val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
     // X2: viewer للصورة
     var fullscreenImage by remember { mutableStateOf<String?>(null) }
 
@@ -474,6 +476,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 state.history.take(20).forEach { item ->
                     MediaHistoryRow(
                         item = item,
+                        onOpenImage = { url -> fullscreenImage = url },
                     )
                 }
             }
@@ -495,6 +498,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
 @Composable
 private fun MediaHistoryRow(
     item: MediaHistoryItem,
+    onOpenImage: (String) -> Unit = {},
 ) {
     val ctx = LocalContext.current
     val icon = when (item.type) {
@@ -515,9 +519,13 @@ private fun MediaHistoryRow(
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable {
-                try {
-                    ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.url)))
-                } catch (_: Exception) { }
+                if (item.type == "image" && !item.url.isNullOrBlank()) {
+                    onOpenImage(item.url)
+                } else {
+                    try {
+                        ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.url)))
+                    } catch (_: Exception) { }
+                }
             },
         colors = CardDefaults.cardColors(containerColor = BgSecondary),
         shape = RoundedCornerShape(12.dp),

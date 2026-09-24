@@ -25,29 +25,31 @@ import com.gptplus18.app.R
 fun SplashScreen(
     onNavigateToChat: () -> Unit,
     onNavigateToLogin: () -> Unit,
-    onNavigateToOnboarding: () -> Unit = {},
 ) {
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         delay(1200)
-        try {
+        // ⭐ حذفنا Onboarding — نروح مباشرة للـ Chat أو تسجيل الدخول
+        val hasToken = try {
             val entry = EntryPointAccessors.fromApplication(
                 context.applicationContext,
                 SplashEntryPoint::class.java,
             )
-            // 1) هل اتعرض Onboarding؟
-            val onboardingDone = entry.prefs().onboardingDoneFlow.first()
-            if (!onboardingDone) {
-                onNavigateToOnboarding()
-                return@LaunchedEffect
-            }
-            // 2) هل في توكن؟
-            val hasToken = entry.tokenStorage().getToken() != null
-            if (hasToken) onNavigateToChat() else onNavigateToLogin()
+            entry.tokenStorage().getToken() != null
         } catch (_: Exception) {
-            onNavigateToLogin()
+            // محاولة ثانية بحماية أعلى
+            try {
+                val entry = EntryPointAccessors.fromApplication(
+                    context.applicationContext,
+                    SplashEntryPoint::class.java,
+                )
+                entry.tokenStorage().getToken() != null
+            } catch (_: Exception) {
+                false
+            }
         }
+        if (hasToken) onNavigateToChat() else onNavigateToLogin()
     }
 
     Box(

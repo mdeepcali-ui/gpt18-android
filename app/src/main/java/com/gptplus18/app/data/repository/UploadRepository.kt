@@ -45,14 +45,28 @@ class UploadRepository @Inject constructor(
             try {
                 val inputStream: InputStream = context.contentResolver.openInputStream(uri)
                     ?: return@withContext Result.Error("تعذر فتح الملف")
-                val bytes = inputStream.readBytes()
-                inputStream.close()
-
-                if (bytes.size > 100 * 1024 * 1024) {
+                // ⭐ نحسب الحجم من contentResolver (بدون تحميل الملف في الذاكرة)
+                val totalBytes = try {
+                    context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length }
+                        ?: -1L
+                } catch (_: Exception) { -1L }
+                if (totalBytes > 100L * 1024 * 1024) {
+                    inputStream.close()
                     return@withContext Result.Error("الملف أكبر من 100MB")
                 }
-
-                val rawBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+                val contentLen = if (totalBytes > 0) totalBytes else 1L
+                val rawBody = object : okhttp3.RequestBody() {
+                    override fun contentType() = mimeType.toMediaTypeOrNull()
+                    override fun contentLength(): Long = contentLen
+                    override fun writeTo(sink: okio.BufferedSink) {
+                        val buffer = ByteArray(8192)
+                        var read: Int
+                        while (inputStream.read(buffer).also { read = it } != -1) {
+                            sink.write(buffer, 0, read)
+                        }
+                        inputStream.close()
+                    }
+                }
                 val countingBody = CountingRequestBody(rawBody) { written, total ->
                     val p = if (total > 0) (written.toFloat() / total.toFloat()) else 0f
                     onProgress?.invoke(p.coerceIn(0f, 1f))

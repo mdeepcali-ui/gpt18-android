@@ -171,6 +171,8 @@ fun ChatScreen(
 
     // ⏱ آخر وقت تغيّر فيه الكيبورد (لكشف فتح/غلق تو)
     var lastImeChangeAt by remember { androidx.compose.runtime.mutableLongStateOf(0L) }
+    // 📨 تتبع عدد الرسائل لكشف "رسالة جديدة" مقابل streaming
+    var prevMsgSize by remember { androidx.compose.runtime.mutableIntStateOf(0) }
     LaunchedEffect(imeHeight) {
         lastImeChangeAt = System.currentTimeMillis()
     }
@@ -183,20 +185,34 @@ fun ChatScreen(
         state.messages.size,
         state.messages.lastOrNull()?.content?.length,
     ) {
-        // إذا الكيبورد فُتح/أُغلق تواً — نتجاهل هذه المرة
-        val msSinceImeChange = System.currentTimeMillis() - lastImeChangeAt
-        if (msSinceImeChange < 350) {
-            return@LaunchedEffect
+        // ⭐ هل زادت الرسائل؟ (رسالة جديدة أُرسلت)
+        val sizeIncreased = state.messages.size > prevMsgSize
+        prevMsgSize = state.messages.size
+
+        // إذا فقط تغيّر المحتوى (streaming) + الكيبورد تحرك تواً → تجاهل
+        if (!sizeIncreased) {
+            val msSinceImeChange = System.currentTimeMillis() - lastImeChangeAt
+            if (msSinceImeChange < 350) {
+                return@LaunchedEffect
+            }
         }
 
-        // تأخير بسيط للسماح للـ layout يكتمل
-        kotlinx.coroutines.delay(80)
+        // ⭐ إذا رسالة جديدة → انزل دائماً. إذا streaming → فقط لو المستخدم عند الأسفل
+        val shouldScroll = sizeIncreased || !isScrolledUp
+        if (!shouldScroll) return@LaunchedEffect
 
-        val count = listState.layoutInfo.totalItemsCount
-        if (count > 0 && !isScrolledUp) {
-            try {
-                listState.animateScrollToItem(count - 1)
-            } catch (_: Exception) {}
+        // ننتظر شوي حتى تُضاف العناصر الجديدة (رسالة المستخدم + يفكر)
+        kotlinx.coroutines.delay(if (sizeIncreased) 120 else 80)
+
+        // نكرر المحاولة لضمان الوصول للنهاية (العناصر قد تُضاف على دفعات)
+        repeat(3) { attempt ->
+            val count = listState.layoutInfo.totalItemsCount
+            if (count > 0) {
+                try {
+                    listState.animateScrollToItem(count - 1)
+                } catch (_: Exception) {}
+            }
+            if (attempt < 2) kotlinx.coroutines.delay(50)
         }
     }
 

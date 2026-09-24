@@ -14,6 +14,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,7 +40,9 @@ import com.gptplus18.app.R
 fun FullscreenImageViewer(
     imageUrl: String,
     onDismiss: () -> Unit,
+    onEdit: (() -> Unit)? = null,
 ) {
+    var menuExpanded by remember { mutableStateOf(false) }
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var scale by remember { mutableStateOf(1f) }
@@ -79,45 +84,15 @@ fun FullscreenImageViewer(
                     },
             )
 
-            // Top Bar
+            // ═══ Top Bar ═══
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // ⭐ Save — حفظ محلي
-                IconButton(
-                    onClick = {
-                        com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, imageUrl, "image")
-                    },
-                    modifier = Modifier
-                        .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(50))
-                        .size(44.dp),
-                ) {
-                    Icon(Icons.Default.Download, stringResource(R.string.t_232), tint = Color.White)
-                }
-
-                Spacer(Modifier.width(8.dp))
-
-                // ⭐ Share — مشاركة الملف نفسه
-                IconButton(
-                    onClick = {
-                        scope.launch {
-                            com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, imageUrl, "image")
-                        }
-                    },
-                    modifier = Modifier
-                        .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(50))
-                        .size(44.dp),
-                ) {
-                    Icon(Icons.Default.Share, stringResource(R.string.t_233), tint = Color.White)
-                }
-
-                Spacer(Modifier.width(8.dp))
-
-                // ⭐ Close
+                // ⭐ Close (يسار)
                 IconButton(
                     onClick = onDismiss,
                     modifier = Modifier
@@ -125,6 +100,51 @@ fun FullscreenImageViewer(
                         .size(44.dp),
                 ) {
                     Icon(Icons.Default.Close, stringResource(R.string.t_126), tint = Color.White)
+                }
+
+                // ⭐ 3 نقاط (يمين)
+                Box {
+                    IconButton(
+                        onClick = { menuExpanded = true },
+                        modifier = Modifier
+                            .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(50))
+                            .size(44.dp),
+                    ) {
+                        Icon(Icons.Default.MoreVert, "خيارات", tint = Color.White)
+                    }
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("حفظ") },
+                            leadingIcon = { Icon(Icons.Default.Download, null) },
+                            onClick = {
+                                menuExpanded = false
+                                com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, imageUrl, "image")
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("مشاركة") },
+                            leadingIcon = { Icon(Icons.Default.Share, null) },
+                            onClick = {
+                                menuExpanded = false
+                                scope.launch {
+                                    com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, imageUrl, "image")
+                                }
+                            },
+                        )
+                        if (onEdit != null) {
+                            DropdownMenuItem(
+                                text = { Text("تعديل") },
+                                leadingIcon = { Icon(Icons.Default.Edit, null) },
+                                onClick = {
+                                    menuExpanded = false
+                                    onEdit()
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
