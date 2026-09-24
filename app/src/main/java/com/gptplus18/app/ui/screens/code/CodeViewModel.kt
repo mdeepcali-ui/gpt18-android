@@ -117,7 +117,14 @@ class CodeViewModel @Inject constructor(
         val sid = _state.value.currentSessionId
         val sidForApi = if (sid == -1) null else sid
         val model = _state.value.currentModel
+
+        // ⭐ رسائل مؤقتة فوراً (زي Chat)
+        val now = System.currentTimeMillis() / 1000.0
+        val tempUser = CodeMessage(id = -1, role = "user", content = request, ts = now)
+        val tempAssistant = CodeMessage(id = -2, role = "assistant", content = "", ts = now + 1)
+
         _state.value = _state.value.copy(
+            messages = _state.value.messages + tempUser + tempAssistant,
             isRunning = true,
             error = null,
             logs = emptyList(),

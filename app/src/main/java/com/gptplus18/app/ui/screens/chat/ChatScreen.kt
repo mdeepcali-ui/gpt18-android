@@ -676,7 +676,7 @@ private fun SessionsList(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun MessageBubble(
+fun MessageBubble(
     msg: Message,
     onImageClick: (String) -> Unit,
     onLongPress: () -> Unit,
@@ -847,7 +847,7 @@ private fun MessageBubble(
 }
 
 @Composable
-private fun ActionButton(
+fun ActionButton(
     icon: ImageVector,
     label: String,
     onClick: () -> Unit,

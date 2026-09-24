@@ -34,6 +34,8 @@ import com.gptplus18.app.ui.theme.TextSecondary
 import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.data.models.CodeMessage
 import com.gptplus18.app.data.models.CodeSession
+import com.gptplus18.app.data.models.Message
+import com.gptplus18.app.ui.screens.chat.MessageBubble
 import com.gptplus18.app.ui.components.ChatGptComposer
 import com.gptplus18.app.ui.components.MarkdownText
 import com.gptplus18.app.ui.theme.*
@@ -46,6 +48,8 @@ import com.gptplus18.app.R
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
+
+    val clip = LocalClipboardManager.current
 
     // X2: viewer
     var fullscreenImage by remember { mutableStateOf<String?>(null) }
@@ -136,11 +140,31 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                         contentPadding = PaddingValues(vertical = 12.dp),
                     ) {
                         items(state.messages, key = { it.id.toString() + it.ts }) { m ->
-                            CodeMessageItem(m) { url -> fullscreenImage = url }
+                            // ⭐ رسالة المساعد الفارغة = مؤشر "يفكر..."
+                            if (m.id == -2 && m.content.isBlank()) {
+                                Column(
+                                    Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                                    horizontalAlignment = Alignment.Start,
+                                ) {
+                                    RunningIndicator(state.jobStatus, state.logs)
+                                }
+                            } else {
+                                val asMsg = Message(
+                                    id = m.id,
+                                    role = m.role,
+                                    content = m.content,
+                                    ts = m.ts,
+                                )
+                                MessageBubble(
+                                    msg = asMsg,
+                                    onImageClick = { url -> fullscreenImage = url },
+                                    onLongPress = { },
+                                    onCopy = { text -> clip.setText(AnnotatedString(text)) },
+                                    onEdit = { msg -> input = msg.content },
+                                )
+                            }
                         }
-                        if (state.isRunning) {
-                            item { RunningIndicator(state.jobStatus, state.logs) }
-                        }
+                        // ⭐ RunningIndicator صار جزء من رسالة المساعد الفارغة (id=-2)
                         // ⭐ ملفات جاهزة للتحميل
                         if (!state.isRunning && (state.files.isNotEmpty() || state.zipUrl != null)) {
                             item {
@@ -313,46 +337,6 @@ private fun SessionList(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun CodeMessageItem(m: CodeMessage, onImageClick: (String) -> Unit = {}) {
-    val isUser = m.role == "user"
-    val clip = LocalClipboardManager.current
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isUser) Accent.copy(alpha = 0.12f) else BgSecondary,
-        ),
-        shape = RoundedCornerShape(12.dp),
-    ) {
-        Column(Modifier.padding(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    if (isUser) stringResource(R.string.t_161) else stringResource(R.string.t_162),
-                    color = if (isUser) Accent else Success,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                Spacer(Modifier.weight(1f))
-                IconButton(
-                    onClick = { clip.setText(AnnotatedString(m.content)) },
-                    modifier = Modifier.size(28.dp),
-                ) {
-                    Icon(Icons.Default.ContentCopy, stringResource(R.string.t_003), tint = TextTertiary,
-                        modifier = Modifier.size(16.dp))
-                }
-            }
-            Spacer(Modifier.height(6.dp))
-            MarkdownText(
-                text = m.content,
-                onImageClick = onImageClick,
-                textColor = TextPrimary,
-                fontSize = 13,
-            )
         }
     }
 }
