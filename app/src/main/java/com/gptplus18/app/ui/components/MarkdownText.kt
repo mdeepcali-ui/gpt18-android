@@ -105,7 +105,7 @@ fun MarkdownText(
                         else -> 12.dp
                     }
                     Text(
-                        text = SensitiveMarkers.apply(block.content, textColor),
+                        text = inlineMarkdown(block.content, textColor, fontSize),
                         color = textColor,
                         fontWeight = FontWeight.Bold,
                         fontSize = size.sp,
@@ -129,7 +129,7 @@ fun MarkdownText(
                             modifier = Modifier.padding(top = 5.dp, end = 10.dp),
                         )
                         Text(
-                            text = SensitiveMarkers.apply(block.content, textColor),
+                            text = inlineMarkdown(block.content, textColor, fontSize),
                             color = textColor,
                             fontSize = fontSize.sp,
                             lineHeight = (fontSize + 9).sp,
@@ -152,7 +152,7 @@ fun MarkdownText(
                             modifier = Modifier.padding(end = 10.dp),
                         )
                         Text(
-                            text = SensitiveMarkers.apply(block.content, textColor),
+                            text = inlineMarkdown(block.content, textColor, fontSize),
                             color = textColor,
                             fontSize = fontSize.sp,
                             lineHeight = (fontSize + 9).sp,
@@ -160,8 +160,32 @@ fun MarkdownText(
                         )
                     }
                 }
+                is MdBlock.Quote -> {
+                    // ⭐ اقتباس: فقاعة سوداء + إطار رمادي + خط أصغر
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp, start = 4.dp, end = 4.dp)
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                            .background(Color(0xFF0F0F12))
+                            .border(
+                                width = 1.dp,
+                                color = TextSecondary.copy(alpha = 0.35f),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
+                            )
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                    ) {
+                        Text(
+                            text = inlineMarkdown(block.content, TextSecondary, fontSize - 1),
+                            color = TextSecondary,
+                            fontSize = (fontSize - 1).sp,
+                            lineHeight = (fontSize + 6).sp,
+                            fontWeight = FontWeight.Normal,
+                        )
+                    }
+                }
                 is MdBlock.Paragraph -> Text(
-                    text = SensitiveMarkers.apply(block.content, textColor),
+                    text = inlineMarkdown(block.content, textColor, fontSize),
                     color = textColor,
                     fontSize = fontSize.sp,
                     lineHeight = (fontSize + 8).sp,
@@ -277,7 +301,7 @@ private fun highlightSyntax(code: String, lang: String): AnnotatedString {
                     (code[i] == '/' && code[i + 1] == '/') ||
                     (code[i] == '#' && lang.lowercase() in listOf("python", "py", "sh", "bash", "yaml", "yml"))
                 )) {
-                val end = code.indexOf('\n', i).let { if (it == -1) code.length else it }
+                val end = code.indexOf('\import androidx.compose.foundation.border\nimport androidx.compose.foundation.layout.Box\nn', i).let { if (it == -1) code.length else it }
                 withStyle(SpanStyle(color = CodeColors.Comment, fontStyle = FontStyle.Italic)) {
                     append(code.substring(i, end))
                 }
@@ -373,6 +397,7 @@ private sealed class MdBlock {
     data class Numbered(val num: String, val content: String) : MdBlock()
     data class Bullet(val content: String) : MdBlock()
     data class Image(val alt: String, val url: String) : MdBlock()
+    data class Quote(val content: String) : MdBlock()
 }
 
 private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
@@ -440,6 +465,14 @@ private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
                 flushPara()
                 blocks.add(MdBlock.Bullet(trimmed.substring(2).trim()))
             }
+            trimmed.startsWith("> ") -> {
+                flushPara()
+                blocks.add(MdBlock.Quote(trimmed.substring(2).trim()))
+            }
+            trimmed == ">" -> {
+                flushPara()
+                blocks.add(MdBlock.Quote(""))
+            }
             line.isBlank() -> flushPara()
             else -> {
                 if (paraBuf.isNotEmpty()) paraBuf.append("\n")
@@ -452,6 +485,52 @@ private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
         blocks.add(MdBlock.CodeBlock(codeLang, codeBuf.toString().trimEnd()))
     }
     return blocks
+}
+
+// ⭐ معالجة inline: **bold** و `code`
+private fun inlineMarkdown(text: String, textColor: Color, fontSize: Int): androidx.compose.ui.text.AnnotatedString {
+    val builder = androidx.compose.ui.text.AnnotatedString.Builder()
+    val pattern = Regex("(\\*\\*[^*]+\\*\\*|`[^`]+`|__[^_]+__)")
+    var last = 0
+    for (m in pattern.findAll(text)) {
+        if (m.range.first > last) {
+            builder.append(text.substring(last, m.range.first))
+        }
+        val token = m.value
+        when {
+            token.startsWith("**") && token.endsWith("**") -> {
+                val inner = token.substring(2, token.length - 2)
+                builder.withStyle(androidx.compose.ui.text.SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(inner)
+                }
+            }
+            token.startsWith("__") && token.endsWith("__") -> {
+                val inner = token.substring(2, token.length - 2)
+                builder.withStyle(androidx.compose.ui.text.SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(inner)
+                }
+            }
+            token.startsWith("`") && token.endsWith("`") && token.length >= 2 -> {
+                val inner = token.substring(1, token.length - 1)
+                builder.withStyle(
+                    androidx.compose.ui.text.SpanStyle(
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                        fontSize = (fontSize - 1).sp,
+                        color = Accent,
+                        background = Color(0xFF1A1A1E),
+                    )
+                ) {
+                    append(" $inner ")
+                }
+            }
+            else -> builder.append(token)
+        }
+        last = m.range.last + 1
+    }
+    if (last < text.length) {
+        builder.append(text.substring(last))
+    }
+    return builder.toAnnotatedString()
 }
 
 private fun inlineMarkdown(text: String, baseColor: Color): AnnotatedString {
