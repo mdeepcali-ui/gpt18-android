@@ -130,20 +130,6 @@ interface ApiService {
     ): Response<Any>
 
     // ─── Media ───
-    @POST("api/chat/image")
-    suspend fun generateImage(
-        @Header("Authorization") bearer: String,
-        @Body body: ImageRequest,
-    ): Response<ImageResponse>
-
-    @Multipart
-    @POST("api/chat/edit")
-    suspend fun editImage(
-        @Header("Authorization") bearer: String,
-        @Part file: MultipartBody.Part,
-        @Part("prompt") prompt: RequestBody,
-    ): Response<ImageResponse>
-
     @POST("api/chat/song")
     suspend fun generateSong(
         @Header("Authorization") bearer: String,
