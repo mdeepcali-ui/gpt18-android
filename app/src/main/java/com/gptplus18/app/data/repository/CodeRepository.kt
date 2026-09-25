@@ -1,6 +1,8 @@
 package com.gptplus18.app.data.repository
 
 import com.gptplus18.app.data.api.ApiService
+import com.gptplus18.app.data.api.StreamEvent
+import com.gptplus18.app.data.api.StreamingClient
 import com.gptplus18.app.data.local.TokenStorage
 import com.gptplus18.app.data.models.*
 import com.gptplus18.app.util.Result
@@ -12,6 +14,25 @@ class CodeRepository @Inject constructor(
     private val api: ApiService,
     private val tokenStorage: TokenStorage,
 ) {
+
+    private val streamingClient = com.gptplus18.app.data.api.StreamingClient()
+
+    fun streamCode(
+        sessionId: Int?,
+        request: String,
+        modelKey: String? = null,
+    ): kotlinx.coroutines.flow.Flow<StreamEvent> {
+        val token = tokenStorage.getToken() ?: ""
+        val useTeam = modelKey == null || modelKey == "auto"
+        val model = if (useTeam) null else modelKey
+        return streamingClient.streamCode(
+            token = token,
+            sessionId = sessionId,
+            request = request,
+            model = model,
+            useTeam = useTeam,
+        )
+    }
     private suspend fun bearer(): String? {
         val t = tokenStorage.getToken() ?: return null
         return "Bearer $t"
