@@ -141,6 +141,101 @@ class StreamingClient {
     }
 }
 
+    /**
+     * يبعت طلب برمجة ويرجّع Flow من chunks
+     */
+    fun streamCode(
+        token: String,
+        sessionId: Int?,
+        request: String,
+        model: String? = null,
+        useTeam: Boolean = true,
+    ): Flow<StreamEvent> = callbackFlow {
+
+        val jsonBody = JSONObject().apply {
+            put("request", request)
+            put("use_team", useTeam)
+            if (sessionId != null) put("session_id", sessionId)
+            if (model != null) put("model", model)
+        }.toString()
+
+        val req = Request.Builder()
+            .url("${BuildConfig.BASE_URL}api/code/stream")
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("Accept", "text/event-stream")
+            .addHeader("Cache-Control", "no-cache")
+            .post(jsonBody.toRequestBody("application/json".toMediaType()))
+            .build()
+
+        var doneEmitted = false
+
+        val listener = object : EventSourceListener() {
+            override fun onEvent(
+                eventSource: EventSource,
+                id: String?,
+                type: String?,
+                data: String,
+            ) {
+                try {
+                    val obj = JSONObject(data)
+                    when {
+                        obj.has("status") -> {
+                            val st = obj.optString("status", "")
+                            if (st.isNotEmpty()) {
+                                trySend(StreamEvent.Status(st))
+                            }
+                        }
+                        obj.has("delta") -> {
+                            val delta = obj.optString("delta", "")
+                            if (delta.isNotEmpty()) {
+                                trySend(StreamEvent.Delta(delta))
+                            }
+                        }
+                        obj.optBoolean("done", false) -> {
+                            val sid = obj.optInt("session_id", -1)
+                            doneEmitted = true
+                            trySend(StreamEvent.Done(sessionId = sid, thinking = ""))
+                            close()
+                        }
+                        obj.has("error") -> {
+                            doneEmitted = true
+                            trySend(StreamEvent.Error(obj.optString("error", "خطأ")))
+                            close()
+                        }
+                    }
+                } catch (e: Exception) {
+                    trySend(StreamEvent.Error(e.message ?: "خطأ parse"))
+                }
+            }
+
+            override fun onFailure(
+                eventSource: EventSource,
+                t: Throwable?,
+                response: Response?,
+            ) {
+                doneEmitted = true
+                trySend(StreamEvent.Error(t?.message ?: "فشل الاتصال"))
+                close()
+            }
+
+            override fun onClosed(eventSource: EventSource) {
+                if (!doneEmitted) {
+                    doneEmitted = true
+                    trySend(StreamEvent.Done(sessionId = -1, thinking = ""))
+                }
+                close()
+            }
+        }
+
+        val eventSource = EventSources.createFactory(client)
+            .newEventSource(req, listener)
+
+        awaitClose {
+            eventSource.cancel()
+        }
+    }
+}
+
 /**
  * أحداث Streaming
  */
