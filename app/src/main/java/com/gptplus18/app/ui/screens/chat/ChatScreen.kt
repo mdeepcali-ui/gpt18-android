@@ -596,6 +596,7 @@ fun ChatScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ModeDropdown(
     current: ChatMode,
@@ -899,6 +900,8 @@ private fun EmptyChatState(onSuggestionClick: (String) -> Unit) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageBubble(
     msg: Message,
@@ -1098,6 +1101,7 @@ fun MessageBubble(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ReactionButton(
     symbol: String,
@@ -1148,6 +1152,7 @@ fun ActionButton(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ReplyBar(content: String, onCancel: () -> Unit) {
     Surface(color = BgSecondary, shape = RoundedCornerShape(20.dp)) {

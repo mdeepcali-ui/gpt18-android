@@ -253,29 +253,6 @@ fun AuthScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // ═══ زر Google ═══
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(CardBg)
-                    .border(1.dp, BorderSubtle, RoundedCornerShape(14.dp))
-                    .clickable(enabled = !state.isLoading) { vm.signInWithGoogle() },
-                contentAlignment = Alignment.Center,
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("G", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF4285F4))
-                    Spacer(Modifier.width(10.dp))
-                    Text(
-                        "\u0627\u0644\u062f\u062e\u0648\u0644 \u0628\u0640 Google",
-                        color = TextPrimary,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                }
-            }
-
             Spacer(Modifier.height(24.dp))
 
             Text(

@@ -102,10 +102,7 @@ class MediaRepository @Inject constructor(
             val file = java.io.File(ctx.cacheDir, "video_input_${System.currentTimeMillis()}.jpg")
             file.writeBytes(bytes)
 
-            val reqFile = okhttp3.RequestBody.create(
-                okhttp3.MediaType.parse("image/jpeg"),
-                file,
-            )
+            val reqFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
             val part = okhttp3.MultipartBody.Part.createFormData("file", file.name, reqFile)
 
             val r = api.uploadTempFile(b, part)
