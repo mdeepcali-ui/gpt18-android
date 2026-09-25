@@ -139,7 +139,6 @@ class StreamingClient {
             eventSource.cancel()
         }
     }
-}
 
     /**
      * يبعت طلب برمجة ويرجّع Flow من chunks
@@ -234,6 +233,7 @@ class StreamingClient {
             eventSource.cancel()
         }
     }
+}
 }
 
 /**
