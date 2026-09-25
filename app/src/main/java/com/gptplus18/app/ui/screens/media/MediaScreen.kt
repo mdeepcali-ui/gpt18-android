@@ -65,7 +65,6 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     // X2: viewer للصورة
-    var fullscreenImage by remember { mutableStateOf<String?>(null) }
     // ⭐ فقاعة الإشعار (نجاح/فشل الحفظ)
     var notifyMessage by remember { mutableStateOf<String?>(null) }
     var notifySuccess by remember { mutableStateOf(true) }
@@ -77,11 +76,6 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
         }
     }
 
-    val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-    ) { uri ->
-        if (uri != null) vm.setEditImage(uri)
-    }
 
     // 🔐 طلب أذونات التخزين عند الحاجة (قبل الحفظ)
     var pendingSave by remember { mutableStateOf<Pair<String, String>?>(null) }
@@ -155,7 +149,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                             .clip(CircleShape)
                             .border(3.0.dp, TextPrimary, CircleShape)
                             .clickable {
-                                vm.setTab(MediaTab.IMAGE)
+                                vm.setTab(MediaTab.SONG)
                                 vm.setPrompt("")
                             },
                         contentAlignment = Alignment.Center,
@@ -184,9 +178,6 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                TabCard(stringResource(R.string.t_135), state.tab == MediaTab.IMAGE, Modifier.weight(1f)) {
-                    vm.setTab(MediaTab.IMAGE)
-                }
                 TabCard(stringResource(R.string.t_168), state.tab == MediaTab.SONG, Modifier.weight(1f)) {
                     vm.setTab(MediaTab.SONG)
                 }
@@ -203,7 +194,6 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 placeholder = {
                     Text(
                         when (state.tab) {
-                            MediaTab.IMAGE -> stringResource(R.string.t_170)
                             MediaTab.SONG -> stringResource(R.string.t_171)
                             MediaTab.VIDEO -> stringResource(R.string.t_172)
                         },
@@ -227,66 +217,6 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
 
             // إعدادات حسب التبويب
             when (state.tab) {
-                MediaTab.IMAGE -> {
-                    Text(stringResource(R.string.t_058), color = TextSecondary, fontSize = 13.sp)
-                    Spacer(Modifier.height(6.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        listOf(
-                            "square" to stringResource(R.string.t_173),
-                            "portrait" to stringResource(R.string.t_174),
-                            "landscape" to stringResource(R.string.t_175),
-                        ).forEach { (k, label) ->
-                            PresetChip(label, state.preset == k) { vm.setPreset(k) }
-                        }
-                    }
-
-                    Spacer(Modifier.height(16.dp))
-                    Text(stringResource(R.string.t_059), color = TextSecondary, fontSize = 13.sp)
-                    Spacer(Modifier.height(6.dp))
-
-                    if (state.editImageUri == null) {
-                        Button(
-                            onClick = { imagePicker.launch("image/*") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = BgTertiary,
-                                contentColor = TextPrimary,
-                            ),
-                        ) {
-                            Icon(Icons.Default.Image, null, tint = TextPrimary, modifier = Modifier.size(28.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.t_060), fontWeight = FontWeight.Bold)
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 200.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .border(0.5.dp, BubbleBorder, RoundedCornerShape(12.dp)),
-                        ) {
-                            AsyncImage(
-                                model = state.editImageUri,
-                                contentDescription = stringResource(R.string.t_176),
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp),
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .padding(6.dp)
-                                    .size(28.dp)
-                                    .clip(RoundedCornerShape(50))
-                                    .background(Error.copy(alpha = 0.9f))
-                                    .clickable { vm.clearEditImage() },
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Icon(Icons.Default.Close, stringResource(R.string.t_177), tint = Color.White, modifier = Modifier.size(16.dp))
-                            }
-                        }
-                    }
-                }
                 MediaTab.SONG -> {
                     Text(stringResource(R.string.t_061), color = TextSecondary, fontSize = 13.sp)
                     Spacer(Modifier.height(6.dp))
@@ -328,9 +258,8 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
 
             Spacer(Modifier.height(20.dp))
 
-            val isEditMode = state.tab == MediaTab.IMAGE && state.editImageUri != null
             Button(
-                onClick = { if (isEditMode) vm.editImage() else vm.generate() },
+                onClick = { vm.generate() },
                 enabled = !state.isLoading,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(12.dp),
@@ -345,20 +274,13 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     Spacer(Modifier.width(8.dp))
                     Text(
                         if (state.tab == MediaTab.VIDEO) stringResource(R.string.t_180)
-                        else if (isEditMode) stringResource(R.string.t_181)
                         else stringResource(R.string.t_182),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
                     )
                 } else {
-                    if (isEditMode) {
-                        Icon(Icons.Default.Edit, null, tint = Color.White, modifier = Modifier.size(28.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.t_063), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    } else {
-                        Text(stringResource(R.string.t_064), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    }
+                    Text(stringResource(R.string.t_064), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
             }
 
@@ -367,7 +289,6 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 Spacer(Modifier.height(16.dp))
                 com.gptplus18.app.ui.components.ThinkingShimmer(
                     text = when (state.tab) {
-                        MediaTab.IMAGE -> "جاري إنشاء الصورة...\nقد يستغرق 10-30 ثانية"
                         MediaTab.SONG -> "جاري إنشاء الأغنية...\nقد يستغرق 30-60 ثانية"
                         MediaTab.VIDEO -> "جاري إنشاء الفيديو...\nقد يستغرق 60-180 ثانية"
                     },
@@ -382,40 +303,6 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(err, color = Error, modifier = Modifier.padding(14.dp), fontSize = 14.sp)
-                }
-            }
-
-            // ─── نتيجة الصورة ─── (ChatGPT style — بدون أزرار)
-            if (state.tab == MediaTab.IMAGE && state.imageUrl != null) {
-                Spacer(Modifier.height(20.dp))
-                ResultCard {
-                    AsyncImage(
-                        model = state.imageUrl,
-                        contentDescription = "Generated",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 200.dp, max = 400.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable { fullscreenImage = state.imageUrl },
-                        contentScale = ContentScale.Fit,
-                    )
-                    // 🔄 زر إعادة التوليد (صغير تحت الصورة — بدون زر حفظ)
-                    Spacer(Modifier.height(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .clickable { vm.regenerate() },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            androidx.compose.material.icons.Icons.Default.Refresh,
-                            "إعادة توليد",
-                            tint = Accent,
-                            modifier = Modifier.size(22.dp),
-                        )
-                    }
                 }
             }
 
@@ -505,23 +392,12 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 Spacer(Modifier.height(8.dp))
 
                 state.history.take(20).forEach { item ->
-                    MediaHistoryRow(
-                        item = item,
-                        onOpenImage = { url -> fullscreenImage = url },
-                    )
+                    MediaHistoryRow(item = item)
                 }
             }
 
             Spacer(Modifier.height(80.dp))
         }
-    }
-
-    // X2: عرض الصورة بكامل الشاشة
-    fullscreenImage?.let { url ->
-        com.gptplus18.app.ui.components.FullscreenImageViewer(
-            imageUrl = url,
-            onDismiss = { fullscreenImage = null },
-        )
     }
 
     // ⭐ فقاعة الإشعار (سوداء + كتابة خضراء/حمراء ناعمة)
@@ -552,7 +428,6 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
 @Composable
 private fun MediaHistoryRow(
     item: MediaHistoryItem,
-    onOpenImage: (String) -> Unit = {},
 ) {
     val ctx = LocalContext.current
     val icon = when (item.type) {
@@ -573,13 +448,9 @@ private fun MediaHistoryRow(
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable {
-                if (item.type == "image" && !item.url.isNullOrBlank()) {
-                    onOpenImage(item.url)
-                } else {
-                    try {
-                        ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.url)))
-                    } catch (_: Exception) { }
-                }
+                try {
+                    ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.url)))
+                } catch (_: Exception) { }
             },
         colors = CardDefaults.cardColors(containerColor = BgSecondary),
         shape = RoundedCornerShape(12.dp),
