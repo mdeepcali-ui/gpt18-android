@@ -234,7 +234,6 @@ class StreamingClient {
         }
     }
 }
-}
 
 /**
  * أحداث Streaming
