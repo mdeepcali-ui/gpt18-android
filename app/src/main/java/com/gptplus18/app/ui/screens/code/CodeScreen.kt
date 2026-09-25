@@ -133,15 +133,6 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                 )
             } else {
                 Column(Modifier.fillMaxSize().imePadding()) {
-                    // ⭐ StatusBubble + ThinkingShimmer — تحت البار العلوي
-                    if (state.isRunning) {
-                        RunningIndicator(
-                            status = state.statusLabel.ifBlank { "يفكر..." },
-                            logs = emptyList(),
-                            thinkingText = state.thinkingText,
-                        )
-                        Spacer(Modifier.height(6.dp))
-                    }
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp),
@@ -152,6 +143,14 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                             if (m.id == -2) {
                                 // رسالة المساعد المؤقتة — النص فقط
                                 Column(Modifier.fillMaxWidth()) {
+                                    // CLOUD thinking bubble
+                                    if (state.isRunning && m.content.isBlank()) {
+                                        RunningIndicator(
+                                            status = state.statusLabel.ifBlank { "يفكر..." },
+                                            logs = emptyList(),
+                                            thinkingText = state.thinkingText,
+                                        )
+                                    }
                                     // ⭐ النص — يظهر حرف بحرف
                                     if (m.content.isNotBlank()) {
                                         val asMsg = Message(

@@ -6,6 +6,7 @@ import com.gptplus18.app.data.local.TokenStorage
 import com.gptplus18.app.data.models.LoginRequest
 import com.gptplus18.app.data.models.SignupRequest
 import com.gptplus18.app.data.models.User
+import com.gptplus18.app.data.models.UpdateProfileRequest
 import com.gptplus18.app.util.Result
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -54,6 +55,22 @@ class AuthRepository @Inject constructor(
             else Result.Error("جلسة منتهية")
         } catch (e: Exception) {
             Result.Error(e.message ?: "خطأ")
+        }
+    }
+
+    suspend fun updateProfile(avatarUrl: String? = null, name: String? = null): Result<User> {
+        return try {
+            val token = tokenStorage.getToken() ?: return Result.Error("غير مصرح")
+            val r = api.updateProfile("Bearer $token", UpdateProfileRequest(name = name, avatarUrl = avatarUrl))
+            if (r.isSuccessful) {
+                val user = r.body()!!.user
+                tokenStorage.save(token, user.name, user.email, user.id)
+                Result.Success(user)
+            } else {
+                Result.Error("فشل التحديث (${r.code()})")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ بالشبكة")
         }
     }
 

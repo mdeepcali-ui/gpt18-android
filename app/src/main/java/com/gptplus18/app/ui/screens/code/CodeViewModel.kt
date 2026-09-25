@@ -155,6 +155,10 @@ class CodeViewModel @Inject constructor(
                             )
                         }
                         is StreamEvent.Delta -> {
+                            // 🧹 إخفاء السحابة عند بدء الرد الفعلي
+                            if (_state.value.thinkingText.isNotEmpty()) {
+                                _state.value = _state.value.copy(thinkingText = "")
+                            }
                             sb.append(ev.text)
                             val currentText = sb.toString()
                             _state.value = _state.value.copy(

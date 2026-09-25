@@ -21,6 +21,12 @@ interface ApiService {
     @GET("api/auth/me")
     suspend fun me(@Header("Authorization") bearer: String): Response<MeResponse>
 
+    @PUT("api/auth/me")
+    suspend fun updateProfile(
+        @Header("Authorization") bearer: String,
+        @Body body: UpdateProfileRequest,
+    ): Response<MeResponse>
+
     @GET("api/auth/subscription")
     suspend fun mySubscription(@Header("Authorization") bearer: String): Response<MySubscriptionResponse>
 

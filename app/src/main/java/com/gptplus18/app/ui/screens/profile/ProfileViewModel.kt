@@ -18,6 +18,8 @@ import javax.inject.Inject
 data class ProfileState(
     val userName: String = "",
     val userEmail: String = "",
+    val avatarUrl: String = "",
+    val isUploadingAvatar: Boolean = false,
     val darkMode: Boolean = true,
     val language: String = "ar",
     val hasSubscription: Boolean = false,
@@ -63,6 +65,7 @@ class ProfileViewModel @Inject constructor(
                 is Result.Success -> _state.value = _state.value.copy(
                     userName = r.data.name,
                     userEmail = r.data.email,
+                    avatarUrl = r.data.avatarUrl ?: "",
                     hasSubscription = r.data.hasSubscription,
                     hasTrial = r.data.hasActiveTrial,
                 )
@@ -94,5 +97,27 @@ class ProfileViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch { authRepo.logout() }
+    }
+
+    fun setAvatar(url: String) {
+        _state.value = _state.value.copy(avatarUrl = url, isUploadingAvatar = true)
+        viewModelScope.launch {
+            try {
+                val r = authRepo.updateProfile(avatarUrl = url)
+                when (r) {
+                    is Result.Success -> {
+                        _state.value = _state.value.copy(
+                            avatarUrl = r.data.avatarUrl ?: url,
+                            isUploadingAvatar = false,
+                        )
+                    }
+                    else -> {
+                        _state.value = _state.value.copy(isUploadingAvatar = false)
+                    }
+                }
+            } catch (_: Exception) {
+                _state.value = _state.value.copy(isUploadingAvatar = false)
+            }
+        }
     }
 }

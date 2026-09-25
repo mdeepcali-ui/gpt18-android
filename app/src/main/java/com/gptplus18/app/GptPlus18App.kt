@@ -1,5 +1,7 @@
 package com.gptplus18.app
 
+import ru.noties.jlatexmath.JLatexMath
+import android.content.Context
 import android.app.Application
 import android.util.Log
 import coil.ImageLoader
@@ -22,6 +24,10 @@ class GptPlus18App : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
+        // 🔬 تهيئة JLaTeXMath
+        try {
+            JLatexMath.init(this)
+        } catch (_: Throwable) {}
 
         // ═══ Firebase Init ═══
         try {

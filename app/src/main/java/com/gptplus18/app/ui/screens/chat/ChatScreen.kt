@@ -66,6 +66,8 @@ import com.gptplus18.app.ui.components.AttachMenuSheet
 import com.gptplus18.app.ui.components.ChatGptComposer
 import com.gptplus18.app.ui.components.DeepThinkSheet
 import com.gptplus18.app.ui.components.FullscreenImageViewer
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
 import com.gptplus18.app.ui.components.MarkdownText
 import com.gptplus18.app.ui.components.MessageActionsSheet
 import com.gptplus18.app.ui.components.MessageTimestamp
@@ -842,7 +844,7 @@ fun MessageBubble(
                         if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (cleanText.isNotBlank()) {
-                        MarkdownText(cleanText, textColor = TextPrimary, fontSize = 16)
+                        com.gptplus18.app.ui.components.MarkdownTextBox(cleanText, textColor = TextPrimary, fontSize = 15)
                     }
                 }
             }
@@ -868,9 +870,55 @@ fun MessageBubble(
                         label = stringResource(R.string.t_063),
                         onClick = { onEdit(msg) },
                     )
+                } else {
+                    // 👍 / 👎 / 🔗 لردود AI
+                    var reaction by remember { mutableStateOf(0) }
+                    val shareCtx = LocalContext.current
+
+                    ReactionButton(
+                        symbol = "\uD83D\uDC4D",
+                        active = reaction == 1,
+                        onClick = { reaction = if (reaction == 1) 0 else 1 },
+                    )
+                    ReactionButton(
+                        symbol = "\uD83D\uDC4E",
+                        active = reaction == -1,
+                        onClick = { reaction = if (reaction == -1) 0 else -1 },
+                    )
+                    ReactionButton(
+                        symbol = "\uD83D\uDD17",
+                        active = false,
+                        onClick = {
+                            try {
+                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, cleanText)
+                                }
+                                shareCtx.startActivity(Intent.createChooser(intent, null))
+                            } catch (_: Exception) {}
+                        },
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ReactionButton(
+    symbol: String,
+    active: Boolean,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(if (active) Accent.copy(alpha = 0.2f) else androidx.compose.ui.graphics.Color.Transparent)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 6.dp, vertical = 3.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(symbol, fontSize = 13.sp)
     }
 }
 
