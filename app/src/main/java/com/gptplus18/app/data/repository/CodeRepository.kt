@@ -17,7 +17,7 @@ class CodeRepository @Inject constructor(
 
     private val streamingClient = com.gptplus18.app.data.api.StreamingClient()
 
-    fun streamCode(
+    suspend fun streamCode(
         sessionId: Int?,
         request: String,
         modelKey: String? = null,
