@@ -261,7 +261,7 @@ fun MarkdownText(
                     LatexView(
                         latex = block.code,
                         textColor = textColor,
-                        fontSize = (fontSize + 12).toFloat(),
+                        fontSize = fontSize + 4,
                     )
                 }
                 is MdBlock.HRule -> {
@@ -730,7 +730,7 @@ private sealed class MdBlock {
     data class Table(val headers: List<String>, val rows: List<List<String>>) : MdBlock()
     data class Checklist(val checked: Boolean, val content: String) : MdBlock()
     data class HRule(val dummy: Boolean = true) : MdBlock()
-    data class Latex(val code: String, val display: Boolean = true) : MdBlock()
+    data class Latex(val code: String) : MdBlock()
 }
 
 private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
@@ -761,8 +761,8 @@ private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
             // ⭐ X2: اكتشف الصور في النص أولاً
             val rawPara = paraBuf.toString().trimEnd()
 
-            // 🔬 اكتشف LaTeX blocks أولاً ($$...$$)
-            val latexRegex = Regex("\\$\\$([^\\$]+)\\$\\$", RegexOption.DOT_MATCHES_ALL)
+            // 🔬 كشف LaTeX أولاً ($$...$$) — نستخدم raw string لتجنب escapes
+            val latexRegex = Regex("""\$\$([^\$]+)\$\$""", RegexOption.DOT_MATCHES_ALL)
             val latexMatches = latexRegex.findAll(rawPara).toList()
             if (latexMatches.isNotEmpty()) {
                 var lastIdx = 0
@@ -773,7 +773,7 @@ private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
                     }
                     val latex = m.groupValues[1].trim()
                     if (latex.isNotBlank()) {
-                        blocks.add(MdBlock.Latex(latex, true))
+                        blocks.add(MdBlock.Latex(latex))
                     }
                     lastIdx = m.range.last + 1
                 }
@@ -918,7 +918,51 @@ private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
     return blocks
 }
 
-private fun inlineMarkdown(text: String, baseColor: Color): AnnotatedString {
+private val SUPERSCRIPT_MAP = mapOf(
+    '0' to '\u2070', '1' to '\u00b9', '2' to '\u00b2', '3' to '\u00b3',
+    '4' to '\u2074', '5' to '\u2075', '6' to '\u2076', '7' to '\u2077',
+    '8' to '\u2078', '9' to '\u2079', '+' to '\u207a', '-' to '\u207b',
+    '(' to '\u207d', ')' to '\u207e', 'n' to '\u207f',
+)
+private val SUBSCRIPT_MAP = mapOf(
+    '0' to '\u2080', '1' to '\u2081', '2' to '\u2082', '3' to '\u2083',
+    '4' to '\u2084', '5' to '\u2085', '6' to '\u2086', '7' to '\u2087',
+    '8' to '\u2088', '9' to '\u2089', '+' to '\u208a', '-' to '\u208b',
+    '(' to '\u208d', ')' to '\u208e',
+)
+
+/**
+ * يحوّل x^2 إلى x² و x_1 إلى x₁ (Unicode)
+ * يعمل على الحروف والأرقام المفردة فقط لتجنب الأخطاء
+ */
+private fun beautifyMath(text: String): String {
+    if (text.isEmpty()) return text
+    val sb = StringBuilder(text.length)
+    var i = 0
+    while (i < text.length) {
+        val c = text[i]
+        if ((c == '^' || c == '_') && i + 1 < text.length) {
+            val map = if (c == '^') SUPERSCRIPT_MAP else SUBSCRIPT_MAP
+            var j = i + 1
+            val collected = StringBuilder()
+            while (j < text.length && map[text[j]] != null) {
+                collected.append(map[text[j]]!!)
+                j++
+            }
+            if (collected.isNotEmpty()) {
+                sb.append(collected)
+                i = j
+                continue
+            }
+        }
+        sb.append(c)
+        i++
+    }
+    return sb.toString()
+}
+
+private fun inlineMarkdown(textRaw: String, baseColor: Color): AnnotatedString {
+    val text = beautifyMath(textRaw)
     return buildAnnotatedString {
         var i = 0
         while (i < text.length) {
