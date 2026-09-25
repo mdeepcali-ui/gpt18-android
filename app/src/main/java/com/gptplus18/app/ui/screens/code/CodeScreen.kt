@@ -133,6 +133,15 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                 )
             } else {
                 Column(Modifier.fillMaxSize().imePadding()) {
+                    // ⭐ StatusBubble + ThinkingShimmer — تحت البار العلوي
+                    if (state.isRunning) {
+                        RunningIndicator(
+                            status = state.statusLabel.ifBlank { "يفكر..." },
+                            logs = emptyList(),
+                            thinkingText = state.thinkingText,
+                        )
+                        Spacer(Modifier.height(6.dp))
+                    }
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp),
@@ -141,16 +150,8 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                     ) {
                         items(state.messages, key = { it.id.toString() + it.ts }) { m ->
                             if (m.id == -2) {
-                                // رسالة المساعد المؤقتة
+                                // رسالة المساعد المؤقتة — النص فقط
                                 Column(Modifier.fillMaxWidth()) {
-                                    // ⭐ StatusBubble فوق — يظهر طالما isRunning
-                                    if (state.isRunning && state.statusLabel.isNotBlank()) {
-                                        RunningIndicator(
-                                            status = state.statusLabel,
-                                            logs = emptyList(),
-                                        )
-                                        Spacer(Modifier.height(6.dp))
-                                    }
                                     // ⭐ النص — يظهر حرف بحرف
                                     if (m.content.isNotBlank()) {
                                         val asMsg = Message(
@@ -362,17 +363,21 @@ private fun SessionList(
 }
 
 @Composable
-private fun RunningIndicator(status: String, logs: List<com.gptplus18.app.data.models.CodeLogEntry>) {
+private fun RunningIndicator(
+    status: String,
+    logs: List<com.gptplus18.app.data.models.CodeLogEntry> = emptyList(),
+    thinkingText: String = "",
+) {
     // ☁️ سحابة التفكير مع Shimmer
     val statusText = when (status) {
         "starting" -> stringResource(R.string.t_163)
         "running" -> stringResource(R.string.t_164)
-        else -> stringResource(R.string.t_165)
+        else -> status
     }
-    val logsText = if (logs.isNotEmpty()) {
-        logs.takeLast(4).joinToString("\n") { "• ${it.msg}" }
-    } else {
-        statusText
+    val logsText = when {
+        thinkingText.isNotBlank() -> thinkingText.trim()
+        logs.isNotEmpty() -> logs.takeLast(4).joinToString("\n") { "• ${it.msg}" }
+        else -> statusText
     }
     com.gptplus18.app.ui.components.ThinkingShimmer(
         text = logsText,
