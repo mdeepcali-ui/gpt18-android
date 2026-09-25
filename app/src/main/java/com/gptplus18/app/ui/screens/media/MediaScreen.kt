@@ -213,7 +213,10 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
 
             Box(
                 modifier = Modifier.fillMaxWidth().height(56.dp).clip(RoundedCornerShape(16.dp))
-                    .background(if (state.isLoading) Color(0xFF1A1A22) else AccentGradient)
+                    .background(
+                        if (state.isLoading) Brush.linearGradient(listOf(Color(0xFF1A1A22), Color(0xFF1A1A22)))
+                        else AccentGradient
+                    )
                     .clickable(enabled = !state.isLoading) { vm.generate() },
                 contentAlignment = Alignment.Center,
             ) {
@@ -395,8 +398,9 @@ private fun ResultCardNew(
                     ActionBtnNew("\ud83d\udce5", "\u062d\u0641\u0638", primary = false) { onSave(url, type) }
                     ActionBtnNew("\ud83d\udd17", "\u0645\u0634\u0627\u0631\u0643\u0629", primary = false) {
                         try {
+                            val mimeType = if (type == "video") "video/*" else "audio/*"
                             val i = Intent(Intent.ACTION_SEND).apply {
-                                type = if (type == "video") "video/*" else "audio/*"
+                                this.type = mimeType
                                 putExtra(Intent.EXTRA_TEXT, url)
                             }
                             ctx.startActivity(Intent.createChooser(i, null))
@@ -479,7 +483,7 @@ private fun HistoryCardNew(item: MediaHistoryItem) {
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    item.title.ifBlank { item.prompt }.take(40),
+                    item.title.ifBlank { item.prompt ?: "" }.take(40),
                     color = TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
                 )
                 Spacer(Modifier.height(3.dp))
