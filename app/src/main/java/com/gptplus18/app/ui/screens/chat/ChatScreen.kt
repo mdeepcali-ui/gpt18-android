@@ -901,7 +901,6 @@ private fun EmptyChatState(onSuggestionClick: (String) -> Unit) {
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageBubble(
     msg: Message,
