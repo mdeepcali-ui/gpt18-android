@@ -160,7 +160,7 @@ fun MarkdownText(
                 is MdBlock.Quote -> Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 6.dp, start = 4.dp, end = 4.dp)
+                        .padding(start = 4.dp, end = 4.dp, top = 6.dp, bottom = 6.dp)
                         .clip(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
                         .background(Color(0xFF0F0F12))
                         .border(
