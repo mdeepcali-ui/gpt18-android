@@ -140,13 +140,33 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                         contentPadding = PaddingValues(vertical = 12.dp),
                     ) {
                         items(state.messages, key = { it.id.toString() + it.ts }) { m ->
-                            // ⭐ رسالة المساعد الفارغة = مؤشر "يفكر..."
-                            if (m.id == -2 && m.content.isBlank()) {
-                                Column(
-                                    Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                                    horizontalAlignment = Alignment.Start,
-                                ) {
-                                    RunningIndicator(state.jobStatus, state.logs)
+                            if (m.id == -2) {
+                                // رسالة المساعد المؤقتة
+                                Column(Modifier.fillMaxWidth()) {
+                                    // ⭐ StatusBubble فوق — يظهر طالما isRunning
+                                    if (state.isRunning && state.statusLabel.isNotBlank()) {
+                                        RunningIndicator(
+                                            status = state.statusLabel,
+                                            logs = emptyList(),
+                                        )
+                                        Spacer(Modifier.height(6.dp))
+                                    }
+                                    // ⭐ النص — يظهر حرف بحرف
+                                    if (m.content.isNotBlank()) {
+                                        val asMsg = Message(
+                                            id = m.id,
+                                            role = m.role,
+                                            content = m.content,
+                                            ts = m.ts,
+                                        )
+                                        MessageBubble(
+                                            msg = asMsg,
+                                            onImageClick = { url -> fullscreenImage = url },
+                                            onLongPress = { },
+                                            onCopy = { text -> clip.setText(AnnotatedString(text)) },
+                                            onEdit = { msg -> input = msg.content },
+                                        )
+                                    }
                                 }
                             } else {
                                 val asMsg = Message(
