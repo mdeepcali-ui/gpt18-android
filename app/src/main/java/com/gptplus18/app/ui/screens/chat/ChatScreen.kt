@@ -259,6 +259,7 @@ fun ChatScreen(
                     scope.launch { drawerState.close() }
                     onNavigateToAuth()
                 },
+                avatarUrl = state.avatarUrl,
             )
         },
     ) {

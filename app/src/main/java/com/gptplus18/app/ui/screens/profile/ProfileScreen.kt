@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -106,16 +107,21 @@ fun ProfileScreen(
                         .clickable { pickLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center,
                 ) {
-                    if (state.avatarUrl.isNotBlank() && !state.avatarUrl.startsWith("data:")) {
+                    val avatarModel = remember(state.avatarUrl) {
+                        if (state.avatarUrl.startsWith("data:image")) {
+                            // نفك base64 يدوياً
+                            try {
+                                val base64Part = state.avatarUrl.substringAfter(",")
+                                val bytes = Base64.decode(base64Part, Base64.DEFAULT)
+                                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                            } catch (_: Exception) { null }
+                        } else if (state.avatarUrl.isNotBlank()) {
+                            state.avatarUrl
+                        } else null
+                    }
+                    if (avatarModel != null) {
                         AsyncImage(
-                            model = state.avatarUrl,
-                            contentDescription = "avatar",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize().clip(CircleShape),
-                        )
-                    } else if (state.avatarUrl.startsWith("data:")) {
-                        AsyncImage(
-                            model = state.avatarUrl,
+                            model = avatarModel,
                             contentDescription = "avatar",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize().clip(CircleShape),

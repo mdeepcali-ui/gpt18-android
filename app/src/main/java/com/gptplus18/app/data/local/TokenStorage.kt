@@ -27,6 +27,7 @@ class TokenStorage @Inject constructor(
     private val KEY_NAME = stringPreferencesKey("auth_name")
     private val KEY_EMAIL = stringPreferencesKey("auth_email")
     private val KEY_UID = longPreferencesKey("auth_uid")
+    private val KEY_AVATAR = stringPreferencesKey("auth_avatar")
 
     // ⭐ Backup store — SharedPreferences منفصل
     private val backupPrefs: SharedPreferences =
@@ -109,6 +110,20 @@ class TokenStorage @Inject constructor(
             context.authDataStore.data.map { it[KEY_EMAIL] }.first()
         } catch (_: Exception) { null }
         return ds ?: backupPrefs.getString("email", null)
+    }
+
+    suspend fun getAvatar(): String? {
+        val ds = try {
+            context.authDataStore.data.map { it[KEY_AVATAR] }.first()
+        } catch (_: Exception) { null }
+        return ds ?: backupPrefs.getString("avatar", null)
+    }
+
+    suspend fun setAvatar(url: String) {
+        try {
+            context.authDataStore.edit { it[KEY_AVATAR] = url }
+        } catch (_: Exception) {}
+        backupPrefs.edit().putString("avatar", url).commit()
     }
 
     suspend fun getUid(): Long {

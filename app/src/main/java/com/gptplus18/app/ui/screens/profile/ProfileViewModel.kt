@@ -106,8 +106,11 @@ class ProfileViewModel @Inject constructor(
                 val r = authRepo.updateProfile(avatarUrl = url)
                 when (r) {
                     is Result.Success -> {
+                        val finalUrl = r.data.avatarUrl ?: url
+                        // ⭐ نحفظ في TokenStorage حتى يظهر في Drawer
+                        try { tokenStorage.setAvatar(finalUrl) } catch (_: Exception) {}
                         _state.value = _state.value.copy(
-                            avatarUrl = r.data.avatarUrl ?: url,
+                            avatarUrl = finalUrl,
                             isUploadingAvatar = false,
                         )
                     }

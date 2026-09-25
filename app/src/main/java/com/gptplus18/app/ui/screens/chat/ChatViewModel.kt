@@ -36,6 +36,7 @@ data class ChatUiState(
     val isUploading: Boolean = false,
     val error: String? = null,
     val userName: String = "",
+    val avatarUrl: String = "",
     val statusLabel: String = "يفكر",
     val searchQuery: String = "",
     val replyTo: Message? = null,
@@ -63,7 +64,8 @@ class ChatViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val name = tokenStorage.getName()?.takeIf { it.isNotBlank() } ?: "المستخدم"
-            _state.value = _state.value.copy(userName = name)
+            val avatar = tokenStorage.getAvatar() ?: ""
+            _state.value = _state.value.copy(userName = name, avatarUrl = avatar)
             loadAllSessions()
         }
         viewModelScope.launch {
