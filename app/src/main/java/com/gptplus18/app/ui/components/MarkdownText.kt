@@ -67,7 +67,10 @@ fun MarkdownText(
 ) {
     val blocks = parseMarkdownBlocks(text)
 
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
         blocks.forEach { block ->
             when (block) {
                 is MdBlock.Image -> {
@@ -83,25 +86,88 @@ fun MarkdownText(
                     )
                     Spacer(Modifier.height(6.dp))
                 }
-                is MdBlock.CodeBlock -> CodeBlockView(block.lang, block.content)
-                is MdBlock.Heading -> Text(
-                    text = block.content,
-                    color = textColor,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = (fontSize + 3).sp,
-                    modifier = Modifier.padding(top = 4.dp),
-                )
-                is MdBlock.Bullet -> Row(Modifier.fillMaxWidth()) {
-                    Text("• ", color = Accent, fontSize = fontSize.sp)
+                is MdBlock.CodeBlock -> {
+                    Spacer(Modifier.height(4.dp))
+                    CodeBlockView(block.lang, block.content)
+                    Spacer(Modifier.height(4.dp))
+                }
+                is MdBlock.Heading -> {
+                    val size = when (block.level) {
+                        1 -> fontSize + 9
+                        2 -> fontSize + 6
+                        3 -> fontSize + 4
+                        else -> fontSize + 2
+                    }
+                    val topPad = when (block.level) {
+                        1 -> 18.dp
+                        2 -> 16.dp
+                        3 -> 14.dp
+                        else -> 12.dp
+                    }
                     Text(
                         text = SensitiveMarkers.apply(block.content, textColor),
-                        fontSize = fontSize.sp,
+                        color = textColor,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = size.sp,
+                        lineHeight = (size + 8).sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = topPad, bottom = 6.dp),
                     )
+                }
+                is MdBlock.Bullet -> {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 6.dp, top = 4.dp, bottom = 4.dp),
+                        verticalAlignment = Alignment.Top,
+                    ) {
+                        Text(
+                            text = "●",
+                            color = Accent,
+                            fontSize = (fontSize - 4).sp,
+                            modifier = Modifier.padding(top = 5.dp, end = 10.dp),
+                        )
+                        Text(
+                            text = SensitiveMarkers.apply(block.content, textColor),
+                            color = textColor,
+                            fontSize = fontSize.sp,
+                            lineHeight = (fontSize + 9).sp,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+                is MdBlock.Numbered -> {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 6.dp, top = 6.dp, bottom = 4.dp),
+                        verticalAlignment = Alignment.Top,
+                    ) {
+                        Text(
+                            text = block.num + ".",
+                            color = Accent,
+                            fontSize = (fontSize + 1).sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(end = 10.dp),
+                        )
+                        Text(
+                            text = SensitiveMarkers.apply(block.content, textColor),
+                            color = textColor,
+                            fontSize = fontSize.sp,
+                            lineHeight = (fontSize + 9).sp,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
                 }
                 is MdBlock.Paragraph -> Text(
                     text = SensitiveMarkers.apply(block.content, textColor),
                     color = textColor,
                     fontSize = fontSize.sp,
+                    lineHeight = (fontSize + 8).sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
                 )
             }
         }
@@ -303,7 +369,8 @@ private fun highlightSyntax(code: String, lang: String): AnnotatedString {
 private sealed class MdBlock {
     data class Paragraph(val content: String) : MdBlock()
     data class CodeBlock(val lang: String, val content: String) : MdBlock()
-    data class Heading(val content: String) : MdBlock()
+    data class Heading(val level: Int, val content: String) : MdBlock()
+    data class Numbered(val num: String, val content: String) : MdBlock()
     data class Bullet(val content: String) : MdBlock()
     data class Image(val alt: String, val url: String) : MdBlock()
 }
@@ -318,7 +385,6 @@ private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
 
     fun flushPara() {
         if (paraBuf.isNotBlank()) {
-            // ⭐ X2: اكتشف الصور في النص أولاً
             val rawPara = paraBuf.toString().trimEnd()
             val imgRegex = Regex("""!\[([^\]]*)\]\(([^)]+)\)""")
             val imgMatches = imgRegex.findAll(rawPara).toList()
@@ -326,20 +392,14 @@ private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
                 var lastIdx = 0
                 for (m in imgMatches) {
                     val before = rawPara.substring(lastIdx, m.range.first).trim()
-                    if (before.isNotBlank()) {
-                        blocks.add(MdBlock.Paragraph(before))
-                    }
+                    if (before.isNotBlank()) blocks.add(MdBlock.Paragraph(before))
                     val alt = m.groupValues.getOrNull(1) ?: ""
                     val url = m.groupValues.getOrNull(2) ?: ""
-                    if (url.isNotBlank()) {
-                        blocks.add(MdBlock.Image(alt, url))
-                    }
+                    if (url.isNotBlank()) blocks.add(MdBlock.Image(alt, url))
                     lastIdx = m.range.last + 1
                 }
                 val after = rawPara.substring(lastIdx).trim()
-                if (after.isNotBlank()) {
-                    blocks.add(MdBlock.Paragraph(after))
-                }
+                if (after.isNotBlank()) blocks.add(MdBlock.Paragraph(after))
             } else {
                 blocks.add(MdBlock.Paragraph(rawPara))
             }
@@ -347,8 +407,13 @@ private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
         }
     }
 
+    val headingRegex = Regex("^(#{1,4})\\s+(.+)$")
+    val numberedRegex = Regex("^(\\d{1,2})[.)]\\s+(.+)$")
+
     lines.forEach { line ->
         val trimmed = line.trimStart()
+        val headingM = headingRegex.find(trimmed)
+        val numberedM = numberedRegex.find(trimmed)
         when {
             trimmed.startsWith("```") -> {
                 if (inCode) {
@@ -363,13 +428,17 @@ private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
                 }
             }
             inCode -> codeBuf.appendLine(line)
-            trimmed.startsWith("# ") -> {
+            headingM != null -> {
                 flushPara()
-                blocks.add(MdBlock.Heading(trimmed.substring(2)))
+                blocks.add(MdBlock.Heading(headingM.groupValues[1].length, headingM.groupValues[2].trim()))
             }
-            trimmed.startsWith("- ") || trimmed.startsWith("* ") -> {
+            numberedM != null -> {
                 flushPara()
-                blocks.add(MdBlock.Bullet(trimmed.substring(2)))
+                blocks.add(MdBlock.Numbered(numberedM.groupValues[1], numberedM.groupValues[2].trim()))
+            }
+            trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("• ") -> {
+                flushPara()
+                blocks.add(MdBlock.Bullet(trimmed.substring(2).trim()))
             }
             line.isBlank() -> flushPara()
             else -> {
