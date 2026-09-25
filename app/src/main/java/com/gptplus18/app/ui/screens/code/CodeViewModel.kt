@@ -9,6 +9,7 @@ import com.gptplus18.app.data.models.CodeLogEntry
 import com.gptplus18.app.data.models.CodeMessage
 import com.gptplus18.app.data.models.CodeModel
 import com.gptplus18.app.data.models.CodeSession
+import com.gptplus18.app.data.api.StreamEvent
 import com.gptplus18.app.data.repository.CodeRepository
 import com.gptplus18.app.util.AnalyticsHelper
 import com.gptplus18.app.util.Result
@@ -34,6 +35,7 @@ data class CodeUiState(
     // ⭐ الملفات الجاهزة للتحميل من آخر مهمة
     val files: List<CodeFile> = emptyList(),
     val zipUrl: String? = null,
+    val statusLabel: String = "",
 )
 
 @HiltViewModel
@@ -130,26 +132,91 @@ class CodeViewModel @Inject constructor(
             logs = emptyList(),
             liveOutput = "",
             jobStatus = "starting",
+            statusLabel = "🎙️ يحلل الطلب...",
         )
 
         viewModelScope.launch {
             val modelKey = model.key
-            when (val r = repo.generate(request, sidForApi, modelKey)) {
-                is Result.Success -> {
-                    // 📊 Analytics
-                    analytics.logCodeJobStarted(model = modelKey)
-                    _state.value = _state.value.copy(
-                        currentSessionId = r.data.sessionId,
-                        jobStatus = "running",
-                    )
-                    startPolling(r.data.jobId)
+            val sb = StringBuilder()
+            var finalSid = sidForApi
+
+            try {
+                analytics.logCodeJobStarted(model = modelKey)
+                repo.streamCode(sidForApi, request, modelKey).collect { ev ->
+                    when (ev) {
+                        is StreamEvent.Status -> {
+                            _state.value = _state.value.copy(statusLabel = ev.text)
+                        }
+                        is StreamEvent.Delta -> {
+                            sb.append(ev.text)
+                            val currentText = sb.toString()
+                            _state.value = _state.value.copy(
+                                messages = _state.value.messages.map { m ->
+                                    if (m.id == -2 && m.ts == tempAssistant.ts) {
+                                        m.copy(content = currentText)
+                                    } else m
+                                },
+                                statusLabel = "✍️ يكتب...",
+                            )
+                        }
+                        is StreamEvent.Done -> {
+                            if (ev.sessionId > 0) finalSid = ev.sessionId
+                            val cleanedFinal = sb.toString().trim()
+                            _state.value = _state.value.copy(
+                                messages = _state.value.messages.map { m ->
+                                    if (m.id == -2 && m.ts == tempAssistant.ts) {
+                                        m.copy(id = finalSid ?: 0, content = cleanedFinal)
+                                    } else m
+                                },
+                                currentSessionId = finalSid,
+                                isRunning = false,
+                                jobStatus = "done",
+                                statusLabel = "",
+                            )
+                            loadSessions()
+                        }
+                        is StreamEvent.Error -> {
+                            _state.value = _state.value.copy(
+                                messages = _state.value.messages.filterNot {
+                                    it.id == -2 && it.ts == tempAssistant.ts
+                                },
+                                isRunning = false,
+                                jobStatus = "error",
+                                error = ev.message,
+                                statusLabel = "",
+                            )
+                        }
+                        else -> {}
+                    }
                 }
-                is Result.Error -> _state.value = _state.value.copy(
+
+                if (sb.isEmpty()) {
+                    _state.value = _state.value.copy(
+                        messages = _state.value.messages.filterNot {
+                            it.id == -2 && it.ts == tempAssistant.ts
+                        },
+                        isRunning = false,
+                        error = "لم يصل رد",
+                        statusLabel = "",
+                    )
+                }
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(
+                    messages = _state.value.messages.filterNot {
+                        it.id == -2 && it.ts == tempAssistant.ts
+                    },
                     isRunning = false,
-                    jobStatus = "error",
-                    error = r.message,
+                    statusLabel = "",
+                    error = e.message ?: "انقطع الاتصال",
                 )
-                else -> {}
+            } finally {
+                if (_state.value.isRunning) {
+                    _state.value = _state.value.copy(
+                        isRunning = false,
+                        statusLabel = "",
+                    )
+                }
+                loadSessions()
             }
         }
     }
