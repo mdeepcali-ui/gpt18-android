@@ -304,11 +304,10 @@ fun ChatScreen(
                                     ModeDropdown(
                                         current = state.currentMode,
                                         onSelect = { mode ->
-                                            vm.setMode(mode)
                                             when (mode) {
                                                 ChatMode.CODE -> onNavigateToCode()
                                                 ChatMode.MEDIA -> onNavigateToMedia()
-                                                else -> {}
+                                                else -> vm.setMode(mode)
                                             }
                                         },
                                     )
