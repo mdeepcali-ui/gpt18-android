@@ -25,21 +25,6 @@ class MediaRepository @Inject constructor(
         return "Bearer $t"
     }
 
-    suspend fun generateImage(prompt: String, preset: String = "square"): Result<ImageResponse> {
-        val b = bearer() ?: return Result.Error("غير مصرح")
-        return try {
-            val r = api.generateImage(b, ImageRequest(prompt = prompt, preset = preset))
-            if (r.isSuccessful) {
-                val body = r.body()!!
-                if (body.error != null) Result.Error(body.error)
-                else Result.Success(body)
-            } else if (r.code() == 402) Result.Error("توليد الصور للمشتركين فقط")
-            else Result.Error("فشل التوليد (${r.code()})")
-        } catch (e: Exception) {
-            Result.Error(e.message ?: "خطأ شبكة")
-        }
-    }
-
     suspend fun generateSong(prompt: String, duration: Int = 240): Result<SongResponse> {
         val b = bearer() ?: return Result.Error("غير مصرح")
         return try {
@@ -72,37 +57,6 @@ class MediaRepository @Inject constructor(
                 else Result.Success(body)
             } else if (r.code() == 402) Result.Error("توليد الفيديو للمشتركين فقط")
             else Result.Error("فشل التوليد (${r.code()})")
-        } catch (e: Exception) {
-            Result.Error(e.message ?: "خطأ شبكة")
-        }
-    }
-
-    suspend fun editImage(uri: Uri, prompt: String): Result<ImageResponse> {
-        val b = bearer() ?: return Result.Error("غير مصرح")
-        return try {
-            val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                ?: return Result.Error("فشل قراءة الصورة")
-            if (bytes.size > 20 * 1024 * 1024) {
-                return Result.Error("الصورة كبيرة (الحد 20MB)")
-            }
-            val mime = context.contentResolver.getType(uri) ?: "image/png"
-            val ext = mime.substringAfterLast('/')
-            val fileName = "upload_${System.currentTimeMillis()}.$ext"
-            val filePart = MultipartBody.Part.createFormData(
-                "file", fileName, bytes.toRequestBody(mime.toMediaTypeOrNull()),
-            )
-            val promptPart = (prompt.ifBlank { "حسّن الصورة" })
-                .toRequestBody("text/plain".toMediaTypeOrNull())
-            val r = api.editImage(b, filePart, promptPart)
-            if (r.isSuccessful) {
-                val body = r.body()!!
-                if (body.error != null) Result.Error(body.error)
-                else Result.Success(body)
-            } else when (r.code()) {
-                402 -> Result.Error("تعديل الصور للمشتركين فقط")
-                413 -> Result.Error("الملف كبير (الحد 20MB)")
-                else -> Result.Error("فشل التعديل (${r.code()})")
-            }
         } catch (e: Exception) {
             Result.Error(e.message ?: "خطأ شبكة")
         }
