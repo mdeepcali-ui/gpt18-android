@@ -95,7 +95,10 @@ fun AgeCheckScreen(
                 Button(
                     onClick = onRejected,
                     modifier = Modifier.fillMaxWidth().height(48.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFEF4444),
+                        contentColor = Color.White,
+                    ),
                     shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(rejectBtn, color = Color.White, fontWeight = FontWeight.Bold)
@@ -217,12 +220,15 @@ fun AgeCheckScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Accent),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Accent,
+                    contentColor = Color(0xFF0A0A0A),
+                ),
                 shape = RoundedCornerShape(12.dp),
             ) {
                 Text(
                     text = btnText,
-                    color = Color.White,
+                    color = Color(0xFF0A0A0A),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                 )

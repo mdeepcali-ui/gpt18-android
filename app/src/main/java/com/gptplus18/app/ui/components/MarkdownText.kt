@@ -52,15 +52,15 @@ import com.gptplus18.app.R
 // ألوان طبيعية (VSCode Dark+ / GitHub Dark)
 // ═══════════════════════════════════════════
 object CodeColors {
-    val Keyword = Color(0xFF569CD6)      // أزرق عادي
-    val String = Color(0xFFCE9178)       // برتقالي عادي
-    val Comment = Color(0xFF6A9955)      // أخضر عادي
-    val Number = Color(0xFFB5CEA8)       // أخضر فاتح عادي
-    val Function = Color(0xFFDCDCAA)     // أصفر ذهبي عادي
-    val Type = Color(0xFF4EC9B0)         // تركواز عادي
+    val Keyword = Color(0xFFC678DD)      // بنفسجي (مثل VS Code Dark+)
+    val String = Color(0xFF98C379)       // أخضر فاتح
+    val Comment = Color(0xFF7F848E)      // رمادي (أوضح)
+    val Number = Color(0xFFD19A66)       // برتقالي
+    val Function = Color(0xFF61AFEF)     // أزرق سماوي
+    val Type = Color(0xFFE5C07B)         // أصفر ذهبي
     val Default = Color(0xFFD4D4D4)      // أبيض عادي
-    val Operator = Color(0xFFD4D4D4)     // أبيض عادي
-    val KeywordBold = Color(0xFF569CD6)  // أزرق عادي
+    val Operator = Color(0xFF56B6C2)     // سيان
+    val KeywordBold = Color(0xFFC678DD)  // بنفسجي
 }
 
 object CodeBlockColors {
@@ -962,6 +962,9 @@ private fun beautifyMath(text: String): String {
 }
 
 private fun inlineMarkdown(textRaw: String, baseColor: Color): AnnotatedString {
+    if (textRaw.contains("[[حساس_")) {
+        return SensitiveMarkers.apply(textRaw, baseColor)
+    }
     val text = beautifyMath(textRaw)
     return buildAnnotatedString {
         var i = 0

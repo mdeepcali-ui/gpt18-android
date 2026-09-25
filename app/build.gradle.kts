@@ -27,7 +27,7 @@ android {
         targetSdk = 35
         // versionCode يتزايد دقيقة بدقيقة — فريد لكل build
         versionCode = ((System.currentTimeMillis() / 60_000L) % 2_000_000_000L).toInt()
-        versionName = "1.0.29"
+        versionName = "1.0.36"
         vectorDrawables { useSupportLibrary = true }
 
         buildConfigField("String", "BASE_URL", "\"https://gptplus18.com/\"")

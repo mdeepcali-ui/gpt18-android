@@ -910,13 +910,26 @@ private fun ReactionButton(
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(if (active) Accent.copy(alpha = 0.2f) else androidx.compose.ui.graphics.Color.Transparent)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 6.dp, vertical = 3.dp),
+            .size(32.dp)
+            .clip(androidx.compose.foundation.shape.CircleShape)
+            .background(
+                if (active) Accent.copy(alpha = 0.25f)
+                else androidx.compose.ui.graphics.Color.White.copy(alpha = 0.05f)
+            )
+            .border(
+                width = 1.dp,
+                color = if (active) Accent.copy(alpha = 0.6f)
+                        else androidx.compose.ui.graphics.Color.White.copy(alpha = 0.1f),
+                shape = androidx.compose.foundation.shape.CircleShape,
+            )
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(symbol, fontSize = 13.sp)
+        Text(
+            text = symbol,
+            fontSize = 14.sp,
+            color = if (active) Accent else TextSecondary,
+        )
     }
 }
 

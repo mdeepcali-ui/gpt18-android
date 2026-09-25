@@ -112,12 +112,15 @@ By continuing, you agree to:
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Accent),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Accent,
+                    contentColor = Color(0xFF0A0A0A),
+                ),
                 shape = RoundedCornerShape(12.dp),
             ) {
                 Text(
                     text = btnText,
-                    color = Color.White,
+                    color = Color(0xFF0A0A0A),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                 )
