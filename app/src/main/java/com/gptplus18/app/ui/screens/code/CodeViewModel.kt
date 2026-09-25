@@ -36,6 +36,7 @@ data class CodeUiState(
     val files: List<CodeFile> = emptyList(),
     val zipUrl: String? = null,
     val statusLabel: String = "",
+    val thinkingText: String = "",
 )
 
 @HiltViewModel
@@ -133,6 +134,7 @@ class CodeViewModel @Inject constructor(
             liveOutput = "",
             jobStatus = "starting",
             statusLabel = "🎙️ يحلل الطلب...",
+            thinkingText = "",
         )
 
         viewModelScope.launch {
@@ -146,6 +148,11 @@ class CodeViewModel @Inject constructor(
                     when (ev) {
                         is StreamEvent.Status -> {
                             _state.value = _state.value.copy(statusLabel = ev.text)
+                        }
+                        is StreamEvent.ThinkingDelta -> {
+                            _state.value = _state.value.copy(
+                                thinkingText = _state.value.thinkingText + ev.text,
+                            )
                         }
                         is StreamEvent.Delta -> {
                             sb.append(ev.text)
@@ -172,6 +179,7 @@ class CodeViewModel @Inject constructor(
                                 isRunning = false,
                                 jobStatus = "done",
                                 statusLabel = "",
+                                thinkingText = "",
                             )
                             loadSessions()
                         }
@@ -184,6 +192,7 @@ class CodeViewModel @Inject constructor(
                                 jobStatus = "error",
                                 error = ev.message,
                                 statusLabel = "",
+                                thinkingText = "",
                             )
                         }
                         else -> {}
