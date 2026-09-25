@@ -410,6 +410,14 @@ fun ChatScreen(
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         ) {
                             val visibleMessages = state.messages.filter { it.role != "thinking" }
+                            // EMPTY_STATE_MARKER
+                            if (visibleMessages.isEmpty() && !state.isSending && !state.isUploading) {
+                                item {
+                                    EmptyChatState(
+                                        onSuggestionClick = { text -> input = text },
+                                    )
+                                }
+                            }
                             items(visibleMessages, key = { it.ts.toString() }) { msg ->
                                 MessageBubble(
                                     msg = msg,
@@ -443,10 +451,21 @@ fun ChatScreen(
                             }
                             }
 
+                        if (state.pinnedMessages.isNotEmpty()) {
+                            PinnedMessagesBar(
+                                messages = state.pinnedMessages,
+                                onUnpin = { ts -> vm.unpinMessage(ts) },
+                            )
+                        }
+
                         state.replyTo?.let { r ->
                             ReplyBar(content = r.content, onCancel = { vm.setReplyTo(null) })
                         }
 
+                        // QUICK_ACTIONS_MARKER
+                        if (input.isBlank() && state.pendingAttachments.isEmpty()) {
+                            QuickActionsRow(onClick = { text -> input = text })
+                        }
                         ChatGptComposer(
                             value = input,
                             onValueChange = { input = it },
@@ -464,6 +483,7 @@ fun ChatScreen(
                                 keyboardController?.hide()
                             },
                             onRemoveAttachment = { vm.removeAttachment(it) },
+                            onVoiceInput = { text -> input = if (input.isBlank()) text else "$input $text" },
                         )
                     }
 
@@ -554,6 +574,8 @@ fun ChatScreen(
     actionsSheetFor?.let { msg ->
         MessageActionsSheet(
             msg = msg,
+            isPinned = vm.isPinned(msg.ts),
+            onPin = { vm.pinMessage(msg) },
             onCopy = { clip.setText(AnnotatedString(msg.content)) },
             onShare = {
                 val chooserTitle = ctx.getString(R.string.t_133)
@@ -704,6 +726,179 @@ private fun SessionsList(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun PinnedMessagesBar(
+    messages: List<Message>,
+    onUnpin: (Double) -> Unit,
+) {
+    val latest = messages.lastOrNull() ?: return
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFF14141A))
+            .border(1.dp, Accent.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .width(3.dp)
+                    .height(28.dp)
+                    .background(Accent, RoundedCornerShape(2.dp)),
+            )
+            Spacer(Modifier.width(8.dp))
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("\ud83d\udccc", fontSize = 11.sp)
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        "\u0645\u062b\u0628\u0651\u062a",
+                        color = Accent,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    if (messages.size > 1) {
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            "+${messages.size - 1}",
+                            color = TextSecondary,
+                            fontSize = 9.sp,
+                        )
+                    }
+                }
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    latest.content.take(80),
+                    color = TextPrimary,
+                    fontSize = 11.sp,
+                    maxLines = 1,
+                )
+            }
+            IconButton(
+                onClick = { onUnpin(latest.ts) },
+                modifier = Modifier.size(24.dp),
+            ) {
+                Text("\u2715", color = TextSecondary, fontSize = 12.sp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuickActionsRow(onClick: (String) -> Unit) {
+    val actions = listOf(
+        "\ud83d\udd0d" to "\u0627\u0628\u062d\u062b",
+        "\ud83d\udcf7" to "\u0635\u0648\u0631\u0629",
+        "\ud83d\udcbb" to "\u0643\u0648\u062f",
+        "\ud83d\udcdd" to "\u0644\u062e\u0651\u0635",
+        "\ud83c\udfa8" to "\u0623\u0646\u0634\u0626",
+        "\ud83e\udd14" to "\u0641\u0643\u0631\u0629",
+    )
+    androidx.compose.foundation.lazy.LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        contentPadding = PaddingValues(horizontal = 4.dp),
+    ) {
+        items(actions.size) { idx ->
+            val (emoji, label) = actions[idx]
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(BgSecondary)
+                    .border(1.dp, TextSecondary.copy(alpha = 0.15f), RoundedCornerShape(20.dp))
+                    .clickable { onClick("$label ") }
+                    .padding(horizontal = 12.dp, vertical = 7.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(emoji, fontSize = 12.sp)
+                    Spacer(Modifier.width(5.dp))
+                    Text(
+                        label,
+                        color = TextSecondary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyChatState(onSuggestionClick: (String) -> Unit) {
+    val suggestions = listOf(
+        "\u0627\u0634\u0631\u062d \u0644\u064a \u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064a \ud83d\udca1",
+        "\u0627\u0643\u062a\u0628 \u0644\u064a \u062f\u0627\u0644\u0629 Python \ud83d\udcbb",
+        "\u0623\u062e\u0628\u0627\u0631 \u0627\u0644\u062a\u0642\u0646\u064a\u0629 \u0627\u0644\u064a\u0648\u0645 \ud83d\udcf0",
+        "\u0627\u0635\u0646\u0639 \u0644\u064a \u0635\u0648\u0631\u0629 \u0642\u0637\u0629 \ud83c\udfa8",
+        "\u0644\u062e\u0651\u0635 \u0644\u064a \u0645\u0642\u0627\u0644\u0629 \ud83d\udcdd",
+        "\u0627\u0642\u062a\u0631\u062d \u0639\u0644\u064a\u0651 \u0641\u0643\u0631\u0629 \u0645\u0634\u0631\u0648\u0639 \ud83e\udd14",
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(96.dp)
+                .clip(androidx.compose.foundation.shape.CircleShape)
+                .background(Accent.copy(alpha = 0.08f))
+                .border(1.5.dp, Accent.copy(alpha = 0.3f), androidx.compose.foundation.shape.CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("\u2728", fontSize = 42.sp)
+        }
+
+        Spacer(Modifier.height(20.dp))
+
+        Text(
+            "\u0645\u0631\u062d\u0628\u0627 \u0628\u0643 \u0641\u064a GPT+18",
+            color = TextPrimary,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
+            "\u0627\u0628\u062f\u0623 \u0628\u0627\u0644\u0643\u062a\u0627\u0628\u0629 \u0641\u064a \u0627\u0644\u0623\u0633\u0641\u0644 \u0623\u0648 \u0627\u062e\u062a\u0631 \u0627\u0642\u062a\u0631\u0627\u062d\u0627\u064b:",
+            color = TextSecondary,
+            fontSize = 13.sp,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        )
+
+        Spacer(Modifier.height(22.dp))
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            suggestions.forEach { s ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF0E0E12))
+                        .border(1.dp, Color(0xFF1F1F26), RoundedCornerShape(12.dp))
+                        .clickable {
+                            // نشيل الإيموجي من النهاية
+                            onSuggestionClick(s.substringBeforeLast(" "))
+                        }
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                ) {
+                    Text(s, color = TextPrimary, fontSize = 13.sp)
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun MessageBubble(
     msg: Message,

@@ -107,6 +107,15 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
         }
     }
 
+    // 🖼️ منتقي صورة لتحريكها فيديو
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+    ) { uri: android.net.Uri? ->
+        if (uri != null) {
+            vm.setVideoImage(uri.toString())
+        }
+    }
+
     Scaffold(
         containerColor = BgPrimary,
         topBar = {
@@ -197,6 +206,15 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     }
                 }
                 MediaTab.VIDEO -> {
+                    // 🖼️ رفع صورة (اختياري)
+                    VideoImagePicker(
+                        imageUri = state.videoImageUri,
+                        uploading = state.videoImageUploading,
+                        onPick = { imagePicker.launch("image/*") },
+                        onClear = { vm.clearVideoImage() },
+                    )
+                    Spacer(Modifier.height(14.dp))
+
                     SettingsSection("\u0627\u0644\u0645\u062f\u0629", "\u23f1\ufe0f") {
                         listOf(5, 10, 15, 30).forEach { d -> NiceChip("$d \u062b", state.videoDuration == d) { vm.setVideoDuration(d) } }
                     }
@@ -312,6 +330,105 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
 }
 
 @Composable
+private fun VideoImagePicker(
+    imageUri: String?,
+    uploading: Boolean,
+    onPick: () -> Unit,
+    onClear: () -> Unit,
+) {
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("\ud83d\uddbc\ufe0f", fontSize = 13.sp)
+            Spacer(Modifier.width(6.dp))
+            Text(
+                "\u0635\u0648\u0631\u0629 \u0644\u062a\u062d\u0631\u064a\u0643\u0647\u0627 (\u0627\u062e\u062a\u064a\u0627\u0631\u064a)",
+                color = TextSecondary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+
+        if (imageUri != null) {
+            // معاينة
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(Color(0xFF0E0E12))
+                    .border(1.dp, Accent.copy(alpha = 0.3f), RoundedCornerShape(14.dp)),
+            ) {
+                coil.compose.AsyncImage(
+                    model = android.net.Uri.parse(imageUri),
+                    contentDescription = "video input",
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(14.dp)),
+                )
+                // زر الحذف
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .size(32.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(Color(0xCC000000))
+                        .border(1.dp, Color.White.copy(alpha = 0.2f), androidx.compose.foundation.shape.CircleShape)
+                        .clickable { onClear() },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("\u2715", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
+                // تحميل
+                if (uploading) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(8.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xCC000000))
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(
+                                color = Accent,
+                                modifier = Modifier.size(12.dp),
+                                strokeWidth = 1.5.dp,
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text("\u062c\u0627\u0631\u064a \u0627\u0644\u0631\u0641\u0639...", color = Color.White, fontSize = 10.sp)
+                        }
+                    }
+                }
+            }
+        } else {
+            // زر رفع
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(Color(0xFF0E0E12))
+                    .border(1.dp, Color(0xFF1F1F26), RoundedCornerShape(14.dp))
+                    .clickable { onPick() },
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("\ud83d\udcf7", fontSize = 18.sp)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        "\u0627\u062e\u062a\u0631 \u0635\u0648\u0631\u0629",
+                        color = TextSecondary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun SegmentedTab(emoji: String, label: String, active: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val bgColor by animateColorAsState(targetValue = if (active) Accent else Color.Transparent, animationSpec = tween(200), label = "segBg")
     Box(
@@ -341,15 +458,16 @@ private fun SettingsSection(title: String, icon: String, content: @Composable Ro
 
 @Composable
 private fun NiceChip(label: String, active: Boolean, onClick: () -> Unit) {
-    val bgColor by animateColorAsState(targetValue = if (active) Accent else Color(0xFF14141A), animationSpec = tween(180), label = "chipBg")
+    val bgColor by animateColorAsState(targetValue = if (active) Accent.copy(alpha = 0.15f) else Color(0xFF14141A), animationSpec = tween(180), label = "chipBg")
     val borderColor = if (active) Accent else Color(0xFF232330)
+    val textColor = if (active) Accent else TextSecondary
     Box(
         modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(bgColor)
-            .border(1.dp, borderColor, RoundedCornerShape(10.dp))
+            .border(1.5.dp, borderColor, RoundedCornerShape(10.dp))
             .clickable(onClick = onClick).padding(horizontal = 14.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = if (active) Color.White else TextSecondary, fontSize = 13.sp, fontWeight = if (active) FontWeight.Bold else FontWeight.Medium)
+        Text(label, color = textColor, fontSize = 13.sp, fontWeight = if (active) FontWeight.Bold else FontWeight.Medium)
     }
 }
 
@@ -476,10 +594,34 @@ private fun HistoryCardNew(item: MediaHistoryItem) {
     ) {
         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier.size(44.dp).clip(CircleShape).background(Accent.copy(alpha = 0.12f))
-                    .border(1.dp, Accent.copy(alpha = 0.3f), CircleShape),
+                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(10.dp)).background(Accent.copy(alpha = 0.12f))
+                    .border(1.dp, Accent.copy(alpha = 0.3f), RoundedCornerShape(10.dp)),
                 contentAlignment = Alignment.Center,
-            ) { Text(typeIcon, fontSize = 20.sp) }
+            ) {
+                // مصغّرة حقيقية للصور/الفيديو/الصوت
+                if (item.type.lowercase() in listOf("song", "video", "image")) {
+                    coil.compose.AsyncImage(
+                        model = item.url,
+                        contentDescription = typeLabel,
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(10.dp)),
+                    )
+                    // أيقونة صغيرة فوق الصورة
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(2.dp)
+                            .size(18.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF0A0A0C).copy(alpha = 0.85f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(typeIcon, fontSize = 10.sp)
+                    }
+                } else {
+                    Text(typeIcon, fontSize = 20.sp)
+                }
+            }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(

@@ -63,6 +63,7 @@ fun ChatGptComposer(
     onAttachClick: () -> Unit,
     onSend: () -> Unit,
     onRemoveAttachment: (Long) -> Unit,
+    onVoiceInput: ((String) -> Unit)? = null,
 ) {
     val hasText = value.isNotBlank()
     val hasAttachments = attachments.isNotEmpty()
@@ -154,7 +155,19 @@ fun ChatGptComposer(
                         .size(26.dp)
                         .clickable(enabled = enabled) { showEmojiSheet = true },
                 )
-                Spacer(Modifier.width(10.dp))
+                Spacer(Modifier.width(6.dp))
+
+                // 🎤 زر الإدخال الصوتي
+                if (onVoiceInput != null) {
+                    VoiceInputButton(
+                        enabled = enabled,
+                        onResult = { text -> onVoiceInput(text) },
+                        modifier = Modifier.size(30.dp),
+                    )
+                    Spacer(Modifier.width(6.dp))
+                } else {
+                    Spacer(Modifier.width(4.dp))
+                }
 
                 // +
                 Icon(

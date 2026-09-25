@@ -142,6 +142,13 @@ interface ApiService {
         @Body body: SongRequest,
     ): Response<SongResponse>
 
+    @Multipart
+    @POST("api/chat/upload-temp")
+    suspend fun uploadTempFile(
+        @Header("Authorization") bearer: String,
+        @Part file: MultipartBody.Part,
+    ): Response<Map<String, Any>>
+
     @POST("api/chat/video")
     suspend fun generateVideo(
         @Header("Authorization") bearer: String,

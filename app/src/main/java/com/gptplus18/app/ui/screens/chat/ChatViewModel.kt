@@ -46,6 +46,7 @@ data class ChatUiState(
     val thinkingByMessage: Map<Long, ThinkingData> = emptyMap(),
     val pendingAttachments: List<Attachment> = emptyList(),
     val isOwner: Boolean = false,
+    val pinnedMessages: List<Message> = emptyList(),
 )
 
 @HiltViewModel
@@ -694,6 +695,23 @@ class ChatViewModel @Inject constructor(
           }
         }
     }
+
+    fun pinMessage(msg: Message) {
+        val current = _state.value.pinnedMessages
+        if (current.any { it.ts == msg.ts }) {
+            _state.value = _state.value.copy(pinnedMessages = current.filter { it.ts != msg.ts })
+        } else {
+            _state.value = _state.value.copy(pinnedMessages = (current + msg).takeLast(3))
+        }
+    }
+
+    fun unpinMessage(ts: Double) {
+        _state.value = _state.value.copy(
+            pinnedMessages = _state.value.pinnedMessages.filter { it.ts != ts }
+        )
+    }
+
+    fun isPinned(ts: Double): Boolean = _state.value.pinnedMessages.any { it.ts == ts }
 
     fun clearError() { _state.value = _state.value.copy(error = null) }
 }

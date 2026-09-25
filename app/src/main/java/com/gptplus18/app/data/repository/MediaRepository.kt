@@ -44,12 +44,13 @@ class MediaRepository @Inject constructor(
         prompt: String,
         duration: Int = 5,
         model: String = "auto",
+        imageUrl: String? = null,
     ): Result<VideoResponse> {
         val b = bearer() ?: return Result.Error("غير مصرح")
         return try {
             val r = api.generateVideo(
                 b,
-                VideoRequest(prompt = prompt, duration = duration, model = model),
+                VideoRequest(prompt = prompt, duration = duration, model = model, imageUrl = imageUrl),
             )
             if (r.isSuccessful) {
                 val body = r.body()!!
@@ -88,6 +89,36 @@ class MediaRepository @Inject constructor(
         }
     }
     
+    suspend fun uploadTempImage(localUri: String): Result<String> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val ctx = com.gptplus18.app.GptPlus18App.appContext
+            val uri = android.net.Uri.parse(localUri)
+            val input = ctx.contentResolver.openInputStream(uri)
+                ?: return Result.Error("فشل قراءة الصورة")
+            val bytes = input.readBytes()
+            input.close()
+
+            val file = java.io.File(ctx.cacheDir, "video_input_${System.currentTimeMillis()}.jpg")
+            file.writeBytes(bytes)
+
+            val reqFile = okhttp3.RequestBody.create(
+                okhttp3.MediaType.parse("image/jpeg"),
+                file,
+            )
+            val part = okhttp3.MultipartBody.Part.createFormData("file", file.name, reqFile)
+
+            val r = api.uploadTempFile(b, part)
+            if (r.isSuccessful) {
+                val url = r.body()?.get("url") as? String
+                if (url != null) Result.Success(url)
+                else Result.Error("استجابة غير متوقعة")
+            } else Result.Error("فشل الرفع (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ رفع")
+        }
+    }
+
     suspend fun clearHistory(): Result<Int> {
         val b = bearer() ?: return Result.Error("غير مصرح")
         return try {

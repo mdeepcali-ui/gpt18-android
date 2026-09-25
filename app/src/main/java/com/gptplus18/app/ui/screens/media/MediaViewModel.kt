@@ -23,6 +23,9 @@ data class MediaUiState(
     val duration: Int = 240,
     val videoDuration: Int = 5,
     val videoModel: String = "auto",
+    val videoImageUri: String? = null,
+    val videoImageUploading: Boolean = false,
+    val videoImageUrl: String? = null,
     val isLoading: Boolean = false,
     val songUrl: String? = null,
     val songTitle: String? = null,
@@ -68,6 +71,40 @@ class MediaViewModel @Inject constructor(
     fun setPrompt(v: String) { _state.value = _state.value.copy(prompt = v) }
     fun setDuration(d: Int) { _state.value = _state.value.copy(duration = d) }
     fun setVideoDuration(d: Int) { _state.value = _state.value.copy(videoDuration = d) }
+    fun setVideoImage(uri: String) {
+        _state.value = _state.value.copy(videoImageUri = uri, error = null)
+    }
+
+    fun clearVideoImage() {
+        _state.value = _state.value.copy(videoImageUri = null, videoImageUrl = null)
+    }
+
+    private suspend fun uploadVideoImage(): String? {
+        val uri = _state.value.videoImageUri ?: return null
+        _state.value = _state.value.copy(videoImageUploading = true)
+        return try {
+            val r = repo.uploadTempImage(uri)
+            _state.value = _state.value.copy(videoImageUploading = false)
+            when (r) {
+                is Result.Success -> {
+                    val url = r.data
+                    _state.value = _state.value.copy(videoImageUrl = url)
+                    url
+                }
+                else -> {
+                    _state.value = _state.value.copy(
+                        videoImageUploading = false,
+                        error = "\u0641\u0634\u0644 \u0631\u0641\u0639 \u0627\u0644\u0635\u0648\u0631\u0629",
+                    )
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            _state.value = _state.value.copy(videoImageUploading = false)
+            null
+        }
+    }
+
     fun setVideoModel(m: String) { _state.value = _state.value.copy(videoModel = m) }
 
     fun generate() {
@@ -113,7 +150,9 @@ class MediaViewModel @Inject constructor(
                     }
                 }
                 MediaTab.VIDEO -> {
-                    when (val r = repo.generateVideo(prompt, videoDurationSnapshot, videoModelSnapshot)) {
+                    // 🎨 رفع الصورة إن وجدت
+                    val imgUrl = uploadVideoImage()
+                    when (val r = repo.generateVideo(prompt, videoDurationSnapshot, videoModelSnapshot, imgUrl)) {
                         is Result.Success -> {
                             analytics.logVideoGenerated(
                                 durationSec = videoDurationSnapshot,

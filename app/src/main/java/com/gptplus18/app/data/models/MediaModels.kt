@@ -35,6 +35,7 @@ data class VideoRequest(
     @SerializedName("prompt") val prompt: String,
     @SerializedName("duration") val duration: Int = 5,
     @SerializedName("model") val model: String = "auto",
+    @SerializedName("image_url") val imageUrl: String? = null,
 )
 
 data class VideoResponse(

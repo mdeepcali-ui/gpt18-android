@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Reply
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -27,6 +28,8 @@ fun MessageActionsSheet(
     onReply: () -> Unit,
     onDelete: (() -> Unit)?,
     onDismiss: () -> Unit,
+    isPinned: Boolean = false,
+    onPin: (() -> Unit)? = null,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -41,6 +44,15 @@ fun MessageActionsSheet(
             )
             ActionRow(stringResource(R.string.t_003), Icons.Default.ContentCopy, Accent) {
                 onCopy(); onDismiss()
+            }
+            if (onPin != null) {
+                ActionRow(
+                    if (isPinned) "\u0625\u0644\u063a\u0627\u0621 \u0627\u0644\u062a\u062b\u0628\u064a\u062a" else "\u062a\u062b\u0628\u064a\u062a",
+                    Icons.Default.PushPin,
+                    Accent,
+                ) {
+                    onPin(); onDismiss()
+                }
             }
             ActionRow(stringResource(R.string.t_133), Icons.Default.Share, Accent) {
                 onShare(); onDismiss()
