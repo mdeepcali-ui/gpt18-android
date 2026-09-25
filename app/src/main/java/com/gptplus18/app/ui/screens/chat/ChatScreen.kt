@@ -66,8 +66,6 @@ import com.gptplus18.app.ui.components.AttachMenuSheet
 import com.gptplus18.app.ui.components.ChatGptComposer
 import com.gptplus18.app.ui.components.DeepThinkSheet
 import com.gptplus18.app.ui.components.FullscreenImageViewer
-import android.content.Intent
-import androidx.compose.ui.platform.LocalContext
 import com.gptplus18.app.ui.components.MarkdownText
 import com.gptplus18.app.ui.components.MessageActionsSheet
 import com.gptplus18.app.ui.components.MessageTimestamp

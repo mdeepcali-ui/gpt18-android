@@ -212,9 +212,9 @@ fun MarkdownText(
                     val (icon, label, tintColor) = when (block.type) {
                         "NOTE"      -> Triple("\u2139\ufe0f", "\u0645\u0644\u0627\u062d\u0638\u0629", Color(0xFF4A9EFF))
                         "WARNING"   -> Triple("\u26a0\ufe0f", "\u062a\u062d\u0630\u064a\u0631", Color(0xFFFFB800))
-                        "DANGER"    -> Triple("\U0001f6a8", "\u062e\u0637\u0631", Color(0xFFEF4444))
-                        "TIP"       -> Triple("\U0001f4a1", "\u0646\u0635\u064a\u062d\u0629", Color(0xFF22C55E))
-                        "IMPORTANT" -> Triple("\U0001f525", "\u0645\u0647\u0645", Color(0xFFA855F7))
+                        "DANGER"    -> Triple("\uD83D\uDEA8", "\u062e\u0637\u0631", Color(0xFFEF4444))
+                        "TIP"       -> Triple("\uD83D\uDCA1", "\u0646\u0635\u064a\u062d\u0629", Color(0xFF22C55E))
+                        "IMPORTANT" -> Triple("\uD83D\uDD25", "\u0645\u0647\u0645", Color(0xFFA855F7))
                         else        -> Triple("", "", TextSecondary)
                     }
                     Box(
@@ -282,7 +282,7 @@ fun MarkdownText(
                     Box(
                         modifier = Modifier
                             .padding(top = 3.dp, end = 10.dp)
-                            .size((fontSize - 2).sp)
+                            .size((fontSize - 2).dp)
                             .clip(RoundedCornerShape(4.dp))
                             .border(1.5.dp, if (block.checked) Accent else TextSecondary.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
                             .background(if (block.checked) Accent.copy(alpha = 0.15f) else Color.Transparent),
