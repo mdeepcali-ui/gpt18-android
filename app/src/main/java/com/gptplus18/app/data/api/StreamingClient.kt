@@ -178,10 +178,19 @@ class StreamingClient {
                 try {
                     val obj = JSONObject(data)
                     when {
-                        obj.has("status") -> {
-                            val st = obj.optString("status", "")
-                            if (st.isNotEmpty()) {
-                                trySend(StreamEvent.Status(st))
+                        obj.has("status") || obj.has("thinking_delta") -> {
+                            // ⭐ status + thinking_delta معاً
+                            if (obj.has("thinking_delta")) {
+                                val td = obj.optString("thinking_delta", "")
+                                if (td.isNotEmpty()) {
+                                    trySend(StreamEvent.ThinkingDelta(td))
+                                }
+                            }
+                            if (obj.has("status")) {
+                                val st = obj.optString("status", "")
+                                if (st.isNotEmpty()) {
+                                    trySend(StreamEvent.Status(st))
+                                }
                             }
                         }
                         obj.has("delta") -> {
@@ -233,6 +242,7 @@ class StreamingClient {
             eventSource.cancel()
         }
     }
+}
 }
 
 /**
