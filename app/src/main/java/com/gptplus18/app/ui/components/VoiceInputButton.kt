@@ -13,6 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,22 +49,11 @@ fun VoiceInputButton(
         }
     }
 
-    val bgColor by animateColorAsState(
-        targetValue = if (enabled) Accent.copy(alpha = 0.15f) else Color(0xFF1A1A22),
-        animationSpec = tween(180),
-        label = "voiceBg",
-    )
-
     Box(
         modifier = modifier
-            .size(36.dp)
+            .size(26.dp)
             .clip(CircleShape)
-            .background(bgColor)
-            .border(
-                width = 1.dp,
-                color = if (enabled) Accent.copy(alpha = 0.4f) else Color(0xFF232330),
-                shape = CircleShape,
-            )
+            .background(Color.Transparent)
             .clickable(enabled = enabled) {
                 try {
                     val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -89,10 +79,11 @@ fun VoiceInputButton(
             },
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            "\ud83c\udfa4",
-            fontSize = 16.sp,
-            color = if (enabled) Accent else Color(0xFF6B7280),
+        androidx.compose.material3.Icon(
+            imageVector = androidx.compose.material.icons.Icons.Default.Mic,
+            contentDescription = "voice",
+            tint = if (enabled) Color(0xFF9CA3AF) else Color(0xFF4B5563),
+            modifier = Modifier.size(22.dp),
         )
     }
 }

@@ -1,6 +1,10 @@
 package com.gptplus18.app.ui.screens.auth
 
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,39 +14,33 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gptplus18.app.R
-import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.BgPrimary
 import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.ui.theme.TextSecondary
 import com.gptplus18.app.ui.theme.TextTertiary
 
-private val GradientStart = Color(0xFF4A9EFF)
-private val GradientEnd   = Color(0xFF2C5FE0)
-private val AuthGradient = Brush.linearGradient(listOf(GradientStart, GradientEnd))
+private val RedBrand = Color(0xFFE63946)
 private val CardBg = Color(0xFF0E0E12)
 private val BorderSubtle = Color(0xFF1F1F26)
-private val RedAccent = Color(0xFFE63946)
 
 @Composable
 fun AuthScreen(
@@ -50,23 +48,42 @@ fun AuthScreen(
     vm: AuthViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsState()
-    var isLoginTab by remember { mutableStateOf(true) }
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val ctx = LocalContext.current
 
     LaunchedEffect(state.isAuthenticated) {
         if (state.isAuthenticated) onAuthSuccess()
     }
 
     Box(modifier = Modifier.fillMaxSize().background(BgPrimary)) {
+        // ═══ خلفية متدرجة أنيقة ═══
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(320.dp)
+                .height(420.dp)
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Accent.copy(alpha = 0.12f), Color.Transparent)
+                        colors = listOf(
+                            Color(0xFF1A0A0D).copy(alpha = 0.6f),
+                            Color(0xFF0A0A0C).copy(alpha = 0.3f),
+                            Color.Transparent,
+                        )
+                    )
+                ),
+        )
+
+        // ═══ نقاط ضوئية ناعمة ═══
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(420.dp)
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            RedBrand.copy(alpha = 0.15f),
+                            Color.Transparent,
+                        ),
+                        center = Offset(0.5f * 1080f, 100f),
+                        radius = 500f,
                     )
                 ),
         )
@@ -78,268 +95,238 @@ fun AuthScreen(
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(Modifier.height(50.dp))
+            Spacer(Modifier.height(60.dp))
 
-            // ═══ الشعار الشفاف (بدون خلفية) ═══
+            // ═══ الشعار الشفاف ═══
             Image(
                 painter = painterResource(id = R.drawable.logo_transparent),
                 contentDescription = "GPT+18",
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.size(160.dp),
+                modifier = Modifier.size(180.dp),
             )
-
-            Spacer(Modifier.height(12.dp))
-
-            // ═══ GPT+18 — مع "+18" بحجم أكبر ولون أحمر ═══
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    "GPT",
-                    fontSize = 38.sp,
-                    fontWeight = FontWeight.Black,
-                    color = TextPrimary,
-                    letterSpacing = 1.sp,
-                )
-                Text(
-                    "+18",
-                    fontSize = 50.sp,
-                    fontWeight = FontWeight.Black,
-                    color = RedAccent,
-                    letterSpacing = 0.sp,
-                )
-            }
-            Spacer(Modifier.height(6.dp))
-            Text(
-                stringResource(R.string.t_009),
-                fontSize = 13.sp,
-                color = TextSecondary,
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(Modifier.height(32.dp))
-
-            // ═══ Tabs ═══
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(CardBg)
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                AuthTab(stringResource(R.string.login), isLoginTab, Modifier.weight(1f)) { isLoginTab = true }
-                AuthTab(stringResource(R.string.signup), !isLoginTab, Modifier.weight(1f)) { isLoginTab = false }
-            }
 
             Spacer(Modifier.height(20.dp))
 
-            // ═══ بطاقة الحقول ═══
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(CardBg)
-                    .border(1.dp, BorderSubtle, RoundedCornerShape(20.dp))
-                    .padding(18.dp),
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    if (!isLoginTab) {
-                        AuthField(
-                            value = name,
-                            onValueChange = { name = it },
-                            label = stringResource(R.string.t_038),
-                            icon = "\ud83d\udc64",
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            // ═══ العنوان الفخم ═══
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    "GPT",
+                    fontSize = 44.sp,
+                    fontWeight = FontWeight.Black,
+                    color = TextPrimary,
+                    letterSpacing = 1.5.sp,
+                )
+                Text(
+                    "+18",
+                    fontSize = 58.sp,
+                    fontWeight = FontWeight.Black,
+                    color = RedBrand,
+                    letterSpacing = 0.sp,
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                "\u0630\u0643\u0627\u0621 \u0627\u0635\u0637\u0646\u0627\u0639\u064a \u0628\u0644\u0627 \u0642\u064a\u0648\u062f",
+                fontSize = 14.sp,
+                color = TextSecondary,
+                textAlign = TextAlign.Center,
+                letterSpacing = 0.5.sp,
+            )
+
+            Spacer(Modifier.height(60.dp))
+
+            // ═══ زر Google الفخم ═══
+            GoogleSignInButton(
+                isLoading = state.isLoading,
+                onClick = { vm.openGoogleAuth(ctx) },
+            )
+
+            // خطأ
+            state.error?.let { err ->
+                Spacer(Modifier.height(16.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF2A1518))
+                        .border(1.dp, RedBrand.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                        .padding(12.dp),
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("\u26a0\ufe0f", fontSize = 14.sp)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            err,
+                            color = Color(0xFFFF7A7A),
+                            fontSize = 12.sp,
                         )
-                        Spacer(Modifier.height(12.dp))
-                    }
-
-                    AuthField(
-                        value = email,
-                        onValueChange = { email = it },
-                        label = stringResource(R.string.t_039),
-                        icon = "\ud83d\udce7",
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Next,
-                        ),
-                    )
-                    Spacer(Modifier.height(12.dp))
-
-                    AuthField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = stringResource(R.string.t_040),
-                        icon = "\ud83d\udd12",
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Done,
-                        ),
-                        isPassword = true,
-                    )
-
-                    if (state.error != null) {
-                        Spacer(Modifier.height(12.dp))
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(Color(0xFF2A1518))
-                                .border(1.dp, Color(0xFFEF4444).copy(alpha = 0.3f), RoundedCornerShape(10.dp))
-                                .padding(10.dp),
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("\u26a0\ufe0f", fontSize = 14.sp)
-                                Spacer(Modifier.width(8.dp))
-                                Text(
-                                    state.error!!,
-                                    color = Color(0xFFFF7A7A),
-                                    fontSize = 12.sp,
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.height(18.dp))
-
-                    // ═══ زر الدخول الرئيسي ═══
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp)
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(
-                                if (state.isLoading) Brush.linearGradient(listOf(Color(0xFF1A1A22), Color(0xFF1A1A22)))
-                                else AuthGradient
-                            )
-                            .clickable(enabled = !state.isLoading) {
-                                if (isLoginTab) vm.login(email, password)
-                                else vm.signup(name, email, password)
-                            },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        if (state.isLoading) {
-                            CircularProgressIndicator(
-                                color = Accent,
-                                modifier = Modifier.size(22.dp),
-                                strokeWidth = 2.dp,
-                            )
-                        } else {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(if (isLoginTab) "\ud83d\udd13" else "\u2728", fontSize = 16.sp)
-                                Spacer(Modifier.width(8.dp))
-                                Text(
-                                    if (isLoginTab) stringResource(R.string.login) else stringResource(R.string.signup),
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp,
-                                )
-                            }
-                        }
                     }
                 }
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(28.dp))
 
-            // ═══ فاصل "أو" ═══
+            // ═══ شارة الثقة ═══
             Row(
-                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Box(Modifier.weight(1f).height(1.dp).background(BorderSubtle))
-                Text("  \u0623\u0648  ", color = TextTertiary, fontSize = 11.sp)
-                Box(Modifier.weight(1f).height(1.dp).background(BorderSubtle))
+                Text("\ud83d\udd12", fontSize = 11.sp)
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    "\u062f\u062e\u0648\u0644 \u0622\u0645\u0646 \u0628\u062d\u0633\u0627\u0628 Google",
+                    color = TextTertiary,
+                    fontSize = 11.sp,
+                    letterSpacing = 0.3.sp,
+                )
             }
-
-            Spacer(Modifier.height(16.dp))
 
             Spacer(Modifier.height(24.dp))
 
+            // ═══ الشروط ═══
             Text(
-                "\u0628\u0627\u0644\u0645\u062a\u0627\u0628\u0639\u0629 \u0623\u0646\u062a \u062a\u0648\u0627\u0641\u0642 \u0639\u0644\u0649 \u0627\u0644\u0634\u0631\u0648\u0637 \u0648\u0627\u0644\u0623\u062d\u0643\u0627\u0645",
+                "\u0628\u0627\u0644\u0645\u062a\u0627\u0628\u0639\u0629 \u0623\u0646\u062a \u062a\u0648\u0627\u0641\u0642 \u0639\u0644\u0649\n\u0627\u0644\u0634\u0631\u0648\u0637 \u0648\u0627\u0644\u0623\u062d\u0643\u0627\u0645 \u0648\u0633\u064a\u0627\u0633\u0629 \u0627\u0644\u062e\u0635\u0648\u0635\u064a\u0629",
                 color = TextTertiary,
                 fontSize = 10.sp,
                 textAlign = TextAlign.Center,
+                lineHeight = 15.sp,
             )
 
             Spacer(Modifier.height(40.dp))
+
+            // ═══ Footer — علامة تجارية ═══
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(4.dp)
+                        .clip(CircleShape)
+                        .background(RedBrand),
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "GPT+18 \u00b7 \u0646\u0633\u062e\u0629 v1.2.0",
+                    color = TextTertiary,
+                    fontSize = 10.sp,
+                    letterSpacing = 0.5.sp,
+                )
+            }
+
+            Spacer(Modifier.height(30.dp))
         }
     }
 }
 
 @Composable
-private fun AuthTab(
-    text: String,
-    active: Boolean,
-    modifier: Modifier = Modifier,
+private fun GoogleSignInButton(
+    isLoading: Boolean,
     onClick: () -> Unit,
 ) {
-    val bgColor by animateColorAsState(
-        targetValue = if (active) Accent else Color.Transparent,
-        animationSpec = tween(200),
-        label = "tabBg",
+    // Shimmer
+    val transition = rememberInfiniteTransition(label = "google_shimmer")
+    val shimmerX by transition.animateFloat(
+        initialValue = -1.5f,
+        targetValue = 2.5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "shimmer",
     )
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(bgColor)
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text,
-            color = if (active) Color.White else TextSecondary,
-            fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
-            fontSize = 14.sp,
-        )
-    }
-}
 
-@Composable
-private fun AuthField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    icon: String,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    isPassword: Boolean = false,
-) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF14141A))
-            .border(1.dp, BorderSubtle, RoundedCornerShape(12.dp)),
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(icon, fontSize = 16.sp)
-            Spacer(Modifier.width(10.dp))
-            TextField(
-                value = value,
-                onValueChange = onValueChange,
-                placeholder = {
-                    Text(label, color = TextTertiary, fontSize = 13.sp)
-                },
-                singleLine = true,
-                visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
-                keyboardOptions = keyboardOptions,
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    focusedTextColor = TextPrimary,
-                    unfocusedTextColor = TextPrimary,
-                    cursorColor = Accent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
+            .height(58.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(CardBg)
+            .border(
+                width = 1.5.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF3A3A48),
+                        Color(0xFF5A5A6E),
+                        Color(0xFF3A3A48),
+                    ),
+                    start = Offset(shimmerX * 800f, 0f),
+                    end = Offset(shimmerX * 800f + 400f, 200f),
                 ),
-                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(16.dp),
             )
+            .clickable(enabled = !isLoading, onClick = onClick),
+    ) {
+        // Shimmer ضوئي
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Transparent,
+                            Color.White.copy(alpha = 0.05f),
+                            Color.White.copy(alpha = 0.12f),
+                            Color.White.copy(alpha = 0.05f),
+                            Color.Transparent,
+                            Color.Transparent,
+                        ),
+                        start = Offset(shimmerX * 900f, 0f),
+                        end = Offset(shimmerX * 900f + 350f, 200f),
+                    )
+                ),
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = Color(0xFF4285F4),
+                    modifier = Modifier.size(22.dp),
+                    strokeWidth = 2.dp,
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    "\u062c\u0627\u0631\u064a \u0627\u0644\u062f\u062e\u0648\u0644...",
+                    color = TextPrimary,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            } else {
+                // شعار Google رسمي
+                Box(
+                    modifier = Modifier
+                        .size(26.dp)
+                        .clip(CircleShape)
+                        .background(Color.White),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        "G",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF4285F4),
+                    )
+                }
+                Spacer(Modifier.width(14.dp))
+                Text(
+                    "\u0627\u0644\u0645\u062a\u0627\u0628\u0639\u0629 \u0628\u062d\u0633\u0627\u0628 Google",
+                    color = TextPrimary,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.3.sp,
+                )
+            }
         }
     }
 }

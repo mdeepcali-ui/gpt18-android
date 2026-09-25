@@ -1,5 +1,7 @@
 package com.gptplus18.app.ui.screens.auth
 
+import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gptplus18.app.data.local.TokenStorage
@@ -79,6 +81,18 @@ class AuthViewModel @Inject constructor(
 
     fun consumeGoogleToken() {
         _state.value = _state.value.copy(pendingGoogleToken = null)
+    }
+
+    fun openGoogleAuth(context: android.content.Context) {
+        try {
+            val url = "https://gptplus18.com/api/auth/google/login?mobile=1"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            _state.value = _state.value.copy(error = "\u0641\u0634\u0644 \u0641\u062a\u062d \u0627\u0644\u0645\u062a\u0635\u0641\u062d")
+        }
     }
 
     fun clearError() { _state.value = _state.value.copy(error = null) }

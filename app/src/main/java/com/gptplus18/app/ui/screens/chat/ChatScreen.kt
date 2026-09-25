@@ -410,12 +410,10 @@ fun ChatScreen(
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         ) {
                             val visibleMessages = state.messages.filter { it.role != "thinking" }
-                            // EMPTY_STATE_MARKER
+                            // EMPTY_LOGO_STATE
                             if (visibleMessages.isEmpty() && !state.isSending && !state.isUploading) {
                                 item {
-                                    EmptyChatState(
-                                        onSuggestionClick = { text -> input = text },
-                                    )
+                                    EmptyLogoState()
                                 }
                             }
                             items(visibleMessages, key = { it.ts.toString() }) { msg ->
@@ -830,7 +828,31 @@ private fun QuickActionsRow(onClick: (String) -> Unit) {
 }
 
 @Composable
-private fun EmptyChatState(onSuggestionClick: (String) -> Unit) {
+private fun EmptyLogoState() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 60.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(id = R.drawable.logo_transparent),
+            contentDescription = "GPT+18",
+            contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+            modifier = Modifier.size(180.dp),
+        )
+        Spacer(Modifier.height(16.dp))
+        Text(
+            "\u0645\u0631\u062d\u0628\u0627 \u0628\u0643 \u0641\u064a GPT+18",
+            color = TextPrimary,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+        )
+    }
+}
+
+@Composable
+private fun _EmptyChatStateUnused(onSuggestionClick: (String) -> Unit) {
     val suggestions = listOf(
         "\u0627\u0634\u0631\u062d \u0644\u064a \u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064a \ud83d\udca1",
         "\u0627\u0643\u062a\u0628 \u0644\u064a \u062f\u0627\u0644\u0629 Python \ud83d\udcbb",
