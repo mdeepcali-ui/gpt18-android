@@ -67,7 +67,7 @@ fun AuthScreen(
 
             // ═══ الشعار ═══
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                painter = painterResource(id = com.gptplus18.app.R.mipmap.ic_launcher),
                 contentDescription = "GPT+18",
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
