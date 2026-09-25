@@ -483,7 +483,7 @@ private fun HistoryCardNew(item: MediaHistoryItem) {
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    item.title.ifBlank { item.prompt ?: "" }.take(40),
+                    (item.title ?: "").ifBlank { item.prompt ?: "" }.take(40),
                     color = TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
                 )
                 Spacer(Modifier.height(3.dp))
