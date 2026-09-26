@@ -1124,6 +1124,8 @@ fun MessageBubble(
                                 ),
                         )
                                                 // ⭐ فقاعات إجراءات الصورة (تحويل / تعديل / حفظ / مشاركة)
+                        val _imgCtx = LocalContext.current
+                        val _imgScope = rememberCoroutineScope()
                         androidx.compose.foundation.lazy.LazyRow(
                             modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -1135,7 +1137,16 @@ fun MessageBubble(
                                         .clip(RoundedCornerShape(18.dp))
                                         .background(Accent.copy(alpha = 0.12f))
                                         .border(0.8.dp, Accent.copy(alpha = 0.5f), RoundedCornerShape(18.dp))
-                                        .clickable { }
+                                        .clickable {
+                                            when (action) {
+                                                "تحويل" -> onChoiceClick("حوّلها فيديو")
+                                                "تعديل" -> onChoiceClick("عدّلها")
+                                                "حفظ" -> com.gptplus18.app.util.MediaShareHelper.saveToGallery(_imgCtx, imageUrl, "image")
+                                                "مشاركة" -> _imgScope.launch {
+                                                    com.gptplus18.app.util.MediaShareHelper.shareMedia(_imgCtx, imageUrl, "image")
+                                                }
+                                            }
+                                        }
                                         .padding(horizontal = 14.dp, vertical = 8.dp),
                                 ) {
                                     Text(action, color = Accent, fontSize = 13.sp, fontWeight = FontWeight.Medium)

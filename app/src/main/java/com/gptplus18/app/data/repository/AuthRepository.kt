@@ -4,6 +4,8 @@ import com.gptplus18.app.util.DeviceIdProvider
 import com.gptplus18.app.data.api.ApiService
 import com.gptplus18.app.data.local.TokenStorage
 import com.gptplus18.app.data.models.LoginRequest
+import com.gptplus18.app.data.models.GoogleIdTokenRequest
+import com.gptplus18.app.data.models.GoogleIdTokenResponse
 import com.gptplus18.app.data.models.SignupRequest
 import com.gptplus18.app.data.models.User
 import com.gptplus18.app.data.models.UpdateProfileRequest
@@ -39,6 +41,21 @@ class AuthRepository @Inject constructor(
                 val body = r.body()!!
                 tokenStorage.save(body.token, body.user.name, body.user.email, body.user.id)
                 Result.Success(body.user)
+            } else {
+                Result.Error(parseError(r.errorBody()?.string(), r.code()))
+            }
+        } catch (e: Exception) {
+            Result.Error("تعذر الاتصال: ${e.message ?: "شبكة"}")
+        }
+    }
+
+    suspend fun loginWithGoogleIdToken(idToken: String): Result<GoogleIdTokenResponse> {
+        return try {
+            val r = api.loginWithGoogleIdToken(GoogleIdTokenRequest(idToken))
+            if (r.isSuccessful) {
+                val body = r.body()!!
+                tokenStorage.save(body.token, body.name, body.email, body.uid)
+                Result.Success(body)
             } else {
                 Result.Error(parseError(r.errorBody()?.string(), r.code()))
             }

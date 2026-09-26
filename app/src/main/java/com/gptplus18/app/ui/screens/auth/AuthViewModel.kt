@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.gptplus18.app.data.local.TokenStorage
 import com.gptplus18.app.data.repository.AuthRepository
 import com.gptplus18.app.util.AnalyticsHelper
+import com.gptplus18.app.util.GoogleAuthLauncher
 import com.gptplus18.app.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,16 +84,42 @@ class AuthViewModel @Inject constructor(
         _state.value = _state.value.copy(pendingGoogleToken = null)
     }
 
+    /**
+     * ⭐ Google Sign-In عبر Credential Manager (Bottom Sheet الأصلي)
+     */
     fun openGoogleAuth(context: android.content.Context) {
-        try {
-            val url = "https://gptplus18.com/api/auth/google/login?mobile=1"
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            _state.value = _state.value.copy(error = "\u0641\u0634\u0644 \u0641\u062a\u062d \u0627\u0644\u0645\u062a\u0635\u0641\u062d")
-        }
+        _state.value = _state.value.copy(isLoading = true, error = null)
+        GoogleAuthLauncher.launch(
+            context = context,
+            scope = viewModelScope,
+            onSuccess = { idToken, email, name ->
+                viewModelScope.launch {
+                    when (val r = repo.loginWithGoogleIdToken(idToken)) {
+                        is Result.Success -> {
+                            analytics.logLogin(method = "google")
+                            tokenStorage.save(r.data.token, r.data.name, r.data.email, r.data.uid)
+                            _state.value = AuthUiState(
+                                isAuthenticated = true,
+                                pendingGoogleToken = Pair(r.data.token, r.data.name),
+                            )
+                        }
+                        is Result.Error -> {
+                            _state.value = AuthUiState(error = r.message)
+                        }
+                        else -> {
+                            _state.value = AuthUiState(error = "فشل تسجيل الدخول")
+                        }
+                    }
+                }
+            },
+            onError = { errMsg ->
+                if (errMsg == "__cancel__") {
+                    _state.value = _state.value.copy(isLoading = false)
+                } else {
+                    _state.value = AuthUiState(error = errMsg)
+                }
+            },
+        )
     }
 
     fun clearError() { _state.value = _state.value.copy(error = null) }

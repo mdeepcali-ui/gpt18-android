@@ -112,6 +112,11 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
+    // ─── Google Credential Manager (Bottom Sheet الأصلي) ───
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
     // ─── Chrome Custom Tabs ───
     implementation("androidx.browser:browser:1.8.0")
 

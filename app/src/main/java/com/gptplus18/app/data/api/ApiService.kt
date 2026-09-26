@@ -18,6 +18,9 @@ interface ApiService {
     @POST("api/auth/login")
     suspend fun login(@Body body: LoginRequest): Response<AuthResponse>
 
+    @POST("api/auth/google/idtoken")
+    suspend fun loginWithGoogleIdToken(@Body body: GoogleIdTokenRequest): Response<GoogleIdTokenResponse>
+
     @GET("api/auth/me")
     suspend fun me(@Header("Authorization") bearer: String): Response<MeResponse>
 

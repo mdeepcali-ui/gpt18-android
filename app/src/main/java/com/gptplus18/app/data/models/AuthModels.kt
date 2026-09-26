@@ -55,3 +55,17 @@ data class UpdateProfileRequest(
 data class RegisterTokenRequest(
     @SerializedName("token") val token: String,
 )
+
+// ─── Google ID Token (Credential Manager) ───
+data class GoogleIdTokenRequest(
+    @SerializedName("id_token") val idToken: String,
+)
+
+data class GoogleIdTokenResponse(
+    @SerializedName("ok") val ok: Boolean,
+    @SerializedName("token") val token: String,
+    @SerializedName("uid") val uid: Long,
+    @SerializedName("email") val email: String,
+    @SerializedName("name") val name: String,
+    @SerializedName("avatar_url") val avatarUrl: String? = null,
+)

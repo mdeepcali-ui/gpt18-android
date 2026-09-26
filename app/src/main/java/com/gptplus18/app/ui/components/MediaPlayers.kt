@@ -61,6 +61,9 @@ import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.BgSecondary
 import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.ui.theme.TextSecondary
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.border
 
 // ═══════════════════════════════════════════════════════
 // 🎵 Audio Player — Waveform + Play Button + Progress
@@ -185,6 +188,23 @@ fun AudioPlayerCard(
             Text(_fmtMillis(position), color = TextSecondary, fontSize = 10.sp)
             Text(_fmtMillis(duration), color = TextSecondary, fontSize = 10.sp)
         }
+
+        Spacer(Modifier.height(10.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            val _audioCtx = LocalContext.current
+            val _audioScope = rememberCoroutineScope()
+            MediaMiniChip(label = "حفظ") {
+                com.gptplus18.app.util.MediaShareHelper.saveToGallery(_audioCtx, audioUrl, "song")
+            }
+            MediaMiniChip(label = "مشاركة") {
+                _audioScope.launch {
+                    com.gptplus18.app.util.MediaShareHelper.shareMedia(_audioCtx, audioUrl, "song")
+                }
+            }
+        }
     }
 }
 
@@ -276,8 +296,9 @@ fun VideoPlayerCard(
         onDispose { exoPlayer.release() }
     }
 
+    Column(modifier = modifier.fillMaxWidth()) {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(9f / 16f)              // ⭐ طولي
             .shadow(10.dp, RoundedCornerShape(18.dp),
@@ -390,7 +411,25 @@ fun VideoPlayerCard(
                 )
             }
         }
-    }
+    }  // ← إغلاق Box
+
+        Spacer(Modifier.height(10.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            val _vidCtx = LocalContext.current
+            val _vidScope = rememberCoroutineScope()
+            MediaMiniChip(label = "حفظ") {
+                com.gptplus18.app.util.MediaShareHelper.saveToGallery(_vidCtx, videoUrl, "video")
+            }
+            MediaMiniChip(label = "مشاركة") {
+                _vidScope.launch {
+                    com.gptplus18.app.util.MediaShareHelper.shareMedia(_vidCtx, videoUrl, "video")
+                }
+            }
+        }
+    }  // ← إغلاق Column
 }
 
 // ═══════════════════════════════════════════════════════
@@ -470,4 +509,21 @@ private fun _fmtMillis(ms: Long): String {
     val m = s / 60
     val sec = s % 60
     return "%02d:%02d".format(m, sec)
+}
+
+// ═══════════════════════════════════════════════════════
+// 🎯 MediaMiniChip — شريحة إجراء (حفظ / مشاركة)
+// ═══════════════════════════════════════════════════════
+@Composable
+private fun MediaMiniChip(label: String, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(Accent.copy(alpha = 0.15f))
+            .border(0.8.dp, Accent.copy(alpha = 0.55f), RoundedCornerShape(14.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 14.dp, vertical = 6.dp),
+    ) {
+        Text(label, color = Accent, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+    }
 }
