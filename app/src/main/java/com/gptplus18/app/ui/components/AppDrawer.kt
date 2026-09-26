@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.gptplus18.app.R
+import com.gptplus18.app.ui.theme.LocalAppColors
 import com.gptplus18.app.ui.theme.*
 
 @Composable
@@ -55,8 +56,9 @@ fun AppDrawerContent(
     onLogout: () -> Unit,
     avatarUrl: String = "",
 ) {
+    val colors = LocalAppColors.current
     ModalDrawerSheet(
-        drawerContainerColor = Color(0xFF0A0A0C),
+        drawerContainerColor = colors.bg,
         modifier = Modifier.width(310.dp),
     ) {
         Column(
@@ -131,7 +133,7 @@ fun AppDrawerContent(
             }
 
             Spacer(Modifier.height(20.dp))
-            Box(Modifier.fillMaxWidth().height(1.dp).background(Color(0xFF1F1F26)))
+            Box(Modifier.fillMaxWidth().height(1.dp).background(colors.surfaceVariant))
             Spacer(Modifier.height(8.dp))
 
             // ═══ تسجيل خروج ═══
@@ -151,8 +153,8 @@ fun AppDrawerContent(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    "GPT+18 \u00b7 v1.1.0",
-                    color = Color(0xFF3F3F46),
+                    "GPT+18 \u00b7 v2.1.0",
+                    color = colors.textTertiary,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
                 )
@@ -164,14 +166,15 @@ fun AppDrawerContent(
 
 @Composable
 private fun DrawerHeader(userName: String, userEmail: String, avatarUrl: String) {
+    val colors = LocalAppColors.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF14141A),
-                        Color(0xFF0A0A0C),
+                        colors.surface,
+                        colors.bg,
                     )
                 )
             )
@@ -184,7 +187,7 @@ private fun DrawerHeader(userName: String, userEmail: String, avatarUrl: String)
                     modifier = Modifier
                         .size(64.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF1A1A22))
+                        .background(colors.surfaceVariant)
                         .border(2.dp, Accent.copy(alpha = 0.4f), CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -218,7 +221,7 @@ private fun DrawerHeader(userName: String, userEmail: String, avatarUrl: String)
                     modifier = Modifier
                         .size(16.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF0A0A0C))
+                        .background(colors.bg)
                         .padding(2.dp)
                         .clip(CircleShape)
                         .background(Color(0xFF4ADE80)),
@@ -246,6 +249,7 @@ private fun DrawerHeader(userName: String, userEmail: String, avatarUrl: String)
 
 @Composable
 private fun DrawerSectionLabel(text: String, emoji: String) {
+    val colors = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -256,7 +260,7 @@ private fun DrawerSectionLabel(text: String, emoji: String) {
         Spacer(Modifier.width(6.dp))
         Text(
             text,
-            color = Color(0xFF52525B),
+            color = colors.textTertiary,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
         )
@@ -272,10 +276,11 @@ private fun DrawerItemNew(
     onClick: () -> Unit,
     highlight: Boolean = false,
 ) {
+    val colors = LocalAppColors.current
     var pressed by remember { mutableStateOf(false) }
     val bgColor by animateColorAsState(
         targetValue = when {
-            pressed -> Color(0xFF1F1F26)
+            pressed -> colors.surfaceVariant
             highlight -> Accent.copy(alpha = 0.08f)
             else -> Color.Transparent
         },
@@ -323,7 +328,7 @@ private fun DrawerItemNew(
             if (subtitle != null && subtitle.isNotBlank()) {
                 Text(
                     subtitle,
-                    color = Color(0xFF52525B),
+                    color = colors.textTertiary,
                     fontSize = 11.sp,
                     maxLines = 1,
                     modifier = Modifier.padding(top = 2.dp),
@@ -332,7 +337,7 @@ private fun DrawerItemNew(
         }
         Text(
             "\u203a",
-            color = Color(0xFF3F3F46),
+            color = colors.textTertiary,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
         )
