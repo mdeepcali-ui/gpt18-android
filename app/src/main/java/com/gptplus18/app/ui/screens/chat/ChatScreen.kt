@@ -450,6 +450,16 @@ fun ChatScreen(
                                     }
                                 }
                             }
+
+                            // ⭐ v2.0: بطاقة ملفات الكود
+                            if (state.codeFiles.isNotEmpty() || state.codeZipUrl != null) {
+                                item {
+                                    CodeFilesCard(
+                                        files = state.codeFiles,
+                                        zipUrl = state.codeZipUrl,
+                                    )
+                                }
+                            }
                             }
 
                         if (state.pinnedMessages.isNotEmpty()) {
@@ -599,52 +609,22 @@ fun ChatScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ModeDropdown(
     current: ChatMode,
     onSelect: (ChatMode) -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    // ⭐ v2.0: كل شي في Chat — عنوان فقط بدون قائمة
     val colors = LocalAppColors.current
-    val (label, icon) = when (current) {
-        ChatMode.CODE -> "Code" to Icons.Default.Code
-        ChatMode.MEDIA -> "Media" to Icons.Default.Movie
-        else -> "Chat" to Icons.AutoMirrored.Filled.Chat
-    }
-
-    Box {
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .clickable { expanded = true }
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(icon, null, tint = colors.textPrimary, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text(label, color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-            Icon(Icons.Default.ExpandMore, null, tint = colors.textSecondary,
-                modifier = Modifier.size(18.dp))
-        }
-        CompositionLocalProvider(LocalAppColors provides colors) {
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                containerColor = colors.surface,
-            ) {
-                ModeMenuItem(stringResource(R.string.chat), Icons.AutoMirrored.Filled.Chat,
-                    current == ChatMode.CHAT || current == ChatMode.MAX) {
-                    onSelect(ChatMode.CHAT); expanded = false
-                }
-                ModeMenuItem(stringResource(R.string.code), Icons.Default.Code, current == ChatMode.CODE) {
-                    onSelect(ChatMode.CODE); expanded = false
-                }
-                ModeMenuItem(stringResource(R.string.t_134), Icons.Default.Movie, current == ChatMode.MEDIA) {
-                    onSelect(ChatMode.MEDIA); expanded = false
-                }
-            }
-        }
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.AutoMirrored.Filled.Chat, null, tint = colors.textPrimary, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(6.dp))
+        Text("Chat", color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
     }
 }
 
@@ -785,6 +765,132 @@ private fun PinnedMessagesBar(
                 modifier = Modifier.size(24.dp),
             ) {
                 Text("\u2715", color = TextSecondary, fontSize = 12.sp)
+            }
+        }
+    }
+}
+
+// ⭐ v2.0: بطاقة ملفات الكود الأنيقة
+@Composable
+private fun CodeFilesCard(
+    files: List<com.gptplus18.app.data.api.CodeFileItem>,
+    zipUrl: String?,
+) {
+    val ctx = LocalContext.current
+    val colors = LocalAppColors.current
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(Color(0xFF1F1F26), Color(0xFF141419))
+                )
+            )
+            .border(
+                width = 0.6.dp,
+                color = Accent.copy(alpha = 0.35f),
+                shape = RoundedCornerShape(16.dp),
+            )
+            .padding(14.dp),
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(CircleShape)
+                        .background(Accent.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("📁", fontSize = 17.sp)
+                }
+                Spacer(Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "الملفات جاهزة",
+                        color = TextPrimary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = "${files.size} ملف${if (zipUrl != null) " — أو حمّل الكل" else ""}",
+                        color = TextSecondary,
+                        fontSize = 11.sp,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            // قائمة الملفات
+            files.forEach { f ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(colors.surfaceVariant.copy(alpha = 0.4f))
+                        .clickable {
+                            try {
+                                val i = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(f.url))
+                                ctx.startActivity(i)
+                            } catch (_: Exception) {}
+                        }
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                ) {
+                    Text("📄", fontSize = 15.sp)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = f.name,
+                        color = TextPrimary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                    )
+                    Text(
+                        text = "⬇",
+                        color = Accent,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+            }
+
+            // زر ZIP
+            if (zipUrl != null) {
+                Spacer(Modifier.height(6.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(Accent, Accent.copy(alpha = 0.8f))
+                            )
+                        )
+                        .clickable {
+                            try {
+                                val i = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(zipUrl))
+                                ctx.startActivity(i)
+                            } catch (_: Exception) {}
+                        }
+                        .padding(vertical = 11.dp),
+                ) {
+                    Text("📦", fontSize = 15.sp)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "تحميل الكل (ZIP)",
+                        color = Color.Black,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
             }
         }
     }

@@ -43,6 +43,8 @@ data class ChatUiState(
     val isOnline: Boolean = true,
     val currentMode: ChatMode = ChatMode.CHAT,
     val pendingMediaType: String? = null,  // ⭐ v2.0: "song" / "video" / "image" / null
+    val codeFiles: List<com.gptplus18.app.data.api.CodeFileItem> = emptyList(),
+    val codeZipUrl: String? = null,
     val isSubscribed: Boolean = false,
     val thinkingByMessage: Map<Long, ThinkingData> = emptyMap(),
     val pendingAttachments: List<Attachment> = emptyList(),
@@ -255,6 +257,8 @@ class ChatViewModel @Inject constructor(
         _state.value = current.copy(
             messages = current.messages + tempMsg + emptyAssistant,
             isSending = true,
+            codeFiles = emptyList(),
+            codeZipUrl = null,
             error = null,
             statusLabel = "يفكر",
             replyTo = null,
@@ -330,6 +334,12 @@ class ChatViewModel @Inject constructor(
                                     } else m
                                 },
                                 statusLabel = "يكتب",
+                            )
+                        }
+                        is StreamEvent.CodeFiles -> {
+                            _state.value = _state.value.copy(
+                                codeFiles = ev.files,
+                                codeZipUrl = ev.zipUrl,
                             )
                         }
                         is StreamEvent.Done -> {

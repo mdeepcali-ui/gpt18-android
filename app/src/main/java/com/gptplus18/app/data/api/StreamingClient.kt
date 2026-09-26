@@ -65,6 +65,26 @@ class StreamingClient {
                 try {
                     val obj = JSONObject(data)
                     when {
+                        // ⭐ v2.0: ملفات الكود جاهزة
+                        obj.has("code_files") || obj.has("code_zip_url") -> {
+                            val arr = obj.optJSONArray("code_files")
+                            val filesList = mutableListOf<CodeFileItem>()
+                            if (arr != null) {
+                                for (i in 0 until arr.length()) {
+                                    val o = arr.getJSONObject(i)
+                                    filesList.add(
+                                        CodeFileItem(
+                                            name = o.optString("name", ""),
+                                            url = o.optString("url", ""),
+                                            size = o.optLong("size", 0L),
+                                        )
+                                    )
+                                }
+                            }
+                            val zip = if (obj.has("code_zip_url") && !obj.isNull("code_zip_url"))
+                                obj.optString("code_zip_url") else null
+                            trySend(StreamEvent.CodeFiles(filesList, zip))
+                        }
                         // ⭐ حالة الإنشاء (مثل: جاري إنشاء الصورة)
                         obj.has("status") -> {
                             val st = obj.optString("status", "")
@@ -254,4 +274,11 @@ sealed class StreamEvent {
     data class ImageUrl(val url: String, val prompt: String) : StreamEvent()
     data class Done(val sessionId: Int, val thinking: String) : StreamEvent()
     data class Error(val message: String) : StreamEvent()
+    data class CodeFiles(val files: List<CodeFileItem>, val zipUrl: String?) : StreamEvent()
 }
+
+data class CodeFileItem(
+    val name: String,
+    val url: String,
+    val size: Long = 0,
+)
