@@ -194,6 +194,10 @@ private fun AudioWaveform(
     progress: Float,
     modifier: Modifier = Modifier,
 ) {
+    // ⭐ v2.0: نلتقط الألوان قبل Canvas (لأن drawScope ليس composable)
+    val accentColor = Accent
+    val inactiveColor = TextSecondary.copy(alpha = 0.3f)
+
     val transition = rememberInfiniteTransition(label = "wave")
     val phase by transition.animateFloat(
         initialValue = 0f,
@@ -225,7 +229,7 @@ private fun AudioWaveform(
             val height = size.height * (0.25f + wave * 0.75f)
             val top = centerY - height / 2f
 
-            val color = if (played) Accent else TextSecondary.copy(alpha = 0.3f)
+            val color = if (played) accentColor else inactiveColor
 
             drawRoundRect(
                 color = color,
