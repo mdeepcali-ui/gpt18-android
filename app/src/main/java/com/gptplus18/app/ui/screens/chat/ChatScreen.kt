@@ -1440,9 +1440,25 @@ fun StatusBubble(label: String) {
         label = "pulse_alpha",
     )
 
-    // 🎨 ألوان متكيفة — أسود/أبيض مع شفافية خفيفة (تمنع ظهور النص تحتها)
-    val bgTop = if (isDark) Color(0xFF1C1C22).copy(alpha = 0.92f) else Color.White.copy(alpha = 0.94f)
-    val bgBot = if (isDark) Color(0xFF15151A).copy(alpha = 0.92f) else Color.White.copy(alpha = 0.92f)
+    // 🎨 v2.0: أزرق غامق متدرّج — معتم تماماً (بدون شفافية)
+    val bgDarkTop = Color(0xFF1E3A8A)   // أزرق غامق
+    val bgDarkBot = Color(0xFF0F1E4A)   // أزرق داكن جداً
+    val bgLightTop = Color(0xFF2563EB)  // أزرق نهاري
+    val bgLightBot = Color(0xFF1E40AF)
+    val bgTop = if (isDark) bgDarkTop else bgLightTop
+    val bgBot = if (isDark) bgDarkBot else bgLightBot
+
+    // 🌊 موجة متحركة في الخلفية
+    val waveShift by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(3200,
+                easing = androidx.compose.animation.core.LinearEasing),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
+        ),
+        label = "wave_shift",
+    )
     val borderC = Accent.copy(alpha = if (isDark) 0.35f else 0.5f)
     val txtC = if (isDark) Color(0xFFE8E8EC) else Color(0xFF1A1A1A)
     val shadowC = if (isDark) Color.Black.copy(alpha = 0.35f) else Color.Black.copy(alpha = 0.08f)
@@ -1458,11 +1474,21 @@ fun StatusBubble(label: String) {
             )
             .clip(RoundedCornerShape(20.dp))
             .background(
-                Brush.horizontalGradient(colors = listOf(bgTop, bgBot))
+                Brush.linearGradient(
+                    colors = listOf(bgTop, bgBot, bgTop),
+                    start = androidx.compose.ui.geometry.Offset(
+                        x = waveShift * 800f - 400f,
+                        y = 0f
+                    ),
+                    end = androidx.compose.ui.geometry.Offset(
+                        x = waveShift * 800f + 400f,
+                        y = 200f
+                    ),
+                )
             )
             .border(
-                width = 0.5.dp,
-                color = borderC,
+                width = 0.8.dp,
+                color = Accent.copy(alpha = 0.5f),
                 shape = RoundedCornerShape(20.dp),
             ),
     ) {
