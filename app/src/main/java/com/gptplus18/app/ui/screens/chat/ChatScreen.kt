@@ -893,12 +893,11 @@ private fun _EmptyChatStateUnused(onSuggestionClick: (String) -> Unit) {
 @Composable
 fun MessageBubble(
     msg: Message,
-    onImageClick: (String,
-    onChoiceClick: (String) -> Unit = {},
-) -> Unit,
+    onImageClick: (String) -> Unit,
     onLongPress: () -> Unit,
     onCopy: (String) -> Unit,
     onEdit: (Message) -> Unit,
+    onChoiceClick: (String) -> Unit = {},
 ) {
     val isUser = msg.role == "user"
     val imageUrl = MessageHelpers.extractImageUrl(msg.content)
