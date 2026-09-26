@@ -437,7 +437,7 @@ private fun QuickChipsRow(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(20.dp))
-                    .background(colors.bgSecondary.copy(alpha = 0.6f))
+                    .background(colors.surfaceVariant.copy(alpha = 0.6f))
                     .border(
                         width = 0.5.dp,
                         color = colors.textSecondary.copy(alpha = 0.15f),

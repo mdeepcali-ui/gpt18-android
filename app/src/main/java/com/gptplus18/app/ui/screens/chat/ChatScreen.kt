@@ -790,9 +790,7 @@ private fun PinnedMessagesBar(
     }
 }
 
-@Composable
 // ⭐ v2.0: QuickActionsRow removed — التوجيه الآن عبر StatusBubble فقط
-
 
 @Composable
 private fun EmptyLogoState() {
