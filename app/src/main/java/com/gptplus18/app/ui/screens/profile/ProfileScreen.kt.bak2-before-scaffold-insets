@@ -58,7 +58,6 @@ fun ProfileScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
             )
         },
-    contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
             modifier = Modifier

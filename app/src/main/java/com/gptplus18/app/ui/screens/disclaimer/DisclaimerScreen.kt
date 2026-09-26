@@ -2,6 +2,7 @@ package com.gptplus18.app.ui.screens.disclaimer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -63,7 +64,7 @@ By continuing, you agree to:
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize().statusBarsPadding()
             .background(BgPrimary)
             .padding(20.dp),
         contentAlignment = Alignment.Center,

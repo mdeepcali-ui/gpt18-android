@@ -110,8 +110,8 @@ fun GptPlus18Theme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = appColors.bg.toArgb()
-            window.navigationBarColor = appColors.bg.toArgb()
+            // ⭐ v2.0: Edge-to-Edge — لا نضع لون شريط صلب
+            // فقط نضبط لون الأيقونات (فاتح/غامق)
             WindowCompat.getInsetsController(window, view)
                 .isAppearanceLightStatusBars = !darkTheme
             WindowCompat.getInsetsController(window, view)

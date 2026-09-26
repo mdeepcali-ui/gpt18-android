@@ -64,6 +64,8 @@ fun ChatGptComposer(
     onSend: () -> Unit,
     onRemoveAttachment: (Long) -> Unit,
     onVoiceInput: ((String) -> Unit)? = null,
+    onImagePick: (() -> Unit)? = null,      // ⭐ v2.0: لاختيار صورة
+    onEditImagePick: (() -> Unit)? = null,  // ⭐ v2.0: لتعديل صورة
 ) {
     val hasText = value.isNotBlank()
     val hasAttachments = attachments.isNotEmpty()
@@ -112,6 +114,14 @@ fun ChatGptComposer(
                 }
                 Spacer(Modifier.height(4.dp))
             }
+            // ⭐ v2.0: فقاعات سريعة
+            QuickChipsRow(
+                enabled = enabled,
+                onTextInsert = { t -> onValueChange(value + t) },
+                onImagePick = onImagePick,
+                onEditImagePick = onEditImagePick,
+            )
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -389,5 +399,70 @@ private fun fileEmoji(name: String): String {
         n.endsWith(".mp3") || n.endsWith(".wav") -> "🎵"
         n.endsWith(".mp4") || n.endsWith(".mov") -> "🎥"
         else -> "📎"
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════
+// ⭐ v2.0: QuickChipsRow — فقاعات سريعة فوق الـ input
+// ═══════════════════════════════════════════════════════
+@Composable
+private fun QuickChipsRow(
+    enabled: Boolean,
+    onTextInsert: (String) -> Unit,
+    onImagePick: (() -> Unit)?,
+    onEditImagePick: (() -> Unit)?,
+) {
+    val colors = LocalAppColors.current
+    val chips = listOf(
+        Triple("بحث", "🔍", "ابحث عن "),
+        Triple("صورة", "📷", null),
+        Triple("أنشئ صورة", "🎨", "أنشئ صورة "),
+        Triple("تعديل صورة", "✏️", null),
+        Triple("فيديو", "🎬", "أنشئ فيديو عن "),
+        Triple("أغنية", "🎵", "أنشئ أغنية عن "),
+        Triple("كود", "💻", "اكتب كود "),
+        Triple("لخّص", "📝", "لخّص "),
+    )
+
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        contentPadding = PaddingValues(horizontal = 4.dp),
+        userScrollEnabled = true,
+    ) {
+        items(chips) { (label, emoji, insertText) ->
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(colors.bgSecondary.copy(alpha = 0.6f))
+                    .border(
+                        width = 0.5.dp,
+                        color = colors.textSecondary.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(20.dp),
+                    )
+                    .clickable(enabled = enabled) {
+                        when {
+                            insertText != null -> onTextInsert(insertText)
+                            label == "صورة" -> onImagePick?.invoke()
+                            label == "تعديل صورة" -> onEditImagePick?.invoke()
+                        }
+                    }
+                    .padding(horizontal = 11.dp, vertical = 7.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(emoji, fontSize = 12.sp)
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        label,
+                        color = colors.textSecondary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
+        }
     }
 }

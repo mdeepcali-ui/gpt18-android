@@ -73,7 +73,6 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
 
     Scaffold(
         containerColor = BgPrimary,
-        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = {

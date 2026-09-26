@@ -2,6 +2,7 @@ package com.gptplus18.app.ui.screens.agecheck
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -61,7 +62,7 @@ fun AgeCheckScreen(
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize().statusBarsPadding()
             .background(BgPrimary)
             .padding(20.dp),
         contentAlignment = Alignment.Center,

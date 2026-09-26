@@ -21,8 +21,6 @@ import com.gptplus18.app.ui.screens.admin.AdminScreen
 import com.gptplus18.app.ui.screens.about.AboutScreen
 import com.gptplus18.app.ui.screens.auth.AuthScreen
 import com.gptplus18.app.ui.screens.chat.ChatScreen
-import com.gptplus18.app.ui.screens.code.CodeScreen
-import com.gptplus18.app.ui.screens.media.MediaScreen
 import com.gptplus18.app.ui.screens.onboarding.OnboardingScreen
 import com.gptplus18.app.ui.screens.profile.ProfileScreen
 import com.gptplus18.app.ui.screens.splash.SplashScreen
@@ -42,8 +40,6 @@ object Routes {
     const val ONBOARDING = "onboarding"
     const val AUTH = "auth"
     const val CHAT = "chat"
-    const val CODE = "code"
-    const val MEDIA = "media"
     const val SUBSCRIPTION = "subscription"
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
@@ -73,12 +69,13 @@ fun GptPlusNavGraph(
 
     Scaffold(
         containerColor = BgPrimary,
-        // 🗑️ تم حذف BottomNav — التنقل عبر Drawer + ModeDropdown
-    ) { padding ->
+        // ⭐ v2.0: Edge-to-Edge — لا نستخدم padding من Scaffold (المحتوى يمتد خلف الأشرطة)
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
+    ) { _ ->
         NavHost(
             navController = navController,
             startDestination = Routes.SPLASH,
-            modifier = Modifier.padding(padding),
+            modifier = Modifier,
             // ✨ Animations بين الشاشات
             enterTransition = {
                 slideInHorizontally(
@@ -184,20 +181,6 @@ fun GptPlusNavGraph(
             }
             composable(Routes.CHAT) {
                 ChatScreen(
-                    onNavigateToCode = {
-                        navController.navigate(Routes.CODE) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
-                    onNavigateToMedia = {
-                        navController.navigate(Routes.MEDIA) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
                     onNavigateToSubscription = {
                         navController.navigate(Routes.SUBSCRIPTION) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -225,8 +208,7 @@ fun GptPlusNavGraph(
                     },
                 )
             }
-            composable(Routes.CODE) { CodeScreen() }
-            composable(Routes.MEDIA) { MediaScreen() }
+            // ⭐ v2.0: Code + Media دُمجا في Chat (تُستدعى تلقائياً حسب النية)
             composable(Routes.SUBSCRIPTION) { SubscriptionScreen() }
             composable(Routes.PROFILE) {
                 ProfileScreen(

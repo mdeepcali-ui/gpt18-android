@@ -1,6 +1,7 @@
 package com.gptplus18.app.ui.screens.splash
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -71,7 +72,7 @@ fun SplashScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize().background(BgPrimary),
+        modifier = Modifier.fillMaxSize().statusBarsPadding().background(BgPrimary),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

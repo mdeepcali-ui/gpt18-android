@@ -76,7 +76,6 @@ fun AdminScreen(vm: AdminViewModel = hiltViewModel()) {
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
             )
         },
-    contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
     ) { padding ->
         if (state.isChecking) {
             Box(Modifier.fillMaxSize().statusBarsPadding().padding(padding), contentAlignment = Alignment.Center) {

@@ -42,6 +42,7 @@ data class ChatUiState(
     val replyTo: Message? = null,
     val isOnline: Boolean = true,
     val currentMode: ChatMode = ChatMode.CHAT,
+    val pendingMediaType: String? = null,  // ⭐ v2.0: "song" / "video" / "image" / null
     val isSubscribed: Boolean = false,
     val thinkingByMessage: Map<Long, ThinkingData> = emptyMap(),
     val pendingAttachments: List<Attachment> = emptyList(),
@@ -279,7 +280,18 @@ class ChatViewModel @Inject constructor(
                     when (ev) {
                         // ⭐ التفكير — يُجمع في السحابة (لا يظهر في الرسالة)
                         is StreamEvent.Status -> {
-                            _state.value = _state.value.copy(statusLabel = ev.text)
+                            // ⭐ v2.0: كشف نوع الوسائط الجاري إنشاؤها
+                            val _t = ev.text
+                            val _pmedia = when {
+                                _t.contains("أغنية") || _t.contains("تلحين") || _t.contains("🎵") -> "song"
+                                _t.contains("فيديو") || _t.contains("🎬") -> "video"
+                                _t.contains("صورة") || _t.contains("🎨") -> "image"
+                                else -> _state.value.pendingMediaType
+                            }
+                            _state.value = _state.value.copy(
+                                statusLabel = ev.text,
+                                pendingMediaType = _pmedia,
+                            )
                         }
                         is StreamEvent.ImageUrl -> {
                             gotImage = true
@@ -340,6 +352,7 @@ class ChatViewModel @Inject constructor(
                                 },
                                 currentSessionId = finalSessionId,
                                 isSending = false,
+                                pendingMediaType = null,  // ⭐ v2.0: تنظيف بعد انتهاء
                                 statusLabel = "يفكر",
                                 thinkingByMessage = newThinking,
                             )
