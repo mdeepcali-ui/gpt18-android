@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -1122,7 +1123,26 @@ fun MessageBubble(
                                     onLongClick = onLongPress,
                                 ),
                         )
-                        if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
+                                                // ⭐ فقاعات إجراءات الصورة (تحويل / تعديل / حفظ / مشاركة)
+                        androidx.compose.foundation.lazy.LazyRow(
+                            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            val imgActions = listOf("تحويل", "تعديل", "حفظ", "مشاركة")
+                            items(imgActions) { action ->
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(18.dp))
+                                        .background(Accent.copy(alpha = 0.12f))
+                                        .border(0.8.dp, Accent.copy(alpha = 0.5f), RoundedCornerShape(18.dp))
+                                        .clickable { }
+                                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                                ) {
+                                    Text(action, color = Accent, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                                }
+                            }
+                        }
+if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (audioUrl != null) {
                         com.gptplus18.app.ui.components.AudioPlayerCard(
