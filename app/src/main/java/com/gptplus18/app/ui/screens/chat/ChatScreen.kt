@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,6 +43,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -80,8 +82,6 @@ import com.gptplus18.app.R
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ChatScreen(
-    onNavigateToCode: () -> Unit = {},
-    onNavigateToMedia: () -> Unit = {},
     onNavigateToSubscription: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
@@ -250,8 +250,8 @@ fun ChatScreen(
                 },
                 lastSessionTitle = state.sessions.firstOrNull()?.title,
                 onChat = { scope.launch { drawerState.close() } },
-                onCode = { scope.launch { drawerState.close() }; onNavigateToCode() },
-                onMedia = { scope.launch { drawerState.close() }; onNavigateToMedia() },
+                onCode = { scope.launch { drawerState.close() }; vm.setMode(ChatMode.CODE) },
+                onMedia = { scope.launch { drawerState.close() }; vm.setMode(ChatMode.MEDIA) },
                 onSubscription = { scope.launch { drawerState.close() }; onNavigateToSubscription() },
                 onProfile = { scope.launch { drawerState.close() }; onNavigateToProfile() },
                 onSettings = { scope.launch { drawerState.close() }; onNavigateToSettings() },
@@ -260,6 +260,7 @@ fun ChatScreen(
                     scope.launch { drawerState.close() }
                     onNavigateToAuth()
                 },
+                avatarUrl = state.avatarUrl,
             )
         },
     ) {
@@ -304,14 +305,7 @@ fun ChatScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     ModeDropdown(
                                         current = state.currentMode,
-                                        onSelect = { mode ->
-                                            vm.setMode(mode)
-                                            when (mode) {
-                                                ChatMode.CODE -> onNavigateToCode()
-                                                ChatMode.MEDIA -> onNavigateToMedia()
-                                                else -> {}
-                                            }
-                                        },
+                                        onSelect = { mode -> vm.setMode(mode) },
                                     )
                                 }
                             }
@@ -375,6 +369,7 @@ fun ChatScreen(
                     ),
                     modifier = Modifier
                         .align(Alignment.TopStart)
+                        .zIndex(10f)                    // ⭐ v2.0: فوق كل العناصر
                         .padding(top = 8.dp, start = 12.dp),
                 ) {
                     StatusBubble(label = state.statusLabel)
@@ -395,7 +390,7 @@ fun ChatScreen(
                                 showSessionsList = false
                             },
                             onOpenCode = {
-                                onNavigateToCode()
+                                vm.setMode(ChatMode.CODE)
                                 showSessionsList = false
                             },
                             onLongPressChat = { deleteDialogFor = it.toChatSession() },
@@ -411,6 +406,12 @@ fun ChatScreen(
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         ) {
                             val visibleMessages = state.messages.filter { it.role != "thinking" }
+                            // EMPTY_LOGO_STATE
+                            if (visibleMessages.isEmpty() && !state.isSending && !state.isUploading) {
+                                item {
+                                    EmptyLogoState()
+                                }
+                            }
                             items(visibleMessages, key = { it.ts.toString() }) { msg ->
                                 MessageBubble(
                                     msg = msg,
@@ -418,6 +419,10 @@ fun ChatScreen(
                                     onLongPress = { actionsSheetFor = msg },
                                     onCopy = { text -> clip.setText(AnnotatedString(text)) },
                                     onEdit = { m -> input = m.content },
+                                    onChoiceClick = { choice ->
+                                        // ⭐ v2.0: إرسال الاختيار مباشرة
+                                        vm.send(choice)
+                                    },
                                 )
                             }
                             if (state.isSending || state.isUploading) {
@@ -435,6 +440,13 @@ fun ChatScreen(
                                             }
                                         }
                                     }
+                                    // ⭐ v2.0: Skeleton loader للوسائط قيد الإنشاء
+                                    if (state.pendingMediaType != null) {
+                                        com.gptplus18.app.ui.components.MediaSkeletonLoader(
+                                            type = state.pendingMediaType!!,
+                                            modifier = Modifier.fillMaxWidth(),
+                                        )
+                                    }
                                     if (state.statusLabel != stringResource(R.string.t_131)) {
                                         com.gptplus18.app.ui.components.ThinkingShimmer(
                                             text = thinkingText.ifBlank { "يجهّز الرد..." },
@@ -442,12 +454,33 @@ fun ChatScreen(
                                     }
                                 }
                             }
+
+                            // ⭐ v2.0: بطاقة ملفات الكود
+                            if (state.codeFiles.isNotEmpty() || state.codeZipUrl != null) {
+                                item {
+                                    CodeFilesCard(
+                                        files = state.codeFiles,
+                                        zipUrl = state.codeZipUrl,
+                                    )
+                                }
                             }
+                            }
+
+                        if (state.pinnedMessages.isNotEmpty()) {
+                            PinnedMessagesBar(
+                                messages = state.pinnedMessages,
+                                onUnpin = { ts -> vm.unpinMessage(ts) },
+                            )
+                        }
 
                         state.replyTo?.let { r ->
                             ReplyBar(content = r.content, onCancel = { vm.setReplyTo(null) })
                         }
 
+                        // QUICK_ACTIONS_MARKER
+                        if (input.isBlank() && state.pendingAttachments.isEmpty()) {
+
+                        }
                         ChatGptComposer(
                             value = input,
                             onValueChange = { input = it },
@@ -465,6 +498,9 @@ fun ChatScreen(
                                 keyboardController?.hide()
                             },
                             onRemoveAttachment = { vm.removeAttachment(it) },
+                            onVoiceInput = { text -> input = if (input.isBlank()) text else "$input $text" },
+                            onImagePick = { showAttachSheet = true },       // ⭐ v2.0: فتح bottom sheet لاختيار صورة
+                            onEditImagePick = { showAttachSheet = true },   // ⭐ v2.0: نفس الـ sheet
                         )
                     }
 
@@ -555,6 +591,8 @@ fun ChatScreen(
     actionsSheetFor?.let { msg ->
         MessageActionsSheet(
             msg = msg,
+            isPinned = vm.isPinned(msg.ts),
+            onPin = { vm.pinMessage(msg) },
             onCopy = { clip.setText(AnnotatedString(msg.content)) },
             onShare = {
                 val chooserTitle = ctx.getString(R.string.t_133)
@@ -580,46 +618,17 @@ private fun ModeDropdown(
     current: ChatMode,
     onSelect: (ChatMode) -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    // ⭐ v2.0: كل شي في Chat — عنوان فقط بدون قائمة
     val colors = LocalAppColors.current
-    val (label, icon) = when (current) {
-        ChatMode.CODE -> "Code" to Icons.Default.Code
-        ChatMode.MEDIA -> "Media" to Icons.Default.Movie
-        else -> "Chat" to Icons.AutoMirrored.Filled.Chat
-    }
-
-    Box {
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .clickable { expanded = true }
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(icon, null, tint = colors.textPrimary, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text(label, color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-            Icon(Icons.Default.ExpandMore, null, tint = colors.textSecondary,
-                modifier = Modifier.size(18.dp))
-        }
-        CompositionLocalProvider(LocalAppColors provides colors) {
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                containerColor = colors.surface,
-            ) {
-                ModeMenuItem(stringResource(R.string.chat), Icons.AutoMirrored.Filled.Chat,
-                    current == ChatMode.CHAT || current == ChatMode.MAX) {
-                    onSelect(ChatMode.CHAT); expanded = false
-                }
-                ModeMenuItem(stringResource(R.string.code), Icons.Default.Code, current == ChatMode.CODE) {
-                    onSelect(ChatMode.CODE); expanded = false
-                }
-                ModeMenuItem(stringResource(R.string.t_134), Icons.Default.Movie, current == ChatMode.MEDIA) {
-                    onSelect(ChatMode.MEDIA); expanded = false
-                }
-            }
-        }
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.AutoMirrored.Filled.Chat, null, tint = colors.textPrimary, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(6.dp))
+        Text("Chat", color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
     }
 }
 
@@ -706,12 +715,297 @@ private fun SessionsList(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
+private fun PinnedMessagesBar(
+    messages: List<Message>,
+    onUnpin: (Double) -> Unit,
+) {
+    val latest = messages.lastOrNull() ?: return
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFF14141A))
+            .border(1.dp, Accent.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .width(3.dp)
+                    .height(28.dp)
+                    .background(Accent, RoundedCornerShape(2.dp)),
+            )
+            Spacer(Modifier.width(8.dp))
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("\ud83d\udccc", fontSize = 11.sp)
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        "\u0645\u062b\u0628\u0651\u062a",
+                        color = Accent,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    if (messages.size > 1) {
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            "+${messages.size - 1}",
+                            color = TextSecondary,
+                            fontSize = 9.sp,
+                        )
+                    }
+                }
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    latest.content.take(80),
+                    color = TextPrimary,
+                    fontSize = 11.sp,
+                    maxLines = 1,
+                )
+            }
+            IconButton(
+                onClick = { onUnpin(latest.ts) },
+                modifier = Modifier.size(24.dp),
+            ) {
+                Text("\u2715", color = TextSecondary, fontSize = 12.sp)
+            }
+        }
+    }
+}
+
+// ⭐ v2.0: بطاقة ملفات الكود الأنيقة
+@Composable
+private fun CodeFilesCard(
+    files: List<com.gptplus18.app.data.api.CodeFileItem>,
+    zipUrl: String?,
+) {
+    val ctx = LocalContext.current
+    val colors = LocalAppColors.current
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(Color(0xFF1F1F26), Color(0xFF141419))
+                )
+            )
+            .border(
+                width = 0.6.dp,
+                color = Accent.copy(alpha = 0.35f),
+                shape = RoundedCornerShape(16.dp),
+            )
+            .padding(14.dp),
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(CircleShape)
+                        .background(Accent.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("📁", fontSize = 17.sp)
+                }
+                Spacer(Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "الملفات جاهزة",
+                        color = TextPrimary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = "${files.size} ملف${if (zipUrl != null) " — أو حمّل الكل" else ""}",
+                        color = TextSecondary,
+                        fontSize = 11.sp,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            // قائمة الملفات
+            files.forEach { f ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(colors.surfaceVariant.copy(alpha = 0.4f))
+                        .clickable {
+                            try {
+                                val i = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(f.url))
+                                ctx.startActivity(i)
+                            } catch (_: Exception) {}
+                        }
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                ) {
+                    Text("📄", fontSize = 15.sp)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = f.name,
+                        color = TextPrimary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                    )
+                    Text(
+                        text = "⬇",
+                        color = Accent,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+            }
+
+            // زر ZIP
+            if (zipUrl != null) {
+                Spacer(Modifier.height(6.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(Accent, Accent.copy(alpha = 0.8f))
+                            )
+                        )
+                        .clickable {
+                            try {
+                                val i = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(zipUrl))
+                                ctx.startActivity(i)
+                            } catch (_: Exception) {}
+                        }
+                        .padding(vertical = 11.dp),
+                ) {
+                    Text("📦", fontSize = 15.sp)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "تحميل الكل (ZIP)",
+                        color = Color.Black,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+        }
+    }
+}
+
+// ⭐ v2.0: QuickActionsRow removed — التوجيه الآن عبر StatusBubble فقط
+
+@Composable
+private fun EmptyLogoState() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 60.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(id = R.drawable.logo_transparent),
+            contentDescription = "GPT+18",
+            contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+            modifier = Modifier.size(180.dp),
+        )
+        Spacer(Modifier.height(16.dp))
+        Text(
+            "\u0645\u0631\u062d\u0628\u0627 \u0628\u0643 \u0641\u064a GPT+18",
+            color = TextPrimary,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+        )
+    }
+}
+
+@Composable
+private fun _EmptyChatStateUnused(onSuggestionClick: (String) -> Unit) {
+    val suggestions = listOf(
+        "\u0627\u0634\u0631\u062d \u0644\u064a \u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064a \ud83d\udca1",
+        "\u0627\u0643\u062a\u0628 \u0644\u064a \u062f\u0627\u0644\u0629 Python \ud83d\udcbb",
+        "\u0623\u062e\u0628\u0627\u0631 \u0627\u0644\u062a\u0642\u0646\u064a\u0629 \u0627\u0644\u064a\u0648\u0645 \ud83d\udcf0",
+        "\u0627\u0635\u0646\u0639 \u0644\u064a \u0635\u0648\u0631\u0629 \u0642\u0637\u0629 \ud83c\udfa8",
+        "\u0644\u062e\u0651\u0635 \u0644\u064a \u0645\u0642\u0627\u0644\u0629 \ud83d\udcdd",
+        "\u0627\u0642\u062a\u0631\u062d \u0639\u0644\u064a\u0651 \u0641\u0643\u0631\u0629 \u0645\u0634\u0631\u0648\u0639 \ud83e\udd14",
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(96.dp)
+                .clip(androidx.compose.foundation.shape.CircleShape)
+                .background(Accent.copy(alpha = 0.08f))
+                .border(1.5.dp, Accent.copy(alpha = 0.3f), androidx.compose.foundation.shape.CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("\u2728", fontSize = 42.sp)
+        }
+
+        Spacer(Modifier.height(20.dp))
+
+        Text(
+            "\u0645\u0631\u062d\u0628\u0627 \u0628\u0643 \u0641\u064a GPT+18",
+            color = TextPrimary,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
+            "\u0627\u0628\u062f\u0623 \u0628\u0627\u0644\u0643\u062a\u0627\u0628\u0629 \u0641\u064a \u0627\u0644\u0623\u0633\u0641\u0644 \u0623\u0648 \u0627\u062e\u062a\u0631 \u0627\u0642\u062a\u0631\u0627\u062d\u0627\u064b:",
+            color = TextSecondary,
+            fontSize = 13.sp,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        )
+
+        Spacer(Modifier.height(22.dp))
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            suggestions.forEach { s ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF0E0E12))
+                        .border(1.dp, Color(0xFF1F1F26), RoundedCornerShape(12.dp))
+                        .clickable {
+                            // نشيل الإيموجي من النهاية
+                            onSuggestionClick(s.substringBeforeLast(" "))
+                        }
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                ) {
+                    Text(s, color = TextPrimary, fontSize = 13.sp)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
 fun MessageBubble(
     msg: Message,
     onImageClick: (String) -> Unit,
     onLongPress: () -> Unit,
     onCopy: (String) -> Unit,
     onEdit: (Message) -> Unit,
+    onChoiceClick: (String) -> Unit = {},
 ) {
     val isUser = msg.role == "user"
     val imageUrl = MessageHelpers.extractImageUrl(msg.content)
@@ -854,7 +1148,37 @@ fun MessageBubble(
                                     onLongClick = onLongPress,
                                 ),
                         )
-                        if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
+                                                // ⭐ فقاعات إجراءات الصورة (تحويل / تعديل / حفظ / مشاركة)
+                        val _imgCtx = LocalContext.current
+                        val _imgScope = rememberCoroutineScope()
+                        androidx.compose.foundation.lazy.LazyRow(
+                            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            val imgActions = listOf("تحويل", "تعديل", "حفظ", "مشاركة")
+                            items(imgActions) { action ->
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(18.dp))
+                                        .background(Accent.copy(alpha = 0.12f))
+                                        .border(0.8.dp, Accent.copy(alpha = 0.5f), RoundedCornerShape(18.dp))
+                                        .clickable {
+                                            when (action) {
+                                                "تحويل" -> onChoiceClick("حوّلها فيديو")
+                                                "تعديل" -> onChoiceClick("عدّلها")
+                                                "حفظ" -> com.gptplus18.app.util.MediaShareHelper.saveToGallery(_imgCtx, imageUrl, "image")
+                                                "مشاركة" -> _imgScope.launch {
+                                                    com.gptplus18.app.util.MediaShareHelper.shareMedia(_imgCtx, imageUrl, "image")
+                                                }
+                                            }
+                                        }
+                                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                                ) {
+                                    Text(action, color = Accent, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                                }
+                            }
+                        }
+if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (audioUrl != null) {
                         Row(
@@ -966,9 +1290,69 @@ fun MessageBubble(
                         label = stringResource(R.string.t_063),
                         onClick = { onEdit(msg) },
                     )
+                } else {
+                    // 👍 / 👎 / 🔗 لردود AI
+                    var reaction by remember { mutableStateOf(0) }
+                    val shareCtx = LocalContext.current
+
+                    ReactionButton(
+                        symbol = "\uD83D\uDC4D",
+                        active = reaction == 1,
+                        onClick = { reaction = if (reaction == 1) 0 else 1 },
+                    )
+                    ReactionButton(
+                        symbol = "\uD83D\uDC4E",
+                        active = reaction == -1,
+                        onClick = { reaction = if (reaction == -1) 0 else -1 },
+                    )
+                    ReactionButton(
+                        symbol = "\uD83D\uDD17",
+                        active = false,
+                        onClick = {
+                            try {
+                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, cleanText)
+                                }
+                                shareCtx.startActivity(Intent.createChooser(intent, null))
+                            } catch (_: Exception) {}
+                        },
+                    )
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ReactionButton(
+    symbol: String,
+    active: Boolean,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .clip(androidx.compose.foundation.shape.CircleShape)
+            .background(
+                if (active) Accent.copy(alpha = 0.25f)
+                else androidx.compose.ui.graphics.Color.White.copy(alpha = 0.05f)
+            )
+            .border(
+                width = 1.dp,
+                color = if (active) Accent.copy(alpha = 0.6f)
+                        else androidx.compose.ui.graphics.Color.White.copy(alpha = 0.1f),
+                shape = androidx.compose.foundation.shape.CircleShape,
+            )
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = symbol,
+            fontSize = 14.sp,
+            color = if (active) Accent else TextSecondary,
+        )
     }
 }
 
@@ -991,6 +1375,7 @@ fun ActionButton(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ReplyBar(content: String, onCancel: () -> Unit) {
     Surface(color = BgSecondary, shape = RoundedCornerShape(20.dp)) {
@@ -1120,6 +1505,7 @@ private fun getFileSize(ctx: android.content.Context, uri: Uri): Long {
  */
 @Composable
 fun StatusBubble(label: String) {
+    val isDark = androidx.compose.foundation.isSystemInDarkTheme()
     val transition = androidx.compose.animation.core.rememberInfiniteTransition(label = "shimmer")
 
     // 🌟 حركة الشعاع
@@ -1156,23 +1542,55 @@ fun StatusBubble(label: String) {
         label = "pulse_alpha",
     )
 
+    // 🎨 v2.0: أزرق غامق متدرّج — معتم تماماً (بدون شفافية)
+    val bgDarkTop = Color(0xFF1E3A8A)   // أزرق غامق
+    val bgDarkBot = Color(0xFF0F1E4A)   // أزرق داكن جداً
+    val bgLightTop = Color(0xFF2563EB)  // أزرق نهاري
+    val bgLightBot = Color(0xFF1E40AF)
+    val bgTop = if (isDark) bgDarkTop else bgLightTop
+    val bgBot = if (isDark) bgDarkBot else bgLightBot
+
+    // 🌊 موجة متحركة في الخلفية
+    val waveShift by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(3200,
+                easing = androidx.compose.animation.core.LinearEasing),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
+        ),
+        label = "wave_shift",
+    )
+    val borderC = Accent.copy(alpha = if (isDark) 0.35f else 0.5f)
+    val txtC = if (isDark) Color(0xFFE8E8EC) else Color(0xFF1A1A1A)
+    val shadowC = if (isDark) Color.Black.copy(alpha = 0.35f) else Color.Black.copy(alpha = 0.08f)
+    val shimmerHi = if (isDark) 0.18f else 0.35f
+
     androidx.compose.foundation.layout.Box(
         modifier = Modifier
             .shadow(
-                elevation = 6.dp,
+                elevation = if (isDark) 6.dp else 3.dp,
                 shape = RoundedCornerShape(20.dp),
-                ambientColor = Color.Black.copy(alpha = 0.5f),
-                spotColor = Color.Black.copy(alpha = 0.7f),
+                ambientColor = shadowC,
+                spotColor = shadowC,
             )
             .clip(RoundedCornerShape(20.dp))
             .background(
-                Brush.horizontalGradient(
-                    colors = listOf(Color(0xFF1C1C22), Color(0xFF15151A)),
+                Brush.linearGradient(
+                    colors = listOf(bgTop, bgBot, bgTop),
+                    start = androidx.compose.ui.geometry.Offset(
+                        x = waveShift * 800f - 400f,
+                        y = 0f
+                    ),
+                    end = androidx.compose.ui.geometry.Offset(
+                        x = waveShift * 800f + 400f,
+                        y = 200f
+                    ),
                 )
             )
             .border(
-                width = 0.5.dp,
-                color = Accent.copy(alpha = 0.3f),
+                width = 0.8.dp,
+                color = Accent.copy(alpha = 0.5f),
                 shape = RoundedCornerShape(20.dp),
             ),
     ) {
@@ -1186,9 +1604,9 @@ fun StatusBubble(label: String) {
                         colors = listOf(
                             Color.Transparent,
                             Color.Transparent,
-                            Color.White.copy(alpha = 0.08f),
-                            Color.White.copy(alpha = 0.18f),
-                            Color.White.copy(alpha = 0.08f),
+                            Color.White.copy(alpha = shimmerHi * 0.4f),
+                            Color.White.copy(alpha = shimmerHi),
+                            Color.White.copy(alpha = shimmerHi * 0.4f),
                             Color.Transparent,
                             Color.Transparent,
                         ),
@@ -1197,11 +1615,12 @@ fun StatusBubble(label: String) {
                     )
                 ),
         )
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier
+                .widthIn(min = 160.dp)
+                .padding(horizontal = 22.dp, vertical = 9.dp),
         ) {
             androidx.compose.foundation.layout.Box(
                 modifier = Modifier
@@ -1218,7 +1637,7 @@ fun StatusBubble(label: String) {
             )
             Text(
                 text = label,
-                color = Color(0xFFE8E8EC),
+                color = txtC,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 0.3.sp,

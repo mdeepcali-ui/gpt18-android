@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="katex.min.css">
+<script src="katex.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; }
+  #content {
+    display: inline-block;
+    padding: 6px 10px;
+    color: #FFFFFF;
+    font-size: 16px;
+  }
+  .katex-display { margin: 0 !important; }
+</style>
+</head>
+<body>
+<div id="content"></div>
+<script>
+  function renderFormula(latex, colorHex, fontSize) {
+    try {
+      var el = document.getElementById('content');
+      el.style.color = colorHex || '#FFFFFF';
+      el.style.fontSize = (fontSize || 16) + 'px';
+      katex.render(latex, el, {
+        throwOnError: false,
+        displayMode: true,
+        errorColor: '#EF4444',
+        strict: 'ignore'
+      });
+      return el.scrollHeight || el.offsetHeight || 0;
+    } catch (e) {
+      document.getElementById('content').innerText = latex;
+      return document.getElementById('content').offsetHeight || 0;
+    }
+  }
+  window.KATEX_READY = true;
+</script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.gptplus18.app.ui.screens.splash
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,35 +26,53 @@ import com.gptplus18.app.R
 fun SplashScreen(
     onNavigateToChat: () -> Unit,
     onNavigateToLogin: () -> Unit,
+    onNavigateToDisclaimer: () -> Unit = {},
+    onNavigateToAgeCheck: () -> Unit = {},
 ) {
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         delay(1200)
-        // ⭐ حذفنا Onboarding — نروح مباشرة للـ Chat أو تسجيل الدخول
-        val hasToken = try {
+
+        var hasToken = false
+        var disclaimerOk = false
+        var ageOk = false
+
+        try {
             val entry = EntryPointAccessors.fromApplication(
                 context.applicationContext,
                 SplashEntryPoint::class.java,
             )
-            entry.tokenStorage().getToken() != null
+            hasToken = entry.tokenStorage().getToken() != null
+            val prefs = entry.prefs()
+            disclaimerOk = prefs.disclaimerAcceptedFlow.first()
+            ageOk = prefs.ageVerifiedFlow.first()
         } catch (_: Exception) {
-            // محاولة ثانية بحماية أعلى
             try {
                 val entry = EntryPointAccessors.fromApplication(
                     context.applicationContext,
                     SplashEntryPoint::class.java,
                 )
-                entry.tokenStorage().getToken() != null
+                hasToken = entry.tokenStorage().getToken() != null
+                val prefs = entry.prefs()
+                disclaimerOk = prefs.disclaimerAcceptedFlow.first()
+                ageOk = prefs.ageVerifiedFlow.first()
             } catch (_: Exception) {
-                false
+                hasToken = false
             }
         }
-        if (hasToken) onNavigateToChat() else onNavigateToLogin()
+
+        // 🔞 الترتيب: Disclaimer → AgeCheck → Chat/Login
+        when {
+            !disclaimerOk -> onNavigateToDisclaimer()
+            !ageOk -> onNavigateToAgeCheck()
+            hasToken -> onNavigateToChat()
+            else -> onNavigateToLogin()
+        }
     }
 
     Box(
-        modifier = Modifier.fillMaxSize().background(BgPrimary),
+        modifier = Modifier.fillMaxSize().statusBarsPadding().background(BgPrimary),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

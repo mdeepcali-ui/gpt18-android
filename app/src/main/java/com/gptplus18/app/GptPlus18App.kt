@@ -18,12 +18,16 @@ class GptPlus18App : Application(), ImageLoaderFactory {
 
     companion object {
         private const val TAG = "GptPlus18App"
+
+        @JvmStatic
+        lateinit var appContext: android.content.Context
+            private set
     }
 
     override fun onCreate() {
         super.onCreate()
-
-        // ═══ Firebase Init ═══
+        appContext = applicationContext
+// ═══ Firebase Init ═══
         try {
             FirebaseApp.initializeApp(this)
 

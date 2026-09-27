@@ -36,15 +36,20 @@ data class ChatUiState(
     val isUploading: Boolean = false,
     val error: String? = null,
     val userName: String = "",
+    val avatarUrl: String = "",
     val statusLabel: String = "يفكر",
     val searchQuery: String = "",
     val replyTo: Message? = null,
     val isOnline: Boolean = true,
     val currentMode: ChatMode = ChatMode.CHAT,
+    val pendingMediaType: String? = null,  // ⭐ v2.0: "song" / "video" / "image" / null
+    val codeFiles: List<com.gptplus18.app.data.api.CodeFileItem> = emptyList(),
+    val codeZipUrl: String? = null,
     val isSubscribed: Boolean = false,
     val thinkingByMessage: Map<Long, ThinkingData> = emptyMap(),
     val pendingAttachments: List<Attachment> = emptyList(),
     val isOwner: Boolean = false,
+    val pinnedMessages: List<Message> = emptyList(),
 )
 
 @HiltViewModel
@@ -63,7 +68,8 @@ class ChatViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val name = tokenStorage.getName()?.takeIf { it.isNotBlank() } ?: "المستخدم"
-            _state.value = _state.value.copy(userName = name)
+            val avatar = tokenStorage.getAvatar() ?: ""
+            _state.value = _state.value.copy(userName = name, avatarUrl = avatar)
             loadAllSessions()
         }
         viewModelScope.launch {
@@ -251,6 +257,8 @@ class ChatViewModel @Inject constructor(
         _state.value = current.copy(
             messages = current.messages + tempMsg + emptyAssistant,
             isSending = true,
+            codeFiles = emptyList(),
+            codeZipUrl = null,
             error = null,
             statusLabel = "يفكر",
             replyTo = null,
@@ -270,11 +278,40 @@ class ChatViewModel @Inject constructor(
             val thinkingSb = StringBuilder()
             var lastUiUpdate = 0L
 
+            var gotImage = false
             try {
             chatRepo.streamMessage(sidForServer, finalText)
                 .collect { ev ->
                     when (ev) {
                         // ⭐ التفكير — يُجمع في السحابة (لا يظهر في الرسالة)
+                        is StreamEvent.Status -> {
+                            // ⭐ v2.0: كشف نوع الوسائط الجاري إنشاؤها
+                            val _t = ev.text
+                            val _pmedia = when {
+                                _t.contains("أغنية") || _t.contains("تلحين") || _t.contains("🎵") -> "song"
+                                _t.contains("فيديو") || _t.contains("🎬") -> "video"
+                                _t.contains("صورة") || _t.contains("🎨") -> "image"
+                                else -> _state.value.pendingMediaType
+                            }
+                            _state.value = _state.value.copy(
+                                statusLabel = ev.text,
+                                pendingMediaType = _pmedia,
+                            )
+                        }
+                        is StreamEvent.ImageUrl -> {
+                            gotImage = true
+                            val md = "\n\n![صورة](${ev.url})\n"
+                            sb.append(md)
+                            val currentText = sb.toString()
+                            _state.value = _state.value.copy(
+                                messages = _state.value.messages.map { m ->
+                                    if (m.id == -2 && m.ts == assistantTs) {
+                                        m.copy(content = currentText)
+                                    } else m
+                                },
+                                statusLabel = "🎨 الصورة جاهزة",
+                            )
+                        }
                         is StreamEvent.ThinkingDelta -> {
                             thinkingSb.append(ev.text)
                             val current = _state.value.thinkingByMessage[thinkId]
@@ -304,6 +341,12 @@ class ChatViewModel @Inject constructor(
                                 )
                             }
                         }
+                        is StreamEvent.CodeFiles -> {
+                            _state.value = _state.value.copy(
+                                codeFiles = ev.files,
+                                codeZipUrl = ev.zipUrl,
+                            )
+                        }
                         is StreamEvent.Done -> {
                             finalSessionId = if (ev.sessionId > 0) ev.sessionId else current.currentSessionId
                             val newThinking = if (ev.thinking.isNotBlank()) {
@@ -324,6 +367,7 @@ class ChatViewModel @Inject constructor(
                                 },
                                 currentSessionId = finalSessionId,
                                 isSending = false,
+                                pendingMediaType = null,  // ⭐ v2.0: تنظيف بعد انتهاء
                                 statusLabel = "يفكر",
                                 thinkingByMessage = newThinking,
                             )
@@ -344,7 +388,7 @@ class ChatViewModel @Inject constructor(
                     }
                 }
 
-            if (!gotError && sb.isEmpty()) {
+            if (!gotError && sb.isEmpty() && !gotImage) {
                 _state.value = _state.value.copy(
                     messages = _state.value.messages.filterNot { it.id == -2 && it.ts == assistantTs },
                     isSending = false,
@@ -679,6 +723,23 @@ class ChatViewModel @Inject constructor(
           }
         }
     }
+
+    fun pinMessage(msg: Message) {
+        val current = _state.value.pinnedMessages
+        if (current.any { it.ts == msg.ts }) {
+            _state.value = _state.value.copy(pinnedMessages = current.filter { it.ts != msg.ts })
+        } else {
+            _state.value = _state.value.copy(pinnedMessages = (current + msg).takeLast(3))
+        }
+    }
+
+    fun unpinMessage(ts: Double) {
+        _state.value = _state.value.copy(
+            pinnedMessages = _state.value.pinnedMessages.filter { it.ts != ts }
+        )
+    }
+
+    fun isPinned(ts: Double): Boolean = _state.value.pinnedMessages.any { it.ts == ts }
 
     fun clearError() { _state.value = _state.value.copy(error = null) }
 }

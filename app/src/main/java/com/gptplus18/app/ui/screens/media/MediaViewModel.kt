@@ -15,18 +15,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-enum class MediaTab { IMAGE, SONG, VIDEO }
+enum class MediaTab { SONG, VIDEO }
 
 data class MediaUiState(
-    val tab: MediaTab = MediaTab.IMAGE,
+    val tab: MediaTab = MediaTab.SONG,
     val prompt: String = "",
-    val preset: String = "square",
     val duration: Int = 240,
     val videoDuration: Int = 5,
     val videoModel: String = "auto",
+    val videoImageUri: String? = null,
+    val videoImageUploading: Boolean = false,
+    val videoImageUrl: String? = null,
     val isLoading: Boolean = false,
-    val imageUrl: String? = null,
-    val editImageUri: Uri? = null,
     val songUrl: String? = null,
     val songTitle: String? = null,
     val songLyrics: String? = null,
@@ -60,8 +60,6 @@ class MediaViewModel @Inject constructor(
             tab = t,
             isLoading = false,
             error = null,
-            imageUrl = null,
-            editImageUri = null,
             songUrl = null,
             songTitle = null,
             songLyrics = null,
@@ -71,9 +69,42 @@ class MediaViewModel @Inject constructor(
     }
 
     fun setPrompt(v: String) { _state.value = _state.value.copy(prompt = v) }
-    fun setPreset(p: String) { _state.value = _state.value.copy(preset = p) }
     fun setDuration(d: Int) { _state.value = _state.value.copy(duration = d) }
     fun setVideoDuration(d: Int) { _state.value = _state.value.copy(videoDuration = d) }
+    fun setVideoImage(uri: String) {
+        _state.value = _state.value.copy(videoImageUri = uri, error = null)
+    }
+
+    fun clearVideoImage() {
+        _state.value = _state.value.copy(videoImageUri = null, videoImageUrl = null)
+    }
+
+    private suspend fun uploadVideoImage(): String? {
+        val uri = _state.value.videoImageUri ?: return null
+        _state.value = _state.value.copy(videoImageUploading = true)
+        return try {
+            val r = repo.uploadTempImage(uri)
+            _state.value = _state.value.copy(videoImageUploading = false)
+            when (r) {
+                is Result.Success -> {
+                    val url = r.data
+                    _state.value = _state.value.copy(videoImageUrl = url)
+                    url
+                }
+                else -> {
+                    _state.value = _state.value.copy(
+                        videoImageUploading = false,
+                        error = "\u0641\u0634\u0644 \u0631\u0641\u0639 \u0627\u0644\u0635\u0648\u0631\u0629",
+                    )
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            _state.value = _state.value.copy(videoImageUploading = false)
+            null
+        }
+    }
+
     fun setVideoModel(m: String) { _state.value = _state.value.copy(videoModel = m) }
 
     fun generate() {
@@ -84,7 +115,6 @@ class MediaViewModel @Inject constructor(
         }
 
         val tabSnapshot = _state.value.tab
-        val presetSnapshot = _state.value.preset
         val durationSnapshot = _state.value.duration
         val videoDurationSnapshot = _state.value.videoDuration
         val videoModelSnapshot = _state.value.videoModel
@@ -95,7 +125,6 @@ class MediaViewModel @Inject constructor(
             _state.value = _state.value.copy(
                 isLoading = true,
                 error = null,
-                imageUrl = null,
                 songUrl = null,
                 songTitle = null,
                 songLyrics = null,
@@ -104,17 +133,6 @@ class MediaViewModel @Inject constructor(
             )
 
             when (tabSnapshot) {
-                MediaTab.IMAGE -> {
-                    when (val r = repo.generateImage(prompt, presetSnapshot)) {
-                        is Result.Success -> {
-                            analytics.logImageGenerated(preset = presetSnapshot)
-                            _state.value = _state.value.copy(isLoading = false, imageUrl = r.data.imageUrl)
-                            loadHistory()
-                        }
-                        is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
-                        else -> {}
-                    }
-                }
                 MediaTab.SONG -> {
                     when (val r = repo.generateSong(prompt, durationSnapshot)) {
                         is Result.Success -> {
@@ -132,7 +150,9 @@ class MediaViewModel @Inject constructor(
                     }
                 }
                 MediaTab.VIDEO -> {
-                    when (val r = repo.generateVideo(prompt, videoDurationSnapshot, videoModelSnapshot)) {
+                    // 🎨 رفع الصورة إن وجدت
+                    val imgUrl = uploadVideoImage()
+                    when (val r = repo.generateVideo(prompt, videoDurationSnapshot, videoModelSnapshot, imgUrl)) {
                         is Result.Success -> {
                             analytics.logVideoGenerated(
                                 durationSec = videoDurationSnapshot,
@@ -153,33 +173,6 @@ class MediaViewModel @Inject constructor(
         }
     }
 
-    fun setEditImage(uri: Uri?) {
-        _state.value = _state.value.copy(editImageUri = uri, error = null)
-    }
-
-    fun clearEditImage() {
-        _state.value = _state.value.copy(editImageUri = null)
-    }
-
-    fun editImage() {
-        val uri = _state.value.editImageUri ?: return
-        val prompt = _state.value.prompt.trim()
-
-        currentJob?.cancel()
-        currentJob = viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, error = null, imageUrl = null)
-            when (val r = repo.editImage(uri, prompt)) {
-                is Result.Success -> {
-                    analytics.logImageGenerated(preset = "edit")
-                    _state.value = _state.value.copy(isLoading = false, imageUrl = r.data.imageUrl)
-                    loadHistory()
-                }
-                is Result.Error -> _state.value = _state.value.copy(isLoading = false, error = r.message)
-                else -> {}
-            }
-        }
-    }
-
     fun clearError() { _state.value = _state.value.copy(error = null) }
 
     /**
@@ -194,7 +187,6 @@ class MediaViewModel @Inject constructor(
         }
         // تنظيف النتيجة السابقة ثم إعادة التوليد
         _state.value = current.copy(
-            imageUrl = null,
             songUrl = null,
             videoUrl = null,
             error = null,

@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import android.net.Uri
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,10 +55,11 @@ fun SettingsScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
             )
         },
+    contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize().statusBarsPadding()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),

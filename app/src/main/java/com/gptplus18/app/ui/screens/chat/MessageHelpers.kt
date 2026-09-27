@@ -4,6 +4,7 @@ object MessageHelpers {
     private val IMG_REGEX = Regex("""!\[[^\]]*\]\(([^)]+)\)""")
     private val AUDIO_REGEX = Regex("""\[AUDIO:([^\]]+)\]""")
     private val VIDEO_REGEX = Regex("""\[VIDEO:([^\]]+)\]""")
+    private val CHOICE_REGEX = Regex("""\[\[CHOICE:([^\]]+)\]\]""")
 
     fun extractImageUrl(text: String): String? =
         IMG_REGEX.find(text)?.groupValues?.getOrNull(1)
@@ -19,6 +20,7 @@ object MessageHelpers {
         out = out.replace(IMG_REGEX, "").trim()
         out = out.replace(AUDIO_REGEX, "").trim()
         out = out.replace(VIDEO_REGEX, "").trim()
+        out = out.replace(CHOICE_REGEX, "").trim()
         return out
     }
 }

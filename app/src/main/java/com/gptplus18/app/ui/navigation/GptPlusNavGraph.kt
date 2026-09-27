@@ -21,24 +21,25 @@ import com.gptplus18.app.ui.screens.admin.AdminScreen
 import com.gptplus18.app.ui.screens.about.AboutScreen
 import com.gptplus18.app.ui.screens.auth.AuthScreen
 import com.gptplus18.app.ui.screens.chat.ChatScreen
-import com.gptplus18.app.ui.screens.code.CodeScreen
-import com.gptplus18.app.ui.screens.media.MediaScreen
 import com.gptplus18.app.ui.screens.onboarding.OnboardingScreen
 import com.gptplus18.app.ui.screens.profile.ProfileScreen
 import com.gptplus18.app.ui.screens.splash.SplashScreen
+import com.gptplus18.app.ui.screens.disclaimer.DisclaimerScreen
+import com.gptplus18.app.ui.screens.agecheck.AgeCheckScreen
 import com.gptplus18.app.ui.screens.settings.SettingsScreen
 import com.gptplus18.app.ui.screens.subscription.SubscriptionScreen
 import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.BgPrimary
 import com.gptplus18.app.ui.theme.BgSecondary
+import kotlinx.coroutines.launch
 
 object Routes {
     const val SPLASH = "splash"
+    const val DISCLAIMER = "disclaimer"
+    const val AGE_CHECK = "age_check"
     const val ONBOARDING = "onboarding"
     const val AUTH = "auth"
     const val CHAT = "chat"
-    const val CODE = "code"
-    const val MEDIA = "media"
     const val SUBSCRIPTION = "subscription"
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
@@ -68,12 +69,13 @@ fun GptPlusNavGraph(
 
     Scaffold(
         containerColor = BgPrimary,
-        // 🗑️ تم حذف BottomNav — التنقل عبر Drawer + ModeDropdown
-    ) { padding ->
+        // ⭐ v2.0: Edge-to-Edge — لا نستخدم padding من Scaffold (المحتوى يمتد خلف الأشرطة)
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
+    ) { _ ->
         NavHost(
             navController = navController,
             startDestination = Routes.SPLASH,
-            modifier = Modifier.padding(padding),
+            modifier = Modifier,
             // ✨ Animations بين الشاشات
             enterTransition = {
                 slideInHorizontally(
@@ -104,6 +106,59 @@ fun GptPlusNavGraph(
                 SplashScreen(
                     onNavigateToChat = { navController.navigate(Routes.CHAT) { popUpTo(Routes.SPLASH) { inclusive = true } } },
                     onNavigateToLogin = { navController.navigate(Routes.AUTH) { popUpTo(Routes.SPLASH) { inclusive = true } } },
+                    onNavigateToDisclaimer = { navController.navigate(Routes.DISCLAIMER) { popUpTo(Routes.SPLASH) { inclusive = true } } },
+                    onNavigateToAgeCheck = { navController.navigate(Routes.AGE_CHECK) { popUpTo(Routes.SPLASH) { inclusive = true } } },
+                )
+            }
+            composable(Routes.DISCLAIMER) {
+                val ctx = androidx.compose.ui.platform.LocalContext.current
+                val scope = androidx.compose.runtime.rememberCoroutineScope()
+                DisclaimerScreen(
+                    onAccept = {
+                        scope.launch {
+                            try {
+                                val entry = dagger.hilt.android.EntryPointAccessors.fromApplication(
+                                    ctx.applicationContext,
+                                    com.gptplus18.app.ui.screens.splash.SplashEntryPoint::class.java,
+                                )
+                                entry.prefs().setDisclaimerAccepted()
+                            } catch (_: Exception) {}
+                            navController.navigate(Routes.AGE_CHECK) {
+                                popUpTo(Routes.DISCLAIMER) { inclusive = true }
+                            }
+                        }
+                    },
+                )
+            }
+            composable(Routes.AGE_CHECK) {
+                val ctx = androidx.compose.ui.platform.LocalContext.current
+                val scope = androidx.compose.runtime.rememberCoroutineScope()
+                AgeCheckScreen(
+                    onVerified = {
+                        scope.launch {
+                            try {
+                                val entry = dagger.hilt.android.EntryPointAccessors.fromApplication(
+                                    ctx.applicationContext,
+                                    com.gptplus18.app.ui.screens.splash.SplashEntryPoint::class.java,
+                                )
+                                entry.prefs().setAgeVerified()
+                                val hasToken = entry.tokenStorage().getToken() != null
+                                if (hasToken) {
+                                    navController.navigate(Routes.CHAT) { popUpTo(Routes.AGE_CHECK) { inclusive = true } }
+                                } else {
+                                    navController.navigate(Routes.AUTH) { popUpTo(Routes.AGE_CHECK) { inclusive = true } }
+                                }
+                            } catch (_: Exception) {
+                                navController.navigate(Routes.AUTH) { popUpTo(Routes.AGE_CHECK) { inclusive = true } }
+                            }
+                        }
+                    },
+                    onRejected = {
+                        // نغلق التطبيق — أقل من 18
+                        try {
+                            (ctx as? android.app.Activity)?.finishAffinity()
+                        } catch (_: Exception) {}
+                    },
                 )
             }
             composable(Routes.ONBOARDING) {
@@ -126,20 +181,6 @@ fun GptPlusNavGraph(
             }
             composable(Routes.CHAT) {
                 ChatScreen(
-                    onNavigateToCode = {
-                        navController.navigate(Routes.CODE) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
-                    onNavigateToMedia = {
-                        navController.navigate(Routes.MEDIA) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
                     onNavigateToSubscription = {
                         navController.navigate(Routes.SUBSCRIPTION) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -167,8 +208,7 @@ fun GptPlusNavGraph(
                     },
                 )
             }
-            composable(Routes.CODE) { CodeScreen() }
-            composable(Routes.MEDIA) { MediaScreen() }
+            // ⭐ v2.0: Code + Media دُمجا في Chat (تُستدعى تلقائياً حسب النية)
             composable(Routes.SUBSCRIPTION) { SubscriptionScreen() }
             composable(Routes.PROFILE) {
                 ProfileScreen(

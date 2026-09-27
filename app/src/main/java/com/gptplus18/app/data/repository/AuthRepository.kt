@@ -4,8 +4,11 @@ import com.gptplus18.app.util.DeviceIdProvider
 import com.gptplus18.app.data.api.ApiService
 import com.gptplus18.app.data.local.TokenStorage
 import com.gptplus18.app.data.models.LoginRequest
+import com.gptplus18.app.data.models.GoogleIdTokenRequest
+import com.gptplus18.app.data.models.GoogleIdTokenResponse
 import com.gptplus18.app.data.models.SignupRequest
 import com.gptplus18.app.data.models.User
+import com.gptplus18.app.data.models.UpdateProfileRequest
 import com.gptplus18.app.util.Result
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,6 +49,21 @@ class AuthRepository @Inject constructor(
         }
     }
 
+    suspend fun loginWithGoogleIdToken(idToken: String): Result<GoogleIdTokenResponse> {
+        return try {
+            val r = api.loginWithGoogleIdToken(GoogleIdTokenRequest(idToken))
+            if (r.isSuccessful) {
+                val body = r.body()!!
+                tokenStorage.save(body.token, body.name, body.email, body.uid)
+                Result.Success(body)
+            } else {
+                Result.Error(parseError(r.errorBody()?.string(), r.code()))
+            }
+        } catch (e: Exception) {
+            Result.Error("تعذر الاتصال: ${e.message ?: "شبكة"}")
+        }
+    }
+
     suspend fun me(): Result<User> {
         return try {
             val token = tokenStorage.getToken() ?: return Result.Error("غير مصرح")
@@ -54,6 +72,22 @@ class AuthRepository @Inject constructor(
             else Result.Error("جلسة منتهية")
         } catch (e: Exception) {
             Result.Error(e.message ?: "خطأ")
+        }
+    }
+
+    suspend fun updateProfile(avatarUrl: String? = null, name: String? = null): Result<User> {
+        return try {
+            val token = tokenStorage.getToken() ?: return Result.Error("غير مصرح")
+            val r = api.updateProfile("Bearer $token", UpdateProfileRequest(name = name, avatarUrl = avatarUrl))
+            if (r.isSuccessful) {
+                val user = r.body()!!.user
+                tokenStorage.save(token, user.name, user.email, user.id)
+                Result.Success(user)
+            } else {
+                Result.Error("فشل التحديث (${r.code()})")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ بالشبكة")
         }
     }
 

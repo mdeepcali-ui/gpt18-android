@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -48,10 +49,11 @@ fun AboutScreen(onBack: () -> Unit = {}) {
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
             )
         },
+    contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize().statusBarsPadding()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp),

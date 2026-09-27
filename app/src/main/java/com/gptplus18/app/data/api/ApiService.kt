@@ -18,8 +18,17 @@ interface ApiService {
     @POST("api/auth/login")
     suspend fun login(@Body body: LoginRequest): Response<AuthResponse>
 
+    @POST("api/auth/google/idtoken")
+    suspend fun loginWithGoogleIdToken(@Body body: GoogleIdTokenRequest): Response<GoogleIdTokenResponse>
+
     @GET("api/auth/me")
     suspend fun me(@Header("Authorization") bearer: String): Response<MeResponse>
+
+    @PUT("api/auth/me")
+    suspend fun updateProfile(
+        @Header("Authorization") bearer: String,
+        @Body body: UpdateProfileRequest,
+    ): Response<MeResponse>
 
     @GET("api/auth/subscription")
     suspend fun mySubscription(@Header("Authorization") bearer: String): Response<MySubscriptionResponse>
@@ -130,25 +139,18 @@ interface ApiService {
     ): Response<Any>
 
     // ─── Media ───
-    @POST("api/chat/image")
-    suspend fun generateImage(
-        @Header("Authorization") bearer: String,
-        @Body body: ImageRequest,
-    ): Response<ImageResponse>
-
-    @Multipart
-    @POST("api/chat/edit")
-    suspend fun editImage(
-        @Header("Authorization") bearer: String,
-        @Part file: MultipartBody.Part,
-        @Part("prompt") prompt: RequestBody,
-    ): Response<ImageResponse>
-
     @POST("api/chat/song")
     suspend fun generateSong(
         @Header("Authorization") bearer: String,
         @Body body: SongRequest,
     ): Response<SongResponse>
+
+    @Multipart
+    @POST("api/chat/upload-temp")
+    suspend fun uploadTempFile(
+        @Header("Authorization") bearer: String,
+        @Part file: MultipartBody.Part,
+    ): Response<Map<String, Any>>
 
     @POST("api/chat/video")
     suspend fun generateVideo(

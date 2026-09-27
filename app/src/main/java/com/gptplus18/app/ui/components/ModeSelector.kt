@@ -76,7 +76,7 @@ fun ModeSelector(
                 )
 
                 ChatMode.values().forEach { mode ->
-                    val locked = mode.requiresSub && !isSubscribed
+                    val locked = false  // ⭐ v2.0: الباكند يقرر (is_owner/can_image) — لا فحص محلي
                     DropdownMenuItem(
                         modifier = Modifier.background(colors.surface),
                         colors = MenuDefaults.itemColors(

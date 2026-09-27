@@ -27,7 +27,7 @@ android {
         targetSdk = 35
         // versionCode يتزايد دقيقة بدقيقة — فريد لكل build
         versionCode = ((System.currentTimeMillis() / 60_000L) % 2_000_000_000L).toInt()
-        versionName = "1.0.29"
+        versionName = "1.1.0"
         vectorDrawables { useSupportLibrary = true }
 
         buildConfigField("String", "BASE_URL", "\"https://gptplus18.com/\"")
@@ -112,10 +112,19 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
+    // ─── Google Credential Manager (Bottom Sheet الأصلي) ───
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
     // ─── Chrome Custom Tabs ───
     implementation("androidx.browser:browser:1.8.0")
 
     implementation("io.coil-kt:coil-compose:2.7.0")
+    // ⭐ v2.0: media3 for audio/video playback
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
+    implementation("androidx.media3:media3-common:1.4.1")
     implementation("io.coil-kt:coil-gif:2.7.0")
     implementation("com.google.zxing:core:3.5.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")

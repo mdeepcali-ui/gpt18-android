@@ -1,6 +1,14 @@
 package com.gptplus18.app.ui.screens.profile
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Base64
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -15,8 +23,10 @@ import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,6 +34,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gptplus18.app.ui.theme.*
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import java.io.ByteArrayOutputStream
 import com.gptplus18.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,24 +58,99 @@ fun ProfileScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
             )
         },
+    contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize().statusBarsPadding()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Avatar
+            // Avatar + زر تغيير
+            val ctx = LocalContext.current
+            val scope = rememberCoroutineScope()
+
+            val pickLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent()
+            ) { uri: Uri? ->
+                if (uri != null) {
+                    try {
+                        val input = ctx.contentResolver.openInputStream(uri)
+                        val bmp = BitmapFactory.decodeStream(input)
+                        input?.close()
+                        if (bmp != null) {
+                            // ضغط + resize إلى 256×256
+                            val maxSize = 256
+                            val ratio = minOf(maxSize.toFloat() / bmp.width, maxSize.toFloat() / bmp.height, 1f)
+                            val newW = (bmp.width * ratio).toInt().coerceAtLeast(1)
+                            val newH = (bmp.height * ratio).toInt().coerceAtLeast(1)
+                            val scaled = Bitmap.createScaledBitmap(bmp, newW, newH, true)
+                            val baos = ByteArrayOutputStream()
+                            scaled.compress(Bitmap.CompressFormat.JPEG, 85, baos)
+                            val bytes = baos.toByteArray()
+                            val b64 = "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
+                            vm.setAvatar(b64)
+                        }
+                    } catch (_: Exception) {}
+                }
+            }
+
             Box(
-                modifier = Modifier.size(100.dp).background(Accent, CircleShape),
-                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(110.dp),
+                contentAlignment = Alignment.BottomEnd,
             ) {
-                Text(
-                    state.userName.take(1).uppercase().ifEmpty { "?" },
-                    fontSize = 42.sp, fontWeight = FontWeight.Bold, color = BgPrimary,
-                )
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .background(Accent)
+                        .clickable { pickLauncher.launch("image/*") },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    val avatarModel = remember(state.avatarUrl) {
+                        if (state.avatarUrl.startsWith("data:image")) {
+                            // نفك base64 يدوياً
+                            try {
+                                val base64Part = state.avatarUrl.substringAfter(",")
+                                val bytes = Base64.decode(base64Part, Base64.DEFAULT)
+                                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                            } catch (_: Exception) { null }
+                        } else if (state.avatarUrl.isNotBlank()) {
+                            state.avatarUrl
+                        } else null
+                    }
+                    if (avatarModel != null) {
+                        AsyncImage(
+                            model = avatarModel,
+                            contentDescription = "avatar",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize().clip(CircleShape),
+                        )
+                    } else {
+                        Text(
+                            state.userName.take(1).uppercase().ifEmpty { "?" },
+                            fontSize = 42.sp, fontWeight = FontWeight.Bold, color = BgPrimary,
+                        )
+                    }
+                }
+                // شارة كاميرا صغيرة
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(Accent)
+                        .clickable { pickLauncher.launch("image/*") },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("📷", fontSize = 14.sp)
+                }
+            }
+
+            if (state.isUploadingAvatar) {
+                Spacer(Modifier.height(6.dp))
+                Text("⏳ جاري الرفع...", color = Accent, fontSize = 12.sp)
             }
 
             Spacer(Modifier.height(16.dp))

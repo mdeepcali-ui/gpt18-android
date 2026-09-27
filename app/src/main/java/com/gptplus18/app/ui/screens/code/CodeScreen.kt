@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -72,6 +73,7 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
 
     Scaffold(
         containerColor = BgPrimary,
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = {
@@ -124,7 +126,7 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
             )
         },
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
+        Box(Modifier.fillMaxSize().statusBarsPadding().padding(padding)) {
             if (state.currentSessionId == null) {
                 SessionList(
                     sessions = state.sessions,
@@ -140,13 +142,33 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                         contentPadding = PaddingValues(vertical = 12.dp),
                     ) {
                         items(state.messages, key = { it.id.toString() + it.ts }) { m ->
-                            // ⭐ رسالة المساعد الفارغة = مؤشر "يفكر..."
-                            if (m.id == -2 && m.content.isBlank()) {
-                                Column(
-                                    Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                                    horizontalAlignment = Alignment.Start,
-                                ) {
-                                    RunningIndicator(state.jobStatus, state.logs)
+                            if (m.id == -2) {
+                                // رسالة المساعد المؤقتة — النص فقط
+                                Column(Modifier.fillMaxWidth()) {
+                                    // CLOUD thinking bubble
+                                    if (state.isRunning && m.content.isBlank()) {
+                                        RunningIndicator(
+                                            status = state.statusLabel.ifBlank { "يفكر..." },
+                                            logs = emptyList(),
+                                            thinkingText = state.thinkingText,
+                                        )
+                                    }
+                                    // ⭐ النص — يظهر حرف بحرف
+                                    if (m.content.isNotBlank()) {
+                                        val asMsg = Message(
+                                            id = m.id,
+                                            role = m.role,
+                                            content = m.content,
+                                            ts = m.ts,
+                                        )
+                                        MessageBubble(
+                                            msg = asMsg,
+                                            onImageClick = { url -> fullscreenImage = url },
+                                            onLongPress = { },
+                                            onCopy = { text -> clip.setText(AnnotatedString(text)) },
+                                            onEdit = { msg -> input = msg.content },
+                                        )
+                                    }
                                 }
                             } else {
                                 val asMsg = Message(
@@ -342,17 +364,21 @@ private fun SessionList(
 }
 
 @Composable
-private fun RunningIndicator(status: String, logs: List<com.gptplus18.app.data.models.CodeLogEntry>) {
+private fun RunningIndicator(
+    status: String,
+    logs: List<com.gptplus18.app.data.models.CodeLogEntry> = emptyList(),
+    thinkingText: String = "",
+) {
     // ☁️ سحابة التفكير مع Shimmer
     val statusText = when (status) {
         "starting" -> stringResource(R.string.t_163)
         "running" -> stringResource(R.string.t_164)
-        else -> stringResource(R.string.t_165)
+        else -> status
     }
-    val logsText = if (logs.isNotEmpty()) {
-        logs.takeLast(4).joinToString("\n") { "• ${it.msg}" }
-    } else {
-        statusText
+    val logsText = when {
+        thinkingText.isNotBlank() -> thinkingText.trim()
+        logs.isNotEmpty() -> logs.takeLast(4).joinToString("\n") { "• ${it.msg}" }
+        else -> statusText
     }
     com.gptplus18.app.ui.components.ThinkingShimmer(
         text = logsText,
