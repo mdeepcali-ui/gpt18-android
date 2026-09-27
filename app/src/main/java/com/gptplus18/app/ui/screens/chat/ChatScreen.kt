@@ -1224,13 +1224,23 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                                 .background(androidx.compose.ui.graphics.Color.Black),
                             contentAlignment = Alignment.Center,
                         ) {
-                            android.widget.VideoView(
-                                ctx,
-                            ).apply {
-                                setVideoPath(videoUrl)
-                                setOnPreparedListener { it.isLooping = true; it.start() }
-                                setMediaController(android.widget.MediaController(ctx).also { it.setAnchorView(this) })
-                            }
+                            androidx.compose.ui.viewinterop.AndroidView(
+                                factory = { context ->
+                                    android.widget.VideoView(context).apply {
+                                        setVideoPath(videoUrl)
+                                        setOnPreparedListener { mp ->
+                                            mp.isLooping = true
+                                            start()
+                                        }
+                                        val mediaController = android.widget.MediaController(context)
+                                        mediaController.setAnchorView(this)
+                                        setMediaController(mediaController)
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(400.dp),
+                            )
                         }
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
