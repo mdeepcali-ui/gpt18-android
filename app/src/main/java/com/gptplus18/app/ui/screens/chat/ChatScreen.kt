@@ -406,7 +406,7 @@ fun ChatScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         ) {
-                            val visibleMessages = remember(state.messages) { state.messages.filter { it.role != "thinking" } }
+                            val visibleMessages = state.messages.filter { it.role != "thinking" }
                             // EMPTY_LOGO_STATE
                             if (visibleMessages.isEmpty() && !state.isSending && !state.isUploading) {
                                 item {
