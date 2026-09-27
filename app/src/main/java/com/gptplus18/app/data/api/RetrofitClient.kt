@@ -21,14 +21,22 @@ object RetrofitClient {
     }
 
     // ═══ Retry Interceptor ═══
-    // ⚠️ مهم: لا نعيد المحاولة لطلبات رفع الملفات (MultipartBody)
-    // لأن الـ body يُستهلك مرة واحدة فقط، وإعادة المحاولة تفشل فوراً.
+    // ⚠️ مهم جداً: لا نعيد المحاولة مطلقاً للطلبات الآتية:
+    // 1) رفع الملفات (MultipartBody) - الـ body يُستهلك مرة واحدة
+    // 2) process-uploaded و stream - الطلبات المكلفة (توليد فيديو/صور)
+    //    لأن إعادة المحاولة = توليد إضافي = خصم مزدوج من الرصيد!
     private val retryInterceptor = Interceptor { chain ->
         val request = chain.request()
+        val path = request.url.encodedPath
 
-        // تخطي retry لطلبات الرفع (multipart)
         val isUpload = request.body is MultipartBody
-        if (isUpload) {
+        val isExpensiveOp = path.contains("process-uploaded") ||
+                            path.contains("chat/stream") ||
+                            path.contains("generate") ||
+                            path.contains("upload")
+
+        if (isUpload || isExpensiveOp) {
+            // ⭐ لا retry — نمرر الطلب مرة واحدة فقط
             return@Interceptor chain.proceed(request)
         }
 
@@ -61,7 +69,7 @@ object RetrofitClient {
         .readTimeout(180, TimeUnit.SECONDS)       // كان 120 — رفعناه لدعم الردود الطويلة
         .writeTimeout(300, TimeUnit.SECONDS)      // كان 60 — رفعناه لدعم رفع الصور على 4G
         .callTimeout(600, TimeUnit.SECONDS)       // جديد — 10 دقائق إجمالية لكل طلب
-        .retryOnConnectionFailure(true)
+        .retryOnConnectionFailure(false)
         .build()
 
     val api: ApiService by lazy {
