@@ -333,7 +333,7 @@ class ChatViewModel @Inject constructor(
                         is StreamEvent.Delta -> {
                             sb.append(ev.text)
                             val nowMs = System.currentTimeMillis()
-                            if (nowMs - lastUiUpdate >= 40L) {
+                            if (nowMs - lastUiUpdate >= 80L) {
                                 lastUiUpdate = nowMs
                                 val currentText = sb.toString()
                                 _state.value = _state.value.copy(
