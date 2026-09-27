@@ -277,6 +277,8 @@ class StreamingClient {
 sealed class StreamEvent {
     data class ThinkingDelta(val text: String) : StreamEvent()
     data class Delta(val text: String) : StreamEvent()
+    data class Status(val text: String) : StreamEvent()
+    data class ImageUrl(val url: String, val prompt: String = "") : StreamEvent()
     data class Done(
         val sessionId: Int,
         val thinking: String,
