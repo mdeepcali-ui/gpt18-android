@@ -73,6 +73,7 @@ import com.gptplus18.app.ui.components.MarkdownText
 import com.gptplus18.app.ui.components.MessageActionsSheet
 import com.gptplus18.app.ui.components.MessageTimestamp
 import com.gptplus18.app.ui.components.TypingIndicator
+import com.gptplus18.app.ui.components.VideoPlayerCard
 import com.gptplus18.app.ui.theme.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
@@ -1216,32 +1217,10 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                         if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (videoUrl != null) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 420.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(androidx.compose.ui.graphics.Color.Black),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            androidx.compose.ui.viewinterop.AndroidView(
-                                factory = { context ->
-                                    android.widget.VideoView(context).apply {
-                                        setVideoPath(videoUrl)
-                                        setOnPreparedListener { mp ->
-                                            mp.isLooping = true
-                                            start()
-                                        }
-                                        val mediaController = android.widget.MediaController(context)
-                                        mediaController.setAnchorView(this)
-                                        setMediaController(mediaController)
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(400.dp),
-                            )
-                        }
+                        VideoPlayerCard(
+                            videoUrl = videoUrl,
+                            modifier = Modifier.padding(vertical = 4.dp),
+                        )
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                             modifier = Modifier.padding(vertical = 4.dp),
