@@ -277,6 +277,7 @@ class ChatViewModel @Inject constructor(
             val sidForServer = if (current.currentSessionId == -1) null else current.currentSessionId
             val thinkingSb = StringBuilder()
             var lastUiUpdate = 0L
+            var lastThinkingUiUpdate = 0L
 
             var gotImage = false
             try {
@@ -314,15 +315,19 @@ class ChatViewModel @Inject constructor(
                         }
                         is StreamEvent.ThinkingDelta -> {
                             thinkingSb.append(ev.text)
-                            val current = _state.value.thinkingByMessage[thinkId]
-                            _state.value = _state.value.copy(
-                                thinkingByMessage = _state.value.thinkingByMessage + (thinkId to ThinkingData(
-                                    steps = current?.steps ?: thinkingSteps,
-                                    status = "think",
-                                    rawText = thinkingSb.toString(),
-                                )),
-                                statusLabel = "يفكر",
-                            )
+                            val _nowThink = System.currentTimeMillis()
+                            if (_nowThink - lastThinkingUiUpdate >= 80L) {
+                                lastThinkingUiUpdate = _nowThink
+                                val current = _state.value.thinkingByMessage[thinkId]
+                                _state.value = _state.value.copy(
+                                    thinkingByMessage = _state.value.thinkingByMessage + (thinkId to ThinkingData(
+                                        steps = current?.steps ?: thinkingSteps,
+                                        status = "think",
+                                        rawText = thinkingSb.toString(),
+                                    )),
+                                    statusLabel = "يفكر",
+                                )
+                            }
                         }
                         // ⭐ الرد — يظهر حرف بحرف مباشرة (بدون clean)
                         is StreamEvent.Delta -> {
