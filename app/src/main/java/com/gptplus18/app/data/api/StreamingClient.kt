@@ -22,8 +22,8 @@ class StreamingClient {
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
-        // ⭐ 180 ثانية كحد أقصى للقراءة — يمنع التعليق للأبد
-        .readTimeout(180, TimeUnit.SECONDS)
+        // ⭐ 15 دقيقة — يكفي لتوليد فيديو Seedance 2.5
+        .readTimeout(900, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
         // ⭐ ping كل 20 ثانية للتأكد من الاتصال
         .pingInterval(20, TimeUnit.SECONDS)
@@ -82,8 +82,15 @@ class StreamingClient {
                         obj.optBoolean("done", false) -> {
                             val sid = obj.optInt("session_id", -1)
                             val thinking = obj.optString("thinking", "")
+                            val videoUrl = if (obj.has("video_url")) obj.optString("video_url", "") else null
+                            val imageUrl = if (obj.has("image_url")) obj.optString("image_url", "") else null
                             doneEmitted = true
-                            trySend(StreamEvent.Done(sessionId = sid, thinking = thinking))
+                            trySend(StreamEvent.Done(
+                                sessionId = sid,
+                                thinking = thinking,
+                                videoUrl = videoUrl,
+                                imageUrl = imageUrl,
+                            ))
                             close()
                         }
                         obj.has("error") -> {
@@ -132,6 +139,11 @@ class StreamingClient {
 sealed class StreamEvent {
     data class ThinkingDelta(val text: String) : StreamEvent()
     data class Delta(val text: String) : StreamEvent()
-    data class Done(val sessionId: Int, val thinking: String) : StreamEvent()
+    data class Done(
+        val sessionId: Int,
+        val thinking: String,
+        val videoUrl: String? = null,
+        val imageUrl: String? = null,
+    ) : StreamEvent()
     data class Error(val message: String) : StreamEvent()
 }

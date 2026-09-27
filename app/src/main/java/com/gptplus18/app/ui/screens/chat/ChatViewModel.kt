@@ -268,6 +268,7 @@ class ChatViewModel @Inject constructor(
             // 🆕 -1 = شات جديدة → نمرر null للسيرفر (ينشئ session جديدة)
             val sidForServer = if (current.currentSessionId == -1) null else current.currentSessionId
             val thinkingSb = StringBuilder()
+            var lastUiUpdate = 0L
 
             try {
             chatRepo.streamMessage(sidForServer, finalText)
@@ -289,15 +290,19 @@ class ChatViewModel @Inject constructor(
                         // ⭐ الرد — يظهر حرف بحرف مباشرة (بدون clean)
                         is StreamEvent.Delta -> {
                             sb.append(ev.text)
-                            val currentText = sb.toString()
-                            _state.value = _state.value.copy(
-                                messages = _state.value.messages.map { m ->
-                                    if (m.id == -2 && m.ts == assistantTs) {
-                                        m.copy(content = currentText)
-                                    } else m
-                                },
-                                statusLabel = "يكتب",
-                            )
+                            val nowMs = System.currentTimeMillis()
+                            if (nowMs - lastUiUpdate >= 40L) {
+                                lastUiUpdate = nowMs
+                                val currentText = sb.toString()
+                                _state.value = _state.value.copy(
+                                    messages = _state.value.messages.map { m ->
+                                        if (m.id == -2 && m.ts == assistantTs) {
+                                            m.copy(content = currentText)
+                                        } else m
+                                    },
+                                    statusLabel = "يكتب",
+                                )
+                            }
                         }
                         is StreamEvent.Done -> {
                             finalSessionId = if (ev.sessionId > 0) ev.sessionId else current.currentSessionId

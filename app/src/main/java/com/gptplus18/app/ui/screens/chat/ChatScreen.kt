@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -715,9 +716,11 @@ fun MessageBubble(
     val isUser = msg.role == "user"
     val imageUrl = MessageHelpers.extractImageUrl(msg.content)
     val audioUrl = MessageHelpers.extractAudioUrl(msg.content)
+    val videoUrl = MessageHelpers.extractVideoUrl(msg.content)
     val cleanText = MessageHelpers.stripMediaMarkers(msg.content)
     // ⭐ محلي: صورة مرفوعة لم تُرفع للسيرفر بعد
     val localImage = msg.localImageUri
+    val ctx = LocalContext.current
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -767,6 +770,29 @@ fun MessageBubble(
                                         onLongClick = onLongPress,
                                     ),
                             )
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier.padding(vertical = 4.dp),
+                            ) {
+                                ActionButton(
+                                    icon = Icons.Default.Add,
+                                    label = "حفظ",
+                                    onClick = {
+                                        com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, imageUrl, "image") { ok ->
+                                            Toast.makeText(ctx, if (ok) "✅ تم حفظ الصورة بنجاح" else "❌ فشل الحفظ", Toast.LENGTH_SHORT).show()
+                                        }
+                                    },
+                                )
+                                ActionButton(
+                                    icon = Icons.Default.Add,
+                                    label = "مشاركة",
+                                    onClick = {
+                                        kotlinx.coroutines.GlobalScope.launch {
+                                            com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, imageUrl, "image")
+                                        }
+                                    },
+                                )
+                            }
                             if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                         }
                         if (cleanText.isNotBlank()) {
@@ -840,10 +866,81 @@ fun MessageBubble(
                             Text(stringResource(R.string.t_049), color = TextPrimary,
                                 fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.padding(vertical = 4.dp),
+                        ) {
+                            ActionButton(
+                                icon = Icons.Default.Add,
+                                label = "حفظ",
+                                onClick = {
+                                    com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, audioUrl, "song") { ok ->
+                                        Toast.makeText(ctx, if (ok) "✅ تم حفظ الأغنية بنجاح" else "❌ فشل الحفظ", Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                            )
+                            ActionButton(
+                                icon = Icons.Default.Add,
+                                label = "مشاركة",
+                                onClick = {
+                                    kotlinx.coroutines.GlobalScope.launch {
+                                        com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, audioUrl, "song")
+                                    }
+                                },
+                            )
+                        }
+                        if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
+                    }
+                    if (videoUrl != null) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 420.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(androidx.compose.ui.graphics.Color.Black),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            android.widget.VideoView(
+                                ctx,
+                            ).apply {
+                                setVideoPath(videoUrl)
+                                setOnPreparedListener { it.isLooping = true; it.start() }
+                                setMediaController(android.widget.MediaController(ctx).also { it.setAnchorView(this) })
+                            }
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.padding(vertical = 4.dp),
+                        ) {
+                            ActionButton(
+                                icon = Icons.Default.Add,
+                                label = "حفظ",
+                                onClick = {
+                                    com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, videoUrl, "video") { ok ->
+                                        Toast.makeText(ctx, if (ok) "✅ تم حفظ الفيديو بنجاح" else "❌ فشل الحفظ", Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                            )
+                            ActionButton(
+                                icon = Icons.Default.Add,
+                                label = "مشاركة",
+                                onClick = {
+                                    kotlinx.coroutines.GlobalScope.launch {
+                                        com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, videoUrl, "video")
+                                    }
+                                },
+                            )
+                        }
                         if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (cleanText.isNotBlank()) {
-                        MarkdownText(cleanText, textColor = TextPrimary, fontSize = 16)
+                        if (msg.id == -2) {
+                            // ⚡ Streaming: نص عادي — بدون إعادة parse Markdown
+                            Text(cleanText, color = TextPrimary, fontSize = 16.sp)
+                        } else {
+                            // ✅ بعد الانتهاء: Markdown كامل
+                            MarkdownText(cleanText, textColor = TextPrimary, fontSize = 16)
+                        }
                     }
                 }
             }

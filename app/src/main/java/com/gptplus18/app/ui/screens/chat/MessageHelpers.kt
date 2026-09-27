@@ -11,6 +11,9 @@ object MessageHelpers {
     fun extractAudioUrl(text: String): String? =
         AUDIO_REGEX.find(text)?.groupValues?.getOrNull(1)
 
+    fun extractVideoUrl(text: String): String? =
+        VIDEO_REGEX.find(text)?.groupValues?.getOrNull(1)
+
     fun stripMediaMarkers(text: String): String {
         var out = text
         out = out.replace(IMG_REGEX, "").trim()

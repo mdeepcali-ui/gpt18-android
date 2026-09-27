@@ -12,14 +12,14 @@ import com.gptplus18.app.R
 /**
  * 🎨 علامات الكلمات الحساسة — 3 ألوان
  * - [[حساس_احمر]]...[[/حساس_احمر]]       🔴
- * - [[حساس_برتقالي]]...[[/حساس_برتقالي]] 🟠
+ * - [[حساس_أزرق]]...[[/حساس_أزرق]] 🔵
  * - [[حساس_اخضر]]...[[/حساس_اخضر]]       🟢
  */
 object SensitiveMarkers {
 
     // ─── الألوان ───
     val RED = Color(0xFFFF6B6B)
-    val ORANGE = Color(0xFFFFA657)
+    val ORANGE = Color(0xFF4FC3F7)  // 🔵 أزرق فاتح (كان برتقالي)
     val GREEN = Color(0xFF7EE787)
 
     private data class Marker(
@@ -30,7 +30,7 @@ object SensitiveMarkers {
 
     private val MARKERS = listOf(
         Marker("[[حساس_احمر]]", "[[/حساس_احمر]]", RED),
-        Marker("[[حساس_برتقالي]]", "[[/حساس_برتقالي]]", ORANGE),
+        Marker("[[حساس_أزرق]]", "[[/حساس_أزرق]]", ORANGE),
         Marker("[[حساس_اخضر]]", "[[/حساس_اخضر]]", GREEN),
     )
 
