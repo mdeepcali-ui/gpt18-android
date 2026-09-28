@@ -1201,7 +1201,9 @@ fun MessageBubble(
                                             when (action) {
                                                 "تحويل" -> onChoiceClick("حوّلها فيديو")
                                                 "تعديل" -> onChoiceClick("عدّلها")
-                                                "حفظ" -> com.gptplus18.app.util.MediaShareHelper.saveToGallery(_imgCtx, imageUrl, "image")
+                                                "حفظ" -> com.gptplus18.app.util.MediaShareHelper.saveToGallery(_imgCtx, imageUrl, "image") { ok ->
+                                                    android.widget.Toast.makeText(_imgCtx, if (ok) "✅ تم حفظ الصورة بنجاح" else "❌ فشل الحفظ", android.widget.Toast.LENGTH_SHORT).show()
+                                                }
                                                 "مشاركة" -> _imgScope.launch {
                                                     com.gptplus18.app.util.MediaShareHelper.shareMedia(_imgCtx, imageUrl, "image")
                                                 }
