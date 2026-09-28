@@ -38,7 +38,7 @@ fun ThinkingShimmer(
         initialValue = -1f,
         targetValue = 2f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 500, easing = LinearEasing),
+            animation = tween(durationMillis = 1200, easing = LinearEasing),
             repeatMode = RepeatMode.Restart,
         ),
         label = "shimmer_x",
@@ -46,10 +46,10 @@ fun ThinkingShimmer(
 
     val isDark = isSystemInDarkTheme()
     val baseColor = if (isDark) Color(0xFF8E8E93) else Color(0xFF6E6E73)
-    val shimmerColor = if (isDark) Color(0xFFE0E0E6) else Color(0xFF2A2A2E)
+    val shimmerColor = if (isDark) Color(0xFFFFFFFF) else Color(0xFF000000)
 
     val gradient = Brush.horizontalGradient(
-        colors = listOf(baseColor, baseColor, shimmerColor, baseColor, baseColor),
+        colors = listOf(baseColor, baseColor, shimmerColor, shimmerColor, baseColor, baseColor),
         startX = shimmerX * 400f,
         endX = shimmerX * 400f + 120f,
     )

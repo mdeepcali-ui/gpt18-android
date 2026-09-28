@@ -406,7 +406,7 @@ fun ChatScreen(
                             state = listState,
                             modifier = Modifier.weight(1f).fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(12.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, top = 12.dp, bottom = 80.dp),
                         ) {
                             val visibleMessages = state.messages.filter { it.role != "thinking" }
                             // EMPTY_LOGO_STATE
@@ -453,6 +453,9 @@ fun ChatScreen(
                                     if (state.statusLabel != stringResource(R.string.t_131)) {
                                         com.gptplus18.app.ui.components.ThinkingShimmer(
                                             text = thinkingText.ifBlank { "يجهّز الرد..." },
+                                        )
+                                        androidx.compose.foundation.layout.Spacer(
+                                            Modifier.height(60.dp)
                                         )
                                     }
                                 }
@@ -1454,7 +1457,7 @@ fun StatusBubble(label: String) {
         targetValue = 2f,
         animationSpec = androidx.compose.animation.core.infiniteRepeatable(
             animation = androidx.compose.animation.core.tween(
-                durationMillis = 900,
+                durationMillis = 1200,
                 easing = androidx.compose.animation.core.LinearEasing,
             ),
             repeatMode = androidx.compose.animation.core.RepeatMode.Restart,
@@ -1490,7 +1493,7 @@ fun StatusBubble(label: String) {
 
     // 📝 نص رمادي + وهج أبيض فاتح
     val baseColor = Color(0xFF8E8E93)
-    val shimmerColor = Color(0xFFE0E0E6)
+    val shimmerColor = Color(0xFFFFFFFF)
 
     androidx.compose.foundation.layout.Box(
         modifier = Modifier
@@ -1532,11 +1535,11 @@ fun StatusBubble(label: String) {
                     brush = Brush.horizontalGradient(
                         colors = listOf(
                             baseColor, baseColor,
-                            shimmerColor, shimmerColor,
+                            shimmerColor, shimmerColor, shimmerColor,
                             baseColor, baseColor,
                         ),
-                        startX = shimmerX * 500f,
-                        endX = shimmerX * 500f + 200f,
+                        startX = shimmerX * 600f,
+                        endX = shimmerX * 600f + 150f,
                     ),
                 ),
             )
