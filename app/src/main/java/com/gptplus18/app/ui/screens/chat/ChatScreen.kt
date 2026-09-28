@@ -406,7 +406,7 @@ fun ChatScreen(
                             state = listState,
                             modifier = Modifier.weight(1f).fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(12.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, top = 12.dp, bottom = 80.dp),
+                            contentPadding = PaddingValues(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 80.dp),
                         ) {
                             val visibleMessages = state.messages.filter { it.role != "thinking" }
                             // EMPTY_LOGO_STATE
