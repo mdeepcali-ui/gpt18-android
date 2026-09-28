@@ -27,7 +27,7 @@ import com.gptplus18.app.ui.screens.splash.SplashScreen
 import com.gptplus18.app.ui.screens.disclaimer.DisclaimerScreen
 import com.gptplus18.app.ui.screens.agecheck.AgeCheckScreen
 import com.gptplus18.app.ui.screens.settings.SettingsScreen
-import com.gptplus18.app.ui.screens.subscription.SubscriptionScreen
+import com.gptplus18.app.ui.screens.subscription.BillingScreen
 import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.BgPrimary
 import com.gptplus18.app.ui.theme.BgSecondary
@@ -209,7 +209,7 @@ fun GptPlusNavGraph(
                 )
             }
             // ⭐ v2.0: Code + Media دُمجا في Chat (تُستدعى تلقائياً حسب النية)
-            composable(Routes.SUBSCRIPTION) { SubscriptionScreen() }
+            composable(Routes.SUBSCRIPTION) { BillingScreen(onBack = { navController.popBackStack() }) }
             composable(Routes.PROFILE) {
                 ProfileScreen(
                     onAdminClick = { navController.navigate(Routes.ADMIN) },

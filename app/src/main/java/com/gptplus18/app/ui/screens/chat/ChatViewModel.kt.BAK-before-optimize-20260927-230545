@@ -50,14 +50,6 @@ data class ChatUiState(
     val pendingAttachments: List<Attachment> = emptyList(),
     val isOwner: Boolean = false,
     val pinnedMessages: List<Message> = emptyList(),
-    val subscriptionPrompt: SubscriptionPrompt? = null,
-)
-
-data class SubscriptionPrompt(
-    val kind: String,
-    val reason: String,
-    val message: String,
-    val plan: String,
 )
 
 @HiltViewModel
@@ -225,10 +217,6 @@ class ChatViewModel @Inject constructor(
         _state.value = _state.value.copy(replyTo = msg)
     }
 
-    fun dismissSubscriptionPrompt() {
-        _state.value = _state.value.copy(subscriptionPrompt = null)
-    }
-
     fun send(text: String) {
         if (text.isBlank()) return
 
@@ -345,7 +333,7 @@ class ChatViewModel @Inject constructor(
                         is StreamEvent.Delta -> {
                             sb.append(ev.text)
                             val nowMs = System.currentTimeMillis()
-                            if (nowMs - lastUiUpdate >= 80L) {
+                            if (nowMs - lastUiUpdate >= 40L) {
                                 lastUiUpdate = nowMs
                                 val currentText = sb.toString()
                                 _state.value = _state.value.copy(
@@ -393,17 +381,6 @@ class ChatViewModel @Inject constructor(
                             }
                             // 📋 تحديث سجل الجلسات الموحّد بعد وصول الرد
                             loadAllSessions()
-                        }
-                        is StreamEvent.SubscriptionRequired -> {
-                            _state.value = _state.value.copy(
-                                subscriptionPrompt = SubscriptionPrompt(
-                                    kind = ev.kind,
-                                    reason = ev.reason,
-                                    message = ev.message,
-                                    plan = ev.plan,
-                                ),
-                                isSending = false,
-                            )
                         }
                         is StreamEvent.Error -> {
                             gotError = true

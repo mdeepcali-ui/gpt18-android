@@ -100,6 +100,15 @@ class StreamingClient {
                                 trySend(StreamEvent.ImageUrl(url, prompt))
                             }
                         }
+                        // 🔒 v2.5: حدث الاشتراك المطلوب
+                        obj.optBoolean("subscription_required", false) -> {
+                            trySend(StreamEvent.SubscriptionRequired(
+                                kind = obj.optString("kind", ""),
+                                reason = obj.optString("reason", ""),
+                                message = obj.optString("message", ""),
+                                plan = obj.optString("plan", "free"),
+                            ))
+                        }
                         // ⭐ التفكير (يُعرض في سحابة التفكير)
                         obj.has("thinking_delta") -> {
                             val td = obj.optString("thinking_delta", "")
@@ -287,6 +296,12 @@ sealed class StreamEvent {
     ) : StreamEvent()
     data class Error(val message: String) : StreamEvent()
     data class CodeFiles(val files: List<CodeFileItem>, val zipUrl: String?) : StreamEvent()
+    data class SubscriptionRequired(
+        val kind: String,
+        val reason: String,
+        val message: String,
+        val plan: String,
+    ) : StreamEvent()
 }
 
 data class CodeFileItem(

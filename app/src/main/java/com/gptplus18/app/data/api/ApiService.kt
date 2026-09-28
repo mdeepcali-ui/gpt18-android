@@ -219,4 +219,45 @@ interface ApiService {
         @Header("Authorization") auth: String,
     ): retrofit2.Response<Map<String, Any>>
 
+
+    // ═══════════════════════════════════════════════════════════
+    // 💳 Billing API — النظام الجديد (v2.5)
+    // ═══════════════════════════════════════════════════════════
+
+    @GET("api/billing/plans")
+    suspend fun billingPlans(): Response<BillingPlansResponse>
+
+    @GET("api/billing/me")
+    suspend fun billingMe(
+        @Header("Authorization") bearer: String,
+    ): Response<BillingMeResponse>
+
+    @POST("api/billing/subscribe")
+    suspend fun billingSubscribe(
+        @Header("Authorization") bearer: String,
+        @Body body: BillingSubscribeRequest,
+    ): Response<BillingSubscribeResponse>
+
+    @POST("api/billing/verify-payment")
+    suspend fun billingVerifyPayment(
+        @Header("Authorization") bearer: String,
+        @Body body: BillingVerifyRequest,
+    ): Response<BillingVerifyResponse>
+
+    @GET("api/billing/transactions")
+    suspend fun billingTransactions(
+        @Header("Authorization") bearer: String,
+    ): Response<BillingTransactionsResponse>
+
+    @POST("api/billing/topup")
+    suspend fun billingTopUp(
+        @Header("Authorization") bearer: String,
+        @Body body: BillingTopUpRequest,
+    ): Response<BillingTopUpResponse>
+
+    @GET("api/billing/admin/stats")
+    suspend fun billingAdminStats(
+        @Header("Authorization") bearer: String,
+    ): Response<Map<String, Any>>
+
 }

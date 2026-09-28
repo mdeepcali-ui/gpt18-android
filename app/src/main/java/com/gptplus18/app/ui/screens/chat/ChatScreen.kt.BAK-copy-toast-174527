@@ -15,8 +15,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 
@@ -53,11 +51,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -424,10 +420,7 @@ fun ChatScreen(
                                     msg = msg,
                                     onImageClick = { url -> fullscreenImage = url },
                                     onLongPress = { actionsSheetFor = msg },
-                                    onCopy = { text -> 
-                                        clip.setText(AnnotatedString(text))
-                                        Toast.makeText(ctx, "✅ تم النسخ", Toast.LENGTH_SHORT).show()
-                                    },
+                                    onCopy = { text -> clip.setText(AnnotatedString(text)) },
                                     onEdit = { m -> input = m.content },
                                     onChoiceClick = { choice ->
                                         // ⭐ v2.0: إرسال الاختيار مباشرة
@@ -606,10 +599,7 @@ fun ChatScreen(
             msg = msg,
             isPinned = vm.isPinned(msg.ts),
             onPin = { vm.pinMessage(msg) },
-            onCopy = { 
-                clip.setText(AnnotatedString(msg.content))
-                Toast.makeText(ctx, "✅ تم النسخ", Toast.LENGTH_SHORT).show()
-            },
+            onCopy = { clip.setText(AnnotatedString(msg.content)) },
             onShare = {
                 val chooserTitle = ctx.getString(R.string.t_133)
                 val intent = Intent(Intent.ACTION_SEND).apply {
@@ -621,18 +611,6 @@ fun ChatScreen(
             onReply = { vm.setReplyTo(msg) },
             onDelete = null,
             onDismiss = { actionsSheetFor = null },
-        )
-    }
-
-    state.subscriptionPrompt?.let { prompt ->
-        SubscriptionRequiredModal(
-            kind = prompt.kind,
-            message = prompt.message,
-            onSubscribe = {
-                vm.dismissSubscriptionPrompt()
-                onNavigateToSubscription()
-            },
-            onDismiss = { vm.dismissSubscriptionPrompt() },
         )
     }
 
@@ -1261,17 +1239,17 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     val shareCtx = LocalContext.current
 
                     ReactionButton(
-                        icon = androidx.compose.material.icons.Icons.Outlined.ThumbUp,
+                        symbol = "\uD83D\uDC4D",
                         active = reaction == 1,
                         onClick = { reaction = if (reaction == 1) 0 else 1 },
                     )
                     ReactionButton(
-                        icon = androidx.compose.material.icons.Icons.Outlined.ThumbDown,
+                        symbol = "\uD83D\uDC4E",
                         active = reaction == -1,
                         onClick = { reaction = if (reaction == -1) 0 else -1 },
                     )
                     ReactionButton(
-                        icon = androidx.compose.material.icons.Icons.Outlined.Link,
+                        symbol = "\uD83D\uDD17",
                         active = false,
                         onClick = {
                             try {
@@ -1292,58 +1270,31 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ReactionButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    symbol: String,
     active: Boolean,
     onClick: () -> Unit,
 ) {
-    var pressed by remember { mutableStateOf(false) }
-    val scale by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (pressed) 0.85f else 1f,
-        animationSpec = androidx.compose.animation.core.spring(
-            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-            stiffness = androidx.compose.animation.core.Spring.StiffnessHigh
-        ),
-        label = "reactionScale"
-    )
-    val color by androidx.compose.animation.animateColorAsState(
-        targetValue = if (active) Accent else TextSecondary,
-        animationSpec = androidx.compose.animation.core.tween(180),
-        label = "reactionColor"
-    )
-    val bgColor by androidx.compose.animation.animateColorAsState(
-        targetValue = if (active) Accent.copy(alpha = 0.15f)
-                      else androidx.compose.ui.graphics.Color.Transparent,
-        animationSpec = androidx.compose.animation.core.tween(180),
-        label = "reactionBg"
-    )
-
     Box(
         modifier = Modifier
-            .size(36.dp)
-            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .size(32.dp)
             .clip(androidx.compose.foundation.shape.CircleShape)
-            .background(bgColor)
-            .clickable(
-                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
+            .background(
+                if (active) Accent.copy(alpha = 0.25f)
+                else androidx.compose.ui.graphics.Color.White.copy(alpha = 0.05f)
             )
-            .pointerInput(Unit) {
-                androidx.compose.foundation.gestures.detectTapGestures(
-                    onPress = {
-                        pressed = true
-                        tryAwaitRelease()
-                        pressed = false
-                    }
-                )
-            },
+            .border(
+                width = 1.dp,
+                color = if (active) Accent.copy(alpha = 0.6f)
+                        else androidx.compose.ui.graphics.Color.White.copy(alpha = 0.1f),
+                shape = androidx.compose.foundation.shape.CircleShape,
+            )
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = color,
-            modifier = Modifier.size(19.dp),
+        Text(
+            text = symbol,
+            fontSize = 14.sp,
+            color = if (active) Accent else TextSecondary,
         )
     }
 }
@@ -1593,205 +1544,5 @@ fun StatusBubble(label: String) {
                 ),
             )
         }
-    }
-}
-
-
-// ═══════════════════════════════════════════════════════════
-// 🔒 Subscription Required Modal — احترافي minimalist
-// ═══════════════════════════════════════════════════════════
-@Composable
-private fun SubscriptionRequiredModal(
-    kind: String,
-    message: String,
-    onSubscribe: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val colors = LocalAppColors.current
-    var visible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) { visible = true }
-
-    if (visible) {
-        androidx.compose.ui.window.Dialog(
-            onDismissRequest = onDismiss,
-            properties = androidx.compose.ui.window.DialogProperties(
-                dismissOnBackPress = true,
-                dismissOnClickOutside = true,
-                usePlatformDefaultWidth = false,
-            ),
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.55f))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onDismiss,
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = visible,
-                    enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.scaleIn(
-                        initialScale = 0.92f,
-                        animationSpec = androidx.compose.animation.core.spring(
-                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                            stiffness = androidx.compose.animation.core.Spring.StiffnessLow,
-                        ),
-                    ),
-                    exit = androidx.compose.animation.fadeOut(),
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(0.88f)
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(Color(0xFF1C1C1E))
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                onClick = {},
-                            )
-                            .padding(horizontal = 24.dp, vertical = 28.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        // ⭐ أيقونة premium
-                        Box(
-                            modifier = Modifier
-                                .size(64.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFD4AF37).copy(alpha = 0.12f)),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Outlined.WorkspacePremium,
-                                contentDescription = null,
-                                tint = Color(0xFFD4AF37),
-                                modifier = Modifier.size(32.dp),
-                            )
-                        }
-
-                        Spacer(Modifier.height(20.dp))
-
-                        Text(
-                            text = "هذا الخيار للمشتركين",
-                            color = Color.White,
-                            fontSize = 19.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        )
-
-                        Spacer(Modifier.height(10.dp))
-
-                        Text(
-                            text = "استمتع بجميع الميزات مع إحدى باقاتنا",
-                            color = Color(0xFF8E8E93),
-                            fontSize = 13.sp,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            lineHeight = 19.sp,
-                        )
-
-                        Spacer(Modifier.height(24.dp))
-
-                        // ─── صف الأيقونات ───
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                        ) {
-                            FeatureBadge(androidx.compose.material.icons.Icons.Outlined.Image, "صور")
-                            FeatureBadge(androidx.compose.material.icons.Icons.Outlined.Movie, "فيديو")
-                            FeatureBadge(androidx.compose.material.icons.Icons.Outlined.MusicNote, "أغاني")
-                            FeatureBadge(androidx.compose.material.icons.Icons.Outlined.Code, "كود")
-                        }
-
-                        Spacer(Modifier.height(28.dp))
-
-                        // ─── زر أساسي ───
-                        var btnPressed by remember { mutableStateOf(false) }
-                        val btnScale by androidx.compose.animation.core.animateFloatAsState(
-                            targetValue = if (btnPressed) 0.96f else 1f,
-                            animationSpec = androidx.compose.animation.core.spring(
-                                dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                                stiffness = androidx.compose.animation.core.Spring.StiffnessHigh,
-                            ),
-                            label = "btnScale",
-                        )
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .graphicsLayer { scaleX = btnScale; scaleY = btnScale }
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(Color.White)
-                                .pointerInput(Unit) {
-                                    androidx.compose.foundation.gestures.detectTapGestures(
-                                        onPress = {
-                                            btnPressed = true
-                                            tryAwaitRelease()
-                                            btnPressed = false
-                                        },
-                                        onTap = { onSubscribe() },
-                                    )
-                                }
-                                .padding(vertical = 15.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = "عرض الباقات",
-                                color = Color(0xFF1C1C1E),
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                        }
-
-                        Spacer(Modifier.height(12.dp))
-
-                        // ─── زر ثانوي نصي ───
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(10.dp))
-                                .clickable(onClick = onDismiss)
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                        ) {
-                            Text(
-                                text = "لاحقاً",
-                                color = Color(0xFF8E8E93),
-                                fontSize = 14.sp,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun FeatureBadge(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(Color(0xFF2A2A2E)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = Color(0xFFB8B8BC),
-                modifier = Modifier.size(22.dp),
-            )
-        }
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = label,
-            color = Color(0xFF8E8E93),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-        )
     }
 }

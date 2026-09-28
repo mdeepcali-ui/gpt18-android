@@ -15,8 +15,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 
@@ -24,7 +22,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -53,11 +50,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -78,8 +73,6 @@ import com.gptplus18.app.ui.components.MarkdownText
 import com.gptplus18.app.ui.components.MessageActionsSheet
 import com.gptplus18.app.ui.components.MessageTimestamp
 import com.gptplus18.app.ui.components.TypingIndicator
-import com.gptplus18.app.ui.components.VideoPlayerCard
-import com.gptplus18.app.ui.components.AudioPlayerCard
 import com.gptplus18.app.ui.theme.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
@@ -376,7 +369,7 @@ fun ChatScreen(
                     ),
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .zIndex(100f)                   // ⭐ فوق الرسائل والصور
+                        .zIndex(10f)                    // ⭐ v2.0: فوق كل العناصر
                         .padding(top = 8.dp, start = 12.dp),
                 ) {
                     StatusBubble(label = state.statusLabel)
@@ -410,7 +403,7 @@ fun ChatScreen(
                             state = listState,
                             modifier = Modifier.weight(1f).fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(12.dp),
-                            contentPadding = PaddingValues(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 80.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         ) {
                             val visibleMessages = state.messages.filter { it.role != "thinking" }
                             // EMPTY_LOGO_STATE
@@ -424,10 +417,7 @@ fun ChatScreen(
                                     msg = msg,
                                     onImageClick = { url -> fullscreenImage = url },
                                     onLongPress = { actionsSheetFor = msg },
-                                    onCopy = { text -> 
-                                        clip.setText(AnnotatedString(text))
-                                        Toast.makeText(ctx, "✅ تم النسخ", Toast.LENGTH_SHORT).show()
-                                    },
+                                    onCopy = { text -> clip.setText(AnnotatedString(text)) },
                                     onEdit = { m -> input = m.content },
                                     onChoiceClick = { choice ->
                                         // ⭐ v2.0: إرسال الاختيار مباشرة
@@ -460,9 +450,6 @@ fun ChatScreen(
                                     if (state.statusLabel != stringResource(R.string.t_131)) {
                                         com.gptplus18.app.ui.components.ThinkingShimmer(
                                             text = thinkingText.ifBlank { "يجهّز الرد..." },
-                                        )
-                                        androidx.compose.foundation.layout.Spacer(
-                                            Modifier.height(60.dp)
                                         )
                                     }
                                 }
@@ -606,10 +593,7 @@ fun ChatScreen(
             msg = msg,
             isPinned = vm.isPinned(msg.ts),
             onPin = { vm.pinMessage(msg) },
-            onCopy = { 
-                clip.setText(AnnotatedString(msg.content))
-                Toast.makeText(ctx, "✅ تم النسخ", Toast.LENGTH_SHORT).show()
-            },
+            onCopy = { clip.setText(AnnotatedString(msg.content)) },
             onShare = {
                 val chooserTitle = ctx.getString(R.string.t_133)
                 val intent = Intent(Intent.ACTION_SEND).apply {
@@ -621,18 +605,6 @@ fun ChatScreen(
             onReply = { vm.setReplyTo(msg) },
             onDelete = null,
             onDismiss = { actionsSheetFor = null },
-        )
-    }
-
-    state.subscriptionPrompt?.let { prompt ->
-        SubscriptionRequiredModal(
-            kind = prompt.kind,
-            message = prompt.message,
-            onSubscribe = {
-                vm.dismissSubscriptionPrompt()
-                onNavigateToSubscription()
-            },
-            onDismiss = { vm.dismissSubscriptionPrompt() },
         )
     }
 
@@ -1209,17 +1181,90 @@ fun MessageBubble(
 if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (audioUrl != null) {
-                        AudioPlayerCard(
-                            audioUrl = audioUrl,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(vertical = 4.dp),
-                        )
+                        ) {
+                            Text("🎵", fontSize = 20.sp)
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.t_049), color = TextPrimary,
+                                fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.padding(vertical = 4.dp),
+                        ) {
+                            ActionButton(
+                                icon = Icons.Default.Add,
+                                label = "حفظ",
+                                onClick = {
+                                    com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, audioUrl, "song") { ok ->
+                                        Toast.makeText(ctx, if (ok) "✅ تم حفظ الأغنية بنجاح" else "❌ فشل الحفظ", Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                            )
+                            ActionButton(
+                                icon = Icons.Default.Add,
+                                label = "مشاركة",
+                                onClick = {
+                                    kotlinx.coroutines.GlobalScope.launch {
+                                        com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, audioUrl, "song")
+                                    }
+                                },
+                            )
+                        }
                         if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (videoUrl != null) {
-                        VideoPlayerCard(
-                            videoUrl = videoUrl,
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 420.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(androidx.compose.ui.graphics.Color.Black),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            androidx.compose.ui.viewinterop.AndroidView(
+                                factory = { context ->
+                                    android.widget.VideoView(context).apply {
+                                        setVideoPath(videoUrl)
+                                        setOnPreparedListener { mp ->
+                                            mp.isLooping = true
+                                            start()
+                                        }
+                                        val mediaController = android.widget.MediaController(context)
+                                        mediaController.setAnchorView(this)
+                                        setMediaController(mediaController)
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(400.dp),
+                            )
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
                             modifier = Modifier.padding(vertical = 4.dp),
-                        )
+                        ) {
+                            ActionButton(
+                                icon = Icons.Default.Add,
+                                label = "حفظ",
+                                onClick = {
+                                    com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, videoUrl, "video") { ok ->
+                                        Toast.makeText(ctx, if (ok) "✅ تم حفظ الفيديو بنجاح" else "❌ فشل الحفظ", Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                            )
+                            ActionButton(
+                                icon = Icons.Default.Add,
+                                label = "مشاركة",
+                                onClick = {
+                                    kotlinx.coroutines.GlobalScope.launch {
+                                        com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, videoUrl, "video")
+                                    }
+                                },
+                            )
+                        }
                         if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (cleanText.isNotBlank()) {
@@ -1261,17 +1306,17 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     val shareCtx = LocalContext.current
 
                     ReactionButton(
-                        icon = androidx.compose.material.icons.Icons.Outlined.ThumbUp,
+                        symbol = "\uD83D\uDC4D",
                         active = reaction == 1,
                         onClick = { reaction = if (reaction == 1) 0 else 1 },
                     )
                     ReactionButton(
-                        icon = androidx.compose.material.icons.Icons.Outlined.ThumbDown,
+                        symbol = "\uD83D\uDC4E",
                         active = reaction == -1,
                         onClick = { reaction = if (reaction == -1) 0 else -1 },
                     )
                     ReactionButton(
-                        icon = androidx.compose.material.icons.Icons.Outlined.Link,
+                        symbol = "\uD83D\uDD17",
                         active = false,
                         onClick = {
                             try {
@@ -1292,58 +1337,31 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ReactionButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    symbol: String,
     active: Boolean,
     onClick: () -> Unit,
 ) {
-    var pressed by remember { mutableStateOf(false) }
-    val scale by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (pressed) 0.85f else 1f,
-        animationSpec = androidx.compose.animation.core.spring(
-            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-            stiffness = androidx.compose.animation.core.Spring.StiffnessHigh
-        ),
-        label = "reactionScale"
-    )
-    val color by androidx.compose.animation.animateColorAsState(
-        targetValue = if (active) Accent else TextSecondary,
-        animationSpec = androidx.compose.animation.core.tween(180),
-        label = "reactionColor"
-    )
-    val bgColor by androidx.compose.animation.animateColorAsState(
-        targetValue = if (active) Accent.copy(alpha = 0.15f)
-                      else androidx.compose.ui.graphics.Color.Transparent,
-        animationSpec = androidx.compose.animation.core.tween(180),
-        label = "reactionBg"
-    )
-
     Box(
         modifier = Modifier
-            .size(36.dp)
-            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .size(32.dp)
             .clip(androidx.compose.foundation.shape.CircleShape)
-            .background(bgColor)
-            .clickable(
-                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
+            .background(
+                if (active) Accent.copy(alpha = 0.25f)
+                else androidx.compose.ui.graphics.Color.White.copy(alpha = 0.05f)
             )
-            .pointerInput(Unit) {
-                androidx.compose.foundation.gestures.detectTapGestures(
-                    onPress = {
-                        pressed = true
-                        tryAwaitRelease()
-                        pressed = false
-                    }
-                )
-            },
+            .border(
+                width = 1.dp,
+                color = if (active) Accent.copy(alpha = 0.6f)
+                        else androidx.compose.ui.graphics.Color.White.copy(alpha = 0.1f),
+                shape = androidx.compose.foundation.shape.CircleShape,
+            )
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = color,
-            modifier = Modifier.size(19.dp),
+        Text(
+            text = symbol,
+            fontSize = 14.sp,
+            color = if (active) Accent else TextSecondary,
         )
     }
 }
@@ -1500,13 +1518,13 @@ fun StatusBubble(label: String) {
     val isDark = androidx.compose.foundation.isSystemInDarkTheme()
     val transition = androidx.compose.animation.core.rememberInfiniteTransition(label = "shimmer")
 
-    // ✨ Shimmer — أبطأ (900ms)
+    // 🌟 حركة الشعاع
     val shimmerX by transition.animateFloat(
         initialValue = -1f,
         targetValue = 2f,
         animationSpec = androidx.compose.animation.core.infiniteRepeatable(
             animation = androidx.compose.animation.core.tween(
-                durationMillis = 1200,
+                durationMillis = 700,
                 easing = androidx.compose.animation.core.LinearEasing,
             ),
             repeatMode = androidx.compose.animation.core.RepeatMode.Restart,
@@ -1514,7 +1532,7 @@ fun StatusBubble(label: String) {
         label = "shimmer_x",
     )
 
-    // 🔵 نقطة نابضة
+    // 🔵 نبضة النقطة
     val pulseScale by transition.animateFloat(
         initialValue = 1f,
         targetValue = 1.4f,
@@ -1534,34 +1552,85 @@ fun StatusBubble(label: String) {
         label = "pulse_alpha",
     )
 
-    // 🎨 خلفية الفقاعة — أزرق داكن متدرج
-    val bgTop = Color(0xFF1E3A8A)
-    val bgBot = Color(0xFF0F1E4A)
-    val borderC = Accent.copy(alpha = 0.35f)
-    val shadowC = Color.Black.copy(alpha = 0.35f)
+    // 🎨 v2.0: أزرق غامق متدرّج — معتم تماماً (بدون شفافية)
+    val bgDarkTop = Color(0xFF1E3A8A)   // أزرق غامق
+    val bgDarkBot = Color(0xFF0F1E4A)   // أزرق داكن جداً
+    val bgLightTop = Color(0xFF2563EB)  // أزرق نهاري
+    val bgLightBot = Color(0xFF1E40AF)
+    val bgTop = if (isDark) bgDarkTop else bgLightTop
+    val bgBot = if (isDark) bgDarkBot else bgLightBot
 
-    // 📝 نص رمادي + وهج أبيض فاتح
-    val baseColor = Color(0xFF8E8E93)
-    val shimmerColor = Color(0xFFFFFFFF)
+    // 🌊 موجة متحركة في الخلفية
+    val waveShift by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(3200,
+                easing = androidx.compose.animation.core.LinearEasing),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
+        ),
+        label = "wave_shift",
+    )
+    val borderC = Accent.copy(alpha = if (isDark) 0.35f else 0.5f)
+    val txtC = if (isDark) Color(0xFFE8E8EC) else Color(0xFF1A1A1A)
+    val shadowC = if (isDark) Color.Black.copy(alpha = 0.35f) else Color.Black.copy(alpha = 0.08f)
+    val shimmerHi = if (isDark) 0.18f else 0.35f
 
     androidx.compose.foundation.layout.Box(
         modifier = Modifier
             .shadow(
-                elevation = 6.dp,
+                elevation = if (isDark) 6.dp else 3.dp,
                 shape = RoundedCornerShape(20.dp),
                 ambientColor = shadowC,
                 spotColor = shadowC,
             )
             .clip(RoundedCornerShape(20.dp))
-            .background(Brush.linearGradient(colors = listOf(bgTop, bgBot)))
-            .border(0.8.dp, borderC, RoundedCornerShape(20.dp)),
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(bgTop, bgBot, bgTop),
+                    start = androidx.compose.ui.geometry.Offset(
+                        x = waveShift * 800f - 400f,
+                        y = 0f
+                    ),
+                    end = androidx.compose.ui.geometry.Offset(
+                        x = waveShift * 800f + 400f,
+                        y = 200f
+                    ),
+                )
+            )
+            .border(
+                width = 0.8.dp,
+                color = Accent.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(20.dp),
+            ),
     ) {
+        // 🌟 طبقة الشعاع (تتحرك)
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clip(RoundedCornerShape(20.dp))
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Transparent,
+                            Color.White.copy(alpha = shimmerHi * 0.4f),
+                            Color.White.copy(alpha = shimmerHi),
+                            Color.White.copy(alpha = shimmerHi * 0.4f),
+                            Color.Transparent,
+                            Color.Transparent,
+                        ),
+                        startX = shimmerX * 400f,
+                        endX = shimmerX * 400f + 200f,
+                    )
+                ),
+        )
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
-                .widthIn(min = 140.dp)
-                .padding(horizontal = 20.dp, vertical = 9.dp),
+                .widthIn(min = 160.dp)
+                .padding(horizontal = 22.dp, vertical = 9.dp),
         ) {
             androidx.compose.foundation.layout.Box(
                 modifier = Modifier
@@ -1570,228 +1639,19 @@ fun StatusBubble(label: String) {
                     .background(
                         Brush.radialGradient(
                             colors = listOf(
-                                Color.White.copy(alpha = pulseAlpha),
+                                Accent.copy(alpha = pulseAlpha),
                                 Accent.copy(alpha = pulseAlpha * 0.4f),
                             )
                         )
                     ),
             )
-            androidx.compose.foundation.text.BasicText(
+            Text(
                 text = label,
-                style = androidx.compose.ui.text.TextStyle(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            baseColor, baseColor,
-                            shimmerColor, shimmerColor, shimmerColor,
-                            baseColor, baseColor,
-                        ),
-                        startX = shimmerX * 600f,
-                        endX = shimmerX * 600f + 150f,
-                    ),
-                ),
+                color = txtC,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.3.sp,
             )
         }
-    }
-}
-
-
-// ═══════════════════════════════════════════════════════════
-// 🔒 Subscription Required Modal — احترافي minimalist
-// ═══════════════════════════════════════════════════════════
-@Composable
-private fun SubscriptionRequiredModal(
-    kind: String,
-    message: String,
-    onSubscribe: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val colors = LocalAppColors.current
-    var visible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) { visible = true }
-
-    if (visible) {
-        androidx.compose.ui.window.Dialog(
-            onDismissRequest = onDismiss,
-            properties = androidx.compose.ui.window.DialogProperties(
-                dismissOnBackPress = true,
-                dismissOnClickOutside = true,
-                usePlatformDefaultWidth = false,
-            ),
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.55f))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onDismiss,
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = visible,
-                    enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.scaleIn(
-                        initialScale = 0.92f,
-                        animationSpec = androidx.compose.animation.core.spring(
-                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                            stiffness = androidx.compose.animation.core.Spring.StiffnessLow,
-                        ),
-                    ),
-                    exit = androidx.compose.animation.fadeOut(),
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(0.88f)
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(Color(0xFF1C1C1E))
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                onClick = {},
-                            )
-                            .padding(horizontal = 24.dp, vertical = 28.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        // ⭐ أيقونة premium
-                        Box(
-                            modifier = Modifier
-                                .size(64.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFD4AF37).copy(alpha = 0.12f)),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Outlined.WorkspacePremium,
-                                contentDescription = null,
-                                tint = Color(0xFFD4AF37),
-                                modifier = Modifier.size(32.dp),
-                            )
-                        }
-
-                        Spacer(Modifier.height(20.dp))
-
-                        Text(
-                            text = "هذا الخيار للمشتركين",
-                            color = Color.White,
-                            fontSize = 19.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        )
-
-                        Spacer(Modifier.height(10.dp))
-
-                        Text(
-                            text = "استمتع بجميع الميزات مع إحدى باقاتنا",
-                            color = Color(0xFF8E8E93),
-                            fontSize = 13.sp,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            lineHeight = 19.sp,
-                        )
-
-                        Spacer(Modifier.height(24.dp))
-
-                        // ─── صف الأيقونات ───
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                        ) {
-                            FeatureBadge(androidx.compose.material.icons.Icons.Outlined.Image, "صور")
-                            FeatureBadge(androidx.compose.material.icons.Icons.Outlined.Movie, "فيديو")
-                            FeatureBadge(androidx.compose.material.icons.Icons.Outlined.MusicNote, "أغاني")
-                            FeatureBadge(androidx.compose.material.icons.Icons.Outlined.Code, "كود")
-                        }
-
-                        Spacer(Modifier.height(28.dp))
-
-                        // ─── زر أساسي ───
-                        var btnPressed by remember { mutableStateOf(false) }
-                        val btnScale by androidx.compose.animation.core.animateFloatAsState(
-                            targetValue = if (btnPressed) 0.96f else 1f,
-                            animationSpec = androidx.compose.animation.core.spring(
-                                dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                                stiffness = androidx.compose.animation.core.Spring.StiffnessHigh,
-                            ),
-                            label = "btnScale",
-                        )
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .graphicsLayer { scaleX = btnScale; scaleY = btnScale }
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(Color.White)
-                                .pointerInput(Unit) {
-                                    androidx.compose.foundation.gestures.detectTapGestures(
-                                        onPress = {
-                                            btnPressed = true
-                                            tryAwaitRelease()
-                                            btnPressed = false
-                                        },
-                                        onTap = { onSubscribe() },
-                                    )
-                                }
-                                .padding(vertical = 15.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = "عرض الباقات",
-                                color = Color(0xFF1C1C1E),
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                        }
-
-                        Spacer(Modifier.height(12.dp))
-
-                        // ─── زر ثانوي نصي ───
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(10.dp))
-                                .clickable(onClick = onDismiss)
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                        ) {
-                            Text(
-                                text = "لاحقاً",
-                                color = Color(0xFF8E8E93),
-                                fontSize = 14.sp,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun FeatureBadge(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(Color(0xFF2A2A2E)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = Color(0xFFB8B8BC),
-                modifier = Modifier.size(22.dp),
-            )
-        }
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = label,
-            color = Color(0xFF8E8E93),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-        )
     }
 }
