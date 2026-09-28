@@ -15,9 +15,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.tryAwaitRelease
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 
@@ -66,7 +65,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -1305,7 +1303,8 @@ private fun ReactionButton(
     active: Boolean,
     onClick: () -> Unit,
 ) {
-    var pressed by remember { mutableStateOf(false) }
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
     val scale by androidx.compose.animation.core.animateFloatAsState(
         targetValue = if (pressed) 0.85f else 1f,
         animationSpec = androidx.compose.animation.core.spring(
@@ -1333,19 +1332,10 @@ private fun ReactionButton(
             .clip(androidx.compose.foundation.shape.CircleShape)
             .background(bgColor)
             .clickable(
-                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick
-            )
-            .pointerInput(Unit) {
-                androidx.compose.foundation.gestures.detectTapGestures(
-                    onPress = {
-                        pressed = true
-                        tryAwaitRelease()
-                        pressed = false
-                    }
-                )
-            },
+            ),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
@@ -1717,9 +1707,10 @@ private fun SubscriptionRequiredModal(
                         Spacer(Modifier.height(28.dp))
 
                         // ─── زر أساسي ───
-                        var btnPressed by remember { mutableStateOf(false) }
+                        val btnInteractionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                        val btnPressed by btnInteractionSource.collectIsPressedAsState()
                         val btnScale by androidx.compose.animation.core.animateFloatAsState(
-                            targetValue = if (btnPressed) 0.96f else 1f,
+                            targetValue = if (btnPressedd) 0.96f else 1f,
                             animationSpec = androidx.compose.animation.core.spring(
                                 dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
                                 stiffness = androidx.compose.animation.core.Spring.StiffnessHigh,
@@ -1732,16 +1723,11 @@ private fun SubscriptionRequiredModal(
                                 .graphicsLayer { scaleX = btnScale; scaleY = btnScale }
                                 .clip(RoundedCornerShape(14.dp))
                                 .background(Color.White)
-                                .pointerInput(Unit) {
-                                    androidx.compose.foundation.gestures.detectTapGestures(
-                                        onPress = {
-                                            btnPressed = true
-                                            tryAwaitRelease()
-                                            btnPressed = false
-                                        },
-                                        onTap = { onSubscribe() },
-                                    )
-                                }
+                                .clickable(
+                                    interactionSource = btnInteractionSource,
+                                    indication = null,
+                                    onClick = { onSubscribe() }
+                                )
                                 .padding(vertical = 15.dp),
                             contentAlignment = Alignment.Center,
                         ) {
