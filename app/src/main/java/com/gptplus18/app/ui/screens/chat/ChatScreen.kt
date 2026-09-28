@@ -1710,7 +1710,7 @@ private fun SubscriptionRequiredModal(
                         val btnInteractionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
                         val btnPressed by btnInteractionSource.collectIsPressedAsState()
                         val btnScale by androidx.compose.animation.core.animateFloatAsState(
-                            targetValue = if (btnPressedd) 0.96f else 1f,
+                            targetValue = if (btnPressed) 0.96f else 1f,
                             animationSpec = androidx.compose.animation.core.spring(
                                 dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
                                 stiffness = androidx.compose.animation.core.Spring.StiffnessHigh,
