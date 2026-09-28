@@ -137,7 +137,7 @@ fun ChatGptComposer(
                 BasicTextField(
                     value = value,
                     onValueChange = onValueChange,
-                    enabled = enabled,
+                    enabled = true,
                     textStyle = TextStyle(
                         color = colors.textPrimary,
                         fontSize = 16.sp,
