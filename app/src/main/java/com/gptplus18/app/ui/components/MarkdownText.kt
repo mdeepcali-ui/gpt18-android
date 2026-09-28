@@ -5,6 +5,7 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.Icon
@@ -328,6 +329,7 @@ fun MarkdownText(
 @Composable
 private fun CodeBlockView(lang: String, code: String) {
     val clip = LocalClipboardManager.current
+    val ctx = LocalContext.current
     val scrollState = rememberScrollState()
 
     // ⭐ الكود دائماً LTR — حتى في واجهة عربية
@@ -364,6 +366,11 @@ private fun CodeBlockView(lang: String, code: String) {
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
                             clip.setText(AnnotatedString(code))
+                            android.widget.Toast.makeText(
+                                ctx,
+                                "✅ تم النسخ",
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
                         },
                     ) {
                         Icon(
