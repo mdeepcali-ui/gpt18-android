@@ -75,6 +75,7 @@ import com.gptplus18.app.ui.components.MessageActionsSheet
 import com.gptplus18.app.ui.components.MessageTimestamp
 import com.gptplus18.app.ui.components.TypingIndicator
 import com.gptplus18.app.ui.components.VideoPlayerCard
+import com.gptplus18.app.ui.components.AudioPlayerCard
 import com.gptplus18.app.ui.theme.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
@@ -1183,38 +1184,10 @@ fun MessageBubble(
 if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (audioUrl != null) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
+                        AudioPlayerCard(
+                            audioUrl = audioUrl,
                             modifier = Modifier.padding(vertical = 4.dp),
-                        ) {
-                            Text("🎵", fontSize = 20.sp)
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.t_049), color = TextPrimary,
-                                fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.padding(vertical = 4.dp),
-                        ) {
-                            ActionButton(
-                                icon = Icons.Default.Add,
-                                label = "حفظ",
-                                onClick = {
-                                    com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, audioUrl, "song") { ok ->
-                                        Toast.makeText(ctx, if (ok) "✅ تم حفظ الأغنية بنجاح" else "❌ فشل الحفظ", Toast.LENGTH_SHORT).show()
-                                    }
-                                },
-                            )
-                            ActionButton(
-                                icon = Icons.Default.Add,
-                                label = "مشاركة",
-                                onClick = {
-                                    kotlinx.coroutines.GlobalScope.launch {
-                                        com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, audioUrl, "song")
-                                    }
-                                },
-                            )
-                        }
+                        )
                         if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (videoUrl != null) {
@@ -1222,29 +1195,6 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                             videoUrl = videoUrl,
                             modifier = Modifier.padding(vertical = 4.dp),
                         )
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.padding(vertical = 4.dp),
-                        ) {
-                            ActionButton(
-                                icon = Icons.Default.Add,
-                                label = "حفظ",
-                                onClick = {
-                                    com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, videoUrl, "video") { ok ->
-                                        Toast.makeText(ctx, if (ok) "✅ تم حفظ الفيديو بنجاح" else "❌ فشل الحفظ", Toast.LENGTH_SHORT).show()
-                                    }
-                                },
-                            )
-                            ActionButton(
-                                icon = Icons.Default.Add,
-                                label = "مشاركة",
-                                onClick = {
-                                    kotlinx.coroutines.GlobalScope.launch {
-                                        com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, videoUrl, "video")
-                                    }
-                                },
-                            )
-                        }
                         if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (cleanText.isNotBlank()) {

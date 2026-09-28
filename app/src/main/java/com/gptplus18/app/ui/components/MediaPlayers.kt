@@ -197,7 +197,13 @@ fun AudioPlayerCard(
             val _audioCtx = LocalContext.current
             val _audioScope = rememberCoroutineScope()
             MediaMiniChip(label = "حفظ") {
-                com.gptplus18.app.util.MediaShareHelper.saveToGallery(_audioCtx, audioUrl, "song")
+                com.gptplus18.app.util.MediaShareHelper.saveToGallery(_audioCtx, audioUrl, "song") { ok ->
+                    android.widget.Toast.makeText(
+                        _audioCtx,
+                        if (ok) "✅ تم حفظ الأغنية بنجاح" else "❌ فشل الحفظ",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
             MediaMiniChip(label = "مشاركة") {
                 _audioScope.launch {
@@ -421,7 +427,13 @@ fun VideoPlayerCard(
             val _vidCtx = LocalContext.current
             val _vidScope = rememberCoroutineScope()
             MediaMiniChip(label = "حفظ") {
-                com.gptplus18.app.util.MediaShareHelper.saveToGallery(_vidCtx, videoUrl, "video")
+                com.gptplus18.app.util.MediaShareHelper.saveToGallery(_vidCtx, videoUrl, "video") { ok ->
+                    android.widget.Toast.makeText(
+                        _vidCtx,
+                        if (ok) "✅ تم حفظ الفيديو بنجاح" else "❌ فشل الحفظ",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
             MediaMiniChip(label = "مشاركة") {
                 _vidScope.launch {
