@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -1497,13 +1498,13 @@ fun StatusBubble(label: String) {
     val isDark = androidx.compose.foundation.isSystemInDarkTheme()
     val transition = androidx.compose.animation.core.rememberInfiniteTransition(label = "shimmer")
 
-    // 🌟 حركة الشعاع
+    // 🌟 حركة الشعاع — سريعة (500ms دورة كاملة)
     val shimmerX by transition.animateFloat(
         initialValue = -1f,
         targetValue = 2f,
         animationSpec = androidx.compose.animation.core.infiniteRepeatable(
             animation = androidx.compose.animation.core.tween(
-                durationMillis = 700,
+                durationMillis = 500,
                 easing = androidx.compose.animation.core.LinearEasing,
             ),
             repeatMode = androidx.compose.animation.core.RepeatMode.Restart,
@@ -1511,126 +1512,32 @@ fun StatusBubble(label: String) {
         label = "shimmer_x",
     )
 
-    // 🔵 نبضة النقطة
-    val pulseScale by transition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.4f,
-        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
-            animation = androidx.compose.animation.core.tween(1400),
-            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
-        ),
-        label = "pulse_scale",
-    )
-    val pulseAlpha by transition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0.5f,
-        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
-            animation = androidx.compose.animation.core.tween(1400),
-            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
-        ),
-        label = "pulse_alpha",
-    )
-
-    // 🎨 v2.0: أزرق غامق متدرّج — معتم تماماً (بدون شفافية)
-    val bgDarkTop = Color(0xFF1E3A8A)   // أزرق غامق
-    val bgDarkBot = Color(0xFF0F1E4A)   // أزرق داكن جداً
-    val bgLightTop = Color(0xFF2563EB)  // أزرق نهاري
-    val bgLightBot = Color(0xFF1E40AF)
-    val bgTop = if (isDark) bgDarkTop else bgLightTop
-    val bgBot = if (isDark) bgDarkBot else bgLightBot
-
-    // 🌊 موجة متحركة في الخلفية
-    val waveShift by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
-            animation = androidx.compose.animation.core.tween(3200,
-                easing = androidx.compose.animation.core.LinearEasing),
-            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
-        ),
-        label = "wave_shift",
-    )
-    val borderC = Accent.copy(alpha = if (isDark) 0.35f else 0.5f)
-    val txtC = if (isDark) Color(0xFFE8E8EC) else Color(0xFF1A1A1A)
-    val shadowC = if (isDark) Color.Black.copy(alpha = 0.35f) else Color.Black.copy(alpha = 0.08f)
-    val shimmerHi = if (isDark) 0.18f else 0.35f
+    // 🎨 ألوان النص
+    val baseColor = if (isDark) Color(0xFF8E8E93) else Color(0xFF6E6E73)   // رمادي ثابت
+    val shimmerColor = if (isDark) Color(0xFFE0E0E6) else Color(0xFF2A2A2E)  // وهج فاتح
 
     androidx.compose.foundation.layout.Box(
         modifier = Modifier
-            .shadow(
-                elevation = if (isDark) 6.dp else 3.dp,
-                shape = RoundedCornerShape(20.dp),
-                ambientColor = shadowC,
-                spotColor = shadowC,
-            )
-            .clip(RoundedCornerShape(20.dp))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(bgTop, bgBot, bgTop),
-                    start = androidx.compose.ui.geometry.Offset(
-                        x = waveShift * 800f - 400f,
-                        y = 0f
-                    ),
-                    end = androidx.compose.ui.geometry.Offset(
-                        x = waveShift * 800f + 400f,
-                        y = 200f
-                    ),
-                )
-            )
-            .border(
-                width = 0.8.dp,
-                color = Accent.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(20.dp),
-            ),
+            .widthIn(min = 120.dp)
+            .padding(horizontal = 22.dp, vertical = 9.dp),
     ) {
-        // 🌟 طبقة الشعاع (تتحرك)
-        androidx.compose.foundation.layout.Box(
-            modifier = Modifier
-                .matchParentSize()
-                .clip(RoundedCornerShape(20.dp))
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Transparent,
-                            Color.White.copy(alpha = shimmerHi * 0.4f),
-                            Color.White.copy(alpha = shimmerHi),
-                            Color.White.copy(alpha = shimmerHi * 0.4f),
-                            Color.Transparent,
-                            Color.Transparent,
-                        ),
-                        startX = shimmerX * 400f,
-                        endX = shimmerX * 400f + 200f,
-                    )
-                ),
-        )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier
-                .widthIn(min = 160.dp)
-                .padding(horizontal = 22.dp, vertical = 9.dp),
-        ) {
-            androidx.compose.foundation.layout.Box(
-                modifier = Modifier
-                    .size((7 * pulseScale).dp)
-                    .clip(CircleShape)
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                Accent.copy(alpha = pulseAlpha),
-                                Accent.copy(alpha = pulseAlpha * 0.4f),
-                            )
-                        )
-                    ),
-            )
-            Text(
-                text = label,
-                color = txtC,
-                fontSize = 12.sp,
+        androidx.compose.foundation.text.BasicText(
+            text = label,
+            style = androidx.compose.ui.text.TextStyle(
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                letterSpacing = 0.3.sp,
-            )
-        }
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        baseColor,
+                        baseColor,
+                        shimmerColor,
+                        baseColor,
+                        baseColor,
+                    ),
+                    startX = shimmerX * 400f,
+                    endX = shimmerX * 400f + 120f,
+                ),
+            ),
+        )
     }
 }
