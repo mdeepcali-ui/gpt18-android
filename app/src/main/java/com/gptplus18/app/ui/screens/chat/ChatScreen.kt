@@ -991,7 +991,6 @@ private fun EmptyLogoState() {
         )
     }
 }
-}
 
 @Composable
 private fun _EmptyChatStateUnused(onSuggestionClick: (String) -> Unit) {
