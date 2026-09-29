@@ -329,7 +329,7 @@ class ChatViewModel @Inject constructor(
                         is StreamEvent.ThinkingDelta -> {
                             thinkingSb.append(ev.text)
                             val _nowThink = System.currentTimeMillis()
-                            if (_nowThink - lastThinkingUiUpdate >= 80L) {
+                            if (_nowThink - lastThinkingUiUpdate >= 40L) {
                                 lastThinkingUiUpdate = _nowThink
                                 val current = _state.value.thinkingByMessage[thinkId]
                                 _state.value = _state.value.copy(
@@ -342,17 +342,18 @@ class ChatViewModel @Inject constructor(
                                 )
                             }
                         }
-                        // ⭐ v3.1: الرد يظهر مرة وحدة عند Done (بدون حرف بحرف)
+                        // ⭐ v2.5.4: الرد يظهر حرف بحرف
                         is StreamEvent.Delta -> {
                             sb.append(ev.text)
-                            val nowMs = System.currentTimeMillis()
-                            if (nowMs - lastUiUpdate >= 200L) {
-                                lastUiUpdate = nowMs
-                                // نحدث status فقط، النص يظهر عند Done
-                                _state.value = _state.value.copy(
-                                    statusLabel = "يكتب",
-                                )
-                            }
+                            val currentText = sb.toString()
+                            _state.value = _state.value.copy(
+                                messages = _state.value.messages.map { m ->
+                                    if (m.id == -2 && m.ts == assistantTs) {
+                                        m.copy(content = currentText)
+                                    } else m
+                                },
+                                statusLabel = "يكتب",
+                            )
                         }
                         is StreamEvent.CodeFiles -> {
                             _state.value = _state.value.copy(
