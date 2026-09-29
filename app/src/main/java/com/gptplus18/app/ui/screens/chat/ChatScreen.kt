@@ -1608,7 +1608,7 @@ fun StatusBubble(label: String) {
         ) {
             // ✨ أيقونة AutoAwesome تدور بنعومة
             androidx.compose.material3.Icon(
-                imageVector = androidx.compose.material.icons.Icons.Filled.AutoAwesome,
+                imageVector = androidx.compose.material.icons.Icons.Filled.AutoMode,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.85f + pulseAlpha * 0.15f),
                 modifier = Modifier
