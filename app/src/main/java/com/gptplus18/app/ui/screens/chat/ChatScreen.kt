@@ -945,20 +945,52 @@ private fun EmptyLogoState() {
             .padding(vertical = 60.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        val shineTransition = rememberInfiniteTransition(label = "chat_logo_shine")
+        val shineX by shineTransition.animateFloat(
+            initialValue = -0.5f,
+            targetValue = 1.5f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 900, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+                initialStartOffset = StartOffset(2100),
+            ),
+            label = "chatShineX",
+        )
         androidx.compose.foundation.Image(
             painter = androidx.compose.ui.res.painterResource(id = R.drawable.logo_transparent),
             contentDescription = "GPT+18",
             contentScale = androidx.compose.ui.layout.ContentScale.Fit,
-            modifier = Modifier.size(180.dp),
+            modifier = Modifier
+                .size(85.dp)
+                .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                .drawWithContent {
+                    drawContent()
+                    val w = size.width
+                    val cx = w * shineX
+                    val bandW = w * 0.55f
+                    drawRect(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color.Black.copy(alpha = 0f),
+                                Color.Black.copy(alpha = 0.85f),
+                                Color.Black.copy(alpha = 0f),
+                            ),
+                            startX = cx - bandW / 2f,
+                            endX = cx + bandW / 2f,
+                        ),
+                        blendMode = BlendMode.SrcAtop,
+                    )
+                },
         )
         Spacer(Modifier.height(16.dp))
         Text(
             "\u0645\u0631\u062d\u0628\u0627 \u0628\u0643 \u0641\u064a GPT+18",
             color = TextPrimary,
-            fontSize = 18.sp,
+            fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
         )
     }
+}
 }
 
 @Composable
