@@ -43,6 +43,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.CompositingStrategy
 
 private val RedBrand = Color(0xFFE63946)
 private val CardBg = Color(0xFF0E0E12)
@@ -103,38 +105,36 @@ fun AuthScreen(
         ) {
             Spacer(Modifier.height(60.dp))
 
-            // ═══ الشعار الشفاف مع تأثير اللمعان ═══
+            // ═══ الشعار الثابت + شريط أسود يمر فوقه ═══
             val shineTransition = rememberInfiniteTransition(label = "logo_shine")
             val shineX by shineTransition.animateFloat(
-                initialValue = -0.6f,
-                targetValue = 1.6f,
+                initialValue = -0.5f,
+                targetValue = 1.5f,
                 animationSpec = infiniteRepeatable(
-                    animation = tween(
-                        durationMillis = 1100,
-                        delayMillis = 2200,
-                        easing = LinearEasing,
-                    ),
+                    animation = tween(durationMillis = 900, easing = LinearEasing),
                     repeatMode = RepeatMode.Restart,
+                    initialStartOffset = androidx.compose.animation.core.StartOffset(2100),
                 ),
                 label = "shineX",
             )
-            Box(
+            Image(
+                painter = painterResource(id = R.drawable.logo_transparent),
+                contentDescription = "GPT+18",
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    .size(110.dp)
+                    .size(70.dp)
+                    .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
                     .drawWithContent {
                         drawContent()
                         val w = size.width
-                        val h = size.height
                         val cx = w * shineX
-                        val bandW = w * 0.75f
+                        val bandW = w * 0.55f
                         drawRect(
                             brush = Brush.horizontalGradient(
                                 colors = listOf(
-                                    Color.Transparent,
-                                    Color.White.copy(alpha = 0.15f),
-                                    Color.White.copy(alpha = 0.75f),
-                                    Color.White.copy(alpha = 0.15f),
-                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0f),
+                                    Color.Black.copy(alpha = 0.85f),
+                                    Color.Black.copy(alpha = 0f),
                                 ),
                                 startX = cx - bandW / 2f,
                                 endX = cx + bandW / 2f,
@@ -142,15 +142,7 @@ fun AuthScreen(
                             blendMode = BlendMode.SrcAtop,
                         )
                     },
-                contentAlignment = Alignment.Center,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo_transparent),
-                    contentDescription = "GPT+18",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
+            )
 
             Spacer(Modifier.height(20.dp))
 
