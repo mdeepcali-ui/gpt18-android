@@ -1606,17 +1606,17 @@ fun StatusBubble(label: String) {
                 .widthIn(min = 140.dp)
                 .padding(horizontal = 20.dp, vertical = 9.dp),
         ) {
-            androidx.compose.foundation.layout.Box(
+            // ✨ أيقونة AutoAwesome تدور بنعومة
+            androidx.compose.material3.Icon(
+                imageVector = androidx.compose.material.icons.Icons.Filled.AutoAwesome,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.85f + pulseAlpha * 0.15f),
                 modifier = Modifier
-                    .size((7 * pulseScale).dp)
-                    .clip(CircleShape)
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = pulseAlpha),
-                                Accent.copy(alpha = pulseAlpha * 0.4f),
-                            )
-                        )
+                    .size(16.dp)
+                    .graphicsLayer(
+                        rotationZ = (shimmerX + 1f) * 60f,
+                        scaleX = 0.9f + pulseScale * 0.1f,
+                        scaleY = 0.9f + pulseScale * 0.1f,
                     ),
             )
             androidx.compose.foundation.text.BasicText(
