@@ -1578,7 +1578,7 @@ fun StatusBubble(label: String) {
         label = "pulse_alpha",
     )
 
-    // 🎨 خلفية الفقاعة — أزرق داكن متدرج
+    // \u2726 خلفية الفقاعة — أزرق داكن متدرج
     val bgTop = Color(0xFF1E3A8A)
     val bgBot = Color(0xFF0F1E4A)
     val borderC = Accent.copy(alpha = 0.35f)
@@ -1607,18 +1607,16 @@ fun StatusBubble(label: String) {
                 .widthIn(min = 140.dp)
                 .padding(horizontal = 20.dp, vertical = 9.dp),
         ) {
-            // ✨ أيقونة AutoAwesome تدور بنعومة
-            androidx.compose.material3.Icon(
-                imageVector = Icons.Default.Star,
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.85f + pulseAlpha * 0.15f),
-                modifier = Modifier
-                    .size(16.dp)
-                    .graphicsLayer(
-                        rotationZ = (shimmerX + 1f) * 60f,
-                        scaleX = 0.9f + pulseScale * 0.1f,
-                        scaleY = 0.9f + pulseScale * 0.1f,
-                    ),
+            // ✦ نجمة أنيقة تدور بنعومة
+            androidx.compose.material3.Text(
+                text = "\u2726",
+                color = Color.White.copy(alpha = 0.85f + pulseAlpha * 0.15f),
+                fontSize = 16.sp,
+                modifier = Modifier.graphicsLayer(
+                    rotationZ = (shimmerX + 1f) * 60f,
+                    scaleX = 0.9f + pulseScale * 0.1f,
+                    scaleY = 0.9f + pulseScale * 0.1f,
+                ),
             )
             androidx.compose.foundation.text.BasicText(
                 text = label,

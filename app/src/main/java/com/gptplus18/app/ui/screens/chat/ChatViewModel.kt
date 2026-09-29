@@ -310,7 +310,7 @@ class ChatViewModel @Inject constructor(
                                 _t.contains("تحليل") || _t.contains("🔍") -> "analyze"
                                 _t.contains("أغنية") || _t.contains("تلحين") || _t.contains("🎵") -> "song"
                                 _t.contains("فيديو") || _t.contains("🎬") -> "video"
-                                _t.contains("صورة") || _t.contains("🎨") -> "image"
+                                _t.contains("صورة") || _t.contains("\u2726") -> "image"
                                 else -> _state.value.pendingMediaType
                             }
                             _state.value = _state.value.copy(
@@ -329,7 +329,7 @@ class ChatViewModel @Inject constructor(
                                         m.copy(content = currentText)
                                     } else m
                                 },
-                                statusLabel = "🎨 الصورة جاهزة",
+                                statusLabel = "\u2726 الصورة جاهزة",
                             )
                         }
                         is StreamEvent.ThinkingDelta -> {
@@ -450,7 +450,7 @@ class ChatViewModel @Inject constructor(
     }
 
     /**
-     * 🎨 تنقية نص الستريم من وسوم التفكير
+     * \u2726 تنقية نص الستريم من وسوم التفكير
      * - لو النموذج لسا ما وصل [[رد]] → يرجع فاضي
      * - لو في [[رد]]...[[/رد]] → يرجع النص بينهم فقط
      */

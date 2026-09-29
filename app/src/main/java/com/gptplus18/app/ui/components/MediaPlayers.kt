@@ -466,7 +466,7 @@ fun MediaSkeletonLoader(
     val (emoji, label) = when (type) {
         "video" -> "🎬" to "جاري إنشاء الفيديو..."
         "song" -> "🎵" to "جاري تلحين الأغنية..."
-        "image" -> "🎨" to "جاري إنشاء الصورة..."
+        "image" -> "\u2726" to "جاري إنشاء الصورة..."
         else -> "⏳" to "جاري التحميل..."
     }
 
