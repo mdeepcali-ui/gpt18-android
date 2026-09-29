@@ -37,7 +37,7 @@ data class ChatUiState(
     val error: String? = null,
     val userName: String = "",
     val avatarUrl: String = "",
-    val statusLabel: String = "يفكر",
+    val statusLabel: String = "",
     val searchQuery: String = "",
     val replyTo: Message? = null,
     val isOnline: Boolean = true,
@@ -349,7 +349,6 @@ class ChatViewModel @Inject constructor(
                                         m.copy(content = currentText)
                                     } else m
                                 },
-                                statusLabel = "يكتب",
                             )
                         }
                         is StreamEvent.CodeFiles -> {
