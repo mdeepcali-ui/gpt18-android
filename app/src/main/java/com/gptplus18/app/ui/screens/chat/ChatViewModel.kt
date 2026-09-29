@@ -378,7 +378,7 @@ class ChatViewModel @Inject constructor(
                             } else {
                                 _state.value.thinkingByMessage
                             }
-                            val cleanedFinal = sb.toString().trim()
+                            val cleanedFinal = if (ev.text.isNotBlank()) ev.text.trim() else sb.toString().trim()
                             _state.value = _state.value.copy(
                                 messages = _state.value.messages.map { m ->
                                     if (m.id == -2 && m.ts == assistantTs) {

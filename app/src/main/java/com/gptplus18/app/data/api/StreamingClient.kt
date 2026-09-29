@@ -126,12 +126,14 @@ class StreamingClient {
                         obj.optBoolean("done", false) -> {
                             val sid = obj.optInt("session_id", -1)
                             val thinking = obj.optString("thinking", "")
+                            val finalText = obj.optString("text", "")
                             val videoUrl = if (obj.has("video_url")) obj.optString("video_url", "") else null
                             val imageUrl = if (obj.has("image_url")) obj.optString("image_url", "") else null
                             doneEmitted = true
                             trySend(StreamEvent.Done(
                                 sessionId = sid,
                                 thinking = thinking,
+                                text = finalText,
                                 videoUrl = videoUrl,
                                 imageUrl = imageUrl,
                             ))
@@ -291,6 +293,7 @@ sealed class StreamEvent {
     data class Done(
         val sessionId: Int,
         val thinking: String,
+        val text: String = "",
         val videoUrl: String? = null,
         val imageUrl: String? = null,
     ) : StreamEvent()
