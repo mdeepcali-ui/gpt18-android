@@ -335,7 +335,6 @@ class ChatViewModel @Inject constructor(
                                         status = "think",
                                         rawText = thinkingSb.toString(),
                                     )),
-                                    statusLabel = "",
                                 )
                             }
                         }
