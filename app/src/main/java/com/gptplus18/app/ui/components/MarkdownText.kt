@@ -49,6 +49,7 @@ import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.ui.theme.TextSecondary
 import androidx.compose.ui.res.stringResource
 import com.gptplus18.app.R
+import androidx.compose.material.icons.outlined.Article
 
 // ═══════════════════════════════════════════
 // ألوان طبيعية (VSCode Dark+ / GitHub Dark)
@@ -108,7 +109,11 @@ fun MarkdownText(
                 }
                 is MdBlock.CodeBlock -> {
                     Spacer(Modifier.height(4.dp))
-                    CodeBlockView(block.lang, block.content)
+                    if (block.lang.equals("long", ignoreCase = true)) {
+                        TextBlockView(block.content)
+                    } else {
+                        CodeBlockView(block.lang, block.content)
+                    }
                     Spacer(Modifier.height(4.dp))
                 }
                 is MdBlock.Heading -> {
@@ -328,6 +333,88 @@ fun MarkdownText(
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TextBlockView(text: String) {
+    val clip = LocalClipboardManager.current
+    val ctx = LocalContext.current
+
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFF15171E))
+                .border(1.dp, Color(0xFF2A2D38), RoundedCornerShape(12.dp)),
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFF1B1E27))
+                        .padding(start = 14.dp, end = 10.dp, top = 9.dp, bottom = 9.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Outlined.Article,
+                        contentDescription = null,
+                        tint = Color(0xFF7DD3FC),
+                        modifier = Modifier.size(15.dp),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "\u0646\u0635",
+                        color = Color(0xFF7DD3FC),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFF23262F))
+                            .clickable {
+                                clip.setText(AnnotatedString(text))
+                                android.widget.Toast.makeText(
+                                    ctx,
+                                    "\u2705 \u062a\u0645 \u0627\u0644\u0646\u0633\u062e",
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                    ) {
+                        Icon(
+                            androidx.compose.material.icons.Icons.Default.ContentCopy,
+                            stringResource(R.string.t_003),
+                            tint = Accent,
+                            modifier = Modifier.size(13.dp),
+                        )
+                        Spacer(Modifier.width(5.dp))
+                        Text(
+                            stringResource(R.string.t_003),
+                            color = Accent,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                ) {
+                    MarkdownText(
+                        text = text,
+                        textColor = Color(0xFFE5E7EB),
+                        fontSize = 15,
+                    )
+                }
             }
         }
     }
