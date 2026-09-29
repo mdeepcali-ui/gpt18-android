@@ -131,9 +131,15 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = chatRepo.listAllSessions()) {
                 is Result.Success -> {
+                    android.util.Log.d("ChatVM", "allSessions loaded: ${r.data.size}")
                     _state.value = _state.value.copy(allSessions = r.data)
                 }
-                else -> { /* ما نعمل شي */ }
+                is Result.Error -> {
+                    android.util.Log.e("ChatVM", "allSessions error: ${r.message}")
+                }
+                else -> {
+                    android.util.Log.w("ChatVM", "allSessions unknown")
+                }
             }
         }
     }
