@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Image
@@ -1608,7 +1609,7 @@ fun StatusBubble(label: String) {
         ) {
             // ✨ أيقونة AutoAwesome تدور بنعومة
             androidx.compose.material3.Icon(
-                imageVector = androidx.compose.material.icons.Icons.Filled.Star,
+                imageVector = Icons.Default.Star,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.85f + pulseAlpha * 0.15f),
                 modifier = Modifier
