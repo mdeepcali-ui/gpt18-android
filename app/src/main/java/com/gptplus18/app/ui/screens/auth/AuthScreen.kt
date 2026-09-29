@@ -38,6 +38,11 @@ import com.gptplus18.app.ui.theme.BgPrimary
 import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.ui.theme.TextSecondary
 import com.gptplus18.app.ui.theme.TextTertiary
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.runtime.getValue
 
 private val RedBrand = Color(0xFFE63946)
 private val CardBg = Color(0xFF0E0E12)
@@ -98,13 +103,54 @@ fun AuthScreen(
         ) {
             Spacer(Modifier.height(60.dp))
 
-            // ═══ الشعار الشفاف ═══
-            Image(
-                painter = painterResource(id = R.drawable.logo_transparent),
-                contentDescription = "GPT+18",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(180.dp),
+            // ═══ الشعار الشفاف مع تأثير اللمعان ═══
+            val shineTransition = rememberInfiniteTransition(label = "logo_shine")
+            val shineX by shineTransition.animateFloat(
+                initialValue = -0.6f,
+                targetValue = 1.6f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(
+                        durationMillis = 1100,
+                        delayMillis = 2200,
+                        easing = LinearEasing,
+                    ),
+                    repeatMode = RepeatMode.Restart,
+                ),
+                label = "shineX",
             )
+            Box(
+                modifier = Modifier
+                    .size(110.dp)
+                    .drawWithContent {
+                        drawContent()
+                        val w = size.width
+                        val h = size.height
+                        val cx = w * shineX
+                        val bandW = w * 0.75f
+                        drawRect(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.White.copy(alpha = 0.15f),
+                                    Color.White.copy(alpha = 0.75f),
+                                    Color.White.copy(alpha = 0.15f),
+                                    Color.Transparent,
+                                ),
+                                startX = cx - bandW / 2f,
+                                endX = cx + bandW / 2f,
+                            ),
+                            blendMode = BlendMode.SrcAtop,
+                        )
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo_transparent),
+                    contentDescription = "GPT+18",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
 
             Spacer(Modifier.height(20.dp))
 

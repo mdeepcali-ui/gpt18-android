@@ -21,3 +21,9 @@ key.properties
 *.bak-*
 *.BAK-*
 *.bak*
+
+# Backups - do not commit
+app/src/main/res/BACKUP_ICONS_*/
+app/src/main/res/drawable/*_BACKUP.png
+app/src/main/res/drawable/*.bak
+

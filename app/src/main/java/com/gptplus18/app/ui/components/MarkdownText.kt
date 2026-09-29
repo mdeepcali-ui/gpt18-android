@@ -23,6 +23,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,9 +66,15 @@ object CodeColors {
 }
 
 object CodeBlockColors {
-    val Background = Color(0xFF1E1E1E)
-    val HeaderBg = Color(0xFF252526)
-    val Border = Color(0xFF3E3E42)
+    val Background = Color(0xFF0F1117)
+    val HeaderBg = Color(0xFF181A21)
+    val Border = Color(0xFF2A2D38)
+    val DotRed = Color(0xFFFF5F57)
+    val DotYellow = Color(0xFFFFBD2E)
+    val DotGreen = Color(0xFF28C840)
+    val LangAccent = Color(0xFF7DD3FC)
+    val CopyBg = Color(0xFF1F2330)
+    val Shadow = Color(0x33000000)
 }
 
 @Composable
@@ -331,69 +338,147 @@ private fun CodeBlockView(lang: String, code: String) {
     val clip = LocalClipboardManager.current
     val ctx = LocalContext.current
     val scrollState = rememberScrollState()
+    val langDisplay = when (lang.lowercase()) {
+        "python", "py" -> "Python"
+        "javascript", "js" -> "JavaScript"
+        "typescript", "ts" -> "TypeScript"
+        "kotlin", "kt" -> "Kotlin"
+        "java" -> "Java"
+        "html" -> "HTML"
+        "css" -> "CSS"
+        "sql" -> "SQL"
+        "bash", "sh" -> "Bash"
+        "json" -> "JSON"
+        "xml" -> "XML"
+        "yaml", "yml" -> "YAML"
+        "go" -> "Go"
+        "rust", "rs" -> "Rust"
+        "cpp" -> "C++"
+        "c" -> "C"
+        "php" -> "PHP"
+        "ruby", "rb" -> "Ruby"
+        "swift" -> "Swift"
+        "" -> "Code"
+        else -> lang.replaceFirstChar { it.uppercase() }
+    }
+    val langIcon = when (lang.lowercase()) {
+        "python", "py" -> "🐍"
+        "javascript", "js" -> "JS"
+        "typescript", "ts" -> "TS"
+        "kotlin", "kt" -> "K"
+        "java" -> "☕"
+        "html" -> "🌐"
+        "css" -> "🎨"
+        "sql" -> "🗃"
+        "bash", "sh" -> "$"
+        "json" -> "{}"
+        "xml" -> "<>"
+        "yaml", "yml" -> "≡"
+        "go" -> "Go"
+        "rust", "rs" -> "R"
+        "cpp" -> "++"
+        "c" -> "C"
+        "php" -> "🐘"
+        "ruby", "rb" -> "◆"
+        "swift" -> "🦅"
+        else -> "⟨/⟩"
+    }
 
-    // ⭐ الكود دائماً LTR — حتى في واجهة عربية
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(CodeBlockColors.Background, RoundedCornerShape(10.dp)),
+                .padding(vertical = 4.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(CodeBlockColors.Background)
+                .border(1.dp, CodeBlockColors.Border, RoundedCornerShape(12.dp)),
         ) {
             Column {
+                // ── Header ──
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(CodeBlockColors.HeaderBg, RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                        .background(CodeBlockColors.HeaderBg)
+                        .padding(start = 14.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = "● ● ●",
-                        color = Color(0xFFFF5F57),
-                        fontSize = 9.sp,
-                        letterSpacing = 2.sp,
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        text = if (lang.isBlank()) "code" else lang,
-                        color = Color(0xFF858585),
-                        fontSize = 11.sp,
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.weight(1f),
-                    )
+                    // Trafic-light dots
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(11.dp).clip(CircleShape).background(CodeBlockColors.DotRed))
+                        Spacer(Modifier.width(6.dp))
+                        Box(Modifier.size(11.dp).clip(CircleShape).background(CodeBlockColors.DotYellow))
+                        Spacer(Modifier.width(6.dp))
+                        Box(Modifier.size(11.dp).clip(CircleShape).background(CodeBlockColors.DotGreen))
+                    }
+                    Spacer(Modifier.width(16.dp))
+                    // Language badge
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable {
-                            clip.setText(AnnotatedString(code))
-                            android.widget.Toast.makeText(
-                                ctx,
-                                "✅ تم النسخ",
-                                android.widget.Toast.LENGTH_SHORT
-                            ).show()
-                        },
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(CodeBlockColors.LangAccent.copy(alpha = 0.12f))
+                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                    ) {
+                        Text(
+                            text = langIcon,
+                            fontSize = 11.sp,
+                            fontFamily = FontFamily.Monospace,
+                            color = CodeBlockColors.LangAccent,
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = langDisplay,
+                            color = CodeBlockColors.LangAccent,
+                            fontSize = 11.sp,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 0.3.sp,
+                        )
+                    }
+                    Spacer(Modifier.weight(1f))
+                    // Copy button
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(CodeBlockColors.CopyBg)
+                            .clickable {
+                                clip.setText(AnnotatedString(code))
+                                android.widget.Toast.makeText(
+                                    ctx,
+                                    "✅ تم النسخ",
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            .padding(horizontal = 10.dp, vertical = 5.dp),
                     ) {
                         Icon(
                             Icons.Default.ContentCopy,
                             stringResource(R.string.t_003),
                             tint = Accent,
-                            modifier = Modifier.size(12.dp),
+                            modifier = Modifier.size(13.dp),
                         )
-                        Spacer(Modifier.width(4.dp))
-                        Text(stringResource(R.string.t_003), color = Accent, fontSize = 11.sp)
+                        Spacer(Modifier.width(5.dp))
+                        Text(
+                            stringResource(R.string.t_003),
+                            color = Accent,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                        )
                     }
                 }
+                // ── Body ──
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(scrollState)
-                        .padding(10.dp),
+                        .padding(horizontal = 14.dp, vertical = 14.dp),
                 ) {
                     Text(
                         text = highlightSyntax(code, lang),
                         fontFamily = FontFamily.Monospace,
-                        fontSize = 12.sp,
-                        lineHeight = 16.sp,
+                        fontSize = 13.sp,
+                        lineHeight = 19.sp,
                         softWrap = false,
                         style = TextStyle(textDirection = TextDirection.Ltr),
                     )
