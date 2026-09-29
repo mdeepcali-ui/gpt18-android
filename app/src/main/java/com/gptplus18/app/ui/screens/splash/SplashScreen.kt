@@ -21,6 +21,23 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import androidx.compose.ui.res.stringResource
 import com.gptplus18.app.R
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 
 @Composable
 fun SplashScreen(
@@ -76,9 +93,49 @@ fun SplashScreen(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("GPT+18", fontSize = 42.sp, fontWeight = FontWeight.Bold, color = Accent)
-            Text(stringResource(R.string.t_009), fontSize = 15.sp, color = Color(0xFF9A9AA0),
-                modifier = Modifier.padding(top = 8.dp))
+            val shineTransition = rememberInfiniteTransition(label = "splash_shine")
+            val shineX by shineTransition.animateFloat(
+                initialValue = -0.5f,
+                targetValue = 1.5f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 900, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart,
+                    initialStartOffset = StartOffset(2100),
+                ),
+                label = "shineX",
+            )
+            Image(
+                painter = painterResource(id = R.drawable.logo_transparent),
+                contentDescription = "GPT+18",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .size(140.dp)
+                    .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                    .drawWithContent {
+                        drawContent()
+                        val w = size.width
+                        val cx = w * shineX
+                        val bandW = w * 0.55f
+                        drawRect(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color.Black.copy(alpha = 0f),
+                                    Color.Black.copy(alpha = 0.85f),
+                                    Color.Black.copy(alpha = 0f),
+                                ),
+                                startX = cx - bandW / 2f,
+                                endX = cx + bandW / 2f,
+                            ),
+                            blendMode = BlendMode.SrcAtop,
+                        )
+                    },
+            )
+            Text(
+                text = stringResource(R.string.t_009),
+                fontSize = 15.sp,
+                color = Color(0xFF9A9AA0),
+                modifier = Modifier.padding(top = 24.dp),
+            )
         }
     }
 }
