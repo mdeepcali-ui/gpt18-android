@@ -88,8 +88,9 @@ class StreamingClient {
                         // ⭐ حالة الإنشاء (مثل: جاري إنشاء الصورة)
                         obj.has("status") -> {
                             val st = obj.optString("status", "")
+                            val mt = obj.optString("media_type", "")
                             if (st.isNotEmpty()) {
-                                trySend(StreamEvent.Status(st))
+                                trySend(StreamEvent.Status(st, mt))
                             }
                         }
                         // ⭐ رابط صورة جديدة من Backend
@@ -288,7 +289,7 @@ class StreamingClient {
 sealed class StreamEvent {
     data class ThinkingDelta(val text: String) : StreamEvent()
     data class Delta(val text: String) : StreamEvent()
-    data class Status(val text: String) : StreamEvent()
+    data class Status(val text: String, val mediaType: String = "") : StreamEvent()
     data class ImageUrl(val url: String, val prompt: String = "") : StreamEvent()
     data class Done(
         val sessionId: Int,
