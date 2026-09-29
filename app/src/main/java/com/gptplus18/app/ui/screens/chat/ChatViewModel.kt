@@ -301,6 +301,7 @@ class ChatViewModel @Inject constructor(
                             // ⭐ v2.0: كشف نوع الوسائط الجاري إنشاؤها
                             val _t = ev.text
                             val _pmedia = when {
+                                _t.contains("تحليل") || _t.contains("🔍") -> "analyze"
                                 _t.contains("أغنية") || _t.contains("تلحين") || _t.contains("🎵") -> "song"
                                 _t.contains("فيديو") || _t.contains("🎬") -> "video"
                                 _t.contains("صورة") || _t.contains("🎨") -> "image"
