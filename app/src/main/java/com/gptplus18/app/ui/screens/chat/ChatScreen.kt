@@ -398,7 +398,7 @@ fun ChatScreen(
                         .zIndex(100f)                   // ⭐ فوق الرسائل والصور
                         .padding(top = 8.dp, start = 12.dp),
                 ) {
-                    StatusBubble(label = state.statusLabel)
+                    StatusBubble(label = state.statusLabel.ifBlank { "يفكر..." })
                 }
 
                 if (showSessionsList) {

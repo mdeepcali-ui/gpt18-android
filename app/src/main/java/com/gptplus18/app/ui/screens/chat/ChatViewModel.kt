@@ -278,7 +278,7 @@ class ChatViewModel @Inject constructor(
             codeFiles = emptyList(),
             codeZipUrl = null,
             error = null,
-            statusLabel = "يفكر",
+            statusLabel = "",
             replyTo = null,
             thinkingByMessage = current.thinkingByMessage + (thinkId to ThinkingData(
                 steps = thinkingSteps,
@@ -335,7 +335,7 @@ class ChatViewModel @Inject constructor(
                                         status = "think",
                                         rawText = thinkingSb.toString(),
                                     )),
-                                    statusLabel = "يفكر",
+                                    statusLabel = "",
                                 )
                             }
                         }
@@ -379,7 +379,7 @@ class ChatViewModel @Inject constructor(
                                 currentSessionId = finalSessionId,
                                 isSending = false,
                                 pendingMediaType = null,  // ⭐ v2.0: تنظيف بعد انتهاء
-                                statusLabel = "يفكر",
+                                statusLabel = "",
                                 thinkingByMessage = newThinking,
                             )
                             finalSessionId?.let { sid ->
@@ -423,7 +423,7 @@ class ChatViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     messages = _state.value.messages.filterNot { it.id == -2 && it.ts == assistantTs },
                     isSending = false,
-                    statusLabel = "يفكر",
+                    statusLabel = "",
                     error = "انقطع الاتصال — حاول مرة ثانية",
                 )
             } finally {
@@ -656,7 +656,7 @@ class ChatViewModel @Inject constructor(
                     error = lastError ?: "لم يكتمل الرفع — حاول مرة أخرى",
                     isSending = false,
                     isUploading = false,
-                    statusLabel = "يفكر",
+                    statusLabel = "",
                 )
                 return@launch
             }
@@ -722,7 +722,7 @@ class ChatViewModel @Inject constructor(
             _state.value = _state.value.copy(
                 isSending = false,
                 isUploading = false,
-                statusLabel = "يفكر",
+                statusLabel = "",
             )
           } catch (e: Exception) {
             // ⭐ ضمان: أي خطأ → نحرر isSending/isUploading
@@ -730,7 +730,7 @@ class ChatViewModel @Inject constructor(
             _state.value = _state.value.copy(
                 isSending = false,
                 isUploading = false,
-                statusLabel = "يفكر",
+                statusLabel = "",
                 error = "انقطع الاتصال — حاول مرة ثانية",
             )
           } finally {
