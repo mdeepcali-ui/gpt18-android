@@ -286,6 +286,156 @@ fun MarkdownText(
                             .background(TextSecondary.copy(alpha = 0.25f)),
                     )
                 }
+                is MdBlock.LuxuryDivider -> {
+                    when (block.style) {
+                        "bold" -> {
+                            // ━━━━━━━━ — خط ذهبي عريض
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 14.dp, bottom = 10.dp)
+                                    .height(2.dp)
+                                    .background(
+                                        brush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+                                            listOf(
+                                                Color.Transparent,
+                                                Accent.copy(alpha = 0.8f),
+                                                Accent.copy(alpha = 0.8f),
+                                                Color.Transparent,
+                                            )
+                                        )
+                                    ),
+                            )
+                        }
+                        "thin" -> {
+                            // ────── — خط رفيع بشفافية
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 6.dp)
+                                    .height(1.dp)
+                                    .background(TextSecondary.copy(alpha = 0.35f)),
+                            )
+                        }
+                        "diamond" -> {
+                            // ◆◆◆ — زخرفة ذهبية
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 12.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = "◆  ◆  ◆",
+                                    color = Accent,
+                                    fontSize = 12.sp,
+                                    letterSpacing = 6.sp,
+                                )
+                            }
+                        }
+                    }
+                }
+                is MdBlock.SectionHeading -> {
+                    // ❶ العنوان
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp, bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        // حرف مرقّم بحجم كبير ولون
+                        Box(
+                            modifier = Modifier
+                                .width(30.dp)
+                                .height(30.dp)
+                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .background(Accent.copy(alpha = 0.15f))
+                                .border(1.dp, Accent.copy(alpha = 0.6f), androidx.compose.foundation.shape.CircleShape),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = block.num,
+                                color = Accent,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                        Spacer(Modifier.width(10.dp))
+                        Text(
+                            text = inlineMarkdown(block.title, textColor),
+                            color = textColor,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = (fontSize + 2).sp,
+                            lineHeight = (fontSize + 9).sp,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+                is MdBlock.AlertBox -> {
+                    val (tintColor, bgColor) = when (block.icon) {
+                        "💡" -> Color(0xFFFBBF24) to Color(0xFF1F1A08)   // ذهبي
+                        "⚠️" -> Color(0xFFF59E0B) to Color(0xFF1F1508)   // برتقالي
+                        "🔸" -> Color(0xFF60A5FA) to Color(0xFF0A1424)   // أزرق
+                        "📌" -> Color(0xFFA78BFA) to Color(0xFF150A24)   // بنفسجي
+                        "🎯" -> Color(0xFF34D399) to Color(0xFF0A1F15)   // أخضر
+                        "⭐" -> Color(0xFFFBBF24) to Color(0xFF1F1A08)
+                        "🔥" -> Color(0xFFEF4444) to Color(0xFF1F0A0A)
+                        "❤️" -> Color(0xFFEC4899) to Color(0xFF1F0A14)
+                        "✨" -> Color(0xFFA78BFA) to Color(0xFF150A24)
+                        "🌟" -> Color(0xFFFBBF24) to Color(0xFF1F1A08)
+                        else -> TextSecondary to Color(0xFF0F0F12)
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 2.dp, end = 2.dp, top = 6.dp, bottom = 6.dp)
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                            .background(bgColor)
+                            .border(
+                                width = 1.dp,
+                                color = tintColor.copy(alpha = 0.4f),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
+                            ),
+                    ) {
+                        Row {
+                            Box(
+                                modifier = Modifier
+                                    .width(3.dp)
+                                    .fillMaxHeight()
+                                    .background(tintColor)
+                                    .heightIn(min = 40.dp),
+                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.Top,
+                            ) {
+                                Text(
+                                    text = block.icon,
+                                    fontSize = (fontSize + 1).sp,
+                                    modifier = Modifier.padding(end = 8.dp, top = 1.dp),
+                                )
+                                Column {
+                                    if (block.label.isNotBlank()) {
+                                        Text(
+                                            text = block.label,
+                                            color = tintColor,
+                                            fontSize = (fontSize - 2).sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            modifier = Modifier.padding(bottom = 3.dp),
+                                        )
+                                    }
+                                    Text(
+                                        text = inlineMarkdown(block.content, textColor),
+                                        color = textColor,
+                                        fontSize = (fontSize - 1).sp,
+                                        lineHeight = (fontSize + 6).sp,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
                 is MdBlock.Checklist -> Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -910,6 +1060,9 @@ private sealed class MdBlock {
     data class Checklist(val checked: Boolean, val content: String) : MdBlock()
     data class HRule(val dummy: Boolean = true) : MdBlock()
     data class Latex(val code: String) : MdBlock()
+    data class LuxuryDivider(val style: String) : MdBlock()   // "bold" | "thin" | "diamond"
+    data class SectionHeading(val num: String, val title: String) : MdBlock()
+    data class AlertBox(val icon: String, val label: String, val content: String) : MdBlock()
 }
 
 private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
@@ -1049,6 +1202,36 @@ private fun parseMarkdownBlocks(raw: String): List<MdBlock> {
                 flushPara()
                 blocks.add(MdBlock.Numbered(numberedM.groupValues[1], numberedM.groupValues[2].trim()))
             }
+            // ═══ Luxury dividers ═══
+            Regex("^━{3,}$").matches(trimmed) -> {
+                flushPara()
+                blocks.add(MdBlock.LuxuryDivider("bold"))
+            }
+            Regex("^─{3,}$").matches(trimmed) -> {
+                flushPara()
+                blocks.add(MdBlock.LuxuryDivider("thin"))
+            }
+            Regex("^[◆◇]{3,}$").matches(trimmed) -> {
+                flushPara()
+                blocks.add(MdBlock.LuxuryDivider("diamond"))
+            }
+            // ═══ Section headings ❶ ❷ ❸ ... ═══
+            Regex("^([❶❷❸❹❺❻❼❽❾❿])\\s*(.+)$").find(trimmed) != null -> {
+                flushPara()
+                val m = Regex("^([❶❷❸❹❺❻❼❽❾❿])\\s*(.+)$").find(trimmed)!!
+                blocks.add(MdBlock.SectionHeading(m.groupValues[1], m.groupValues[2].trim()))
+            }
+            // ═══ Alert boxes 💡 ⚠️ 🔸 📌 🎯 ═══
+            Regex("^(💡|⚠️|🔸|📌|🎯|⭐|🔥|❤️|✨|🌟)\\s*([^:]*):\\s*(.+)$").find(trimmed) != null -> {
+                flushPara()
+                val m = Regex("^(💡|⚠️|🔸|📌|🎯|⭐|🔥|❤️|✨|🌟)\\s*([^:]*):\\s*(.+)$").find(trimmed)!!
+                blocks.add(MdBlock.AlertBox(
+                    m.groupValues[1],
+                    m.groupValues[2].trim(),
+                    m.groupValues[3].trim()
+                ))
+            }
+            // ═══ Standard HRule ═══
             trimmed == "---" || trimmed == "***" || trimmed == "___" -> {
                 flushPara()
                 blocks.add(MdBlock.HRule())

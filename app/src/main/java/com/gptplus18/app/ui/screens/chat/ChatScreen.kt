@@ -1275,13 +1275,8 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                         if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (cleanText.isNotBlank()) {
-                        if (msg.id == -2) {
-                            // ⚡ Streaming: نص عادي — بدون إعادة parse Markdown
-                            Text(cleanText, color = TextPrimary, fontSize = 16.sp)
-                        } else {
-                            // ✅ بعد الانتهاء: Markdown كامل
-                            MarkdownText(cleanText, textColor = TextPrimary, fontSize = 16)
-                        }
+                        // ✅ Markdown دائم — سواء أثناء البث أو بعده
+                        MarkdownText(cleanText, textColor = TextPrimary, fontSize = 16)
                     }
                 }
             }
