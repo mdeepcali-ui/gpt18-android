@@ -28,6 +28,7 @@ class TokenStorage @Inject constructor(
     private val KEY_EMAIL = stringPreferencesKey("auth_email")
     private val KEY_UID = longPreferencesKey("auth_uid")
     private val KEY_AVATAR = stringPreferencesKey("auth_avatar")
+    private val KEY_BIRTH_DATE = stringPreferencesKey("auth_birth_date")
 
     // ⭐ Backup store — SharedPreferences منفصل
     private val backupPrefs: SharedPreferences =
@@ -63,6 +64,24 @@ class TokenStorage @Inject constructor(
         }
         // 2) نخزن في SharedPreferences (نسخة احتياطية دائماً)
         backupSave(token, name, email, uid)
+    }
+
+    // ─── Birth Date ───
+    suspend fun saveBirthDate(birthDate: String) {
+        try {
+            context.authDataStore.edit { prefs ->
+                prefs[KEY_BIRTH_DATE] = birthDate
+            }
+        } catch (_: Exception) {}
+        try {
+            backupPrefs.edit().putString("birth_date", birthDate).commit()
+        } catch (_: Exception) {}
+    }
+
+    suspend fun getBirthDate(): String? {
+        return try {
+            context.authDataStore.data.map { it[KEY_BIRTH_DATE] }.first()
+        } catch (_: Exception) { null }
     }
 
     // ─── القراءة مع fallback ───

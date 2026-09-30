@@ -107,4 +107,12 @@ class AuthRepository @Inject constructor(
             "خطأ ($code)"
         }
     }
+
+
+    suspend fun setBirthDate(bearer: String, birthDate: String): Boolean {
+        return try {
+            val r = api.setBirthDate(bearer, BirthDateBody(birthDate))
+            r.isSuccessful
+        } catch (_: Exception) { false }
+    }
 }

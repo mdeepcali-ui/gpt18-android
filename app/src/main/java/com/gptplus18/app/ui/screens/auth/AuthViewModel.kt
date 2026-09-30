@@ -74,6 +74,7 @@ class AuthViewModel @Inject constructor(
     fun saveGoogleSession(token: String, name: String) {
         viewModelScope.launch {
             tokenStorage.save(token, name, "", 0)
+            sendBirthDateIfNeeded(token)
             // 📊 Analytics
             analytics.logLogin(method = "google")
             _state.value = _state.value.copy(pendingGoogleToken = Pair(token, name))
@@ -98,6 +99,7 @@ class AuthViewModel @Inject constructor(
                         is Result.Success -> {
                             analytics.logLogin(method = "google")
                             tokenStorage.save(r.data.token, r.data.name, r.data.email, r.data.uid)
+                            sendBirthDateIfNeeded(r.data.token)
                             _state.value = AuthUiState(
                                 isAuthenticated = true,
                                 pendingGoogleToken = Pair(r.data.token, r.data.name),
@@ -123,4 +125,15 @@ class AuthViewModel @Inject constructor(
     }
 
     fun clearError() { _state.value = _state.value.copy(error = null) }
+
+
+    private fun sendBirthDateIfNeeded(token: String) {
+        viewModelScope.launch {
+            try {
+                val bd = tokenStorage.getBirthDate() ?: return@launch
+                if (bd.isBlank()) return@launch
+                repo.setBirthDate("Bearer $token", bd)
+            } catch (_: Exception) {}
+        }
+    }
 }

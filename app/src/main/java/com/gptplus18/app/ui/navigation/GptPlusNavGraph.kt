@@ -134,7 +134,7 @@ fun GptPlusNavGraph(
                 val ctx = androidx.compose.ui.platform.LocalContext.current
                 val scope = androidx.compose.runtime.rememberCoroutineScope()
                 AgeCheckScreen(
-                    onVerified = {
+                    onVerified = { birthDate ->
                         scope.launch {
                             try {
                                 val entry = dagger.hilt.android.EntryPointAccessors.fromApplication(
@@ -142,6 +142,8 @@ fun GptPlusNavGraph(
                                     com.gptplus18.app.ui.screens.splash.SplashEntryPoint::class.java,
                                 )
                                 entry.prefs().setAgeVerified()
+                                // حفظ تاريخ الميلاد محلياً — يُرسل للـ API بعد login
+                                try { entry.tokenStorage().saveBirthDate(birthDate) } catch (_: Exception) {}
                                 val hasToken = entry.tokenStorage().getToken() != null
                                 if (hasToken) {
                                     navController.navigate(Routes.CHAT) { popUpTo(Routes.AGE_CHECK) { inclusive = true } }

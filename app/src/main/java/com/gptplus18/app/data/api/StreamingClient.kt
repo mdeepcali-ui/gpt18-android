@@ -1,5 +1,10 @@
 package com.gptplus18.app.data.api
 
+import java.util.TimeZone
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 import com.gptplus18.app.BuildConfig
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -50,6 +55,8 @@ class StreamingClient {
             .addHeader("Authorization", "Bearer $token")
             .addHeader("Accept", "text/event-stream")
             .addHeader("Cache-Control", "no-cache")
+            .addHeader("X-Device-TZ", TimeZone.getDefault().getOffset(System.currentTimeMillis()).div(60000).toString())
+            .addHeader("X-Device-Time", SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US).format(Date()))
             .post(jsonBody.toRequestBody("application/json".toMediaType()))
             .build()
 

@@ -260,4 +260,15 @@ interface ApiService {
         @Header("Authorization") bearer: String,
     ): Response<Map<String, Any>>
 
+
+    @POST("api/auth/set-birthdate")
+    suspend fun setBirthDate(
+        @Header("Authorization") bearer: String,
+        @Body body: BirthDateBody,
+    ): Response<Any>
+
+
+
+data class BirthDateBody(val birth_date: String)
+
 }

@@ -31,7 +31,7 @@ import java.util.Locale
 
 @Composable
 fun AgeCheckScreen(
-    onVerified: () -> Unit,
+    onVerified: (String) -> Unit,
     onRejected: () -> Unit,
 ) {
     val isArabic = Locale.getDefault().language == "ar"
@@ -213,7 +213,9 @@ fun AgeCheckScreen(
                     if (today.get(Calendar.DAY_OF_YEAR) < birth.get(Calendar.DAY_OF_YEAR)) age--
 
                     if (age >= 18) {
-                        onVerified()
+                        val mm = m.toString().padStart(2, '0')
+                        val dd = d.toString().padStart(2, '0')
+                        onVerified("$y-$mm-$dd")
                     } else {
                         showReject = true
                     }
