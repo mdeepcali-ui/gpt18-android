@@ -96,7 +96,8 @@ class ChatRepository @Inject constructor(
                 emit(StreamEvent.Error("غير مصرح"))
                 return@flow
             }
-            emitAll(streamingClient.streamMessage(token, sid, text, memory))
+            val bd = try { tokenStorage.getBirthDate() } catch (_: Exception) { null }
+            emitAll(streamingClient.streamMessage(token, sid, text, memory, bd))
         }
     }
 }

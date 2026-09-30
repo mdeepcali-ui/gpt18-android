@@ -57,6 +57,7 @@ class StreamingClient {
             .addHeader("Cache-Control", "no-cache")
             .addHeader("X-Device-TZ", TimeZone.getDefault().getOffset(System.currentTimeMillis()).div(60000).toString())
             .addHeader("X-Device-Time", SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US).format(Date()))
+            .addHeader("X-Birth-Date", birthDate ?: "")
             .post(jsonBody.toRequestBody("application/json".toMediaType()))
             .build()
 
