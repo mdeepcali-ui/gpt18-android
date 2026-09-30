@@ -267,8 +267,6 @@ interface ApiService {
         @Body body: BirthDateBody,
     ): Response<Any>
 
-
+}
 
 data class BirthDateBody(val birth_date: String)
-
-}
