@@ -42,6 +42,7 @@ class StreamingClient {
         sessionId: Int?,
         message: String,
         memory: Boolean = true,
+        birthDate: String? = null,
     ): Flow<StreamEvent> = callbackFlow {
 
         val jsonBody = JSONObject().apply {
