@@ -415,6 +415,22 @@ private fun fileEmoji(name: String): String {
 // ═══════════════════════════════════════════════════════
 // ⭐ v2.0: QuickChipsRow — فقاعات سريعة فوق الـ input
 // ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+//  الذهبي الفاخر — Quick Actions
+// ═══════════════════════════════════════════════════════
+
+private val GoldAccent  = Color(0xFFD4AF37)
+private val GoldSoft    = Color(0x0FD4AF37)   // 6%
+private val GoldBorder  = Color(0x2ED4AF37)   // 18%
+private val GoldText    = Color(0xEBD4AF37)   // 92%
+
+private data class GoldenChip(
+    val label: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val insertText: String,
+)
+
+
 @Composable
 private fun QuickChipsRow(
     enabled: Boolean,
@@ -422,76 +438,82 @@ private fun QuickChipsRow(
     onImagePick: (() -> Unit)?,
     onEditImagePick: (() -> Unit)?,
 ) {
-    val colors = LocalAppColors.current
-    data class QuickChip(
-        val label: String,
-        val icon: androidx.compose.ui.graphics.vector.ImageVector,
-        val insertText: String?,
-    )
     val chips = listOf(
-        QuickChip("بحث", androidx.compose.material.icons.Icons.Outlined.Search, "ابحث عن "),
-        QuickChip("صورة", androidx.compose.material.icons.Icons.Outlined.PhotoCamera, null),
-        QuickChip("أنشئ صورة", androidx.compose.material.icons.Icons.Outlined.AutoAwesome, "أنشئ صورة "),
-        QuickChip("تعديل صورة", androidx.compose.material.icons.Icons.Outlined.Edit, null),
-        QuickChip("فيديو", androidx.compose.material.icons.Icons.Outlined.Movie, "أنشئ فيديو عن "),
-        QuickChip("أغنية", androidx.compose.material.icons.Icons.Outlined.MusicNote, "أنشئ أغنية عن "),
-        QuickChip("كود", androidx.compose.material.icons.Icons.Outlined.Code, "اكتب كود "),
-        QuickChip("لخّص", androidx.compose.material.icons.Icons.Outlined.Summarize, "لخّص "),
+        GoldenChip("صورة", androidx.compose.material.icons.Icons.Outlined.AutoAwesome, "أنشئ صورة "),
+        GoldenChip("أغنية", androidx.compose.material.icons.Icons.Outlined.MusicNote, "أنشئ أغنية عن "),
+        GoldenChip("فيديو", androidx.compose.material.icons.Icons.Outlined.Movie, "أنشئ فيديو عن "),
     )
 
-    LazyRow(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 6.dp, vertical = 2.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        contentPadding = PaddingValues(horizontal = 4.dp),
-        userScrollEnabled = true,
+            .padding(horizontal = 6.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center,
     ) {
-        items(chips) { chip ->
-            var pressed by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-            val scale by androidx.compose.animation.core.animateFloatAsState(
-                targetValue = if (pressed) 0.92f else 1f,
-                animationSpec = androidx.compose.animation.core.spring(
-                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                    stiffness = androidx.compose.animation.core.Spring.StiffnessHigh
-                ),
-                label = "chipScale"
-            )
-            Box(
-                modifier = Modifier
-                    .graphicsLayer { scaleX = scale; scaleY = scale }
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(colors.surfaceVariant.copy(alpha = 0.6f))
-                    .border(
-                        width = 0.5.dp,
-                        color = colors.textSecondary.copy(alpha = 0.15f),
-                        shape = RoundedCornerShape(20.dp),
-                    )
-                    .clickable(enabled = enabled) {
-                        when {
-                            chip.insertText != null -> onTextInsert(chip.insertText)
-                            chip.label == "صورة" -> onImagePick?.invoke()
-                            chip.label == "تعديل صورة" -> onEditImagePick?.invoke()
-                        }
-                    }
-                    .padding(horizontal = 11.dp, vertical = 7.dp),
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    androidx.compose.material3.Icon(
-                        imageVector = chip.icon,
-                        contentDescription = chip.label,
-                        tint = colors.textSecondary,
-                        modifier = Modifier.size(15.dp),
-                    )
-                    Spacer(Modifier.width(5.dp))
-                    Text(
-                        chip.label,
-                        color = colors.textSecondary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(22.dp))
+                .background(GoldSoft)
+                .border(0.5.dp, GoldBorder, RoundedCornerShape(22.dp))
+                .padding(horizontal = 4.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            chips.forEachIndexed { index, chip ->
+                GoldenChipItem(
+                    chip = chip,
+                    enabled = enabled,
+                    onClick = { onTextInsert(chip.insertText) },
+                )
+                if (index < chips.size - 1) {
+                    Box(
+                        modifier = Modifier
+                            .height(18.dp)
+                            .width(0.5.dp)
+                            .background(GoldBorder),
                     )
                 }
             }
         }
+    }
+}
+
+
+@Composable
+private fun GoldenChipItem(
+    chip: GoldenChip,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    var pressed by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    val scale by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (pressed) 0.94f else 1f,
+        animationSpec = androidx.compose.animation.core.spring(
+            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+            stiffness = androidx.compose.animation.core.Spring.StiffnessHigh,
+        ),
+        label = "chipScale",
+    )
+
+    Row(
+        modifier = Modifier
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .clip(RoundedCornerShape(18.dp))
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = chip.icon,
+            contentDescription = chip.label,
+            tint = GoldAccent,
+            modifier = Modifier.size(15.dp),
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = chip.label,
+            color = GoldText,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
     }
 }
