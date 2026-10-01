@@ -132,7 +132,7 @@ fun SplashScreen(
             )
             Text(
                 text = stringResource(R.string.t_009),
-                fontSize = 15.sp,
+                fontSize = 13.2.sp,
                 color = Color(0xFF9A9AA0),
                 modifier = Modifier.padding(top = 24.dp),
             )

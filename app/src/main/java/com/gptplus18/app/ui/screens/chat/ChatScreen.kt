@@ -326,7 +326,7 @@ fun ChatScreen(
                         title = {
                             if (showSessionsList) {
                                 Text(stringResource(R.string.t_044), color = TextPrimary,
-                                    fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                    fontWeight = FontWeight.Bold, fontSize = 15.8.sp)
                             } else {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     ModeDropdown(
@@ -668,7 +668,7 @@ private fun ModeDropdown(
     ) {
         Icon(Icons.AutoMirrored.Filled.Chat, null, tint = colors.textPrimary, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(6.dp))
-        Text("Chat", color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+        Text("Chat", color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.1.sp)
     }
 }
 
@@ -710,8 +710,8 @@ private fun SessionsList(
     if (sessions.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.t_047), color = TextSecondary, fontSize = 15.sp)
-                Text(stringResource(R.string.t_048), color = TextTertiary, fontSize = 13.sp,
+                Text(stringResource(R.string.t_047), color = TextSecondary, fontSize = 13.2.sp)
+                Text(stringResource(R.string.t_048), color = TextTertiary, fontSize = 11.4.sp,
                     modifier = Modifier.padding(top = 6.dp))
             }
         }
@@ -726,25 +726,25 @@ private fun SessionsList(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .shadow(4.dp, RoundedCornerShape(20.dp))
+                    .shadow(4.dp, RoundedCornerShape(16.dp))
                     .combinedClickable(
                         onClick = { onOpen(s) },
                         onLongClick = { onLongPress(s) },
                     ),
                 colors = CardDefaults.cardColors(containerColor = BgSecondary),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(16.dp),
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(s.title, color = TextPrimary, fontWeight = FontWeight.SemiBold,
-                            fontSize = 15.sp, modifier = Modifier.weight(1f))
+                            fontSize = 13.2.sp, modifier = Modifier.weight(1f))
                         if (s.msgCount > 0) {
-                            Text("${s.msgCount}", color = Accent, fontSize = 11.sp,
+                            Text("${s.msgCount}", color = Accent, fontSize = 9.7.sp,
                                 fontWeight = FontWeight.Bold)
                         }
                     }
                     s.lastMsg?.let {
-                        Text(it.take(80), color = TextSecondary, fontSize = 13.sp,
+                        Text(it.take(80), color = TextSecondary, fontSize = 11.4.sp,
                             modifier = Modifier.padding(top = 4.dp))
                     }
                 }
@@ -779,12 +779,12 @@ private fun PinnedMessagesBar(
             Spacer(Modifier.width(8.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("\ud83d\udccc", fontSize = 11.sp)
+                    Text("\ud83d\udccc", fontSize = 9.7.sp)
                     Spacer(Modifier.width(4.dp))
                     Text(
                         "\u0645\u062b\u0628\u0651\u062a",
                         color = Accent,
-                        fontSize = 10.sp,
+                        fontSize = 8.8.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     if (messages.size > 1) {
@@ -792,7 +792,7 @@ private fun PinnedMessagesBar(
                         Text(
                             "+${messages.size - 1}",
                             color = TextSecondary,
-                            fontSize = 9.sp,
+                            fontSize = 7.9.sp,
                         )
                     }
                 }
@@ -800,7 +800,7 @@ private fun PinnedMessagesBar(
                 Text(
                     latest.content.take(80),
                     color = TextPrimary,
-                    fontSize = 11.sp,
+                    fontSize = 9.7.sp,
                     maxLines = 1,
                 )
             }
@@ -808,7 +808,7 @@ private fun PinnedMessagesBar(
                 onClick = { onUnpin(latest.ts) },
                 modifier = Modifier.size(24.dp),
             ) {
-                Text("\u2715", color = TextSecondary, fontSize = 12.sp)
+                Text("\u2715", color = TextSecondary, fontSize = 10.6.sp)
             }
         }
     }
@@ -834,7 +834,7 @@ private fun CodeFilesCard(
             )
             .border(
                 width = 0.6.dp,
-                color = Accent.copy(alpha = 0.35f),
+                color = Color(0xFF3A3C40),
                 shape = RoundedCornerShape(16.dp),
             )
             .padding(14.dp),
@@ -848,20 +848,20 @@ private fun CodeFilesCard(
                         .background(Accent.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("📁", fontSize = 17.sp)
+                    Text("📁", fontSize = 15.sp)
                 }
                 Spacer(Modifier.width(10.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "الملفات جاهزة",
                         color = TextPrimary,
-                        fontSize = 14.sp,
+                        fontSize = 12.3.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
                         text = "${files.size} ملف${if (zipUrl != null) " — أو حمّل الكل" else ""}",
                         color = TextSecondary,
-                        fontSize = 11.sp,
+                        fontSize = 9.7.sp,
                     )
                 }
             }
@@ -884,12 +884,12 @@ private fun CodeFilesCard(
                         }
                         .padding(horizontal = 10.dp, vertical = 8.dp),
                 ) {
-                    Text("📄", fontSize = 15.sp)
+                    Text("📄", fontSize = 13.2.sp)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         text = f.name,
                         color = TextPrimary,
-                        fontSize = 12.sp,
+                        fontSize = 10.6.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.weight(1f),
                         maxLines = 1,
@@ -897,7 +897,7 @@ private fun CodeFilesCard(
                     Text(
                         text = "⬇",
                         color = Accent,
-                        fontSize = 14.sp,
+                        fontSize = 12.3.sp,
                         fontWeight = FontWeight.Bold,
                     )
                 }
@@ -926,12 +926,12 @@ private fun CodeFilesCard(
                         }
                         .padding(vertical = 11.dp),
                 ) {
-                    Text("📦", fontSize = 15.sp)
+                    Text("📦", fontSize = 13.2.sp)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         text = "تحميل الكل (ZIP)",
                         color = Color.Black,
-                        fontSize = 13.sp,
+                        fontSize = 11.4.sp,
                         fontWeight = FontWeight.Bold,
                     )
                 }
@@ -991,7 +991,7 @@ private fun EmptyLogoState() {
         Text(
             "\u0645\u0631\u062d\u0628\u0627 \u0628\u0643 \u0641\u064a GPT+18",
             color = TextPrimary,
-            fontSize = 16.sp,
+            fontSize = 14.1.sp,
             fontWeight = FontWeight.Bold,
         )
     }
@@ -1022,7 +1022,7 @@ private fun _EmptyChatStateUnused(onSuggestionClick: (String) -> Unit) {
                 .border(1.5.dp, Accent.copy(alpha = 0.3f), androidx.compose.foundation.shape.CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Text("\u2728", fontSize = 42.sp)
+            Text("\u2728", fontSize = 37.sp)
         }
 
         Spacer(Modifier.height(20.dp))
@@ -1030,7 +1030,7 @@ private fun _EmptyChatStateUnused(onSuggestionClick: (String) -> Unit) {
         Text(
             "\u0645\u0631\u062d\u0628\u0627 \u0628\u0643 \u0641\u064a GPT+18",
             color = TextPrimary,
-            fontSize = 20.sp,
+            fontSize = 17.6.sp,
             fontWeight = FontWeight.Bold,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
@@ -1038,7 +1038,7 @@ private fun _EmptyChatStateUnused(onSuggestionClick: (String) -> Unit) {
         Text(
             "\u0627\u0628\u062f\u0623 \u0628\u0627\u0644\u0643\u062a\u0627\u0628\u0629 \u0641\u064a \u0627\u0644\u0623\u0633\u0641\u0644 \u0623\u0648 \u0627\u062e\u062a\u0631 \u0627\u0642\u062a\u0631\u0627\u062d\u0627\u064b:",
             color = TextSecondary,
-            fontSize = 13.sp,
+            fontSize = 11.4.sp,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
 
@@ -1061,7 +1061,7 @@ private fun _EmptyChatStateUnused(onSuggestionClick: (String) -> Unit) {
                         }
                         .padding(horizontal = 14.dp, vertical = 12.dp),
                 ) {
-                    Text(s, color = TextPrimary, fontSize = 13.sp)
+                    Text(s, color = TextPrimary, fontSize = 11.4.sp)
                 }
             }
         }
@@ -1200,7 +1200,7 @@ fun MessageBubble(
                             Text(
                                 "🔍 جاري تحليل الصورة...",
                                 color = TextPrimary,
-                                fontSize = 14.sp,
+                                fontSize = 12.3.sp,
                                 fontWeight = FontWeight.Medium,
                             )
                         }
@@ -1247,7 +1247,7 @@ fun MessageBubble(
                                         }
                                         .padding(horizontal = 14.dp, vertical = 8.dp),
                                 ) {
-                                    Text(action, color = Accent, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                                    Text(action, color = Accent, fontSize = 11.4.sp, fontWeight = FontWeight.Medium)
                                 }
                             }
                         }
@@ -1395,14 +1395,14 @@ fun ActionButton(
     ) {
         Icon(icon, label, tint = TextTertiary, modifier = Modifier.size(12.dp))
         Spacer(Modifier.width(3.dp))
-        Text(label, color = TextTertiary, fontSize = 11.sp)
+        Text(label, color = TextTertiary, fontSize = 9.7.sp)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ReplyBar(content: String, onCancel: () -> Unit) {
-    Surface(color = BgSecondary, shape = RoundedCornerShape(20.dp)) {
+    Surface(color = BgSecondary, shape = RoundedCornerShape(16.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -1415,8 +1415,8 @@ private fun ReplyBar(content: String, onCancel: () -> Unit) {
             )
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.t_050), color = Accent, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                Text(content.take(60), color = TextSecondary, fontSize = 12.sp, maxLines = 1)
+                Text(stringResource(R.string.t_050), color = Accent, fontSize = 9.7.sp, fontWeight = FontWeight.Bold)
+                Text(content.take(60), color = TextSecondary, fontSize = 10.6.sp, maxLines = 1)
             }
             IconButton(onClick = onCancel, modifier = Modifier.size(28.dp)) {
                 Icon(Icons.Default.Close, stringResource(R.string.t_026), tint = TextSecondary,
@@ -1440,8 +1440,8 @@ private fun AllSessionsListView(
     if (sessions.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.t_047), color = TextSecondary, fontSize = 15.sp)
-                Text(stringResource(R.string.t_048), color = TextTertiary, fontSize = 13.sp,
+                Text(stringResource(R.string.t_047), color = TextSecondary, fontSize = 13.2.sp)
+                Text(stringResource(R.string.t_048), color = TextTertiary, fontSize = 11.4.sp,
                     modifier = Modifier.padding(top = 6.dp))
             }
         }
@@ -1457,7 +1457,7 @@ private fun AllSessionsListView(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .shadow(4.dp, RoundedCornerShape(20.dp))
+                    .shadow(4.dp, RoundedCornerShape(16.dp))
                     .combinedClickable(
                         onClick = {
                             if (s.type == "code") onOpenCode(s)
@@ -1468,7 +1468,7 @@ private fun AllSessionsListView(
                         },
                     ),
                 colors = CardDefaults.cardColors(containerColor = BgSecondary),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(16.dp),
             ) {
                 Row(
                     Modifier.padding(16.dp),
@@ -1487,13 +1487,13 @@ private fun AllSessionsListView(
                             s.title,
                             color = TextPrimary,
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 15.sp,
+                            fontSize = 13.2.sp,
                         )
                         s.lastMsg?.let {
                             Text(
                                 it.take(80),
                                 color = TextSecondary,
-                                fontSize = 13.sp,
+                                fontSize = 11.4.sp,
                                 modifier = Modifier.padding(top = 4.dp),
                             )
                         }
@@ -1538,7 +1538,7 @@ fun StatusBubble(label: String) {
         targetValue = 2f,
         animationSpec = androidx.compose.animation.core.infiniteRepeatable(
             animation = androidx.compose.animation.core.tween(
-                durationMillis = 1200,
+                durationMillis = 600,
                 easing = androidx.compose.animation.core.LinearEasing,
             ),
             repeatMode = androidx.compose.animation.core.RepeatMode.Restart,
@@ -1567,39 +1567,39 @@ fun StatusBubble(label: String) {
     )
 
     // \u2726 خلفية الفقاعة — أزرق داكن متدرج
-    val bgTop = Color(0xFF1E3A8A)
-    val bgBot = Color(0xFF0F1E4A)
-    val borderC = Accent.copy(alpha = 0.35f)
-    val shadowC = Color.Black.copy(alpha = 0.35f)
+    val bgTop = Color(0xFF1C1D1F)
+    val bgBot = Color(0xFF0A0A0B)
+    val borderC = Color(0xFF3A3C40)
+    val shadowC = Color.Black.copy(alpha = 0.55f)
 
     // 📝 نص رمادي + وهج أبيض فاتح
-    val baseColor = Color(0xFF8E8E93)
+    val baseColor = Color(0xFFB8B8C0)
     val shimmerColor = Color(0xFFFFFFFF)
 
     androidx.compose.foundation.layout.Box(
         modifier = Modifier
             .shadow(
-                elevation = 6.dp,
-                shape = RoundedCornerShape(20.dp),
+                elevation = 4.dp,
+                shape = RoundedCornerShape(16.dp),
                 ambientColor = shadowC,
                 spotColor = shadowC,
             )
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(Brush.linearGradient(colors = listOf(bgTop, bgBot)))
-            .border(0.8.dp, borderC, RoundedCornerShape(20.dp)),
+            .border(0.6.dp, borderC, RoundedCornerShape(16.dp)),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
             modifier = Modifier
-                .widthIn(min = 140.dp)
-                .padding(horizontal = 20.dp, vertical = 9.dp),
+                .widthIn(min = 110.dp)
+                .padding(horizontal = 14.dp, vertical = 7.dp),
         ) {
             // ✦ نجمة أنيقة تدور بنعومة
             androidx.compose.material3.Text(
                 text = "\u2726",
                 color = Color.White.copy(alpha = 0.85f + pulseAlpha * 0.15f),
-                fontSize = 16.sp,
+                fontSize = 11.4.sp,
                 modifier = Modifier.graphicsLayer(
                     rotationZ = (shimmerX + 1f) * 60f,
                     scaleX = 0.9f + pulseScale * 0.1f,
@@ -1609,7 +1609,7 @@ fun StatusBubble(label: String) {
             androidx.compose.foundation.text.BasicText(
                 text = label,
                 style = androidx.compose.ui.text.TextStyle(
-                    fontSize = 14.sp,
+                    fontSize = 10.6.sp,
                     fontWeight = FontWeight.Medium,
                     brush = Brush.horizontalGradient(
                         colors = listOf(
@@ -1707,7 +1707,7 @@ private fun SubscriptionRequiredModal(
                         Text(
                             text = "هذا الخيار للمشتركين",
                             color = Color.White,
-                            fontSize = 19.sp,
+                            fontSize = 16.7.sp,
                             fontWeight = FontWeight.SemiBold,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                         )
@@ -1716,8 +1716,8 @@ private fun SubscriptionRequiredModal(
 
                         Text(
                             text = "استمتع بجميع الميزات مع إحدى باقاتنا",
-                            color = Color(0xFF8E8E93),
-                            fontSize = 13.sp,
+                            color = Color(0xFFB8B8C0),
+                            fontSize = 11.4.sp,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                             lineHeight = 19.sp,
                         )
@@ -1765,7 +1765,7 @@ private fun SubscriptionRequiredModal(
                             Text(
                                 text = "عرض الباقات",
                                 color = Color(0xFF1C1C1E),
-                                fontSize = 15.sp,
+                                fontSize = 13.2.sp,
                                 fontWeight = FontWeight.SemiBold,
                             )
                         }
@@ -1781,8 +1781,8 @@ private fun SubscriptionRequiredModal(
                         ) {
                             Text(
                                 text = "لاحقاً",
-                                color = Color(0xFF8E8E93),
-                                fontSize = 14.sp,
+                                color = Color(0xFFB8B8C0),
+                                fontSize = 12.3.sp,
                             )
                         }
                     }
@@ -1815,8 +1815,8 @@ private fun FeatureBadge(
         Spacer(Modifier.height(8.dp))
         Text(
             text = label,
-            color = Color(0xFF8E8E93),
-            fontSize = 11.sp,
+            color = Color(0xFFB8B8C0),
+            fontSize = 9.7.sp,
             fontWeight = FontWeight.Medium,
         )
     }

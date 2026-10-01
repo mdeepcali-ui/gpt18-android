@@ -90,7 +90,7 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                             Text(
                                 stringResource(R.string.t_159),
                                 color = TextPrimary,
-                                fontSize = 15.sp,
+                                fontSize = 13.2.sp,
                                 fontWeight = FontWeight.SemiBold,
                             )
                         }
@@ -262,7 +262,7 @@ private fun FilesDownloadSection(
                 "📥 الملفات الجاهزة",
                 color = TextPrimary,
                 fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
+                fontSize = 12.3.sp,
             )
             Spacer(Modifier.height(8.dp))
 
@@ -299,18 +299,18 @@ private fun FilesDownloadSection(
                             } catch (_: Exception) {}
                         },
                 ) {
-                    Text("📄", fontSize = 16.sp)
+                    Text("📄", fontSize = 14.1.sp)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         f.name,
                         color = TextPrimary,
-                        fontSize = 13.sp,
+                        fontSize = 11.4.sp,
                         modifier = Modifier.weight(1f),
                     )
                     Text(
                         "${f.size / 1024} KB",
                         color = TextSecondary,
-                        fontSize = 11.sp,
+                        fontSize = 9.7.sp,
                     )
                 }
             }
@@ -327,10 +327,10 @@ private fun SessionList(
     if (sessions.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.t_051), color = Accent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text(stringResource(R.string.t_053), color = TextSecondary, fontSize = 13.sp,
+                Text(stringResource(R.string.t_051), color = Accent, fontSize = 17.6.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_053), color = TextSecondary, fontSize = 11.4.sp,
                     modifier = Modifier.padding(top = 8.dp))
-                Text(stringResource(R.string.t_054), color = TextTertiary, fontSize = 12.sp,
+                Text(stringResource(R.string.t_054), color = TextTertiary, fontSize = 10.6.sp,
                     modifier = Modifier.padding(top = 4.dp))
             }
         }
@@ -351,9 +351,9 @@ private fun SessionList(
                 shape = RoundedCornerShape(12.dp),
             ) {
                 Column(Modifier.padding(14.dp)) {
-                    Text(s.title, color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                    Text(s.title, color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 13.2.sp)
                     s.lastRequest?.let {
-                        Text(it.take(80), color = TextSecondary, fontSize = 12.sp,
+                        Text(it.take(80), color = TextSecondary, fontSize = 10.6.sp,
                             fontFamily = FontFamily.Monospace,
                             modifier = Modifier.padding(top = 6.dp))
                     }

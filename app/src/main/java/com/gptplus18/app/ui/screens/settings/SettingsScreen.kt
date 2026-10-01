@@ -79,7 +79,7 @@ fun SettingsScreen(
                 subtitle = if (state.language == "ar") stringResource(R.string.t_198) else "English",
             ) {
                 TextButton(onClick = { vm.toggleLanguage() }) {
-                    Text(if (state.language == "ar") stringResource(R.string.t_198) else "English", color = Accent, fontSize = 13.sp)
+                    Text(if (state.language == "ar") stringResource(R.string.t_198) else "English", color = Accent, fontSize = 11.4.sp)
                 }
             }
 
@@ -121,11 +121,11 @@ fun SettingsScreen(
                       Text(
                           text = "⚠️ $err",
                           color = Color(0xFFFF6B6B),
-                          fontSize = 12.sp,
+                          fontSize = 10.6.sp,
                           modifier = Modifier.weight(1f),
                       )
                       TextButton(onClick = { vm.dismissNotificationError() }) {
-                          Text(stringResource(R.string.t_078), color = Accent, fontSize = 12.sp)
+                          Text(stringResource(R.string.t_078), color = Accent, fontSize = 10.6.sp)
                       }
                   }
               }
@@ -185,7 +185,7 @@ private fun SectionTitle(text: String) {
     Text(
         text,
         color = TextSecondary,
-        fontSize = 13.sp,
+        fontSize = 11.4.sp,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp, start = 4.dp),
     )
@@ -210,9 +210,9 @@ private fun SettingRow(
         Icon(icon, null, tint = Accent, modifier = Modifier.size(22.dp))
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(title, color = TextPrimary, fontSize = 15.sp)
+            Text(title, color = TextPrimary, fontSize = 13.2.sp)
             subtitle?.let {
-                Text(it, color = TextSecondary, fontSize = 12.sp,
+                Text(it, color = TextSecondary, fontSize = 10.6.sp,
                     modifier = Modifier.padding(top = 2.dp))
             }
         }
@@ -239,7 +239,7 @@ private fun FontSizeChip(
         Text(
             label,
             color = if (active) BgPrimary else TextSecondary,
-            fontSize = 12.sp,
+            fontSize = 10.6.sp,
             fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
             modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,

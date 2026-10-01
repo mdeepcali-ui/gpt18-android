@@ -71,7 +71,7 @@ fun BillingScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("الاشتراك", color = TextMain, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    Text("الاشتراك", color = TextMain, fontSize = 15.8.sp, fontWeight = FontWeight.SemiBold)
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -171,15 +171,15 @@ private fun StatusSection(me: BillingMeResponse) {
             Column(Modifier.weight(1f)) {
                 Text(
                     if (me.isOwner) "المالك" else me.plan.name,
-                    color = TextMain, fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
+                    color = TextMain, fontSize = 14.1.sp, fontWeight = FontWeight.SemiBold,
                 )
                 if (me.plan.expiresAt != null && me.plan.expiresAt > 0) {
                     val days = ((me.plan.expiresAt - (System.currentTimeMillis() / 1000.0)) / 86400).toInt()
-                    Text("متبقي $days يوم", color = TextSub, fontSize = 12.sp)
+                    Text("متبقي $days يوم", color = TextSub, fontSize = 10.6.sp)
                 } else if (me.isOwner) {
-                    Text("صلاحيات كاملة", color = TextSub, fontSize = 12.sp)
+                    Text("صلاحيات كاملة", color = TextSub, fontSize = 10.6.sp)
                 } else {
-                    Text("الباقة المجانية", color = TextSub, fontSize = 12.sp)
+                    Text("الباقة المجانية", color = TextSub, fontSize = 10.6.sp)
                 }
             }
         }
@@ -197,7 +197,7 @@ private fun StatusSection(me: BillingMeResponse) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 Text(
                     "توكنات اليوم: ${me.dailyTokens.remaining} / ${me.dailyTokens.limit}",
-                    color = TextDim, fontSize = 11.sp,
+                    color = TextDim, fontSize = 9.7.sp,
                 )
             }
         }
@@ -209,8 +209,8 @@ private fun UsageCell(icon: androidx.compose.ui.graphics.vector.ImageVector, lab
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(icon, contentDescription = label, tint = TextSub, modifier = Modifier.size(18.dp))
         Spacer(Modifier.height(6.dp))
-        Text(if (limit <= 0) "—" else "$used/$limit", color = TextMain, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-        Text(label, color = TextDim, fontSize = 10.sp)
+        Text(if (limit <= 0) "—" else "$used/$limit", color = TextMain, fontSize = 10.6.sp, fontWeight = FontWeight.Medium)
+        Text(label, color = TextDim, fontSize = 8.8.sp)
     }
 }
 
@@ -242,13 +242,13 @@ private fun PlanCard(plan: BillingPlan, selected: Boolean, onSelect: () -> Unit)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(plan.name, color = TextMain, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                Text(plan.name, color = TextMain, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(3.dp))
-                Text("شهرياً", color = TextDim, fontSize = 11.sp)
+                Text("شهرياً", color = TextDim, fontSize = 9.7.sp)
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text("$${plan.price.toInt()}", color = TextMain, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                Text("دولار", color = TextDim, fontSize = 10.sp)
+                Text("$${plan.price.toInt()}", color = TextMain, fontSize = 21.1.sp, fontWeight = FontWeight.Bold)
+                Text("دولار", color = TextDim, fontSize = 8.8.sp)
             }
         }
         Spacer(Modifier.height(16.dp))
@@ -269,7 +269,7 @@ private fun PlanCard(plan: BillingPlan, selected: Boolean, onSelect: () -> Unit)
                     .padding(vertical = 8.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("✓ مختارة", color = AccentBlue, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                Text("✓ مختارة", color = AccentBlue, fontSize = 10.6.sp, fontWeight = FontWeight.Medium)
             }
         }
     }
@@ -280,7 +280,7 @@ private fun FeatureMini(icon: androidx.compose.ui.graphics.vector.ImageVector, c
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, contentDescription = null, tint = TextSub, modifier = Modifier.size(14.dp))
         Spacer(Modifier.width(5.dp))
-        Text(count, color = TextSub, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        Text(count, color = TextSub, fontSize = 10.6.sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -303,7 +303,7 @@ private fun PaymentSection(
         SectionTitle("إتمام الدفع")
         Spacer(Modifier.height(14.dp))
 
-        Text("الشبكة", color = TextSub, fontSize = 12.sp)
+        Text("الشبكة", color = TextSub, fontSize = 10.6.sp)
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NetworkChip("BEP20", state.selectedNetwork == "bep20") { onNetwork("bep20") }
@@ -311,7 +311,7 @@ private fun PaymentSection(
         }
         Spacer(Modifier.height(16.dp))
 
-        Text("أرسل USDT إلى:", color = TextSub, fontSize = 12.sp)
+        Text("أرسل USDT إلى:", color = TextSub, fontSize = 10.6.sp)
         Spacer(Modifier.height(8.dp))
         val walletAddr = if (state.selectedNetwork == "trc20") "TUoytveyRoedjVtRUuc5dNzeMh2kKrVxs8"
                          else "0xDb20493e64c5b3aaAa564C620DDb38d8be913eb6"
@@ -322,7 +322,7 @@ private fun PaymentSection(
                 .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(walletAddr, color = TextMain, fontSize = 11.sp, modifier = Modifier.weight(1f))
+            Text(walletAddr, color = TextMain, fontSize = 9.7.sp, modifier = Modifier.weight(1f))
             Icon(
                 Icons.Outlined.ContentCopy,
                 contentDescription = "نسخ",
@@ -352,13 +352,13 @@ private fun PaymentSection(
         Text(
             "امسح الرمز بكاميرا المحفظة",
             color = TextDim,
-            fontSize = 10.sp,
+            fontSize = 8.8.sp,
             modifier = Modifier.padding(top = 6.dp),
         )
 
         Spacer(Modifier.height(16.dp))
 
-        Text("رقم العملية (tx_hash)", color = TextSub, fontSize = 12.sp)
+        Text("رقم العملية (tx_hash)", color = TextSub, fontSize = 10.6.sp)
         Spacer(Modifier.height(8.dp))
         Box(
             modifier = Modifier
@@ -367,13 +367,13 @@ private fun PaymentSection(
                 .padding(horizontal = 14.dp, vertical = 12.dp),
         ) {
             if (state.txHash.isEmpty()) {
-                Text("0x... أو T...", color = TextDim, fontSize = 13.sp)
+                Text("0x... أو T...", color = TextDim, fontSize = 11.4.sp)
             }
             BasicTextField(
                 value = state.txHash,
                 onValueChange = onTxHashChange,
                 enabled = true,
-                textStyle = TextStyle(color = TextMain, fontSize = 13.sp),
+                textStyle = TextStyle(color = TextMain, fontSize = 11.4.sp),
                 cursorBrush = SolidColor(AccentBlue),
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
@@ -411,7 +411,7 @@ private fun PaymentSection(
                 Text(
                     "تحقق وفعّل الاشتراك",
                     color = if (enabled) Color.White else TextDim,
-                    fontSize = 14.sp,
+                    fontSize = 12.3.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
             }
@@ -438,7 +438,7 @@ private fun NetworkChip(label: String, selected: Boolean, onSelect: () -> Unit) 
         Text(
             label,
             color = if (selected) AccentBlue else TextSub,
-            fontSize = 12.sp,
+            fontSize = 10.6.sp,
             fontWeight = FontWeight.Medium,
         )
     }
@@ -446,7 +446,7 @@ private fun NetworkChip(label: String, selected: Boolean, onSelect: () -> Unit) 
 
 @Composable
 private fun SectionTitle(text: String) {
-    Text(text, color = TextMain, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+    Text(text, color = TextMain, fontSize = 13.2.sp, fontWeight = FontWeight.SemiBold)
 }
 
 @Composable
@@ -471,7 +471,7 @@ private fun MessageBanner(msg: String, isError: Boolean, ctx: android.content.Co
             modifier = Modifier.size(18.dp),
         )
         Spacer(Modifier.width(10.dp))
-        Text(msg, color = if (isError) DangerRed else SuccessGreen, fontSize = 13.sp)
+        Text(msg, color = if (isError) DangerRed else SuccessGreen, fontSize = 11.4.sp)
     }
 }
 
@@ -494,9 +494,9 @@ private fun TransactionRow(tx: BillingTransaction) {
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(tx.planKey ?: "top-up", color = TextMain, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-            Text(tx.method.uppercase(), color = TextDim, fontSize = 11.sp)
+            Text(tx.planKey ?: "top-up", color = TextMain, fontSize = 11.4.sp, fontWeight = FontWeight.Medium)
+            Text(tx.method.uppercase(), color = TextDim, fontSize = 9.7.sp)
         }
-        Text("$${"%.0f".format(tx.amountUsd)}", color = TextMain, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+        Text("$${"%.0f".format(tx.amountUsd)}", color = TextMain, fontSize = 12.3.sp, fontWeight = FontWeight.SemiBold)
     }
 }

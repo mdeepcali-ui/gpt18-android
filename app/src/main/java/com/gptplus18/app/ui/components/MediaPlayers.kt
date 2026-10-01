@@ -157,7 +157,7 @@ fun AudioPlayerCard(
                 Text(
                     text = title.take(35),
                     color = TextPrimary,
-                    fontSize = 14.sp,
+                    fontSize = 12.3.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                 )
@@ -165,7 +165,7 @@ fun AudioPlayerCard(
                 Text(
                     text = if (isPlaying) "يعزف الآن" else if (isReady) "جاهز للتشغيل" else "جاري التحضير...",
                     color = TextSecondary,
-                    fontSize = 11.sp,
+                    fontSize = 9.7.sp,
                 )
             }
         }
@@ -185,8 +185,8 @@ fun AudioPlayerCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(_fmtMillis(position), color = TextSecondary, fontSize = 10.sp)
-            Text(_fmtMillis(duration), color = TextSecondary, fontSize = 10.sp)
+            Text(_fmtMillis(position), color = TextSecondary, fontSize = 8.8.sp)
+            Text(_fmtMillis(duration), color = TextSecondary, fontSize = 8.8.sp)
         }
 
         Spacer(Modifier.height(10.dp))
@@ -407,12 +407,12 @@ fun VideoPlayerCard(
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("🎬", fontSize = 14.sp)
+                Text("🎬", fontSize = 12.3.sp)
                 Spacer(Modifier.width(6.dp))
                 Text(
                     text = if (isPlaying) "يعرض الآن" else "فيديو",
                     color = Color.White.copy(alpha = 0.9f),
-                    fontSize = 11.sp,
+                    fontSize = 9.7.sp,
                     fontWeight = FontWeight.Medium,
                 )
             }
@@ -466,6 +466,6 @@ private fun MediaMiniChip(label: String, onClick: () -> Unit) {
             .clickable { onClick() }
             .padding(horizontal = 14.dp, vertical = 6.dp),
     ) {
-        Text(label, color = Accent, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        Text(label, color = Accent, fontSize = 10.6.sp, fontWeight = FontWeight.Medium)
     }
 }

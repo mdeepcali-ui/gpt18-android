@@ -81,7 +81,7 @@ By continuing, you agree to:
             Text(
                 text = title,
                 color = Accent,
-                fontSize = 20.sp,
+                fontSize = 17.6.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
@@ -95,7 +95,7 @@ By continuing, you agree to:
                 Text(
                     text = body,
                     color = TextPrimary,
-                    fontSize = 14.sp,
+                    fontSize = 12.3.sp,
                     lineHeight = 22.sp,
                     textAlign = TextAlign.Start,
                 )
@@ -104,7 +104,7 @@ By continuing, you agree to:
             Text(
                 text = smallNote,
                 color = TextSecondary,
-                fontSize = 11.sp,
+                fontSize = 9.7.sp,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(14.dp))
@@ -122,7 +122,7 @@ By continuing, you agree to:
                 Text(
                     text = btnText,
                     color = Color(0xFF0A0A0A),
-                    fontSize = 15.sp,
+                    fontSize = 13.2.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }

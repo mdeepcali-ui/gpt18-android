@@ -124,11 +124,11 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
             TopAppBar(
                 title = {
                     Column {
-                        Text("\u0625\u0646\u0634\u0627\u0621 \u0627\u0644\u0648\u0633\u0627\u0626\u0637", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                        Text("\u0625\u0646\u0634\u0627\u0621 \u0627\u0644\u0648\u0633\u0627\u0626\u0637", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 17.6.sp)
                         Text(
                             if (state.tab == MediaTab.SONG) "\ud83c\udfb5 \u0623\u063a\u0627\u0646\u064a \u0628\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064a"
                             else "\ud83c\udfac \u0641\u064a\u062f\u064a\u0648\u0647\u0627\u062a \u0628\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064a",
-                            color = TextSecondary, fontSize = 11.sp,
+                            color = TextSecondary, fontSize = 9.7.sp,
                         )
                     }
                 },
@@ -171,11 +171,11 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
             ) {
                 Column(Modifier.padding(14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (state.tab == MediaTab.SONG) "\ud83c\udfb5" else "\ud83c\udfac", fontSize = 16.sp)
+                        Text(if (state.tab == MediaTab.SONG) "\ud83c\udfb5" else "\ud83c\udfac", fontSize = 14.1.sp)
                         Spacer(Modifier.width(8.dp))
                         Text(
                             if (state.tab == MediaTab.SONG) "\u0648\u0635\u0641 \u0627\u0644\u0623\u063a\u0646\u064a\u0629" else "\u0648\u0635\u0641 \u0627\u0644\u0641\u064a\u062f\u064a\u0648",
-                            color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+                            color = TextSecondary, fontSize = 10.6.sp, fontWeight = FontWeight.SemiBold,
                         )
                     }
                     Spacer(Modifier.height(8.dp))
@@ -186,7 +186,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                             Text(
                                 if (state.tab == MediaTab.SONG) "\u0645\u062b\u0627\u0644: \u0623\u063a\u0646\u064a\u0629 \u0631\u0648\u0645\u0627\u0646\u0633\u064a\u0629..."
                                 else "\u0645\u062b\u0627\u0644: \u0645\u0634\u0647\u062f \u0637\u0628\u064a\u0639\u0629...",
-                                color = TextTertiary, fontSize = 13.sp,
+                                color = TextTertiary, fontSize = 11.4.sp,
                             )
                         },
                         modifier = Modifier.fillMaxWidth(), minLines = 3, maxLines = 6,
@@ -244,13 +244,13 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(color = Accent, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                         Spacer(Modifier.width(10.dp))
-                        Text(if (state.tab == MediaTab.VIDEO) "\u062c\u0627\u0631\u064a \u062a\u0648\u0644\u064a\u062f \u0627\u0644\u0641\u064a\u062f\u064a\u0648..." else "\u062c\u0627\u0631\u064a \u062a\u0648\u0644\u064a\u062f \u0627\u0644\u0623\u063a\u0646\u064a\u0629...", color = Accent, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        Text(if (state.tab == MediaTab.VIDEO) "\u062c\u0627\u0631\u064a \u062a\u0648\u0644\u064a\u062f \u0627\u0644\u0641\u064a\u062f\u064a\u0648..." else "\u062c\u0627\u0631\u064a \u062a\u0648\u0644\u064a\u062f \u0627\u0644\u0623\u063a\u0646\u064a\u0629...", color = Accent, fontWeight = FontWeight.SemiBold, fontSize = 12.3.sp)
                     }
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (state.tab == MediaTab.SONG) "\ud83c\udfb5" else "\ud83c\udfac", fontSize = 18.sp)
+                        Text(if (state.tab == MediaTab.SONG) "\ud83c\udfb5" else "\ud83c\udfac", fontSize = 15.8.sp)
                         Spacer(Modifier.width(8.dp))
-                        Text("\u0625\u0646\u0634\u0627\u0621", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text("\u0625\u0646\u0634\u0627\u0621", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.1.sp)
                     }
                 }
             }
@@ -262,9 +262,9 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                         .border(1.dp, Color(0xFFEF4444).copy(alpha = 0.4f), RoundedCornerShape(12.dp)).padding(14.dp),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("\u26a0\ufe0f", fontSize = 18.sp)
+                        Text("\u26a0\ufe0f", fontSize = 15.8.sp)
                         Spacer(Modifier.width(10.dp))
-                        Text(err, color = Color(0xFFFF7A7A), fontSize = 13.sp, lineHeight = 18.sp)
+                        Text(err, color = Color(0xFFFF7A7A), fontSize = 11.4.sp, lineHeight = 18.sp)
                     }
                 }
             }
@@ -288,15 +288,15 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(color = Accent, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                     Spacer(Modifier.width(10.dp))
-                    Text("\u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u0633\u062c\u0644...", color = TextSecondary, fontSize = 13.sp)
+                    Text("\u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u0633\u062c\u0644...", color = TextSecondary, fontSize = 11.4.sp)
                 }
             } else if (state.history.isNotEmpty()) {
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("\ud83d\udcdc \u0623\u0639\u0645\u0627\u0644\u064a \u0627\u0644\u0623\u062e\u064a\u0631\u0629", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        Text("${state.history.size} \u0639\u0645\u0644 \u0645\u062d\u0641\u0648\u0638", color = TextTertiary, fontSize = 11.sp)
+                        Text("\ud83d\udcdc \u0623\u0639\u0645\u0627\u0644\u064a \u0627\u0644\u0623\u062e\u064a\u0631\u0629", color = TextPrimary, fontSize = 14.1.sp, fontWeight = FontWeight.Bold)
+                        Text("${state.history.size} \u0639\u0645\u0644 \u0645\u062d\u0641\u0648\u0638", color = TextTertiary, fontSize = 9.7.sp)
                     }
-                    TextButton(onClick = { vm.clearHistory() }) { Text("\u0645\u0633\u062d", color = TextTertiary, fontSize = 12.sp) }
+                    TextButton(onClick = { vm.clearHistory() }) { Text("\u0645\u0633\u062d", color = TextTertiary, fontSize = 10.6.sp) }
                 }
                 Spacer(Modifier.height(10.dp))
                 state.history.take(20).forEach { item ->
@@ -307,10 +307,10 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 Spacer(Modifier.height(20.dp))
                 Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color(0xFF0E0E12)).padding(24.dp), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("\ud83d\udcc2", fontSize = 32.sp)
+                        Text("\ud83d\udcc2", fontSize = 28.2.sp)
                         Spacer(Modifier.height(8.dp))
-                        Text("\u0645\u0627 \u0641\u064a \u0623\u0639\u0645\u0627\u0644 \u0633\u0627\u0628\u0642\u0629 \u0628\u0639\u062f", color = TextSecondary, fontSize = 13.sp)
-                        Text("\u0627\u0628\u062f\u0623 \u0628\u0625\u0646\u0634\u0627\u0621 \u0623\u0648\u0644 \u0623\u063a\u0646\u064a\u0629 \u0623\u0648 \u0641\u064a\u062f\u064a\u0648", color = TextTertiary, fontSize = 11.sp)
+                        Text("\u0645\u0627 \u0641\u064a \u0623\u0639\u0645\u0627\u0644 \u0633\u0627\u0628\u0642\u0629 \u0628\u0639\u062f", color = TextSecondary, fontSize = 11.4.sp)
+                        Text("\u0627\u0628\u062f\u0623 \u0628\u0625\u0646\u0634\u0627\u0621 \u0623\u0648\u0644 \u0623\u063a\u0646\u064a\u0629 \u0623\u0648 \u0641\u064a\u062f\u064a\u0648", color = TextTertiary, fontSize = 9.7.sp)
                     }
                 }
             }
@@ -325,7 +325,7 @@ fun MediaScreen(vm: MediaViewModel = hiltViewModel()) {
                 modifier = Modifier.padding(bottom = 100.dp).clip(RoundedCornerShape(24.dp)).background(Color(0xFF0A0A0A))
                     .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(24.dp)).padding(horizontal = 20.dp, vertical = 12.dp),
             ) {
-                Text(text = msg, color = if (notifySuccess) Color(0xFF7FE58F) else Color(0xFFE85C5C), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                Text(text = msg, color = if (notifySuccess) Color(0xFF7FE58F) else Color(0xFFE85C5C), fontSize = 12.3.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -340,12 +340,12 @@ private fun VideoImagePicker(
 ) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("\ud83d\uddbc\ufe0f", fontSize = 13.sp)
+            Text("\ud83d\uddbc\ufe0f", fontSize = 11.4.sp)
             Spacer(Modifier.width(6.dp))
             Text(
                 "\u0635\u0648\u0631\u0629 \u0644\u062a\u062d\u0631\u064a\u0643\u0647\u0627 (\u0627\u062e\u062a\u064a\u0627\u0631\u064a)",
                 color = TextSecondary,
-                fontSize = 12.sp,
+                fontSize = 10.6.sp,
                 fontWeight = FontWeight.SemiBold,
             )
         }
@@ -379,7 +379,7 @@ private fun VideoImagePicker(
                         .clickable { onClear() },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("\u2715", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text("\u2715", color = Color.White, fontSize = 12.3.sp, fontWeight = FontWeight.Bold)
                 }
                 // تحميل
                 if (uploading) {
@@ -398,7 +398,7 @@ private fun VideoImagePicker(
                                 strokeWidth = 1.5.dp,
                             )
                             Spacer(Modifier.width(6.dp))
-                            Text("\u062c\u0627\u0631\u064a \u0627\u0644\u0631\u0641\u0639...", color = Color.White, fontSize = 10.sp)
+                            Text("\u062c\u0627\u0631\u064a \u0627\u0644\u0631\u0641\u0639...", color = Color.White, fontSize = 8.8.sp)
                         }
                     }
                 }
@@ -416,12 +416,12 @@ private fun VideoImagePicker(
                 contentAlignment = Alignment.Center,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("\ud83d\udcf7", fontSize = 18.sp)
+                    Text("\ud83d\udcf7", fontSize = 15.8.sp)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         "\u0627\u062e\u062a\u0631 \u0635\u0648\u0631\u0629",
                         color = TextSecondary,
-                        fontSize = 13.sp,
+                        fontSize = 11.4.sp,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
@@ -438,9 +438,9 @@ private fun SegmentedTab(emoji: String, label: String, active: Boolean, modifier
         contentAlignment = Alignment.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(emoji, fontSize = 16.sp)
+            Text(emoji, fontSize = 14.1.sp)
             Spacer(Modifier.width(6.dp))
-            Text(label, color = if (active) Color.White else TextSecondary, fontSize = 14.sp, fontWeight = if (active) FontWeight.Bold else FontWeight.Medium)
+            Text(label, color = if (active) Color.White else TextSecondary, fontSize = 12.3.sp, fontWeight = if (active) FontWeight.Bold else FontWeight.Medium)
         }
     }
 }
@@ -449,9 +449,9 @@ private fun SegmentedTab(emoji: String, label: String, active: Boolean, modifier
 private fun SettingsSection(title: String, icon: String, content: @Composable RowScope.() -> Unit) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(icon, fontSize = 13.sp)
+            Text(icon, fontSize = 11.4.sp)
             Spacer(Modifier.width(6.dp))
-            Text(title, color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            Text(title, color = TextSecondary, fontSize = 10.6.sp, fontWeight = FontWeight.SemiBold)
         }
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), content = content)
@@ -469,7 +469,7 @@ private fun NiceChip(label: String, active: Boolean, onClick: () -> Unit) {
             .clickable(onClick = onClick).padding(horizontal = 14.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = textColor, fontSize = 13.sp, fontWeight = if (active) FontWeight.Bold else FontWeight.Medium)
+        Text(label, color = textColor, fontSize = 11.4.sp, fontWeight = if (active) FontWeight.Bold else FontWeight.Medium)
     }
 }
 
@@ -496,17 +496,17 @@ private fun ResultCardNew(
                 modifier = Modifier.fillMaxWidth().background(Color(0xFF14141A)).padding(horizontal = 14.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(icon, fontSize = 18.sp)
+                Text(icon, fontSize = 15.8.sp)
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(title, color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                    if (subtitle.isNotBlank()) Text(subtitle, color = TextTertiary, fontSize = 11.sp)
+                    Text(title, color = TextPrimary, fontSize = 12.3.sp, fontWeight = FontWeight.Bold)
+                    if (subtitle.isNotBlank()) Text(subtitle, color = TextTertiary, fontSize = 9.7.sp)
                 }
                 Box(
                     modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(Color(0xFF22C55E).copy(alpha = 0.15f))
                         .padding(horizontal = 8.dp, vertical = 4.dp),
                 ) {
-                    Text("\u2705 \u062c\u0627\u0647\u0632", color = Color(0xFF4ADE80), fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                    Text("\u2705 \u062c\u0627\u0647\u0632", color = Color(0xFF4ADE80), fontSize = 8.8.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
 
@@ -544,12 +544,12 @@ private fun ResultCardNew(
                     ) {
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("\ud83d\udcdd", fontSize = 13.sp)
+                                Text("\ud83d\udcdd", fontSize = 11.4.sp)
                                 Spacer(Modifier.width(6.dp))
-                                Text("\u0643\u0644\u0645\u0627\u062a \u0627\u0644\u0623\u063a\u0646\u064a\u0629", color = Accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text("\u0643\u0644\u0645\u0627\u062a \u0627\u0644\u0623\u063a\u0646\u064a\u0629", color = Accent, fontSize = 10.6.sp, fontWeight = FontWeight.Bold)
                             }
                             Spacer(Modifier.height(6.dp))
-                            Text(lyrics, color = TextSecondary, fontSize = 12.sp, lineHeight = 18.sp)
+                            Text(lyrics, color = TextSecondary, fontSize = 10.6.sp, lineHeight = 18.sp)
                         }
                     }
                 }
@@ -567,9 +567,9 @@ private fun ActionBtnNew(emoji: String, label: String, primary: Boolean, onClick
             .clickable(onClick = onClick).padding(horizontal = 12.dp, vertical = 8.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(emoji, fontSize = 12.sp)
+            Text(emoji, fontSize = 10.6.sp)
             Spacer(Modifier.width(5.dp))
-            Text(label, color = if (primary) Color.White else TextSecondary, fontSize = 12.sp, fontWeight = if (primary) FontWeight.Bold else FontWeight.Medium)
+            Text(label, color = if (primary) Color.White else TextSecondary, fontSize = 10.6.sp, fontWeight = if (primary) FontWeight.Bold else FontWeight.Medium)
         }
     }
 }
@@ -618,28 +618,28 @@ private fun HistoryCardNew(item: MediaHistoryItem) {
                             .background(Color(0xFF0A0A0C).copy(alpha = 0.85f)),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(typeIcon, fontSize = 10.sp)
+                        Text(typeIcon, fontSize = 8.8.sp)
                     }
                 } else {
-                    Text(typeIcon, fontSize = 20.sp)
+                    Text(typeIcon, fontSize = 17.6.sp)
                 }
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
                     (item.title ?: "").ifBlank { item.prompt ?: "" }.take(40),
-                    color = TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
+                    color = TextPrimary, fontSize = 11.4.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
                 )
                 Spacer(Modifier.height(3.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier.clip(RoundedCornerShape(4.dp)).background(Color(0xFF1A1A22)).padding(horizontal = 6.dp, vertical = 2.dp),
-                    ) { Text(typeLabel, color = TextTertiary, fontSize = 10.sp) }
+                    ) { Text(typeLabel, color = TextTertiary, fontSize = 8.8.sp) }
                     Spacer(Modifier.width(6.dp))
-                    Text(formatTimeAgo(item.createdAt), color = TextTertiary, fontSize = 10.sp)
+                    Text(formatTimeAgo(item.createdAt), color = TextTertiary, fontSize = 8.8.sp)
                 }
             }
-            Text("\u203a", color = TextTertiary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text("\u203a", color = TextTertiary, fontSize = 17.6.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

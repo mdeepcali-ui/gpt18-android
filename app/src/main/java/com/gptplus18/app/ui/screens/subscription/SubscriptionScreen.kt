@@ -63,7 +63,7 @@ fun SubscriptionScreen(vm: SubscriptionViewModel = hiltViewModel()) {
             StatusCard(state)
 
             Spacer(Modifier.height(20.dp))
-            Text(stringResource(R.string.t_080), color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.t_080), color = TextPrimary, fontSize = 15.8.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(10.dp))
 
             state.plans.forEach { (key, plan) ->
@@ -78,7 +78,7 @@ fun SubscriptionScreen(vm: SubscriptionViewModel = hiltViewModel()) {
 
             if (state.selectedPlan != null) {
                 Spacer(Modifier.height(20.dp))
-                Text(stringResource(R.string.t_081), color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_081), color = TextPrimary, fontSize = 15.8.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(10.dp))
                 NetworkSelector(
                     networks = state.wallets.keys.toList(),
@@ -124,26 +124,26 @@ private fun StatusCard(state: SubscriptionState) {
         shape = RoundedCornerShape(16.dp),
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text(stringResource(R.string.t_082), color = Accent, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.t_082), color = Accent, fontWeight = FontWeight.Bold, fontSize = 14.1.sp)
             Spacer(Modifier.height(10.dp))
             when {
                 st?.hasSub == true -> {
-                    Text(stringResource(R.string.t_083), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Text(stringResource(R.string.t_083), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 17.6.sp)
                     if (st.subExpires > 0) {
                         val days = ((st.subExpires - st.now) / 86400).toInt()
-                        Text("متبقي $days يوم", color = TextSecondary, fontSize = 14.sp,
+                        Text("متبقي $days يوم", color = TextSecondary, fontSize = 12.3.sp,
                             modifier = Modifier.padding(top = 4.dp))
                     }
                 }
                 st?.hasTrial == true -> {
-                    Text(stringResource(R.string.t_084), color = Accent, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Text(stringResource(R.string.t_084), color = Accent, fontWeight = FontWeight.Bold, fontSize = 17.6.sp)
                     if (st.trialExpires > 0) {
                         val mins = ((st.trialExpires - st.now) / 60).toInt()
-                        Text("متبقي $mins دقيقة", color = TextSecondary, fontSize = 14.sp,
+                        Text("متبقي $mins دقيقة", color = TextSecondary, fontSize = 12.3.sp,
                             modifier = Modifier.padding(top = 4.dp))
                     }
                 }
-                else -> Text(stringResource(R.string.t_085), color = TextSecondary, fontSize = 16.sp)
+                else -> Text(stringResource(R.string.t_085), color = TextSecondary, fontSize = 14.1.sp)
             }
         }
     }
@@ -165,10 +165,10 @@ private fun PlanCard(planKey: String, plan: Plan, selected: Boolean, onClick: ()
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text(plan.name, color = TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Text("${plan.days} يوم", color = TextSecondary, fontSize = 13.sp)
+                Text(plan.name, color = TextPrimary, fontSize = 15.8.sp, fontWeight = FontWeight.Bold)
+                Text("${plan.days} يوم", color = TextSecondary, fontSize = 11.4.sp)
             }
-            Text("$${plan.price}", color = Accent, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text("$${plan.price}", color = Accent, fontSize = 21.1.sp, fontWeight = FontWeight.Bold)
             if (selected) {
                 Spacer(Modifier.width(8.dp))
                 Icon(Icons.Default.Check, null, tint = Accent)
@@ -231,9 +231,9 @@ private fun PaymentBox(
     ) {
         Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text("ادفع ${planData?.price ?: ""} USDT",
-                color = Accent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                color = Accent, fontSize = 17.6.sp, fontWeight = FontWeight.Bold)
             Text("على شبكة ${network.uppercase()}",
-                color = TextSecondary, fontSize = 14.sp,
+                color = TextSecondary, fontSize = 12.3.sp,
                 modifier = Modifier.padding(top = 4.dp))
             Spacer(Modifier.height(16.dp))
 
@@ -252,7 +252,7 @@ private fun PaymentBox(
                 Spacer(Modifier.height(16.dp))
             }
 
-            Text(stringResource(R.string.t_086), color = TextSecondary, fontSize = 13.sp)
+            Text(stringResource(R.string.t_086), color = TextSecondary, fontSize = 11.4.sp)
             Spacer(Modifier.height(6.dp))
             Row(
                 Modifier
@@ -267,7 +267,7 @@ private fun PaymentBox(
                 Text(
                     wallet,
                     color = TextPrimary,
-                    fontSize = 12.sp,
+                    fontSize = 10.6.sp,
                     modifier = Modifier.weight(1f),
                 )
                 Icon(Icons.Default.ContentCopy, stringResource(R.string.t_003), tint = Accent)
@@ -300,7 +300,7 @@ private fun PaymentBox(
                 if (isVerifying) {
                     CircularProgressIndicator(color = BgPrimary, modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
                 } else {
-                    Text(stringResource(R.string.t_088), color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    Text(stringResource(R.string.t_088), color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 13.2.sp)
                 }
             }
         }
@@ -320,7 +320,7 @@ private fun InfoCard(text: String, success: Boolean, onDismiss: () -> Unit) {
         Text(
             text,
             color = if (success) Success else Error,
-            fontSize = 14.sp,
+            fontSize = 12.3.sp,
             modifier = Modifier.padding(14.dp),
         )
     }

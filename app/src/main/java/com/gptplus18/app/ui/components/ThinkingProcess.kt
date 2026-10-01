@@ -57,7 +57,7 @@ fun ThinkingProcess(
             Text(
                 "$label...",
                 color = Accent,
-                fontSize = 12.sp,
+                fontSize = 10.6.sp,
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.weight(1f))
@@ -79,7 +79,7 @@ fun ThinkingProcess(
                     Text(
                         text = rawText.trim(),
                         color = TextSecondary,
-                        fontSize = 11.sp,
+                        fontSize = 9.7.sp,
                         lineHeight = 16.sp,
                     )
                 } else {
@@ -88,7 +88,7 @@ fun ThinkingProcess(
                         Text(
                             text = "• $step",
                             color = TextSecondary,
-                            fontSize = 11.sp,
+                            fontSize = 9.7.sp,
                             lineHeight = 16.sp,
                             modifier = Modifier.padding(vertical = 1.dp),
                         )

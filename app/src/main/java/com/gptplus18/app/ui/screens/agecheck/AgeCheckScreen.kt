@@ -80,7 +80,7 @@ fun AgeCheckScreen(
                 Text(
                     text = rejectTitle,
                     color = Color(0xFFEF4444),
-                    fontSize = 20.sp,
+                    fontSize = 17.6.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                 )
@@ -88,7 +88,7 @@ fun AgeCheckScreen(
                 Text(
                     text = rejectMsg,
                     color = TextPrimary,
-                    fontSize = 15.sp,
+                    fontSize = 13.2.sp,
                     lineHeight = 22.sp,
                     textAlign = TextAlign.Center,
                 )
@@ -120,7 +120,7 @@ fun AgeCheckScreen(
             Text(
                 text = title,
                 color = Accent,
-                fontSize = 20.sp,
+                fontSize = 17.6.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
@@ -128,7 +128,7 @@ fun AgeCheckScreen(
             Text(
                 text = subtitle,
                 color = TextSecondary,
-                fontSize = 13.sp,
+                fontSize = 11.4.sp,
                 lineHeight = 20.sp,
                 textAlign = TextAlign.Center,
             )
@@ -141,7 +141,7 @@ fun AgeCheckScreen(
                 OutlinedTextField(
                     value = day,
                     onValueChange = { if (it.length <= 2 && it.all { c -> c.isDigit() }) day = it },
-                    label = { Text(dayLbl, color = TextSecondary, fontSize = 12.sp) },
+                    label = { Text(dayLbl, color = TextSecondary, fontSize = 10.6.sp) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -156,7 +156,7 @@ fun AgeCheckScreen(
                 OutlinedTextField(
                     value = month,
                     onValueChange = { if (it.length <= 2 && it.all { c -> c.isDigit() }) month = it },
-                    label = { Text(monthLbl, color = TextSecondary, fontSize = 12.sp) },
+                    label = { Text(monthLbl, color = TextSecondary, fontSize = 10.6.sp) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -171,7 +171,7 @@ fun AgeCheckScreen(
                 OutlinedTextField(
                     value = year,
                     onValueChange = { if (it.length <= 4 && it.all { c -> c.isDigit() }) year = it },
-                    label = { Text(yearLbl, color = TextSecondary, fontSize = 12.sp) },
+                    label = { Text(yearLbl, color = TextSecondary, fontSize = 10.6.sp) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -187,7 +187,7 @@ fun AgeCheckScreen(
 
             errorMsg?.let { msg ->
                 Spacer(Modifier.height(10.dp))
-                Text(msg, color = Color(0xFFEF4444), fontSize = 12.sp, textAlign = TextAlign.Center)
+                Text(msg, color = Color(0xFFEF4444), fontSize = 10.6.sp, textAlign = TextAlign.Center)
             }
 
             Spacer(Modifier.height(20.dp))
@@ -232,7 +232,7 @@ fun AgeCheckScreen(
                 Text(
                     text = btnText,
                     color = Color(0xFF0A0A0A),
-                    fontSize = 15.sp,
+                    fontSize = 13.2.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }

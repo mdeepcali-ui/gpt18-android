@@ -58,7 +58,7 @@ fun ThinkingShimmer(
         BasicText(
             text = "أُفكّر...",
             style = TextStyle(
-                fontSize = 13.sp,
+                fontSize = 11.4.sp,
                 fontWeight = FontWeight.SemiBold,
                 brush = gradient,
             ),
@@ -69,7 +69,7 @@ fun ThinkingShimmer(
                 text = text,
                 maxLines = maxLines,
                 style = TextStyle(
-                    fontSize = 12.sp,
+                    fontSize = 10.6.sp,
                     lineHeight = 17.sp,
                     brush = gradient,
                 ),

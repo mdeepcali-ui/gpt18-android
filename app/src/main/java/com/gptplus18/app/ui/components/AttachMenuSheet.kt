@@ -106,7 +106,7 @@ private fun AttachItem(
         Text(
             text = label,
             color = colors.textPrimary,
-            fontSize = 17.sp,
+            fontSize = 15.sp,
             fontWeight = FontWeight.Normal,
             modifier = Modifier.weight(1f),
             textAlign = TextAlign.Right,

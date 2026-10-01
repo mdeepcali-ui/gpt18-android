@@ -11,9 +11,9 @@ val DarkBg = Color(0xFF000000)
 val DarkSurface = Color(0xFF0D0D0D)
 val DarkSurfaceVariant = Color(0xFF1A1A1A)
 
-val DarkTextPrimary = Color(0xFFFFFFFF)
-val DarkTextSecondary = Color(0xFFA0A0A0)
-val DarkTextTertiary = Color(0xFF6B6B6B)
+val DarkTextPrimary = Color(0xFFE8E8EE)   // فضي متوهج
+val DarkTextSecondary = Color(0xFFB8B8C0) // فضي
+val DarkTextTertiary = Color(0xFF8888A0)  // فضي داكن
 
 val DarkAccent = Color(0xFFFFFFFF)
 val DarkAccentContainer = Color(0xFFE0E0E0)
@@ -25,9 +25,9 @@ val LightBg = Color(0xFFF7F7F9)
 val LightSurface = Color(0xFFFFFFFF)
 val LightSurfaceVariant = Color(0xFFEAEAEF)
 
-val LightTextPrimary = Color(0xFF1A1A1C)
-val LightTextSecondary = Color(0xFF5A5A62)
-val LightTextTertiary = Color(0xFF8A8A92)
+val LightTextPrimary = Color(0xFF2A2A30)
+val LightTextSecondary = Color(0xFF606068)
+val LightTextTertiary = Color(0xFF90909A)
 
 val LightAccent = Color(0xFF1A1A1C)
 val LightAccentContainer = Color(0xFF3A3A3C)

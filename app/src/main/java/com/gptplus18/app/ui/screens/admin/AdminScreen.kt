@@ -87,10 +87,10 @@ fun AdminScreen(vm: AdminViewModel = hiltViewModel()) {
         if (!state.isOwner) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("🔒", fontSize = 48.sp)
+                    Text("🔒", fontSize = 42.2.sp)
                     Spacer(Modifier.height(16.dp))
-                    Text(stringResource(R.string.t_016), color = Error, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                    Text(stringResource(R.string.t_017), color = TextSecondary, fontSize = 14.sp,
+                    Text(stringResource(R.string.t_016), color = Error, fontSize = 19.4.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.t_017), color = TextSecondary, fontSize = 12.3.sp,
                         modifier = Modifier.padding(top = 8.dp))
                 }
             }
@@ -167,7 +167,7 @@ private fun UsersTab(
             state.error?.let { InfoCard(it, false) }
         }
         item {
-            Text(stringResource(R.string.t_020), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.t_020), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard(stringResource(R.string.t_102), state.stats.total, Color(0xFF93E0FF), Modifier.weight(1f))
@@ -181,7 +181,7 @@ private fun UsersTab(
         }
         item {
             Spacer(Modifier.height(8.dp))
-            Text(stringResource(R.string.t_021), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.t_021), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = grantEmail,
@@ -206,7 +206,7 @@ private fun UsersTab(
         }
         item {
             Spacer(Modifier.height(8.dp))
-            Text(stringResource(R.string.t_024), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.t_024), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = actionEmail,
@@ -223,18 +223,18 @@ private fun UsersTab(
                     modifier = Modifier.weight(1f).height(44.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Warning),
                     shape = RoundedCornerShape(10.dp),
-                ) { Text(stringResource(R.string.t_025), color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp) }
+                ) { Text(stringResource(R.string.t_025), color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 10.6.sp) }
                 Button(
                     onClick = { vm.revoke(actionEmail) },
                     modifier = Modifier.weight(1f).height(44.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Error),
                     shape = RoundedCornerShape(10.dp),
-                ) { Text(stringResource(R.string.t_026), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp) }
+                ) { Text(stringResource(R.string.t_026), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 10.6.sp) }
             }
         }
         item {
             Spacer(Modifier.height(8.dp))
-            Text("المستخدمون (${state.filtered.size})", color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text("المستخدمون (${state.filtered.size})", color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = state.search,
@@ -286,7 +286,7 @@ private fun NotificationsTab(
             state.error?.let { InfoCard(it, false) }
         }
         item {
-            Text(stringResource(R.string.t_028), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.t_028), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard(stringResource(R.string.t_109), state.notifStats.tokensCount, Color(0xFF93E0FF), Modifier.weight(1f))
@@ -299,10 +299,10 @@ private fun NotificationsTab(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Campaign, null, tint = Warning, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.t_029), color = Warning, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_029), color = Warning, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
             }
             Text(stringResource(R.string.t_030),
-                color = TextTertiary, fontSize = 11.sp,
+                color = TextTertiary, fontSize = 9.7.sp,
                 modifier = Modifier.padding(top = 4.dp))
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
@@ -347,7 +347,7 @@ private fun NotificationsTab(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Send, null, tint = Accent, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.t_033), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_033), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
@@ -400,12 +400,12 @@ private fun NotificationsTab(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Notifications, null, tint = Accent, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.t_036), color = Accent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_036), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
             }
         }
         if (state.notifStats.recent.isEmpty()) {
             item {
-                Text(stringResource(R.string.t_037), color = TextTertiary, fontSize = 13.sp,
+                Text(stringResource(R.string.t_037), color = TextTertiary, fontSize = 11.4.sp,
                     modifier = Modifier.padding(vertical = 12.dp))
             }
         } else {
@@ -450,14 +450,14 @@ private fun NotifLogRow(event: String, title: String, uid: Int, sentAt: Double) 
             Modifier.fillMaxWidth().padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(emoji, fontSize = 20.sp)
+            Text(emoji, fontSize = 17.6.sp)
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Text(title.ifBlank { event },
-                    color = TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+                    color = TextPrimary, fontSize = 11.4.sp, fontWeight = FontWeight.SemiBold,
                     maxLines = 1)
                 Text("uid: $uid • $timeText",
-                    color = TextTertiary, fontSize = 11.sp)
+                    color = TextTertiary, fontSize = 9.7.sp)
             }
         }
     }
@@ -474,8 +474,8 @@ private fun StatCard(label: String, value: Int, color: Color, modifier: Modifier
             Modifier.fillMaxWidth().padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text("$value", color = color, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Text(label, color = TextSecondary, fontSize = 12.sp,
+            Text("$value", color = color, fontSize = 21.1.sp, fontWeight = FontWeight.Bold)
+            Text(label, color = TextSecondary, fontSize = 10.6.sp,
                 modifier = Modifier.padding(top = 4.dp))
         }
     }
@@ -499,7 +499,7 @@ private fun PlanChip(
         Text(
             label,
             color = if (active) BgPrimary else TextSecondary,
-            fontSize = 13.sp,
+            fontSize = 11.4.sp,
             fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
             modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
             textAlign = TextAlign.Center,
@@ -524,7 +524,7 @@ private fun FilterChip(
         Text(
             label,
             color = if (active) BgPrimary else TextSecondary,
-            fontSize = 12.sp,
+            fontSize = 10.6.sp,
             fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
         )
@@ -550,10 +550,10 @@ private fun UserRow(u: AdminUser) {
         Column(Modifier.padding(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(u.name.ifBlank { "?" },
-                    color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                    color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 13.2.sp)
                 if (u.isOwner) {
                     Spacer(Modifier.width(6.dp))
-                    Text("👑", fontSize = 12.sp)
+                    Text("👑", fontSize = 10.6.sp)
                 }
                 Spacer(Modifier.weight(1f))
                 Box(
@@ -561,20 +561,20 @@ private fun UserRow(u: AdminUser) {
                         .background(statusColor.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
                         .padding(horizontal = 8.dp, vertical = 3.dp),
                 ) {
-                    Text(status, color = statusColor, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text(status, color = statusColor, fontSize = 9.7.sp, fontWeight = FontWeight.Bold)
                 }
             }
             Spacer(Modifier.height(4.dp))
-            Text(u.email, color = TextSecondary, fontSize = 13.sp)
+            Text(u.email, color = TextSecondary, fontSize = 11.4.sp)
             if (u.subExpires > now) {
                 val days = ((u.subExpires - now) / 86400).toInt()
                 Text("متبقي $days يوم",
-                    color = TextTertiary, fontSize = 11.sp,
+                    color = TextTertiary, fontSize = 9.7.sp,
                     modifier = Modifier.padding(top = 4.dp))
             } else if (u.trialExpires > now) {
                 val mins = ((u.trialExpires - now) / 60).toInt()
                 Text("متبقي $mins دقيقة",
-                    color = TextTertiary, fontSize = 11.sp,
+                    color = TextTertiary, fontSize = 9.7.sp,
                     modifier = Modifier.padding(top = 4.dp))
             }
         }
@@ -592,7 +592,7 @@ private fun InfoCard(text: String, success: Boolean) {
     ) {
         Text(text,
             color = if (success) Success else Error,
-            fontSize = 13.sp,
+            fontSize = 11.4.sp,
             modifier = Modifier.padding(12.dp))
     }
 }

@@ -131,7 +131,7 @@ fun ProfileScreen(
                     } else {
                         Text(
                             state.userName.take(1).uppercase().ifEmpty { "?" },
-                            fontSize = 42.sp, fontWeight = FontWeight.Bold, color = BgPrimary,
+                            fontSize = 37.sp, fontWeight = FontWeight.Bold, color = BgPrimary,
                         )
                     }
                 }
@@ -144,19 +144,19 @@ fun ProfileScreen(
                         .clickable { pickLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("📷", fontSize = 14.sp)
+                    Text("📷", fontSize = 12.3.sp)
                 }
             }
 
             if (state.isUploadingAvatar) {
                 Spacer(Modifier.height(6.dp))
-                Text("⏳ جاري الرفع...", color = Accent, fontSize = 12.sp)
+                Text("⏳ جاري الرفع...", color = Accent, fontSize = 10.6.sp)
             }
 
             Spacer(Modifier.height(16.dp))
-            Text(state.userName.ifEmpty { stringResource(R.string.t_196) }, color = TextPrimary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Text(state.userName.ifEmpty { stringResource(R.string.t_196) }, color = TextPrimary, fontSize = 19.4.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(4.dp))
-            Text(state.userEmail, color = TextSecondary, fontSize = 14.sp)
+            Text(state.userEmail, color = TextSecondary, fontSize = 12.3.sp)
 
             Spacer(Modifier.height(24.dp))
 
@@ -167,7 +167,7 @@ fun ProfileScreen(
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Column(Modifier.padding(16.dp)) {
-                    Text(stringResource(R.string.t_070), color = Accent, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    Text(stringResource(R.string.t_070), color = Accent, fontWeight = FontWeight.Bold, fontSize = 13.2.sp)
                     Spacer(Modifier.height(8.dp))
                     Text(
                         when {
@@ -175,7 +175,7 @@ fun ProfileScreen(
                             state.hasTrial -> stringResource(R.string.t_084)
                             else -> stringResource(R.string.t_085)
                         },
-                        color = TextPrimary, fontSize = 16.sp,
+                        color = TextPrimary, fontSize = 14.1.sp,
                     )
                 }
             }
@@ -196,9 +196,9 @@ fun ProfileScreen(
                     ) {
                         Icon(Icons.Default.AdminPanelSettings, null, tint = Accent)
                         Spacer(Modifier.width(12.dp))
-                        Text(stringResource(R.string.t_071), color = Accent, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Text(stringResource(R.string.t_071), color = Accent, fontWeight = FontWeight.Bold, fontSize = 13.2.sp)
                         Spacer(Modifier.weight(1f))
-                        Text("→", color = Accent, fontSize = 18.sp)
+                        Text("→", color = Accent, fontSize = 15.8.sp)
                     }
                 }
                 Spacer(Modifier.height(16.dp))
@@ -245,7 +245,7 @@ fun ProfileScreen(
                     Text(stringResource(R.string.t_074), color = TextPrimary, modifier = Modifier.weight(1f))
                     Text(
                         text = fontScaleLabel(state.fontScale),
-                        color = Accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+                        color = Accent, fontSize = 11.4.sp, fontWeight = FontWeight.SemiBold,
                     )
                 }
 
@@ -321,9 +321,9 @@ fun ProfileScreen(
                 ) {
                     Icon(Icons.Default.Settings, null, tint = Accent)
                     Spacer(Modifier.width(12.dp))
-                    Text(stringResource(R.string.t_076), color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                    Text(stringResource(R.string.t_076), color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 13.2.sp)
                     Spacer(Modifier.weight(1f))
-                    Text("→", color = Accent, fontSize = 18.sp)
+                    Text("→", color = Accent, fontSize = 15.8.sp)
                 }
             }
 
@@ -382,7 +382,7 @@ private fun FontSizeOption(
             Spacer(Modifier.height(4.dp))
             Text(
                 text = label,
-                fontSize = 11.sp,
+                fontSize = 9.7.sp,
                 color = if (selected) BgPrimary else TextSecondary,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
             )

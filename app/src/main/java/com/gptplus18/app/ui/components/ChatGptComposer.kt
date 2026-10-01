@@ -159,7 +159,7 @@ fun ChatGptComposer(
                     Text(
                         text = stringResource(R.string.t_001),
                         color = Color(0xFF5A5C62),
-                        fontSize = 15.sp,
+                        fontSize = 13.2.sp,
                     )
                 }
                 BasicTextField(
@@ -168,7 +168,7 @@ fun ChatGptComposer(
                     enabled = true,
                     textStyle = TextStyle(
                         color = Color(0xFFE5E5E7),
-                        fontSize = 15.sp,
+                        fontSize = 13.2.sp,
                         lineHeight = 21.sp,
                     ),
                     cursorBrush = SolidColor(Color(0xFFB0B2B8)),
@@ -307,7 +307,7 @@ private fun EmojiPickerSheet(
                 Text(
                     stringResource(R.string.t_002),
                     color = colors.textPrimary,
-                    fontSize = 18.sp,
+                    fontSize = 15.8.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 12.dp),
                 )
@@ -325,7 +325,7 @@ private fun EmojiPickerSheet(
                                 .clickable { onSelect(emoji) },
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text(emoji, fontSize = 26.sp)
+                            Text(emoji, fontSize = 22.9.sp)
                         }
                     }
                 }
@@ -376,7 +376,7 @@ private fun AttachmentChip(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(fileEmoji(attachment.fileName), fontSize = 32.sp)
+                Text(fileEmoji(attachment.fileName), fontSize = 28.2.sp)
             }
         }
 
@@ -417,7 +417,7 @@ private fun AttachmentChip(
                 Text(
                     text = "${(attachment.progress * 100).toInt().coerceIn(0, 100)}%",
                     color = Color.White,
-                    fontSize = 11.sp,
+                    fontSize = 9.7.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }
@@ -527,7 +527,7 @@ private fun SmallChip(
         Text(
             text = label,
             color = ChipText,
-            fontSize = 11.sp,
+            fontSize = 9.7.sp,
         )
     }
 }

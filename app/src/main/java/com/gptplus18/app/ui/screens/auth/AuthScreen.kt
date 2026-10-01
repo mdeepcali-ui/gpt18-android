@@ -150,14 +150,14 @@ fun AuthScreen(
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
                     "GPT",
-                    fontSize = 44.sp,
+                    fontSize = 38.7.sp,
                     fontWeight = FontWeight.Black,
                     color = TextPrimary,
                     letterSpacing = 1.5.sp,
                 )
                 Text(
                     "+18",
-                    fontSize = 58.sp,
+                    fontSize = 51.sp,
                     fontWeight = FontWeight.Black,
                     color = RedBrand,
                     letterSpacing = 0.sp,
@@ -168,7 +168,7 @@ fun AuthScreen(
 
             Text(
                 "\u0630\u0643\u0627\u0621 \u0627\u0635\u0637\u0646\u0627\u0639\u064a \u0628\u0644\u0627 \u0642\u064a\u0648\u062f",
-                fontSize = 14.sp,
+                fontSize = 12.3.sp,
                 color = TextSecondary,
                 textAlign = TextAlign.Center,
                 letterSpacing = 0.5.sp,
@@ -194,12 +194,12 @@ fun AuthScreen(
                         .padding(12.dp),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("\u26a0\ufe0f", fontSize = 14.sp)
+                        Text("\u26a0\ufe0f", fontSize = 12.3.sp)
                         Spacer(Modifier.width(8.dp))
                         Text(
                             err,
                             color = Color(0xFFFF7A7A),
-                            fontSize = 12.sp,
+                            fontSize = 10.6.sp,
                         )
                     }
                 }
@@ -213,12 +213,12 @@ fun AuthScreen(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("\ud83d\udd12", fontSize = 11.sp)
+                Text("\ud83d\udd12", fontSize = 9.7.sp)
                 Spacer(Modifier.width(6.dp))
                 Text(
                     "\u062f\u062e\u0648\u0644 \u0622\u0645\u0646 \u0628\u062d\u0633\u0627\u0628 Google",
                     color = TextTertiary,
-                    fontSize = 11.sp,
+                    fontSize = 9.7.sp,
                     letterSpacing = 0.3.sp,
                 )
             }
@@ -229,7 +229,7 @@ fun AuthScreen(
             Text(
                 "\u0628\u0627\u0644\u0645\u062a\u0627\u0628\u0639\u0629 \u0623\u0646\u062a \u062a\u0648\u0627\u0641\u0642 \u0639\u0644\u0649\n\u0627\u0644\u0634\u0631\u0648\u0637 \u0648\u0627\u0644\u0623\u062d\u0643\u0627\u0645 \u0648\u0633\u064a\u0627\u0633\u0629 \u0627\u0644\u062e\u0635\u0648\u0635\u064a\u0629",
                 color = TextTertiary,
-                fontSize = 10.sp,
+                fontSize = 8.8.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 15.sp,
             )
@@ -252,7 +252,7 @@ fun AuthScreen(
                 Text(
                     "GPT+18 \u00b7 \u0646\u0633\u062e\u0629 v1.2.0",
                     color = TextTertiary,
-                    fontSize = 10.sp,
+                    fontSize = 8.8.sp,
                     letterSpacing = 0.5.sp,
                 )
             }
@@ -338,7 +338,7 @@ private fun GoogleSignInButton(
                 Text(
                     "\u062c\u0627\u0631\u064a \u0627\u0644\u062f\u062e\u0648\u0644...",
                     color = TextPrimary,
-                    fontSize = 15.sp,
+                    fontSize = 13.2.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
             } else {
@@ -352,7 +352,7 @@ private fun GoogleSignInButton(
                 ) {
                     Text(
                         "G",
-                        fontSize = 18.sp,
+                        fontSize = 15.8.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF4285F4),
                     )
@@ -361,7 +361,7 @@ private fun GoogleSignInButton(
                 Text(
                     "\u0627\u0644\u0645\u062a\u0627\u0628\u0639\u0629 \u0628\u062d\u0633\u0627\u0628 Google",
                     color = TextPrimary,
-                    fontSize = 16.sp,
+                    fontSize = 14.1.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.3.sp,
                 )

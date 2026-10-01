@@ -55,7 +55,7 @@ fun AddonsSheet(
                 Text(
                     stringResource(R.string.t_006),
                     color = colors.textPrimary,
-                    fontSize = 16.sp,
+                    fontSize = 14.1.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                 )
@@ -112,7 +112,7 @@ fun DeepThinkSheet(
                 Text(
                     stringResource(R.string.t_007),
                     color = colors.textPrimary,
-                    fontSize = 16.sp,
+                    fontSize = 14.1.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                 )
@@ -156,14 +156,14 @@ private fun SubItem(
             Text(
                 label,
                 color = colors.textPrimary,
-                fontSize = 15.sp,
+                fontSize = 13.2.sp,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Right,
             )
             Text(
                 description,
                 color = colors.textSecondary,
-                fontSize = 12.sp,
+                fontSize = 10.6.sp,
                 textAlign = TextAlign.Right,
             )
         }

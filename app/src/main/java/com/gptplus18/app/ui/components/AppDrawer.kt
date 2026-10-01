@@ -155,7 +155,7 @@ fun AppDrawerContent(
                 Text(
                     "GPT+18 \u00b7 v2.1.0",
                     color = colors.textTertiary,
-                    fontSize = 11.sp,
+                    fontSize = 9.7.sp,
                     fontWeight = FontWeight.Medium,
                 )
             }
@@ -210,7 +210,7 @@ private fun DrawerHeader(userName: String, userEmail: String, avatarUrl: String)
                     } else {
                         Text(
                             userName.take(1).uppercase().ifEmpty { "?" },
-                            fontSize = 26.sp,
+                            fontSize = 22.9.sp,
                             fontWeight = FontWeight.Bold,
                             color = Accent,
                         )
@@ -234,13 +234,13 @@ private fun DrawerHeader(userName: String, userEmail: String, avatarUrl: String)
                 userName.ifEmpty { stringResource(R.string.t_196) },
                 color = TextPrimary,
                 fontWeight = FontWeight.Bold,
-                fontSize = 17.sp,
+                fontSize = 15.sp,
             )
             Spacer(Modifier.height(2.dp))
             Text(
                 userEmail,
                 color = TextSecondary,
-                fontSize = 12.sp,
+                fontSize = 10.6.sp,
                 maxLines = 1,
             )
         }
@@ -256,12 +256,12 @@ private fun DrawerSectionLabel(text: String, emoji: String) {
             .padding(horizontal = 22.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(emoji, fontSize = 12.sp)
+        Text(emoji, fontSize = 10.6.sp)
         Spacer(Modifier.width(6.dp))
         Text(
             text,
             color = colors.textTertiary,
-            fontSize = 11.sp,
+            fontSize = 9.7.sp,
             fontWeight = FontWeight.Bold,
         )
     }
@@ -322,14 +322,14 @@ private fun DrawerItemNew(
             Text(
                 label,
                 color = if (highlight) Accent else TextPrimary,
-                fontSize = 14.sp,
+                fontSize = 12.3.sp,
                 fontWeight = if (highlight) FontWeight.Bold else FontWeight.SemiBold,
             )
             if (subtitle != null && subtitle.isNotBlank()) {
                 Text(
                     subtitle,
                     color = colors.textTertiary,
-                    fontSize = 11.sp,
+                    fontSize = 9.7.sp,
                     maxLines = 1,
                     modifier = Modifier.padding(top = 2.dp),
                 )
@@ -338,7 +338,7 @@ private fun DrawerItemNew(
         Text(
             "\u203a",
             color = colors.textTertiary,
-            fontSize = 18.sp,
+            fontSize = 15.8.sp,
             fontWeight = FontWeight.Bold,
         )
     }
