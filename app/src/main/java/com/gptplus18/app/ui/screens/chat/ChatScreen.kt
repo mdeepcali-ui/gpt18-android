@@ -7,6 +7,7 @@ import androidx.compose.material3.MenuDefaults
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.border
+import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -444,7 +445,11 @@ fun ChatScreen(
                                     onImageClick = { url -> fullscreenImage = url },
                                     onLongPress = { actionsSheetFor = msg },
                                     onCopy = { text -> 
-                                        clip.setText(AnnotatedString(text))
+                                        // ⭐ LTR mark لمنع فقدان المسافات في RTL
+onCopy = { text -> 
+                                        val safeText = "\u200E" + text + "\u200F"
+onCopy = { text -> 
+                                        clip.setPrimaryClip(ClipData.newPlainText("", safeText))
                                         Toast.makeText(ctx, "✅ تم النسخ", Toast.LENGTH_SHORT).show()
                                     },
                                     onEdit = { m -> input = m.content },
@@ -619,7 +624,9 @@ fun ChatScreen(
             isPinned = vm.isPinned(msg.ts),
             onPin = { vm.pinMessage(msg) },
             onCopy = { 
-                clip.setText(AnnotatedString(msg.content))
+                val safeText = "\u200E" + msg.content + "\u200F"
+onCopy = { 
+                clip.setPrimaryClip(ClipData.newPlainText("", safeText))
                 Toast.makeText(ctx, "✅ تم النسخ", Toast.LENGTH_SHORT).show()
             },
             onShare = {
