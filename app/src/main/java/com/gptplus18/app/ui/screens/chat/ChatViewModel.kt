@@ -338,17 +338,20 @@ class ChatViewModel @Inject constructor(
                                 )
                             }
                         }
-                        // ⭐ v2.5.4: الرد يظهر حرف بحرف
+                        // ⭐ v2.5.5: Typewriter — كل حرف على حدة بـ 12ms delay
                         is StreamEvent.Delta -> {
-                            sb.append(ev.text)
-                            val currentText = sb.toString()
-                            _state.value = _state.value.copy(
-                                messages = _state.value.messages.map { m ->
-                                    if (m.id == -2 && m.ts == assistantTs) {
-                                        m.copy(content = currentText)
-                                    } else m
-                                },
-                            )
+                            for (c in ev.text) {
+                                sb.append(c)
+                                val currentText = sb.toString()
+                                _state.value = _state.value.copy(
+                                    messages = _state.value.messages.map { m ->
+                                        if (m.id == -2 && m.ts == assistantTs) {
+                                            m.copy(content = currentText)
+                                        } else m
+                                    },
+                                )
+                                kotlinx.coroutines.delay(12)
+                            }
                         }
                         is StreamEvent.CodeFiles -> {
                             _state.value = _state.value.copy(
