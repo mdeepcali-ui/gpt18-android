@@ -409,7 +409,7 @@ private fun AttachmentChip(
                 // 🎯 دائرة progress + نسبة مئوية
                 androidx.compose.material3.CircularProgressIndicator(
                     progress = { attachment.progress.coerceIn(0f, 1f) },
-                    color = SendBlue,
+                    color = Color(0xFFA8AAB0),
                     trackColor = Color.White.copy(alpha = 0.25f),
                     strokeWidth = 3.dp,
                     modifier = Modifier.size(38.dp),
@@ -433,7 +433,7 @@ private fun AttachmentChip(
                     modifier = Modifier
                         .fillMaxHeight()
                         .fillMaxWidth(attachment.progress.coerceIn(0f, 1f))
-                        .background(SendBlue),
+                        .background(Color(0xFFA8AAB0)),
                 )
             }
         }
