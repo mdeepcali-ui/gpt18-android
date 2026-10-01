@@ -1569,8 +1569,8 @@ fun StatusBubble(label: String) {
     // \u2726 خلفية الفقاعة — أزرق داكن متدرج
     val bgTop = Color(0xFF1C1D1F)
     val bgBot = Color(0xFF0A0A0B)
-    val borderC = Color(0xFF3A3C40)
-    val shadowC = Color.Black.copy(alpha = 0.55f)
+    val borderC = Color(0xFF4A4E58)
+    val shadowC = Color(0xFF3B82F6).copy(alpha = 0.45f)
 
     // 📝 نص رمادي + وهج أبيض فاتح
     val baseColor = Color(0xFFB8B8C0)
@@ -1579,15 +1579,42 @@ fun StatusBubble(label: String) {
     androidx.compose.foundation.layout.Box(
         modifier = Modifier
             .shadow(
-                elevation = 4.dp,
+                elevation = 8.dp,
                 shape = RoundedCornerShape(16.dp),
                 ambientColor = shadowC,
                 spotColor = shadowC,
             )
+            .shadow(
+                elevation = 12.dp,
+                shape = RoundedCornerShape(16.dp),
+                ambientColor = Color(0xFF3B82F6).copy(alpha = 0.25f),
+                spotColor = Color(0xFF3B82F6).copy(alpha = 0.25f),
+            )
             .clip(RoundedCornerShape(16.dp))
             .background(Brush.linearGradient(colors = listOf(bgTop, bgBot)))
-            .border(0.6.dp, borderC, RoundedCornerShape(16.dp)),
+            .border(1.5.dp, borderC, RoundedCornerShape(16.dp)),
     ) {
+        // ⭐ توهج يمر على كامل الفقاعة
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Transparent,
+                            Color(0xFF3B82F6).copy(alpha = 0.22f),
+                            Color.White.copy(alpha = 0.35f),
+                            Color(0xFF3B82F6).copy(alpha = 0.22f),
+                            Color.Transparent,
+                            Color.Transparent,
+                        ),
+                        startX = shimmerX * 400f,
+                        endX = shimmerX * 400f + 200f,
+                    )
+                ),
+        )
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(7.dp),
