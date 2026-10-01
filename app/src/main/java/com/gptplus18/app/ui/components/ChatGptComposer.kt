@@ -1,5 +1,8 @@
 package com.gptplus18.app.ui.components
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -46,6 +49,7 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
@@ -60,8 +64,23 @@ import com.gptplus18.app.R
 import com.gptplus18.app.data.models.Attachment
 import com.gptplus18.app.ui.theme.LocalAppColors
 
-private val SendBlue = Color(0xFF0A84FF)  // زر الإرسال — أزرق
-private val SendGray = Color(0xFF3A3A3E)  // زر الإرسال — رمادي أثناء الرفع
+// ═══ Gunmetal Composer Palette ═══
+private val ComposerTop     = Color(0xFF1C1D1F)
+private val ComposerBottom  = Color(0xFF141517)
+private val ComposerBorder  = Color(0xFF2E3034)
+
+private val BtnBg           = Color(0xFF1F2124)
+private val BtnBgDark       = Color(0xFF151719)
+private val BtnBorder       = Color(0xFF303338)
+private val BtnIcon         = Color(0xFFA8AAB0)
+
+private val SendIdle        = Color(0xFF25272B)
+private val SendIdleBorder  = Color(0xFF2A2C30)
+private val SendActiveBorder = Color(0xFF5A5E66)
+private val SendIdleIcon    = Color(0xFF7A7C82)
+private val SendActiveIcon  = Color(0xFFF0F0F2)
+
+private val SendGray = Color(0xFF3A3A3E)  // legacy (احتياط)
 
 @Composable
 fun ChatGptComposer(
@@ -97,15 +116,15 @@ fun ChatGptComposer(
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(
-                    elevation = 12.dp,
-                    shape = RoundedCornerShape(28.dp),
-                    ambientColor = Color.Black.copy(alpha = 0.6f),
-                    spotColor = Color.Black.copy(alpha = 0.6f),
+                    elevation = 20.dp,
+                    shape = RoundedCornerShape(30.dp),
+                    ambientColor = Color.Black.copy(alpha = 0.65f),
+                    spotColor = Color.Black.copy(alpha = 0.5f),
                 )
-                .clip(RoundedCornerShape(28.dp))
-                .background(colors.composerBg)
-                .border(0.5.dp, colors.composerBorder, RoundedCornerShape(28.dp))
-                .padding(6.dp),
+                .clip(RoundedCornerShape(30.dp))
+                .background(Brush.verticalGradient(listOf(ComposerTop, ComposerBottom)))
+                .border(0.5.dp, ComposerBorder, RoundedCornerShape(30.dp))
+                .padding(horizontal = 8.dp, vertical = 8.dp),
         ) {
             if (attachments.isNotEmpty()) {
                 LazyRow(
@@ -139,8 +158,8 @@ fun ChatGptComposer(
                 if (value.isEmpty()) {
                     Text(
                         text = stringResource(R.string.t_001),
-                        color = colors.textTertiary,
-                        fontSize = 16.sp,
+                        color = Color(0xFF5A5C62),
+                        fontSize = 15.sp,
                     )
                 }
                 BasicTextField(
@@ -148,11 +167,11 @@ fun ChatGptComposer(
                     onValueChange = onValueChange,
                     enabled = true,
                     textStyle = TextStyle(
-                        color = colors.textPrimary,
-                        fontSize = 16.sp,
-                        lineHeight = 22.sp,
+                        color = Color(0xFFE5E5E7),
+                        fontSize = 15.sp,
+                        lineHeight = 21.sp,
                     ),
-                    cursorBrush = SolidColor(SendBlue),
+                    cursorBrush = SolidColor(Color(0xFFB0B2B8)),
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 24.dp, max = 160.dp),
@@ -162,62 +181,86 @@ fun ChatGptComposer(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 2.dp, vertical = 2.dp),
+                    .padding(horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // إيموجي
-                Icon(
-                    Icons.Default.EmojiEmotions,
-                    stringResource(R.string.t_230),
-                    tint = colors.textSecondary,
-                    modifier = Modifier
-                        .size(26.dp)
-                        .clickable(enabled = enabled) { showEmojiSheet = true },
-                )
-                Spacer(Modifier.width(6.dp))
-
-                // 🎤 زر الإدخال الصوتي
-                if (onVoiceInput != null) {
-                    VoiceInputButton(
-                        enabled = enabled,
-                        onResult = { text -> onVoiceInput(text) },
-                        modifier = Modifier.size(30.dp),
+                // 😊 إيموجي
+                MetalButton(
+                    onClick = { showEmojiSheet = true },
+                    enabled = enabled,
+                ) {
+                    Icon(
+                        Icons.Default.EmojiEmotions,
+                        stringResource(R.string.t_230),
+                        tint = BtnIcon,
+                        modifier = Modifier.size(18.dp),
                     )
-                    Spacer(Modifier.width(6.dp))
-                } else {
-                    Spacer(Modifier.width(4.dp))
                 }
 
-                // +
-                Icon(
-                    Icons.Default.Add,
-                    stringResource(R.string.t_231),
-                    tint = colors.textSecondary,
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clickable(enabled = enabled, onClick = onAttachClick),
-                )
+                Spacer(Modifier.width(8.dp))
+
+                // 🎤 مايك
+                if (onVoiceInput != null) {
+                    MetalButton(
+                        onClick = {},
+                        enabled = enabled,
+                        noClick = true,
+                    ) {
+                        VoiceInputButton(
+                            enabled = enabled,
+                            onResult = { text -> onVoiceInput(text) },
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                }
+
+                // + إرفاق
+                MetalButton(
+                    onClick = onAttachClick,
+                    enabled = enabled,
+                ) {
+                    Icon(
+                        Icons.Default.Add,
+                        stringResource(R.string.t_231),
+                        tint = BtnIcon,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
 
                 Spacer(Modifier.weight(1f))
 
+                // ← إرسال (دائري)
                 if (hasContent) {
-                    // ⭐ الزر يظهر دائماً عند وجود محتوى:
-                    //    - رمادي أثناء الرفع (disabled)
-                    //    - أزرق عند اكتمال الرفع (enabled)
-                    val btnColor = if (canSend && enabled) SendBlue else SendGray
                     val btnEnabled = canSend && enabled
                     Box(
                         modifier = Modifier
-                            .size(38.dp)
+                            .size(40.dp)
+                            .shadow(
+                                elevation = if (btnEnabled) 8.dp else 0.dp,
+                                shape = CircleShape,
+                                ambientColor = Color.Black.copy(alpha = 0.5f),
+                                spotColor = Color.Black.copy(alpha = 0.35f),
+                            )
                             .clip(CircleShape)
-                            .background(btnColor)
+                            .then(
+                                if (btnEnabled) Modifier.background(
+                                    Brush.linearGradient(
+                                        listOf(Color(0xFF565A63), Color(0xFF3E4249), Color(0xFF2F3238))
+                                    )
+                                ) else Modifier.background(SendIdle)
+                            )
+                            .border(
+                                0.5.dp,
+                                if (btnEnabled) SendActiveBorder else SendIdleBorder,
+                                CircleShape,
+                            )
                             .clickable(enabled = btnEnabled, onClick = onSend),
                         contentAlignment = Alignment.Center,
                     ) {
                         if (isUploading) {
-                            // ⭐ دائرة تحميل صغيرة بدل السهم
                             androidx.compose.material3.CircularProgressIndicator(
-                                color = Color.White,
+                                color = Color(0xFFE5E5E7),
                                 modifier = Modifier.size(18.dp),
                                 strokeWidth = 2.dp,
                             )
@@ -225,7 +268,7 @@ fun ChatGptComposer(
                             Icon(
                                 Icons.Default.ArrowUpward,
                                 stringResource(R.string.t_035),
-                                tint = if (btnEnabled) Color.White else Color.White.copy(alpha = 0.5f),
+                                tint = if (btnEnabled) SendActiveIcon else SendIdleIcon,
                                 modifier = Modifier.size(20.dp),
                             )
                         }
@@ -412,23 +455,14 @@ private fun fileEmoji(name: String): String {
 }
 
 
-// ═══════════════════════════════════════════════════════
-// ⭐ v2.0: QuickChipsRow — فقاعات سريعة فوق الـ input
-// ═══════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════
-//  الذهبي الفاخر — Quick Actions
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+//  Gunmetal — Quick Actions + Small Chips
+// ═══════════════════════════════════════════════════════════
 
-private val GoldAccent  = Color(0xFFD4AF37)
-private val GoldSoft    = Color(0x0FD4AF37)   // 6%
-private val GoldBorder  = Color(0x2ED4AF37)   // 18%
-private val GoldText    = Color(0xEBD4AF37)   // 92%
-
-private data class GoldenChip(
-    val label: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val insertText: String,
-)
+private val ChipBg          = Color(0xFF1A1B1E)
+private val ChipBorder      = Color(0xFF25272B)
+private val ChipText        = Color(0xFFA0A2A8)
+private val ChipIcon        = Color(0xFF8A8C92)
 
 
 @Composable
@@ -438,82 +472,106 @@ private fun QuickChipsRow(
     onImagePick: (() -> Unit)?,
     onEditImagePick: (() -> Unit)?,
 ) {
-    val chips = listOf(
-        GoldenChip("صورة", androidx.compose.material.icons.Icons.Outlined.AutoAwesome, "أنشئ صورة "),
-        GoldenChip("أغنية", androidx.compose.material.icons.Icons.Outlined.MusicNote, "أنشئ أغنية عن "),
-        GoldenChip("فيديو", androidx.compose.material.icons.Icons.Outlined.Movie, "أنشئ فيديو عن "),
-    )
-
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 6.dp, vertical = 4.dp),
-        contentAlignment = Alignment.Center,
+            .padding(horizontal = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(22.dp))
-                .background(GoldSoft)
-                .border(0.5.dp, GoldBorder, RoundedCornerShape(22.dp))
-                .padding(horizontal = 4.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            chips.forEachIndexed { index, chip ->
-                GoldenChipItem(
-                    chip = chip,
-                    enabled = enabled,
-                    onClick = { onTextInsert(chip.insertText) },
-                )
-                if (index < chips.size - 1) {
-                    Box(
-                        modifier = Modifier
-                            .height(18.dp)
-                            .width(0.5.dp)
-                            .background(GoldBorder),
-                    )
-                }
-            }
-        }
+        SmallChip(
+            label = "صورة",
+            icon = androidx.compose.material.icons.Icons.Outlined.AutoAwesome,
+            onClick = { onTextInsert("أنشئ صورة ") },
+            enabled = enabled,
+        )
+        SmallChip(
+            label = "أغنية",
+            icon = androidx.compose.material.icons.Icons.Outlined.MusicNote,
+            onClick = { onTextInsert("أنشئ أغنية عن ") },
+            enabled = enabled,
+        )
+        SmallChip(
+            label = "فيديو",
+            icon = androidx.compose.material.icons.Icons.Outlined.Movie,
+            onClick = { onTextInsert("أنشئ فيديو عن ") },
+            enabled = enabled,
+        )
     }
 }
 
 
 @Composable
-private fun GoldenChipItem(
-    chip: GoldenChip,
-    enabled: Boolean,
+private fun SmallChip(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     onClick: () -> Unit,
+    enabled: Boolean,
 ) {
-    var pressed by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-    val scale by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (pressed) 0.94f else 1f,
-        animationSpec = androidx.compose.animation.core.spring(
-            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-            stiffness = androidx.compose.animation.core.Spring.StiffnessHigh,
-        ),
-        label = "chipScale",
-    )
-
     Row(
         modifier = Modifier
-            .graphicsLayer { scaleX = scale; scaleY = scale }
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .background(ChipBg)
+            .border(0.5.dp, ChipBorder, RoundedCornerShape(12.dp))
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 8.dp),
+            .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            imageVector = chip.icon,
-            contentDescription = chip.label,
-            tint = GoldAccent,
-            modifier = Modifier.size(15.dp),
+            imageVector = icon,
+            contentDescription = label,
+            tint = ChipIcon,
+            modifier = Modifier.size(12.dp),
         )
-        Spacer(Modifier.width(6.dp))
+        Spacer(Modifier.width(4.dp))
         Text(
-            text = chip.label,
-            color = GoldText,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
+            text = label,
+            color = ChipText,
+            fontSize = 11.sp,
         )
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MetalButton — زر معدني ثقيل صغير (32dp)
+// ═══════════════════════════════════════════════════════════
+
+@Composable
+private fun MetalButton(
+    onClick: () -> Unit,
+    enabled: Boolean,
+    noClick: Boolean = false,
+    content: @Composable () -> Unit,
+) {
+    var pressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) 0.94f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessHigh,
+        ),
+        label = "metalBtnScale",
+    )
+
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .shadow(
+                elevation = 3.dp,
+                shape = RoundedCornerShape(10.dp),
+                ambientColor = Color.Black.copy(alpha = 0.4f),
+                spotColor = Color.Black.copy(alpha = 0.25f),
+            )
+            .clip(RoundedCornerShape(10.dp))
+            .background(Brush.verticalGradient(listOf(BtnBg, BtnBgDark)))
+            .border(0.5.dp, BtnBorder, RoundedCornerShape(10.dp))
+            .then(
+                if (!noClick) Modifier.clickable(enabled = enabled, onClick = onClick)
+                else Modifier
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        content()
     }
 }
