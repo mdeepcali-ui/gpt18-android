@@ -444,11 +444,9 @@ fun ChatScreen(
                                     msg = msg,
                                     onImageClick = { url -> fullscreenImage = url },
                                     onLongPress = { actionsSheetFor = msg },
-                                    onCopy = { text -> 
+                                    onCopy = { text ->
                                         // ⭐ LTR mark لمنع فقدان المسافات في RTL
-onCopy = { text -> 
                                         val safeText = "\u200E" + text + "\u200F"
-onCopy = { text -> 
                                         clip.setPrimaryClip(ClipData.newPlainText("", safeText))
                                         Toast.makeText(ctx, "✅ تم النسخ", Toast.LENGTH_SHORT).show()
                                     },
@@ -623,9 +621,8 @@ onCopy = { text ->
             msg = msg,
             isPinned = vm.isPinned(msg.ts),
             onPin = { vm.pinMessage(msg) },
-            onCopy = { 
+            onCopy = {
                 val safeText = "\u200E" + msg.content + "\u200F"
-onCopy = { 
                 clip.setPrimaryClip(ClipData.newPlainText("", safeText))
                 Toast.makeText(ctx, "✅ تم النسخ", Toast.LENGTH_SHORT).show()
             },
