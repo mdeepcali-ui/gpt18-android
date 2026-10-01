@@ -1165,10 +1165,10 @@ fun MessageBubble(
                             val isStreaming = (msg.id == -2)
                             Text(
                                 cleanText,
-                                color = if (isStreaming) androidx.compose.ui.graphics.Color(0xFFC8C8CC) else TextPrimary,
-                                fontSize = if (isStreaming) 13.sp else 16.sp,
-                                fontWeight = if (isStreaming) FontWeight.Normal else FontWeight.SemiBold,
-                                lineHeight = if (isStreaming) 19.sp else 22.sp,
+                                color = if (isStreaming) androidx.compose.ui.graphics.Color(0xFFB8B8C2) else TextPrimary,
+                                fontSize = if (isStreaming) 12.sp else 14.sp,
+                                fontWeight = if (isStreaming) FontWeight.Normal else FontWeight.Medium,
+                                lineHeight = if (isStreaming) 17.sp else 20.sp,
                             )
                         }
                     }
@@ -1269,7 +1269,7 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (cleanText.isNotBlank()) {
                         // ✅ Markdown دائم — سواء أثناء البث أو بعده
-                        MarkdownText(cleanText, textColor = TextPrimary, fontSize = 16)
+                        MarkdownText(cleanText, textColor = TextPrimary, fontSize = 14)
                     }
                 }
             }
