@@ -469,13 +469,6 @@ fun ChatScreen(
                                             }
                                         }
                                     }
-                                    // ⭐ v2.0: Skeleton loader للوسائط قيد الإنشاء
-                                    if (state.pendingMediaType != null) {
-                                        com.gptplus18.app.ui.components.MediaSkeletonLoader(
-                                            type = state.pendingMediaType!!,
-                                            modifier = Modifier.fillMaxWidth(),
-                                        )
-                                    }
                                     if (state.statusLabel != stringResource(R.string.t_131)) {
                                         com.gptplus18.app.ui.components.ThinkingShimmer(
                                             text = thinkingText.ifBlank { "يجهّز الرد..." },
