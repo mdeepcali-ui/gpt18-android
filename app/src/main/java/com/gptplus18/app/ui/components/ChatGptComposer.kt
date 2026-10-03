@@ -193,7 +193,7 @@ fun ChatGptComposer(
                         Icons.Default.EmojiEmotions,
                         stringResource(R.string.t_230),
                         tint = BtnIcon,
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(12.dp),
                     )
                 }
 
@@ -209,7 +209,7 @@ fun ChatGptComposer(
                         VoiceInputButton(
                             enabled = enabled,
                             onResult = { text -> onVoiceInput(text) },
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(12.dp),
                         )
                     }
                     Spacer(Modifier.width(8.dp))
@@ -224,7 +224,7 @@ fun ChatGptComposer(
                         Icons.Default.Add,
                         stringResource(R.string.t_231),
                         tint = BtnIcon,
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(12.dp),
                     )
                 }
 
@@ -390,7 +390,7 @@ private fun AttachmentChip(
                 Icons.Default.Close,
                 stringResource(R.string.t_046),
                 tint = Color.White,
-                modifier = Modifier.size(14.dp),
+                modifier = Modifier.size(12.dp),
             )
         }
 
@@ -551,17 +551,17 @@ private fun MetalButton(
 
     Box(
         modifier = Modifier
-            .size(32.dp)
+            .size(24.dp)
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .shadow(
-                elevation = 4.dp,
+                elevation = 2.dp,
                 shape = CircleShape,
-                ambientColor = Color(0xFF0A84FF).copy(alpha = 0.4f),
-                spotColor = Color(0xFF0A84FF).copy(alpha = 0.25f),
+                ambientColor = Color.Black.copy(alpha = 0.3f),
+                spotColor = Color.Black.copy(alpha = 0.2f),
             )
             .clip(CircleShape)
-            .background(Color(0xFF0A84FF))
-            .border(0.5.dp, Color(0xFF0A84FF), CircleShape)
+            .background(BtnBg)
+            .border(1.5.dp, Color(0xFF0A84FF), CircleShape)
             .then(
                 if (!noClick) Modifier.clickable(enabled = enabled, onClick = onClick)
                 else Modifier
