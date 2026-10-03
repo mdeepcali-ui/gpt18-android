@@ -72,7 +72,7 @@ private val ComposerBorder  = Color(0xFF2E3034)
 private val BtnBg           = Color(0xFF1F2124)
 private val BtnBgDark       = Color(0xFF151719)
 private val BtnBorder       = Color(0xFF303338)
-private val BtnIcon         = Color(0xFFA8AAB0)
+private val BtnIcon         = Color(0xFF0A84FF)
 
 private val SendIdle        = Color(0xFF25272B)
 private val SendIdleBorder  = Color(0xFF2A2C30)

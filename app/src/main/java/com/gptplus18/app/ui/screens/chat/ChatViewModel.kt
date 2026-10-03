@@ -350,7 +350,7 @@ class ChatViewModel @Inject constructor(
                                         } else m
                                     },
                                 )
-                                kotlinx.coroutines.delay(12)
+                                kotlinx.coroutines.delay(2)
                             }
                         }
                         is StreamEvent.CodeFiles -> {
