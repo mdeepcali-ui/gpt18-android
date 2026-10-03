@@ -193,7 +193,7 @@ fun ChatGptComposer(
                         Icons.Default.EmojiEmotions,
                         stringResource(R.string.t_230),
                         tint = BtnIcon,
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(16.dp),
                     )
                 }
 
@@ -209,7 +209,7 @@ fun ChatGptComposer(
                         VoiceInputButton(
                             enabled = enabled,
                             onResult = { text -> onVoiceInput(text) },
-                            modifier = Modifier.size(18.dp),
+                            modifier = Modifier.size(16.dp),
                         )
                     }
                     Spacer(Modifier.width(8.dp))
@@ -224,7 +224,7 @@ fun ChatGptComposer(
                         Icons.Default.Add,
                         stringResource(R.string.t_231),
                         tint = BtnIcon,
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(16.dp),
                     )
                 }
 
@@ -551,7 +551,7 @@ private fun MetalButton(
 
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(32.dp)
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .shadow(
                 elevation = 4.dp,
