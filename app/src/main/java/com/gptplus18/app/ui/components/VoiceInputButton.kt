@@ -82,7 +82,7 @@ fun VoiceInputButton(
         androidx.compose.material3.Icon(
             imageVector = androidx.compose.material.icons.Icons.Default.Mic,
             contentDescription = "voice",
-            tint = if (enabled) Color(0xFF9CA3AF) else Color(0xFF4B5563),
+            tint = if (enabled) Color(0xFFFFFFFF) else Color(0xFF7A7C82),
             modifier = Modifier.size(22.dp),
         )
     }

@@ -1602,7 +1602,7 @@ fun StatusBubble(label: String) {
     // \u2726 خلفية الفقاعة — أزرق داكن متدرج
     val bgTop = Color(0xFF1C1D1F)
     val bgBot = Color(0xFF0A0A0B)
-    val borderC = Color(0xFF4A4E58)
+    val borderC = Color(0xFF0A84FF)
     val shadowC = Color(0xFF3B82F6).copy(alpha = 0.45f)
 
     // 📝 نص رمادي + وهج أبيض فاتح

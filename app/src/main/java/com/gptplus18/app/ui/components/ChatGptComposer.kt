@@ -72,7 +72,7 @@ private val ComposerBorder  = Color(0xFF2E3034)
 private val BtnBg           = Color(0xFF1F2124)
 private val BtnBgDark       = Color(0xFF151719)
 private val BtnBorder       = Color(0xFF303338)
-private val BtnIcon         = Color(0xFFA8AAB0)
+private val BtnIcon         = Color(0xFFFFFFFF)
 
 private val SendIdle        = Color(0xFF25272B)
 private val SendIdleBorder  = Color(0xFF2A2C30)
@@ -193,7 +193,7 @@ fun ChatGptComposer(
                         Icons.Default.EmojiEmotions,
                         stringResource(R.string.t_230),
                         tint = BtnIcon,
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(12.dp),
                     )
                 }
 
@@ -209,7 +209,7 @@ fun ChatGptComposer(
                         VoiceInputButton(
                             enabled = enabled,
                             onResult = { text -> onVoiceInput(text) },
-                            modifier = Modifier.size(18.dp),
+                            modifier = Modifier.size(12.dp),
                         )
                     }
                     Spacer(Modifier.width(8.dp))
@@ -224,7 +224,7 @@ fun ChatGptComposer(
                         Icons.Default.Add,
                         stringResource(R.string.t_231),
                         tint = BtnIcon,
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(12.dp),
                     )
                 }
 
@@ -239,20 +239,16 @@ fun ChatGptComposer(
                             .shadow(
                                 elevation = if (btnEnabled) 8.dp else 0.dp,
                                 shape = CircleShape,
-                                ambientColor = Color.Black.copy(alpha = 0.5f),
-                                spotColor = Color.Black.copy(alpha = 0.35f),
+                                ambientColor = Color(0xFF0A84FF).copy(alpha = 0.5f),
+                                spotColor = Color(0xFF0A84FF).copy(alpha = 0.35f),
                             )
                             .clip(CircleShape)
                             .then(
-                                if (btnEnabled) Modifier.background(
-                                    Brush.linearGradient(
-                                        listOf(Color(0xFF565A63), Color(0xFF3E4249), Color(0xFF2F3238))
-                                    )
-                                ) else Modifier.background(SendIdle)
+                                if (btnEnabled) Modifier.background(Color(0xFF0A84FF)) else Modifier.background(SendIdle)
                             )
                             .border(
                                 0.5.dp,
-                                if (btnEnabled) SendActiveBorder else SendIdleBorder,
+                                Color(0xFF0A84FF),
                                 CircleShape,
                             )
                             .clickable(enabled = btnEnabled, onClick = onSend),
@@ -394,7 +390,7 @@ private fun AttachmentChip(
                 Icons.Default.Close,
                 stringResource(R.string.t_046),
                 tint = Color.White,
-                modifier = Modifier.size(14.dp),
+                modifier = Modifier.size(12.dp),
             )
         }
 
@@ -555,17 +551,17 @@ private fun MetalButton(
 
     Box(
         modifier = Modifier
-            .size(32.dp)
+            .size(24.dp)
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .shadow(
-                elevation = 3.dp,
-                shape = RoundedCornerShape(10.dp),
-                ambientColor = Color.Black.copy(alpha = 0.4f),
-                spotColor = Color.Black.copy(alpha = 0.25f),
+                elevation = 2.dp,
+                shape = CircleShape,
+                ambientColor = Color.Black.copy(alpha = 0.3f),
+                spotColor = Color.Black.copy(alpha = 0.2f),
             )
-            .clip(RoundedCornerShape(10.dp))
-            .background(Brush.verticalGradient(listOf(BtnBg, BtnBgDark)))
-            .border(0.5.dp, BtnBorder, RoundedCornerShape(10.dp))
+            .clip(CircleShape)
+            .background(BtnBg)
+            .border(1.5.dp, Color(0xFF0A84FF), CircleShape)
             .then(
                 if (!noClick) Modifier.clickable(enabled = enabled, onClick = onClick)
                 else Modifier
