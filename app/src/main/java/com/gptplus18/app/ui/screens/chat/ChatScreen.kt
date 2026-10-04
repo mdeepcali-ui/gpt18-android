@@ -426,8 +426,8 @@ fun ChatScreen(
                                 showSessionsList = false
                             },
                             onOpenCode = {
-                                vm.setMode(ChatMode.CODE)
                                 showSessionsList = false
+                                onNavigateToCode()
                             },
                             onLongPressChat = { deleteDialogFor = it.toChatSession() },
                         )
