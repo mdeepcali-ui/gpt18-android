@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
@@ -48,7 +49,10 @@ import com.gptplus18.app.R
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
+fun CodeScreen(
+    onNavigateToChat: () -> Unit = {},
+    vm: CodeViewModel = hiltViewModel(),
+) {
 
     val clip = LocalClipboardManager.current
 
@@ -104,6 +108,15 @@ fun CodeScreen(vm: CodeViewModel = hiltViewModel()) {
                     }
                 },
                 actions = {
+                    // 💬 زر الرجوع للدردشة
+                    IconButton(onClick = onNavigateToChat) {
+                        Icon(
+                            androidx.compose.material.icons.Icons.Default.Chat,
+                            contentDescription = "الدردشة",
+                            tint = TextPrimary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
                     // ⭐ زر + دائري في الزاوية اليسرى
                     Box(
                         modifier = Modifier

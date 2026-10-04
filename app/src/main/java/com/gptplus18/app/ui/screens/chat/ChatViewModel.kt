@@ -662,15 +662,17 @@ class ChatViewModel @Inject constructor(
                 return@launch
             }
 
-            // ─── 3) نجح الرفع — الآن نضيف الرسائل للشات ───
-            val firstAtt = uploaded.firstOrNull()
-            val localUri = firstAtt?.uri?.toString()
+            // ─── 3) نجح الرفع — الآن نضيف الرسائل للشات (كل الصور) ───
+            val localUris = uploaded.mapNotNull { att ->
+                if (att.mimeType.startsWith("image/")) att.uri.toString() else null
+            }
             val userMsg = Message(
                 id = -1,
                 role = "user",
                 content = caption.ifBlank { "" },
                 ts = System.currentTimeMillis() / 1000.0,
-                localImageUri = if (firstAtt?.mimeType?.startsWith("image/") == true) localUri else null,
+                localImageUri = localUris.firstOrNull(),      // للتوافق
+                localImageUris = localUris.ifEmpty { null },  // ⭐ كل الصور
             )
             val analyzingTs = System.currentTimeMillis() / 1000.0 + 1
             val analyzingMsg = Message(
@@ -685,10 +687,12 @@ class ChatViewModel @Inject constructor(
                 pendingAttachments = emptyList(),
             )
 
-            // ─── 4) المعالجة على السيرفر ───
-            for (att in uploaded) {
-                val fid = att.uploadedFileId ?: continue
-                when (val r = uploadRepo.processUploaded(fid, caption, finalSessionId)) {
+            // ─── 4) المعالجة على السيرفر — طلب واحد لكل المرفقات ───
+            val allFids = uploaded.mapNotNull { it.uploadedFileId }
+            if (allFids.isEmpty()) {
+                lastError = "لا يوجد ملفات مرفوعة"
+            } else {
+                when (val r = uploadRepo.processUploadedMulti(allFids, caption, finalSessionId)) {
                     is Result.Success -> {
                         val reply = r.data.reply ?: "تم"
                         finalSessionId = r.data.sessionId ?: finalSessionId

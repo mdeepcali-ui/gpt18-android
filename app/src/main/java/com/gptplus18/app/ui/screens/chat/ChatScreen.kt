@@ -113,6 +113,7 @@ fun ChatScreen(
     onNavigateToSettings: () -> Unit = {},
     onNavigateToAdmin: () -> Unit = {},
     onNavigateToAuth: () -> Unit = {},
+    onNavigateToCode: () -> Unit = {},
     vm: ChatViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsState()
@@ -342,6 +343,15 @@ fun ChatScreen(
                             }
                         },
                         actions = {
+                            // 💻 زر البرمجة
+                            IconButton(onClick = onNavigateToCode) {
+                                Icon(
+                                    androidx.compose.material.icons.Icons.Default.Code,
+                                    contentDescription = "البرمجة",
+                                    tint = Accent,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
                             // ⭐ زر + دائري في الزاوية اليسرى
                             Box(
                                 modifier = Modifier
@@ -1069,7 +1079,7 @@ private fun _EmptyChatStateUnused(onSuggestionClick: (String) -> Unit) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun MessageBubble(
     msg: Message,
@@ -1086,6 +1096,7 @@ fun MessageBubble(
     val cleanText = MessageHelpers.stripMediaMarkers(msg.content)
     // ⭐ محلي: صورة مرفوعة لم تُرفع للسيرفر بعد
     val localImage = msg.localImageUri
+    val localImages: List<String> = msg.localImageUris ?: (localImage?.let { listOf(it) } ?: emptyList())
     val ctx = LocalContext.current
 
     Row(
@@ -1108,17 +1119,38 @@ fun MessageBubble(
                     ),
                 ) {
                     Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-                        // ⭐ صورة محلية (مرفوعة من الجهاز)
-                        if (localImage != null && imageUrl == null) {
-                            AsyncImage(
-                                model = localImage,
-                                contentDescription = stringResource(R.string.t_135),
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .widthIn(max = 220.dp)
-                                    .heightIn(max = 260.dp)
-                                    .clip(RoundedCornerShape(12.dp)),
-                            )
+                        // ⭐ صور محلية (مرفوعة من الجهاز) — عرض كل الصور
+                        if (localImages.isNotEmpty() && imageUrl == null) {
+                            if (localImages.size == 1) {
+                                AsyncImage(
+                                    model = localImages[0],
+                                    contentDescription = stringResource(R.string.t_135),
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .widthIn(max = 220.dp)
+                                        .heightIn(max = 260.dp)
+                                        .clip(RoundedCornerShape(12.dp)),
+                                )
+                            } else {
+                                // شبكة الصور — كل صورة بعرض 100dp
+                                androidx.compose.foundation.layout.FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    maxItemsInEachRow = 2,
+                                    modifier = Modifier.widthIn(max = 220.dp),
+                                ) {
+                                    localImages.forEach { uri ->
+                                        AsyncImage(
+                                            model = uri,
+                                            contentDescription = stringResource(R.string.t_135),
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .size(100.dp)
+                                                .clip(RoundedCornerShape(10.dp)),
+                                        )
+                                    }
+                                }
+                            }
                             if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                         }
                         // ⭐ صورة من السيرفر

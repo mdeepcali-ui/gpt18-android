@@ -29,3 +29,6 @@ app/src/main/res/drawable/*.bak
 
 *.BACKUP-PRE-RESIZE/
 BACKUP-ICONS*/
+keystore.properties
+_RES_BACKUPS/
+.kotlin/

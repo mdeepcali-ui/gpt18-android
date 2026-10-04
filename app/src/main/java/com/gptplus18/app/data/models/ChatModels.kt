@@ -17,7 +17,8 @@ data class Message(
     @SerializedName("content") val content: String,
     @SerializedName("ts") val ts: Double,
     // ⭐ محلي فقط — لا يُرسل للسيرفر
-    val localImageUri: String? = null,
+    val localImageUri: String? = null,          // للتوافق الخلفي
+    val localImageUris: List<String>? = null,   // ⭐ متعدد — كل الصور المرفقة
     val isAnalyzing: Boolean = false,
 )
 

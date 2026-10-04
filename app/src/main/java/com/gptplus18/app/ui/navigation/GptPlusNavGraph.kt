@@ -21,6 +21,7 @@ import com.gptplus18.app.ui.screens.admin.AdminScreen
 import com.gptplus18.app.ui.screens.about.AboutScreen
 import com.gptplus18.app.ui.screens.auth.AuthScreen
 import com.gptplus18.app.ui.screens.chat.ChatScreen
+import com.gptplus18.app.ui.screens.code.CodeScreen
 import com.gptplus18.app.ui.screens.onboarding.OnboardingScreen
 import com.gptplus18.app.ui.screens.profile.ProfileScreen
 import com.gptplus18.app.ui.screens.splash.SplashScreen
@@ -40,6 +41,7 @@ object Routes {
     const val ONBOARDING = "onboarding"
     const val AUTH = "auth"
     const val CHAT = "chat"
+    const val CODE = "code"
     const val SUBSCRIPTION = "subscription"
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
@@ -206,6 +208,24 @@ fun GptPlusNavGraph(
                     onNavigateToAuth = {
                         navController.navigate(Routes.AUTH) {
                             popUpTo(0) { inclusive = true }
+                        }
+                    },
+                    onNavigateToCode = {
+                        navController.navigate(Routes.CODE) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                )
+            }
+            composable(Routes.CODE) {
+                CodeScreen(
+                    onNavigateToChat = {
+                        navController.navigate(Routes.CHAT) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
                         }
                     },
                 )

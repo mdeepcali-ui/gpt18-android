@@ -87,7 +87,24 @@ class UploadRepository @Inject constructor(
     suspend fun processUploaded(fileId: String, caption: String, sessionId: Int?): Result<ProcessUploadResponse> {
         val b = bearer() ?: return Result.Error("غير مصرح")
         return try {
-            val r = api.processUploaded(b, ProcessUploadRequest(fileId, caption, sessionId))
+            val r = api.processUploaded(b, ProcessUploadRequest(fileId = fileId, caption = caption, sessionId = sessionId))
+            if (r.isSuccessful) Result.Success(r.body()!!)
+            else Result.Error("فشل المعالجة (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ")
+        }
+    }
+
+    // ⭐ جديد — مرفقات متعددة (عدد مفتوح)
+    suspend fun processUploadedMulti(fileIds: List<String>, caption: String, sessionId: Int?): Result<ProcessUploadResponse> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val req = if (fileIds.size == 1) {
+                ProcessUploadRequest(fileId = fileIds.first(), caption = caption, sessionId = sessionId)
+            } else {
+                ProcessUploadRequest(fileIds = fileIds, caption = caption, sessionId = sessionId)
+            }
+            val r = api.processUploaded(b, req)
             if (r.isSuccessful) Result.Success(r.body()!!)
             else Result.Error("فشل المعالجة (${r.code()})")
         } catch (e: Exception) {

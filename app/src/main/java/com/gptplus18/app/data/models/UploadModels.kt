@@ -12,7 +12,8 @@ data class UploadTempResponse(
 )
 
 data class ProcessUploadRequest(
-    @SerializedName("file_id") val fileId: String,
+    @SerializedName("file_id") val fileId: String? = null,
+    @SerializedName("file_ids") val fileIds: List<String>? = null,
     @SerializedName("caption") val caption: String = "",
     @SerializedName("session_id") val sessionId: Int? = null,
 )
