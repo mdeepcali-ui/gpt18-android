@@ -463,8 +463,8 @@ private fun SmallChip(
             maxLines = 1,
             text = label,
             color = fg,
-            fontSize = 11.sp,
-            lineHeight = 14.sp,
+            fontSize = 10.sp,
+            lineHeight = 12.sp,
             fontWeight = FontWeight.Medium,
         )
     }

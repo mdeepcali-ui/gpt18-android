@@ -109,7 +109,7 @@ internal fun ChatHeader(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPrimary),
-                modifier = Modifier.height(38.dp),
+                modifier = Modifier.height(44.dp),
                 windowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
             )
         } else {
@@ -121,8 +121,8 @@ internal fun ChatHeader(
                             stringResource(R.string.t_044),
                             color = TextPrimary,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 15.8.sp,
-                            lineHeight = 20.sp,
+                            fontSize = 14.sp,
+                            lineHeight = 17.sp,
                         )
                     } else {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -177,7 +177,7 @@ internal fun ChatHeader(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPrimary),
-                modifier = Modifier.height(38.dp),
+                modifier = Modifier.height(44.dp),
                 windowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
             )
         }
