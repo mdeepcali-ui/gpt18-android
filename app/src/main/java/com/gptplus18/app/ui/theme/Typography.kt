@@ -59,8 +59,8 @@ private fun appStyle(
 ): TextStyle = TextStyle(
     fontFamily = LateefFontFamily,
     fontWeight = weight,
-    fontSize = (size * 1.55f).sp,
-    lineHeight = (lineHeight * 1.55f).sp,
+    fontSize = (size + 5).sp,
+    lineHeight = (lineHeight + 8).sp,
     letterSpacing = letterSpacing.sp,
     lineHeightStyle = ArabicLineHeightStyle,
     textAlign = TextAlign.Start,

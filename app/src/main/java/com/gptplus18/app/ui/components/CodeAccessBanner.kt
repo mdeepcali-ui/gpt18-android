@@ -79,14 +79,14 @@ fun CodeAccessBanner(
                 shape = RoundedCornerShape(16.dp),
             )
             .clickable { onSubscribe() }
-            .padding(14.dp),
+            .padding(10.dp),
     ) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // أيقونة القفل
                 Box(
                     modifier = Modifier
-                        .size(38.dp)
+                        .size(30.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color(0xFFFFB800).copy(alpha = 0.15f))
                         .border(1.dp, Color(0xFFFFB800).copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
@@ -106,7 +106,7 @@ fun CodeAccessBanner(
                     Text(
                         title,
                         color = TextPrimary,
-                        fontSize = 13.5.sp,
+                        fontSize = 13.5.sp, lineHeight = 17.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     if (hasBalance) {
@@ -117,23 +117,23 @@ fun CodeAccessBanner(
                             else
                                 "Balance: $credits credits (\$${String.format(Locale.US, "%.2f", usdValue)})",
                             color = Color(0xFF4ADE80),
-                            fontSize = 10.5.sp,
+                            fontSize = 10.5.sp, lineHeight = 14.sp,
                             fontWeight = FontWeight.Medium,
                         )
                     }
                 }
             }
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(6.dp))
 
             Text(
                 subtitle,
                 color = TextSecondary,
                 fontSize = 11.5.sp,
-                lineHeight = 18.sp,
+                lineHeight = 16.sp,
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
 
             // زر اشترك
             Row(
@@ -143,14 +143,14 @@ fun CodeAccessBanner(
                     .background(Color(0xFFFFB800).copy(alpha = 0.18f))
                     .border(1.dp, Color(0xFFFFB800).copy(alpha = 0.4f), RoundedCornerShape(10.dp))
                     .clickable { onSubscribe() }
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                    .padding(horizontal = 12.dp, vertical = 7.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
             ) {
                 Text(
                     buttonText,
                     color = Color(0xFFFFB800),
-                    fontSize = 12.5.sp,
+                    fontSize = 12.5.sp, lineHeight = 16.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 Spacer(Modifier.width(6.dp))

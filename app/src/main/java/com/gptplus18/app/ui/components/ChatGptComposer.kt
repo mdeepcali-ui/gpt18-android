@@ -444,10 +444,11 @@ private fun SmallChip(
     val fg = if (isLight) Color(0xFF6E6E73) else Color(0xFFA0A2A8)
     Row(
         modifier = Modifier
+            .height(26.dp)
             .clip(RoundedCornerShape(6.dp))
             .background(bg)
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 5.dp),
+            .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
