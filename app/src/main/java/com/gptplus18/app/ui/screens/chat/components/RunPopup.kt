@@ -77,7 +77,7 @@ fun RunButton(
             lineHeight = 11.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.sp,
-            platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false),
+            style = androidx.compose.ui.text.TextStyle(platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false)),
         )
     }
 }
@@ -429,7 +429,7 @@ fun SaveButton(
             lineHeight = 11.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 0.sp,
-            platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false),
+            style = androidx.compose.ui.text.TextStyle(platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false)),
             )
         }
     }
