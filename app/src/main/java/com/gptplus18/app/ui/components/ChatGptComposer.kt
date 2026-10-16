@@ -167,7 +167,7 @@ fun ChatGptComposer(
                 .clip(RoundedCornerShape(28.dp))
                 .background(boxBg)
                 .border(0.8.dp, boxBorder, RoundedCornerShape(28.dp))
-                .padding(horizontal = 14.dp, vertical = 12.dp),
+                .padding(horizontal = 14.dp, vertical = 6.dp),
         ) {
             // مرفقات
             if (attachments.isNotEmpty()) {
@@ -211,7 +211,7 @@ fun ChatGptComposer(
                             fontFamily = LateefFontFamily,
                             color = textColor,
                             fontSize = 14.sp,
-                            lineHeight = 22.sp,
+                            lineHeight = 17.sp,
                         ),
                         cursorBrush = SolidColor(AccentBlue),
                         modifier = Modifier
@@ -222,7 +222,7 @@ fun ChatGptComposer(
                 }
             }
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(4.dp))
 
             // ═══ صف الأزرار ═══
             Row(
@@ -464,6 +464,7 @@ private fun SmallChip(
             text = label,
             color = fg,
             fontSize = 11.sp,
+            lineHeight = 14.sp,
             fontWeight = FontWeight.Medium,
         )
     }

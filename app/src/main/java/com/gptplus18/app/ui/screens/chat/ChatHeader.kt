@@ -122,6 +122,7 @@ internal fun ChatHeader(
                             color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.8.sp,
+                            lineHeight = 20.sp,
                         )
                     } else {
                         Row(verticalAlignment = Alignment.CenterVertically) {
