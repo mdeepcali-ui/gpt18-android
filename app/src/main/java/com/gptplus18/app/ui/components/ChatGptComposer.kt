@@ -445,6 +445,7 @@ private fun SmallChip(
     Row(
         modifier = Modifier
             .height(26.dp)
+            .widthIn(min = 85.dp)
             .clip(RoundedCornerShape(6.dp))
             .background(bg)
             .clickable(enabled = enabled, onClick = onClick)
@@ -459,6 +460,7 @@ private fun SmallChip(
         )
         Spacer(Modifier.width(6.dp))
         Text(
+            maxLines = 1,
             text = label,
             color = fg,
             fontSize = 11.sp,
