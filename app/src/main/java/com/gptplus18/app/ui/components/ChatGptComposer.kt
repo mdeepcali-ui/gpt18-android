@@ -63,7 +63,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
-import com.gptplus18.app.ui.theme.RubikFontFamily
+import com.gptplus18.app.ui.theme.LateefFontFamily
 
 // ═══ الألوان الأساسية الجديدة ═══
 private val AccentBlue = Color(0xFF4B7EFF)
@@ -208,7 +208,7 @@ fun ChatGptComposer(
                         },
                         enabled = true,
                         textStyle = TextStyle(
-                            fontFamily = RubikFontFamily,
+                            fontFamily = LateefFontFamily,
                             color = textColor,
                             fontSize = 14.sp,
                             lineHeight = 22.sp,

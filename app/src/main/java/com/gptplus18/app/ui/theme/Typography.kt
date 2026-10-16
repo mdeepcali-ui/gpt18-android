@@ -20,7 +20,7 @@ import com.gptplus18.app.R
  *
  *  المبادئ:
  *    • 15 مستوى Material 3 رسمي — لا أرقام عشوائية
- *    • خط Rubik للعربية + اللاتينية (OFL License)
+ *    • خط Lateef للعربية + اللاتينية (OFL License)
  *    • lineHeight × 1.6 للعربية (RTL-optimized)
  *    • letterSpacing = 0 للعربية، 0.15 للاتينية
  *    • أوزان صحيحة: Regular(400), Medium(500), SemiBold(600), Bold(700)
@@ -31,13 +31,13 @@ import com.gptplus18.app.R
  */
 
 // ─────────────────────────────────────────────────────────────
-//  Font Family — Rubik
+//  Font Family — Lateef
 // ─────────────────────────────────────────────────────────────
-val RubikFontFamily = FontFamily(
-    Font(R.font.rubik_regular,  FontWeight.Normal),    // 400
-    Font(R.font.rubik_medium,   FontWeight.Medium),    // 500
-    Font(R.font.rubik_semibold, FontWeight.SemiBold),  // 600
-    Font(R.font.rubik_bold,     FontWeight.Bold),      // 700
+val LateefFontFamily = FontFamily(
+    Font(R.font.lateef_regular,  FontWeight.Normal),    // 400
+    Font(R.font.lateef_medium,   FontWeight.Medium),    // 500
+    Font(R.font.lateef_semibold, FontWeight.SemiBold),  // 600
+    Font(R.font.lateef_bold,     FontWeight.Bold),      // 700
 )
 
 // ─────────────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ private fun appStyle(
     lineHeight: Int,
     letterSpacing: Float = 0f,
 ): TextStyle = TextStyle(
-    fontFamily = RubikFontFamily,
+    fontFamily = LateefFontFamily,
     fontWeight = weight,
     fontSize = size.sp,
     lineHeight = lineHeight.sp,

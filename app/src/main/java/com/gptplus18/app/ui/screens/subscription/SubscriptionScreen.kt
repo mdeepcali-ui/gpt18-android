@@ -603,7 +603,7 @@ private fun PaymentDialog(
                         onValueChange = { vm.setTxHash(it) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        textStyle = androidx.compose.ui.text.TextStyle(fontFamily = RubikFontFamily, fontSize = 12.sp),
+                        textStyle = androidx.compose.ui.text.TextStyle(fontFamily = LateefFontFamily, fontSize = 12.sp),
                         colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Accent,
                             unfocusedBorderColor = colors.surfaceVariant,

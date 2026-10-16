@@ -56,7 +56,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import kotlin.math.max
 import kotlin.math.min
-import com.gptplus18.app.ui.theme.RubikFontFamily
+import com.gptplus18.app.ui.theme.LateefFontFamily
 
 /**
  * صندوق الرد الجاري:
@@ -247,7 +247,7 @@ fun ThinkingShimmer(
             Text(
                 text = statusInfo.label,
                 style = TextStyle(
-                    fontFamily = RubikFontFamily,
+                    fontFamily = LateefFontFamily,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     brush = _titleGradient,
@@ -305,7 +305,7 @@ fun ThinkingShimmer(
                         Text(
                             text = displayText,
                             style = TextStyle(
-                                fontFamily = RubikFontFamily,
+                                fontFamily = LateefFontFamily,
                                 fontSize = 12.5.sp,
                                 lineHeight = 18.sp,
                                 fontWeight = FontWeight.Normal,
