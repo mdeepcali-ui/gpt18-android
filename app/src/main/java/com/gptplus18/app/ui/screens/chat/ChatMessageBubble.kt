@@ -114,22 +114,6 @@ internal fun CodeFilesCard(
     zipUrl: String?,
 ) {
     val ctx = LocalContext.current
-
-    // ⭐ v19.0: Copy Success Flash
-    var _copiedFlash by remember { androidx.compose.runtime.mutableStateOf(false) }
-    val _flashAlpha by animateFloatAsState(
-        targetValue = if (_copiedFlash) 1f else 0f,
-        animationSpec = androidx.compose.animation.core.tween(
-            durationMillis = if (_copiedFlash) 120 else 450,
-        ),
-        label = "copy_flash",
-    )
-    LaunchedEffect(_copiedFlash) {
-        if (_copiedFlash) {
-            kotlinx.coroutines.delay(180)
-            _copiedFlash = false
-        }
-    }
     val colors = LocalAppColors.current
 
     Box(
@@ -328,6 +312,21 @@ fun MessageBubble(
     val localImage = msg.localImageUri
     val localImages: List<String> = msg.localImageUris ?: (localImage?.let { listOf(it) } ?: emptyList())
     val ctx = LocalContext.current
+    // ⭐ v19.0: Copy Success Flash — وميض أخضر بعد النسخ
+    var _copiedFlash by remember { androidx.compose.runtime.mutableStateOf(false) }
+    val _flashAlpha by animateFloatAsState(
+        targetValue = if (_copiedFlash) 1f else 0f,
+        animationSpec = androidx.compose.animation.core.tween(
+            durationMillis = if (_copiedFlash) 120 else 450,
+        ),
+        label = "copy_flash",
+    )
+    LaunchedEffect(_copiedFlash) {
+        if (_copiedFlash) {
+            kotlinx.coroutines.delay(180)
+            _copiedFlash = false
+        }
+    }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
