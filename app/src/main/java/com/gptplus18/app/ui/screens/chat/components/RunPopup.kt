@@ -76,7 +76,7 @@ fun RunButton(
             fontSize = 11.sp,
             lineHeight = 11.sp,
             fontWeight = FontWeight.Bold,
-            letterSpacing = 1.sp,
+            letterSpacing = 0.sp,
         )
     }
 }
@@ -427,7 +427,7 @@ fun SaveButton(
                 fontSize = 11.sp,
             lineHeight = 11.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp,
+                letterSpacing = 0.sp,
             )
         }
     }

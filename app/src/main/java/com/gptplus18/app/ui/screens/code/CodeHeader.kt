@@ -74,8 +74,8 @@ internal fun CodeHeader(
                     text = stringResource(R.string.t_051),
                     color = TextPrimary,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 17.sp,
-                    lineHeight = 20.sp,
+                    fontSize = 15.sp,
+                    lineHeight = 18.sp,
                 )
             },
             navigationIcon = {
