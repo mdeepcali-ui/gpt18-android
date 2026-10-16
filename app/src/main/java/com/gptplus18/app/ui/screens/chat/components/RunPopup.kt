@@ -67,7 +67,7 @@ fun RunButton(
                 enabled = enabled,
                 onClick = onClick,
             )
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+            .padding(horizontal = 12.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -77,6 +77,7 @@ fun RunButton(
             lineHeight = 11.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.sp,
+            platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false),
         )
     }
 }
@@ -410,7 +411,7 @@ fun SaveButton(
                 enabled = enabled,
                 onClick = onClick,
             )
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+            .padding(horizontal = 12.dp),
         contentAlignment = Alignment.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -428,6 +429,7 @@ fun SaveButton(
             lineHeight = 11.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 0.sp,
+            platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false),
             )
         }
     }

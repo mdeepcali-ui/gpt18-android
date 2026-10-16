@@ -59,8 +59,8 @@ private fun appStyle(
 ): TextStyle = TextStyle(
     fontFamily = ScheherazadeFontFamily,
     fontWeight = weight,
-    fontSize = (size + 1).sp,
-    lineHeight = (lineHeight + 3).sp,
+    fontSize = (size - 2).sp,
+    lineHeight = (lineHeight + 1).sp,
     letterSpacing = letterSpacing.sp,
     lineHeightStyle = ArabicLineHeightStyle,
     textAlign = TextAlign.Start,
