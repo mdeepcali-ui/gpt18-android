@@ -30,7 +30,7 @@ android {
         versionName = "5.2.7"
         vectorDrawables { useSupportLibrary = true }
 
-        buildConfigField("String", "BASE_URL", "\"https://gptplus18.com/\"")
+        buildConfigField("String", "BASE_URL", "\"http://144.225.8.248:8000/\"")
         buildConfigField("String", "API_VERSION", "\"1.0\"")
     }
 
