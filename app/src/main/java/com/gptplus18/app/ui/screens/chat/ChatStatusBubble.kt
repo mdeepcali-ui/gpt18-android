@@ -36,7 +36,7 @@ import com.gptplus18.app.ui.theme.LocalAppColors
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.layout.widthIn
-import com.gptplus18.app.ui.theme.LateefFontFamily
+import com.gptplus18.app.ui.theme.ScheherazadeFontFamily
 
 /**
  * ═══════════════════════════════════════════════════════════════
@@ -181,7 +181,7 @@ fun StatusBubble(label: String) {
             androidx.compose.foundation.text.BasicText(
                 text = label,
                 style = androidx.compose.ui.text.TextStyle(
-                    fontFamily = LateefFontFamily,
+                    fontFamily = ScheherazadeFontFamily,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
                     letterSpacing = 0.3.sp,

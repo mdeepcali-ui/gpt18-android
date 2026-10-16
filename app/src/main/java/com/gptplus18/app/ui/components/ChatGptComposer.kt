@@ -63,7 +63,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
-import com.gptplus18.app.ui.theme.LateefFontFamily
+import com.gptplus18.app.ui.theme.ScheherazadeFontFamily
 
 // ═══ الألوان الأساسية الجديدة ═══
 private val AccentBlue = Color(0xFF4B7EFF)
@@ -208,7 +208,7 @@ fun ChatGptComposer(
                         },
                         enabled = true,
                         textStyle = TextStyle(
-                            fontFamily = LateefFontFamily,
+                            fontFamily = ScheherazadeFontFamily,
                             color = textColor,
                             fontSize = 14.sp,
                             lineHeight = 17.sp,
