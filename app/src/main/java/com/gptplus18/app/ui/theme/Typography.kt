@@ -59,8 +59,8 @@ private fun appStyle(
 ): TextStyle = TextStyle(
     fontFamily = ScheherazadeFontFamily,
     fontWeight = weight,
-    fontSize = (size - 2).sp,
-    lineHeight = (lineHeight + 1).sp,
+    fontSize = (size - 5).sp,
+    lineHeight = (lineHeight - 2).sp,
     letterSpacing = letterSpacing.sp,
     lineHeightStyle = ArabicLineHeightStyle,
     textAlign = TextAlign.Start,
@@ -112,13 +112,13 @@ val AppTypography = Typography(
         lineHeight = 28,
     ),
     titleMedium = appStyle(
-        weight = FontWeight.SemiBold,
+        weight = FontWeight.Bold,
         size = 16,
         lineHeight = 24,
         letterSpacing = 0.15f,
     ),
     titleSmall = appStyle(
-        weight = FontWeight.SemiBold,
+        weight = FontWeight.Bold,
         size = 14,
         lineHeight = 20,
         letterSpacing = 0.1f,
@@ -126,19 +126,19 @@ val AppTypography = Typography(
 
     // ═══════ BODY ═══════  (النصوص الأساسية)
     bodyLarge = appStyle(
-        weight = FontWeight.Medium,
+        weight = FontWeight.Bold,
         size = 16,
         lineHeight = 24,
         letterSpacing = 0.5f,
     ),
     bodyMedium = appStyle(
-        weight = FontWeight.Medium,
+        weight = FontWeight.Bold,
         size = 14,
         lineHeight = 20,
         letterSpacing = 0.25f,
     ),
     bodySmall = appStyle(
-        weight = FontWeight.Medium,
+        weight = FontWeight.Bold,
         size = 12,
         lineHeight = 16,
         letterSpacing = 0.4f,
@@ -146,19 +146,19 @@ val AppTypography = Typography(
 
     // ═══════ LABEL ═══════  (أزرار، chips, tags)
     labelLarge = appStyle(
-        weight = FontWeight.SemiBold,
+        weight = FontWeight.Bold,
         size = 14,
         lineHeight = 20,
         letterSpacing = 0.1f,
     ),
     labelMedium = appStyle(
-        weight = FontWeight.SemiBold,
+        weight = FontWeight.Bold,
         size = 12,
         lineHeight = 16,
         letterSpacing = 0.5f,
     ),
     labelSmall = appStyle(
-        weight = FontWeight.SemiBold,
+        weight = FontWeight.Bold,
         size = 11,
         lineHeight = 16,
         letterSpacing = 0.5f,
