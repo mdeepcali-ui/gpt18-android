@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.gptplus18.app.R
 import com.gptplus18.app.ui.screens.chat.components.RunButton
 import com.gptplus18.app.ui.screens.chat.components.SaveButton
@@ -73,6 +74,8 @@ internal fun CodeHeader(
                     text = stringResource(R.string.t_051),
                     color = TextPrimary,
                     fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    lineHeight = 24.sp,
                 )
             },
             navigationIcon = {
