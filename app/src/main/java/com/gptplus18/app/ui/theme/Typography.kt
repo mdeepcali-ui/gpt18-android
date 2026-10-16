@@ -59,7 +59,7 @@ private fun appStyle(
 ): TextStyle = TextStyle(
     fontFamily = LateefFontFamily,
     fontWeight = weight,
-    fontSize = (size + 2).sp,
+    fontSize = (size + 3).sp,
     lineHeight = (lineHeight + 3).sp,
     letterSpacing = letterSpacing.sp,
     lineHeightStyle = ArabicLineHeightStyle,
@@ -83,7 +83,7 @@ val AppTypography = Typography(
         lineHeight = 52,
     ),
     displaySmall = appStyle(
-        weight = FontWeight.SemiBold,
+        weight = FontWeight.Bold,
         size = 36,
         lineHeight = 44,
     ),
@@ -95,30 +95,30 @@ val AppTypography = Typography(
         lineHeight = 40,
     ),
     headlineMedium = appStyle(
-        weight = FontWeight.SemiBold,
+        weight = FontWeight.Bold,
         size = 28,
         lineHeight = 36,
     ),
     headlineSmall = appStyle(
-        weight = FontWeight.SemiBold,
+        weight = FontWeight.Bold,
         size = 24,
         lineHeight = 32,
     ),
 
     // ═══════ TITLE ═══════  (AppBar, عناوين ثانوية)
     titleLarge = appStyle(
-        weight = FontWeight.SemiBold,
+        weight = FontWeight.Bold,
         size = 22,
         lineHeight = 28,
     ),
     titleMedium = appStyle(
-        weight = FontWeight.Medium,
+        weight = FontWeight.SemiBold,
         size = 16,
         lineHeight = 24,
         letterSpacing = 0.15f,
     ),
     titleSmall = appStyle(
-        weight = FontWeight.Medium,
+        weight = FontWeight.SemiBold,
         size = 14,
         lineHeight = 20,
         letterSpacing = 0.1f,
@@ -126,19 +126,19 @@ val AppTypography = Typography(
 
     // ═══════ BODY ═══════  (النصوص الأساسية)
     bodyLarge = appStyle(
-        weight = FontWeight.Normal,
+        weight = FontWeight.Medium,
         size = 16,
         lineHeight = 24,
         letterSpacing = 0.5f,
     ),
     bodyMedium = appStyle(
-        weight = FontWeight.Normal,
+        weight = FontWeight.Medium,
         size = 14,
         lineHeight = 20,
         letterSpacing = 0.25f,
     ),
     bodySmall = appStyle(
-        weight = FontWeight.Normal,
+        weight = FontWeight.Medium,
         size = 12,
         lineHeight = 16,
         letterSpacing = 0.4f,
@@ -146,19 +146,19 @@ val AppTypography = Typography(
 
     // ═══════ LABEL ═══════  (أزرار، chips, tags)
     labelLarge = appStyle(
-        weight = FontWeight.Medium,
+        weight = FontWeight.SemiBold,
         size = 14,
         lineHeight = 20,
         letterSpacing = 0.1f,
     ),
     labelMedium = appStyle(
-        weight = FontWeight.Medium,
+        weight = FontWeight.SemiBold,
         size = 12,
         lineHeight = 16,
         letterSpacing = 0.5f,
     ),
     labelSmall = appStyle(
-        weight = FontWeight.Medium,
+        weight = FontWeight.SemiBold,
         size = 11,
         lineHeight = 16,
         letterSpacing = 0.5f,
