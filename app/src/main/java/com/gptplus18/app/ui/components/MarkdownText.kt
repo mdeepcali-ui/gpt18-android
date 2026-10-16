@@ -45,6 +45,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gptplus18.app.ui.theme.Accent
+import com.gptplus18.app.ui.theme.LocalAppColors
 import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.ui.theme.TextSecondary
 import androidx.compose.ui.res.stringResource
@@ -55,27 +56,51 @@ import androidx.compose.material.icons.outlined.Article
 // ألوان طبيعية (VSCode Dark+ / GitHub Dark)
 // ═══════════════════════════════════════════
 object CodeColors {
-    val Keyword = Color(0xFFC678DD)      // بنفسجي (مثل VS Code Dark+)
-    val String = Color(0xFF98C379)       // أخضر فاتح
-    val Comment = Color(0xFF7F848E)      // رمادي (أوضح)
-    val Number = Color(0xFFD19A66)       // برتقالي
-    val Function = Color(0xFF61AFEF)     // أزرق سماوي
-    val Type = Color(0xFFE5C07B)         // أصفر ذهبي
-    val Default = Color(0xFFD4D4D4)      // أبيض عادي
-    val Operator = Color(0xFF56B6C2)     // سيان
-    val KeywordBold = Color(0xFFC678DD)  // بنفسجي
+    // 🌙 Dark (VSCode Dark+)
+    val Keyword = Color(0xFFC678DD)
+    val String = Color(0xFF98C379)
+    val Comment = Color(0xFF7F848E)
+    val Number = Color(0xFFD19A66)
+    val Function = Color(0xFF61AFEF)
+    val Type = Color(0xFFE5C07B)
+    val Default = Color(0xFFD4D4D4)
+    val Operator = Color(0xFF56B6C2)
+    val KeywordBold = Color(0xFFC678DD)
+
+    // ☀️ Light (VSCode Light+)
+    val LightKeyword = Color(0xFFAF00DB)
+    val LightString = Color(0xFF22863A)
+    val LightComment = Color(0xFF6A737D)
+    val LightNumber = Color(0xFFB31D28)
+    val LightFunction = Color(0xFF005CC5)
+    val LightType = Color(0xFF6F42C1)
+    val LightDefault = Color(0xFF24292E)
+    val LightOperator = Color(0xFF005CC5)
+    val LightKeywordBold = Color(0xFFAF00DB)
 }
 
 object CodeBlockColors {
-    val Background = Color(0xFF0F1117)
-    val HeaderBg = Color(0xFF181A21)
-    val Border = Color(0xFF2A2D38)
+    // 🌙 Dark
+    val Background = Color(0xFF333333)      // ⭐ v18.9: رمادي موحّد
+    val HeaderBg = Color(0xFF2A2A2A)        // ⭐ v18.9: أغمق قليلاً
+    val Border = Color(0xFF444444)          // ⭐ v18.9: حدود واضحة
     val DotRed = Color(0xFFFF5F57)
     val DotYellow = Color(0xFFFFBD2E)
     val DotGreen = Color(0xFF28C840)
     val LangAccent = Color(0xFF7DD3FC)
-    val CopyBg = Color(0xFF1F2330)
+    val CopyBg = Color(0xFF3D3D3D)          // ⭐ v18.9: زر النسخ
     val Shadow = Color(0x33000000)
+
+    // ☀️ Light
+    val LightBackground = Color(0xFFF6F8FA)
+    val LightHeaderBg = Color(0xFFEAEEF3)
+    val LightBorder = Color(0xFFD0D7DE)
+    val LightDotRed = Color(0xFFFF5F57)
+    val LightDotYellow = Color(0xFFFFBD2E)
+    val LightDotGreen = Color(0xFF28C840)
+    val LightLangAccent = Color(0xFF0969DA)
+    val LightCopyBg = Color(0xFFDDE4EB)
+    val LightShadow = Color(0x14000000)
 }
 
 @Composable
@@ -118,10 +143,10 @@ fun MarkdownText(
                 }
                 is MdBlock.Heading -> {
                     val size = when (block.level) {
-                        1 -> fontSize + 9
-                        2 -> fontSize + 6
-                        3 -> fontSize + 4
-                        else -> fontSize + 2
+                        1 -> fontSize + 14
+                        2 -> fontSize + 10
+                        3 -> fontSize + 7
+                        else -> fontSize + 4
                     }
                     val topPad = when (block.level) {
                         1 -> 18.dp
@@ -154,7 +179,7 @@ fun MarkdownText(
                         )
                         Spacer(Modifier.width(10.dp))
                         Text(
-                            text = inlineMarkdown(block.content, textColor),
+                            text = inlineMarkdown(block.content, textColor, LocalAppColors.current.isLight),
                             color = textColor,
                             fontWeight = FontWeight.Bold,
                             fontSize = size.sp,
@@ -192,9 +217,10 @@ fun MarkdownText(
                             modifier = Modifier.padding(top = 5.dp, end = 10.dp),
                         )
                         Text(
-                            text = inlineMarkdown(block.content, textColor),
+                            text = inlineMarkdown(block.content, textColor, LocalAppColors.current.isLight),
                             color = textColor,
                             fontSize = fontSize.sp,
+                            fontWeight = FontWeight.Bold,
                             lineHeight = (fontSize + 9).sp,
                             modifier = Modifier.weight(1f),
                         )
@@ -210,13 +236,14 @@ fun MarkdownText(
                         text = block.num + ".",
                         color = Accent,
                         fontSize = fontSize.sp,
-                        fontWeight = FontWeight.Normal,
+                        fontWeight = FontWeight.Medium,
                         modifier = Modifier.padding(end = 10.dp),
                     )
                     Text(
-                        text = inlineMarkdown(block.content, textColor),
+                        text = inlineMarkdown(block.content, textColor, LocalAppColors.current.isLight),
                         color = textColor,
                         fontSize = fontSize.sp,
+                        fontWeight = FontWeight.Bold,
                         lineHeight = (fontSize + 9).sp,
                         modifier = Modifier.weight(1f),
                     )
@@ -261,7 +288,7 @@ fun MarkdownText(
                                     )
                                 }
                                 Text(
-                                    text = inlineMarkdown(block.content, TextSecondary),
+                                    text = inlineMarkdown(block.content, TextSecondary, LocalAppColors.current.isLight),
                                     color = TextSecondary,
                                     fontSize = (fontSize - 1).sp,
                                     lineHeight = (fontSize + 6).sp,
@@ -363,7 +390,7 @@ fun MarkdownText(
                         }
                         Spacer(Modifier.width(10.dp))
                         Text(
-                            text = inlineMarkdown(block.title, textColor),
+                            text = inlineMarkdown(block.title, textColor, LocalAppColors.current.isLight),
                             color = textColor,
                             fontWeight = FontWeight.Bold,
                             fontSize = (fontSize + 2).sp,
@@ -426,7 +453,7 @@ fun MarkdownText(
                                         )
                                     }
                                     Text(
-                                        text = inlineMarkdown(block.content, textColor),
+                                        text = inlineMarkdown(block.content, textColor, LocalAppColors.current.isLight),
                                         color = textColor,
                                         fontSize = (fontSize - 1).sp,
                                         lineHeight = (fontSize + 6).sp,
@@ -461,7 +488,7 @@ fun MarkdownText(
                         }
                     }
                     Text(
-                        text = inlineMarkdown(block.content, if (block.checked) TextSecondary else textColor),
+                        text = inlineMarkdown(block.content, if (block.checked) TextSecondary else textColor, LocalAppColors.current.isLight),
                         color = if (block.checked) TextSecondary else textColor,
                         fontSize = fontSize.sp,
                         lineHeight = (fontSize + 9).sp,
@@ -475,13 +502,14 @@ fun MarkdownText(
                     Spacer(Modifier.height(4.dp))
                 }
                 is MdBlock.Paragraph -> Text(
-                    text = inlineMarkdown(block.content, textColor),
+                    text = inlineMarkdown(block.content, textColor, LocalAppColors.current.isLight),
                     color = textColor,
                     fontSize = fontSize.sp,
-                    lineHeight = (fontSize + 8).sp,
+                    fontWeight = FontWeight.Medium,    // ⭐ v5.0.5: كان Bold
+                    lineHeight = (fontSize + 6).sp,    // ⭐ v5.0.5: كان +8
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                        .padding(vertical = 5.dp),     // ⭐ v5.0.5: أوضح
                 )
             }
         }
@@ -575,6 +603,25 @@ private fun CodeBlockView(lang: String, code: String) {
     val clip = LocalClipboardManager.current
     val ctx = LocalContext.current
     val scrollState = rememberScrollState()
+    val isLight = LocalAppColors.current.isLight
+
+    // ⭐ طي الكود الطويل
+    val MAX_LINES = 20
+    val allLines = code.lines()
+    val totalLines = allLines.size
+    val shouldCollapse = totalLines > MAX_LINES
+    var expanded by remember { mutableStateOf(false) }
+    val displayCode = if (shouldCollapse && !expanded) {
+        allLines.take(MAX_LINES).joinToString("\n")
+    } else code
+
+    // ☀️🌙 ألوان ديناميكية
+    val bgColor = if (isLight) CodeBlockColors.LightBackground else CodeBlockColors.Background
+    val headerBgColor = if (isLight) CodeBlockColors.LightHeaderBg else CodeBlockColors.HeaderBg
+    val borderColor = if (isLight) CodeBlockColors.LightBorder else CodeBlockColors.Border
+    val copyBgColor = if (isLight) CodeBlockColors.LightCopyBg else CodeBlockColors.CopyBg
+    val langAccentColor = if (isLight) CodeBlockColors.LightLangAccent else CodeBlockColors.LangAccent
+
     val langDisplay = when (lang.lowercase()) {
         "python", "py" -> "Python"
         "javascript", "js" -> "JavaScript"
@@ -627,58 +674,24 @@ private fun CodeBlockView(lang: String, code: String) {
                 .fillMaxWidth()
                 .padding(vertical = 4.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(CodeBlockColors.Background)
-                .border(1.dp, CodeBlockColors.Border, RoundedCornerShape(12.dp)),
+                .background(bgColor)
+                .border(1.dp, borderColor, RoundedCornerShape(12.dp)),
         ) {
             Column {
                 // ── Header ──
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(CodeBlockColors.HeaderBg)
-                        .padding(start = 14.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
+                        .background(headerBgColor)
+                        .padding(start = 12.dp, end = 12.dp, top = 9.dp, bottom = 9.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    // Trafic-light dots
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(11.dp).clip(CircleShape).background(CodeBlockColors.DotRed))
-                        Spacer(Modifier.width(6.dp))
-                        Box(Modifier.size(11.dp).clip(CircleShape).background(CodeBlockColors.DotYellow))
-                        Spacer(Modifier.width(6.dp))
-                        Box(Modifier.size(11.dp).clip(CircleShape).background(CodeBlockColors.DotGreen))
-                    }
-                    Spacer(Modifier.width(16.dp))
-                    // Language badge
+                    // ⭐ v9.1: زر النسخ على اليسار (عكس السابق)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(CodeBlockColors.LangAccent.copy(alpha = 0.12f))
-                            .padding(horizontal = 8.dp, vertical = 3.dp),
-                    ) {
-                        Text(
-                            text = langIcon,
-                            fontSize = 9.7.sp,
-                            fontFamily = FontFamily.Monospace,
-                            color = CodeBlockColors.LangAccent,
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = langDisplay,
-                            color = CodeBlockColors.LangAccent,
-                            fontSize = 9.7.sp,
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.SemiBold,
-                            letterSpacing = 0.3.sp,
-                        )
-                    }
-                    Spacer(Modifier.weight(1f))
-                    // Copy button
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(CodeBlockColors.CopyBg)
+                            .clip(RoundedCornerShape(7.dp))
+                            .background(copyBgColor)
                             .clickable {
                                 clip.setText(AnnotatedString(code))
                                 android.widget.Toast.makeText(
@@ -703,6 +716,38 @@ private fun CodeBlockView(lang: String, code: String) {
                             fontWeight = FontWeight.Medium,
                         )
                     }
+                    Spacer(Modifier.weight(1f))
+                    // ⭐ v9.1: شارة اللغة على اليمين + نقطة أنيقة
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(7.dp))
+                            .background(langAccentColor.copy(alpha = 0.1f))
+                            .padding(horizontal = 9.dp, vertical = 4.dp),
+                    ) {
+                        Box(
+                            Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(langAccentColor)
+                        )
+                        Spacer(Modifier.width(7.dp))
+                        Text(
+                            text = langIcon,
+                            fontSize = 10.sp,
+                            fontFamily = FontFamily.Monospace,
+                            color = langAccentColor,
+                        )
+                        Spacer(Modifier.width(5.dp))
+                        Text(
+                            text = langDisplay,
+                            color = langAccentColor,
+                            fontSize = 10.sp,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 0.3.sp,
+                        )
+                    }
                 }
                 // ── Body ──
                 Box(
@@ -712,13 +757,34 @@ private fun CodeBlockView(lang: String, code: String) {
                         .padding(horizontal = 14.dp, vertical = 14.dp),
                 ) {
                     Text(
-                        text = highlightSyntax(code, lang),
+                        text = highlightSyntax(displayCode, lang, isLight),
                         fontFamily = FontFamily.Monospace,
                         fontSize = 11.4.sp,
                         lineHeight = 19.sp,
                         softWrap = false,
                         style = TextStyle(textDirection = TextDirection.Ltr),
                     )
+                }
+                // ── Footer طي ──
+                if (shouldCollapse) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(headerBgColor)
+                            .clickable { expanded = !expanded }
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = if (expanded)
+                                "▲ طيّ الكود"
+                            else
+                                "▼ عرض الكود كامل ($totalLines سطر)",
+                            color = langAccentColor,
+                            fontSize = 10.6.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
                 }
             }
         }
@@ -727,66 +793,174 @@ private fun CodeBlockView(lang: String, code: String) {
 
 @Composable
 private fun TableView(
-    headers: List<String>,
-    rows: List<List<String>>,
+    headersIn: List<String>,
+    rowsIn: List<List<String>>,
     fontSize: Int,
 ) {
-    val cellSize = (fontSize - 2).sp
-    val headerSize = (fontSize - 2).sp
-    Column(
+    val cellSize = (fontSize - 1).sp
+    val headerSize = (fontSize - 1).sp
+    val isLight = LocalAppColors.current.isLight
+
+    // ═══════════════════════════════════════════════════════
+    // ⭐ v5.0.8: نحذف الأعمدة الفاضية قبل العرض
+    // ═══════════════════════════════════════════════════════
+    val totalCols = maxOf(headersIn.size, rowsIn.maxOfOrNull { it.size } ?: 0)
+
+    // أي عمود فيه محتوى في أي صف (أو في الهيدر)؟
+    val keepCol = BooleanArray(totalCols) { false }
+    for (i in 0 until totalCols) {
+        val h = headersIn.getOrNull(i)?.trim().orEmpty()
+        if (h.isNotEmpty()) { keepCol[i] = true; continue }
+        for (row in rowsIn) {
+            val c = row.getOrNull(i)?.trim().orEmpty()
+            if (c.isNotEmpty()) { keepCol[i] = true; break }
+        }
+    }
+
+    // نبني القوائم الجديدة بدون الأعمدة الفاضية
+    val keepIdx = (0 until totalCols).filter { keepCol[it] }
+
+    // إذا كلها فاضية → لا نعرض الجدول
+    if (keepIdx.isEmpty()) return
+
+    val headers = keepIdx.map { headersIn.getOrNull(it).orEmpty() }
+    val rows = rowsIn.map { row ->
+        keepIdx.map { row.getOrNull(it).orEmpty() }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // الألوان
+    // ═══════════════════════════════════════════════════════
+    val bgColor       = if (isLight) Color(0xFFFAFAFC) else Color(0xFF333333)  // ⭐ v18.9
+    val headerBg      = if (isLight) Color(0x1A6B4FDB) else Color(0xFF2A2A2A)  // ⭐ v18.9
+    val rowAltBg      = if (isLight) Color(0xFFF4F4F7) else Color(0xFF3A3A3A)  // ⭐ v18.9
+    val borderCol     = if (isLight) Color(0xFFC8CCD4) else Color(0xFF444444)  // ⭐ v18.9
+    val cellBorderCol = if (isLight) Color(0xFFD4D8E0) else Color(0xFF3D3D3D)  // ⭐ v18.9
+
+    val hScroll = rememberScrollState()
+
+    // نحسب عرض كل عمود حسب محتواه الحقيقي
+    val widths = headers.indices.map { i -> _columnWidth(headers, rows, i) }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, TextSecondary.copy(alpha = 0.25f), RoundedCornerShape(10.dp))
-            .background(Color(0xFF0F0F12)),
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, borderCol, RoundedCornerShape(12.dp))
+            .background(bgColor)
+            .horizontalScroll(hScroll),
     ) {
-        // Header row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Accent.copy(alpha = 0.12f))
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-        ) {
-            headers.forEachIndexed { i, h ->
-                Text(
-                    text = inlineMarkdown(h, Accent),
-                    color = Accent,
-                    fontSize = headerSize,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = if (i < headers.size - 1) 8.dp else 0.dp),
-                )
-            }
-        }
-        Box(Modifier.fillMaxWidth().height(1.dp).background(TextSecondary.copy(alpha = 0.2f)))
-        // Data rows
-        rows.forEachIndexed { ri, row ->
+        Column {
+            // ═══ Header Row ═══
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(if (ri % 2 == 1) Color(0xFF141418) else Color.Transparent)
-                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                    .height(androidx.compose.foundation.layout.IntrinsicSize.Min)
+                    .background(headerBg)
+                    .padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                row.forEachIndexed { i, cell ->
+                headers.forEachIndexed { i, h ->
                     Text(
-                        text = inlineMarkdown(cell, TextPrimary),
-                        color = TextPrimary,
-                        fontSize = cellSize,
+                        text = inlineMarkdown(h, Accent, isLight),
+                        color = Accent,
+                        fontSize = headerSize,
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = (fontSize + 6).sp,
                         modifier = Modifier
-                            .weight(1f)
-                            .padding(end = if (i < row.size - 1) 8.dp else 0.dp),
+                            .width(widths[i])
+                            .padding(vertical = 11.dp)
+                            .padding(end = if (i < headers.size - 1) 14.dp else 0.dp),
                     )
+                    if (i < headers.size - 1) {
+                        Box(Modifier.fillMaxHeight().width(1.dp).background(cellBorderCol))
+                    }
                 }
             }
-            if (ri < rows.size - 1) {
-                Box(Modifier.fillMaxWidth().height(1.dp).background(TextSecondary.copy(alpha = 0.1f)))
+
+            // ═══ فاصل الهيدر ═══
+            Box(Modifier.fillMaxWidth().height(1.5.dp).background(borderCol))
+
+            // ═══ Data Rows ═══
+            rows.forEachIndexed { ri, row ->
+                Row(
+                    modifier = Modifier
+                        .height(androidx.compose.foundation.layout.IntrinsicSize.Min)
+                        .background(if (ri % 2 == 1) rowAltBg else Color.Transparent)
+                        .padding(horizontal = 14.dp),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    row.forEachIndexed { i, cell ->
+                        Text(
+                            text = inlineMarkdown(cell, TextPrimary, isLight),
+                            color = TextPrimary,
+                            fontSize = cellSize,
+                            lineHeight = (fontSize + 6).sp,
+                            modifier = Modifier
+                                .width(widths[i])
+                                .padding(vertical = 10.dp)
+                                .padding(end = if (i < row.size - 1) 14.dp else 0.dp),
+                        )
+                        if (i < row.size - 1) {
+                            Box(Modifier.fillMaxHeight().width(1.dp).background(cellBorderCol))
+                        }
+                    }
+                }
+                if (ri < rows.size - 1) {
+                    Box(Modifier.fillMaxWidth().height(1.dp).background(cellBorderCol))
+                }
             }
         }
     }
 }
 
-private fun highlightSyntax(code: String, lang: String): AnnotatedString {
+/**
+ * ⭐ v5.0.5: يحسب عرض كل عمود حسب أطول محتوى فيه.
+ * - الحد الأدنى: 80dp
+ * - الحد الأقصى: 220dp
+ */
+private fun _columnWidth(
+    headers: List<String>,
+    rows: List<List<String>>,
+    colIndex: Int,
+): androidx.compose.ui.unit.Dp {
+    // ⭐ v5.0.6: Arabic-aware width
+    fun widthFor(s: String?): Int {
+        if (s.isNullOrBlank()) return 0
+        var w = 0
+        for (c in s) {
+            w += when {
+                c in '\u0600'..'\u06FF' -> 13      // عربي
+                c in '\u0750'..'\u077F' -> 13      // عربي موسّع
+                c in '\u4E00'..'\u9FFF' -> 15      // صيني/ياباني
+                c.code > 0x1F000 -> 16              // إيموجي
+                c.isUpperCase() -> 9
+                c == ' ' -> 5
+                else -> 8
+            }
+        }
+        return w
+    }
+
+    val headerW = widthFor(headers.getOrNull(colIndex))
+    val rowW = rows.maxOfOrNull { widthFor(it.getOrNull(colIndex)) } ?: 0
+    val maxW = maxOf(headerW, rowW)
+
+    val dp = maxW.dp
+    return dp.coerceIn(70.dp, 280.dp)
+}
+
+
+private fun highlightSyntax(code: String, lang: String, isLight: Boolean): AnnotatedString {
+    // ☀️🌙 ألوان ديناميكية
+    val cKeyword = if (isLight) CodeColors.LightKeyword else CodeColors.Keyword
+    val cString = if (isLight) CodeColors.LightString else CodeColors.String
+    val cComment = if (isLight) CodeColors.LightComment else CodeColors.Comment
+    val cNumber = if (isLight) CodeColors.LightNumber else CodeColors.Number
+    val cFunction = if (isLight) CodeColors.LightFunction else CodeColors.Function
+    val cType = if (isLight) CodeColors.LightType else CodeColors.Type
+    val cDefault = if (isLight) CodeColors.LightDefault else CodeColors.Default
+    val cOperator = if (isLight) CodeColors.LightOperator else CodeColors.Operator
+
     return buildAnnotatedString {
         val keywords = setOf(
             "fun", "val", "var", "class", "object", "interface", "enum", "data",
@@ -819,7 +993,7 @@ private fun highlightSyntax(code: String, lang: String): AnnotatedString {
                     (code[i] == '#' && lang.lowercase() in listOf("python", "py", "sh", "bash", "yaml", "yml"))
                 )) {
                 val end = code.indexOf('\n', i).let { if (it == -1) code.length else it }
-                withStyle(SpanStyle(color = CodeColors.Comment, fontStyle = FontStyle.Italic)) {
+                withStyle(SpanStyle(color = cComment, fontStyle = FontStyle.Italic)) {
                     append(code.substring(i, end))
                 }
                 i = end
@@ -829,7 +1003,7 @@ private fun highlightSyntax(code: String, lang: String): AnnotatedString {
             // Block comment
             if (i + 1 < code.length && code[i] == '/' && code[i + 1] == '*') {
                 val end = code.indexOf("*/", i + 2).let { if (it == -1) code.length else it + 2 }
-                withStyle(SpanStyle(color = CodeColors.Comment, fontStyle = FontStyle.Italic)) {
+                withStyle(SpanStyle(color = cComment, fontStyle = FontStyle.Italic)) {
                     append(code.substring(i, end))
                 }
                 i = end
@@ -848,7 +1022,7 @@ private fun highlightSyntax(code: String, lang: String): AnnotatedString {
                     if (code[j] == '\n' && quote != '`') break
                     j++
                 }
-                withStyle(SpanStyle(color = CodeColors.String)) {
+                withStyle(SpanStyle(color = cString)) {
                     append(code.substring(i, j))
                 }
                 i = j
@@ -859,7 +1033,7 @@ private fun highlightSyntax(code: String, lang: String): AnnotatedString {
             if (c.isDigit()) {
                 var j = i
                 while (j < code.length && (code[j].isDigit() || code[j] == '.' || code[j] == '_')) j++
-                withStyle(SpanStyle(color = CodeColors.Number)) {
+                withStyle(SpanStyle(color = cNumber)) {
                     append(code.substring(i, j))
                 }
                 i = j
@@ -872,11 +1046,11 @@ private fun highlightSyntax(code: String, lang: String): AnnotatedString {
                 while (j < code.length && (code[j].isLetterOrDigit() || code[j] == '_')) j++
                 val word = code.substring(i, j)
                 val color = when {
-                    keywords.contains(word) -> CodeColors.Keyword
-                    types.contains(word) -> CodeColors.Type
-                    j < code.length && code[j] == '(' -> CodeColors.Function
-                    word.firstOrNull()?.isUpperCase() == true && word.length > 1 -> CodeColors.Type
-                    else -> CodeColors.Default
+                    keywords.contains(word) -> cKeyword
+                    types.contains(word) -> cType
+                    j < code.length && code[j] == '(' -> cFunction
+                    word.firstOrNull()?.isUpperCase() == true && word.length > 1 -> cType
+                    else -> cDefault
                 }
                 withStyle(
                     SpanStyle(
@@ -893,13 +1067,13 @@ private fun highlightSyntax(code: String, lang: String): AnnotatedString {
             // Operator
             when (c) {
                 '+', '-', '*', '/', '%', '=', '<', '>', '!', '&', '|', '^', '~', '?' -> {
-                    withStyle(SpanStyle(color = CodeColors.Operator)) { append(c) }
+                    withStyle(SpanStyle(color = cOperator)) { append(c) }
                 }
                 '(', ')', '[', ']', '{', '}', ',', ';', ':', '.' -> {
-                    withStyle(SpanStyle(color = CodeColors.Default)) { append(c) }
+                    withStyle(SpanStyle(color = cDefault)) { append(c) }
                 }
                 else -> {
-                    withStyle(SpanStyle(color = CodeColors.Default)) { append(c) }
+                    withStyle(SpanStyle(color = cDefault)) { append(c) }
                 }
             }
             i++
@@ -1323,7 +1497,7 @@ private fun beautifyMath(text: String): String {
     return sb.toString()
 }
 
-private fun inlineMarkdown(textRaw: String, baseColor: Color): AnnotatedString {
+private fun inlineMarkdown(textRaw: String, baseColor: Color, isLight: Boolean = false): AnnotatedString {
     if (textRaw.contains("[[حساس_")) {
         return SensitiveMarkers.apply(textRaw, baseColor)
     }
@@ -1334,7 +1508,7 @@ private fun inlineMarkdown(textRaw: String, baseColor: Color): AnnotatedString {
             if (i + 1 < text.length && text[i] == '*' && text[i + 1] == '*') {
                 val end = text.indexOf("**", i + 2)
                 if (end > 0) {
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = baseColor)) {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = Color(0xFF5EBF7A))) {
                         append(text.substring(i + 2, end))
                     }
                     i = end + 2
@@ -1344,7 +1518,7 @@ private fun inlineMarkdown(textRaw: String, baseColor: Color): AnnotatedString {
             if (i + 1 < text.length && text[i] == '_' && text[i + 1] == '_') {
                 val end = text.indexOf("__", i + 2)
                 if (end > 0) {
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = baseColor)) {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = Color(0xFF5EBF7A))) {
                         append(text.substring(i + 2, end))
                     }
                     i = end + 2
@@ -1430,14 +1604,46 @@ private fun inlineMarkdown(textRaw: String, baseColor: Color): AnnotatedString {
                     continue
                 }
             }
+            // ⭐ v5.0.6: auto-linkify روابط https:// و http://
+            if (i + 7 < text.length &&
+                (text.startsWith("https://", i) || text.startsWith("http://", i))
+            ) {
+                val endMatch = Regex("^https?://[^\\s\\)\\]\\}\u060C\u061B\u061F،؛؟]+")
+                    .find(text.substring(i))
+                if (endMatch != null) {
+                    val url = endMatch.value
+                    try {
+                        withLink(
+                            LinkAnnotation.Url(
+                                url = url,
+                                styles = TextLinkStyles(
+                                    style = SpanStyle(
+                                        color = Color(0xFF4A9EFF),
+                                        textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+                                    )
+                                )
+                            )
+                        ) {
+                            append(url)
+                        }
+                    } catch (_: Throwable) {
+                        withStyle(SpanStyle(color = Color(0xFF4A9EFF))) { append(url) }
+                    }
+                    i += url.length
+                    continue
+                }
+            }
             if (text[i] == '`') {
                 val end = text.indexOf('`', i + 1)
                 if (end > i + 1) {
+                    // ⭐ v5.0.6: inline code → أحمر
+                    val _inlineCodeColor = if (isLight) Color(0xFFDC2626) else Color(0xFFFF6B6B)
+                    val _inlineCodeBg = if (isLight) Color(0xFFFEE2E2) else Color(0xFF2A1616)
                     withStyle(
                         SpanStyle(
                             fontFamily = FontFamily.Monospace,
-                            color = Color(0xFFD8B4FE),
-                            background = Color(0xFF1E1B2E),
+                            color = _inlineCodeColor,
+                            background = _inlineCodeBg,
                             fontSize = (13).sp,
                         ),
                     ) {

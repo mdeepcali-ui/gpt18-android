@@ -1,6 +1,13 @@
 package com.gptplus18.app.ui.screens.admin
 
 import androidx.compose.foundation.background
+import androidx.compose.material.icons.filled.CardGiftcard
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.border
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +17,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonOff
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
@@ -97,21 +108,30 @@ fun AdminScreen(vm: AdminViewModel = hiltViewModel()) {
             return@Scaffold
         }
         Column(Modifier.fillMaxSize().padding(padding)) {
-            TabRow(
-                selectedTabIndex = currentTab.ordinal,
-                containerColor = BgSecondary,
-                contentColor = Accent,
+            // ⭐ v2.4: Segmented Control احترافي
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(BgSecondary)
+                    .border(1.dp, LocalAppColors.current.surfaceVariant, RoundedCornerShape(14.dp))
+                    .padding(4.dp),
             ) {
-                Tab(
-                    selected = currentTab == AdminTab.USERS,
-                    onClick = { currentTab = AdminTab.USERS },
-                    text = { Text(stringResource(R.string.t_018)) },
-                )
-                Tab(
-                    selected = currentTab == AdminTab.NOTIFICATIONS,
-                    onClick = { currentTab = AdminTab.NOTIFICATIONS },
-                    text = { Text(stringResource(R.string.t_019)) },
-                )
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    AdminTabButton(
+                        label = stringResource(R.string.t_018),
+                        selected = currentTab == AdminTab.USERS,
+                        modifier = Modifier.weight(1f),
+                        onClick = { currentTab = AdminTab.USERS },
+                    )
+                    AdminTabButton(
+                        label = stringResource(R.string.t_019),
+                        selected = currentTab == AdminTab.NOTIFICATIONS,
+                        modifier = Modifier.weight(1f),
+                        onClick = { currentTab = AdminTab.NOTIFICATIONS },
+                    )
+                }
             }
             when (currentTab) {
                 AdminTab.USERS -> UsersTab(
@@ -170,18 +190,46 @@ private fun UsersTab(
             Text(stringResource(R.string.t_020), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatCard(stringResource(R.string.t_102), state.stats.total, Color(0xFF93E0FF), Modifier.weight(1f))
-                StatCard(stringResource(R.string.t_083), state.stats.subscribed, Success, Modifier.weight(1f))
+                StatCard(
+                    label = stringResource(R.string.t_102),
+                    value = state.stats.total,
+                    color = Color(0xFF3B82F6),
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.People,
+                )
+                StatCard(
+                    label = stringResource(R.string.t_083),
+                    value = state.stats.subscribed,
+                    color = Color(0xFF10B981),
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.CheckCircle,
+                )
             }
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatCard(stringResource(R.string.t_103), state.stats.trial, Warning, Modifier.weight(1f))
-                StatCard(stringResource(R.string.t_104), state.stats.free, TextSecondary, Modifier.weight(1f))
+                StatCard(
+                    label = stringResource(R.string.t_103),
+                    value = state.stats.trial,
+                    color = Color(0xFFFFA726),
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.Timer,
+                )
+                StatCard(
+                    label = stringResource(R.string.t_104),
+                    value = state.stats.free,
+                    color = Color(0xFF6B7280),
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.Person,
+                )
             }
         }
         item {
             Spacer(Modifier.height(8.dp))
-            Text(stringResource(R.string.t_021), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.CardGiftcard, null, tint = Color(0xFF3B82F6), modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.t_021), color = Color(0xFF3B82F6), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            }
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = grantEmail,
@@ -197,16 +245,21 @@ private fun UsersTab(
                 PlanChip("سنوي $220", grantPlan == "year", modifier = Modifier.weight(1f)) { onGrantPlanChange("year") }
             }
             Spacer(Modifier.height(8.dp))
-            Button(
+            AdminButton(
+                label = stringResource(R.string.t_023),
+                icon = Icons.Default.CardGiftcard,
+                color = Color(0xFF3B82F6),
+                modifier = Modifier.fillMaxWidth(),
                 onClick = { vm.grant(grantEmail, grantPlan); onGrantEmailChange("") },
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Accent),
-                shape = RoundedCornerShape(10.dp),
-            ) { Text(stringResource(R.string.t_023), color = BgPrimary, fontWeight = FontWeight.Bold) }
+            )
         }
         item {
             Spacer(Modifier.height(8.dp))
-            Text(stringResource(R.string.t_024), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Settings, null, tint = Color(0xFF3B82F6), modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.t_024), color = Color(0xFF3B82F6), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            }
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = actionEmail,
@@ -217,19 +270,21 @@ private fun UsersTab(
                 colors = adminFieldColors(),
             )
             Spacer(Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                AdminButton(
+                    label = stringResource(R.string.t_025),
+                    icon = Icons.Default.Timer,
+                    color = Color(0xFFFFA726),
+                    modifier = Modifier.weight(1f),
                     onClick = { vm.resetTrial(actionEmail) },
-                    modifier = Modifier.weight(1f).height(44.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Warning),
-                    shape = RoundedCornerShape(10.dp),
-                ) { Text(stringResource(R.string.t_025), color = BgPrimary, fontWeight = FontWeight.Bold, fontSize = 10.6.sp) }
-                Button(
+                )
+                AdminButton(
+                    label = stringResource(R.string.t_026),
+                    icon = Icons.Default.PersonOff,
+                    color = Color(0xFFEF4444),
+                    modifier = Modifier.weight(1f),
                     onClick = { vm.revoke(actionEmail) },
-                    modifier = Modifier.weight(1f).height(44.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Error),
-                    shape = RoundedCornerShape(10.dp),
-                ) { Text(stringResource(R.string.t_026), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 10.6.sp) }
+                )
             }
         }
         item {
@@ -289,9 +344,27 @@ private fun NotificationsTab(
             Text(stringResource(R.string.t_028), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatCard(stringResource(R.string.t_109), state.notifStats.tokensCount, Color(0xFF93E0FF), Modifier.weight(1f))
-                StatCard(stringResource(R.string.t_110), state.notifStats.usersCount, Success, Modifier.weight(1f))
-                StatCard(stringResource(R.string.t_111), state.notifStats.sentCount, Accent, Modifier.weight(1f))
+                StatCard(
+                    label = stringResource(R.string.t_109),
+                    value = state.notifStats.tokensCount,
+                    color = Color(0xFF3B82F6),
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.Notifications,
+                )
+                StatCard(
+                    label = stringResource(R.string.t_110),
+                    value = state.notifStats.usersCount,
+                    color = Color(0xFF10B981),
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.People,
+                )
+                StatCard(
+                    label = stringResource(R.string.t_111),
+                    value = state.notifStats.sentCount,
+                    color = Color(0xFF3B82F6),
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.Send,
+                )
             }
         }
         item {
@@ -323,24 +396,17 @@ private fun NotificationsTab(
                 colors = adminFieldColors(),
             )
             Spacer(Modifier.height(8.dp))
-            Button(
+            AdminButton(
+                label = stringResource(R.string.t_029),
+                icon = Icons.Default.Campaign,
+                color = Color(0xFF3B82F6),
+                modifier = Modifier.fillMaxWidth(),
+                loading = state.isSendingNotif,
                 onClick = {
                     vm.broadcast(broadcastTitle, broadcastBody)
                     onBroadcastTitleChange(""); onBroadcastBodyChange("")
                 },
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Warning),
-                shape = RoundedCornerShape(10.dp),
-                enabled = !state.isSendingNotif,
-            ) {
-                if (state.isSendingNotif) {
-                    CircularProgressIndicator(color = BgPrimary, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                } else {
-                    Icon(Icons.Default.Campaign, null, tint = BgPrimary, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.t_029), color = BgPrimary, fontWeight = FontWeight.Bold)
-                }
-            }
+            )
         }
         item {
             Spacer(Modifier.height(8.dp))
@@ -377,7 +443,12 @@ private fun NotificationsTab(
                 colors = adminFieldColors(),
             )
             Spacer(Modifier.height(8.dp))
-            Button(
+            AdminButton(
+                label = stringResource(R.string.t_035),
+                icon = Icons.Default.Send,
+                color = Color(0xFF3B82F6),
+                modifier = Modifier.fillMaxWidth(),
+                loading = state.isSendingNotif,
                 onClick = {
                     val uid = notifUid.trim().toIntOrNull()
                     if (uid != null) {
@@ -385,15 +456,7 @@ private fun NotificationsTab(
                         onNotifUidChange(""); onNotifTitleChange(""); onNotifBodyChange("")
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Accent),
-                shape = RoundedCornerShape(10.dp),
-                enabled = !state.isSendingNotif,
-            ) {
-                Icon(Icons.Default.Send, null, tint = BgPrimary, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.t_035), color = BgPrimary, fontWeight = FontWeight.Bold)
-            }
+            )
         }
         item {
             Spacer(Modifier.height(8.dp))
@@ -464,19 +527,59 @@ private fun NotifLogRow(event: String, title: String, uid: Int, sentAt: Double) 
 }
 
 @Composable
-private fun StatCard(label: String, value: Int, color: Color, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = BgSecondary),
-        shape = RoundedCornerShape(12.dp),
+private fun StatCard(
+    label: String,
+    value: Int,
+    color: Color,
+    modifier: Modifier = Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+) {
+    val colors = LocalAppColors.current
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(colors.surface)
+            .border(1.dp, color.copy(alpha = 0.15f), RoundedCornerShape(16.dp))
+            .padding(14.dp),
     ) {
-        Column(
-            Modifier.fillMaxWidth().padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text("$value", color = color, fontSize = 21.1.sp, fontWeight = FontWeight.Bold)
-            Text(label, color = TextSecondary, fontSize = 10.6.sp,
-                modifier = Modifier.padding(top = 4.dp))
+        Column(Modifier.fillMaxWidth()) {
+            // ═══ Icon + Label ═══
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (icon != null) {
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(color.copy(alpha = 0.12f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            icon,
+                            contentDescription = null,
+                            tint = color,
+                            modifier = Modifier.size(15.dp),
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                }
+                Text(
+                    label,
+                    color = TextSecondary,
+                    fontSize = 10.5.sp,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            // ═══ Value ═══
+            Text(
+                "$value",
+                color = color,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+            )
         }
     }
 }
@@ -488,20 +591,27 @@ private fun PlanChip(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    Card(
-        onClick = onClick,
-        colors = CardDefaults.cardColors(
-            containerColor = if (active) Accent else BgTertiary,
-        ),
-        shape = RoundedCornerShape(20.dp),
-        modifier = modifier,
+    val colors = LocalAppColors.current
+    val blue = Color(0xFF3B82F6)
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (active) blue.copy(alpha = 0.12f) else colors.surface)
+            .border(
+                width = if (active) 1.5.dp else 1.dp,
+                color = if (active) blue else colors.surfaceVariant,
+                shape = RoundedCornerShape(12.dp),
+            )
+            .clickable { onClick() }
+            .padding(vertical = 12.dp),
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             label,
-            color = if (active) BgPrimary else TextSecondary,
-            fontSize = 11.4.sp,
-            fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
-            modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+            color = if (active) blue else TextSecondary,
+            fontSize = 12.sp,
+            fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
             textAlign = TextAlign.Center,
         )
     }
@@ -583,17 +693,32 @@ private fun UserRow(u: AdminUser) {
 
 @Composable
 private fun InfoCard(text: String, success: Boolean) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (success) Success.copy(alpha = 0.15f) else Error.copy(alpha = 0.15f),
-        ),
-        shape = RoundedCornerShape(10.dp),
+    val colors = LocalAppColors.current
+    val accent = if (success) Color(0xFF10B981) else Color(0xFFEF4444)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(accent.copy(alpha = 0.10f))
+            .border(1.dp, accent.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+            .padding(14.dp),
     ) {
-        Text(text,
-            color = if (success) Success else Error,
-            fontSize = 11.4.sp,
-            modifier = Modifier.padding(12.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                if (success) Icons.Default.CheckCircle else Icons.Default.Warning,
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(Modifier.width(10.dp))
+            Text(
+                text,
+                color = accent,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+            )
+        }
     }
 }
 
@@ -605,3 +730,86 @@ private fun adminFieldColors() = OutlinedTextFieldDefaults.colors(
     unfocusedBorderColor = TextSecondary.copy(alpha = 0.3f),
     cursorColor = Accent,
 )
+
+@Composable
+private fun AdminTabButton(
+    label: String,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    val colors = LocalAppColors.current
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (selected) Color(0xFF3B82F6) else Color.Transparent)
+            .clickable { onClick() }
+            .padding(vertical = 10.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            label,
+            color = if (selected) Color.White else colors.textSecondary,
+            fontSize = 12.5.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ⭐ v2.4: زر موحّد — Outlined أنيق
+// ═══════════════════════════════════════════════════════════════
+@Composable
+private fun AdminButton(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    color: Color,
+    modifier: Modifier = Modifier,
+    loading: Boolean = false,
+    onClick: () -> Unit,
+) {
+    val colors = LocalAppColors.current
+
+    Box(
+        modifier = modifier
+            .height(48.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(color.copy(alpha = 0.08f))
+            .border(
+                width = 1.dp,
+                color = color.copy(alpha = 0.35f),
+                shape = RoundedCornerShape(12.dp),
+            )
+            .clickable(enabled = !loading) { onClick() },
+        contentAlignment = Alignment.Center,
+    ) {
+        if (loading) {
+            CircularProgressIndicator(
+                color = color,
+                modifier = Modifier.size(20.dp),
+                strokeWidth = 2.dp,
+            )
+        } else {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(17.dp),
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    label,
+                    color = color,
+                    fontSize = 12.5.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+    }
+}

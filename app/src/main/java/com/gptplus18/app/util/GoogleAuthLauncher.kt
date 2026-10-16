@@ -20,7 +20,7 @@ import android.util.Base64
 
 /**
  * Google Sign-In عبر Credential Manager
- * يعرض Bottom Sheet الأصلي بكل حسابات الجهاز (نفس أسلوب DeepSeek/ChatGPT)
+ * يعرض Bottom Sheet الأصلي بكل حسابات الجهاز
  */
 object GoogleAuthLauncher {
 

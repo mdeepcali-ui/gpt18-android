@@ -2,6 +2,7 @@ package com.gptplus18.app.ui.screens.subscription
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gptplus18.app.data.models.MySubscriptionResponse
 import com.gptplus18.app.data.models.Plan
 import com.gptplus18.app.data.models.UserStatus
 import com.gptplus18.app.data.repository.SubscriptionRepository
@@ -25,6 +26,9 @@ data class SubscriptionState(
     val isVerifying: Boolean = false,
     val successMessage: String? = null,
     val errorMessage: String? = null,
+    // ⭐ v2.0: الرصيد + الاستخدام
+    val mySubscription: MySubscriptionResponse? = null,
+    val topupAmount: Double? = null,
 )
 
 @HiltViewModel
@@ -47,6 +51,7 @@ class SubscriptionViewModel @Inject constructor(
                     plans = r.data.plans,
                     wallets = r.data.wallets,
                     status = r.data.status,
+                    mySubscription = r.data,
                 )
                 is Result.Error -> {
                     when (val p = repo.getPublic()) {
@@ -66,6 +71,15 @@ class SubscriptionViewModel @Inject constructor(
                 else -> {}
             }
         }
+    }
+
+    fun setTopupAmount(amount: Double) {
+        _state.value = _state.value.copy(
+            topupAmount = amount,
+            selectedPlan = "topup",
+            selectedNetwork = null,
+            txHash = "",
+        )
     }
 
     fun selectPlan(planKey: String) {
@@ -96,7 +110,8 @@ class SubscriptionViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _state.value = _state.value.copy(isVerifying = true, errorMessage = null)
-            when (val r = repo.verifyPayment(plan, net, tx)) {
+            val topup = _state.value.topupAmount
+            when (val r = repo.verifyPayment(plan, net, tx, topup)) {
                 is Result.Success -> {
                     // 📊 Analytics
                     analytics.logPaymentVerified(plan = plan, network = net, success = true)
@@ -135,5 +150,17 @@ class SubscriptionViewModel @Inject constructor(
 
     fun clearMessages() {
         _state.value = _state.value.copy(errorMessage = null, successMessage = null)
+    }
+
+    // ⭐ v2.3: إغلاق Dialog الدفع
+    fun closePayment() {
+        _state.value = _state.value.copy(
+            selectedPlan = null,
+            selectedNetwork = null,
+            topupAmount = null,
+            txHash = "",
+            errorMessage = null,
+            successMessage = null,
+        )
     }
 }

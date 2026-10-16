@@ -90,6 +90,8 @@ data class CodeMessage(
     @SerializedName("content") val content: String,
     @SerializedName("meta") val meta: String? = null,
     @SerializedName("ts") val ts: Double,
+    val localAttachments: List<LocalAttachment>? = null,  // ⭐ v9.1
+    val localImageUris: List<String>? = null,             // ⭐ v9.2 — للصور
 )
 
 data class CodeMessagesList(

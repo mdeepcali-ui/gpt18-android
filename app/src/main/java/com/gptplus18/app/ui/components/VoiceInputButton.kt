@@ -82,7 +82,14 @@ fun VoiceInputButton(
         androidx.compose.material3.Icon(
             imageVector = androidx.compose.material.icons.Icons.Default.Mic,
             contentDescription = "voice",
-            tint = if (enabled) Color(0xFFFFFFFF) else Color(0xFF7A7C82),
+            tint = run {
+                val _isLight = com.gptplus18.app.ui.theme.LocalAppColors.current.isLight
+                if (enabled) {
+                    if (_isLight) Color(0xFF1A1A1C) else Color(0xFFFFFFFF)
+                } else {
+                    if (_isLight) Color(0xFF9A9AA0) else Color(0xFF7A7C82)
+                }
+            },
             modifier = Modifier.size(22.dp),
         )
     }

@@ -26,6 +26,16 @@ data class ProfileState(
     val hasTrial: Boolean = false,
     val isOwner: Boolean = false,
     val fontScale: Float = 1.0f,
+    // ⭐ v2.0: الرصيد + الاشتراك + الاستخدام
+    val credits: Int = 0,
+    val usdValue: Double = 0.0,
+    val subscriptionPlan: String? = null,
+    val subscriptionDaysLeft: Int = 0,
+    val dailyChat: Int = 0,
+    val dailyChatLimitFree: Int = 10,
+    val dailyChatLimitSub: Int = 200,
+    val dailyCode: Int = 0,
+    val dailyCodeLimit: Int = 100,
 )
 
 @HiltViewModel
@@ -45,6 +55,8 @@ class ProfileViewModel @Inject constructor(
             val email = tokenStorage.getEmail() ?: ""
             _state.value = _state.value.copy(userName = name, userEmail = email)
         }
+        // ⭐ v2.0: تحميل الرصيد والاشتراك
+        loadCredits()
         viewModelScope.launch {
             prefs.darkModeFlow.collect { dark ->
                 _state.value = _state.value.copy(darkMode = dark)
@@ -62,19 +74,50 @@ class ProfileViewModel @Inject constructor(
         }
         viewModelScope.launch {
             when (val r = authRepo.me()) {
-                is Result.Success -> _state.value = _state.value.copy(
-                    userName = r.data.name,
-                    userEmail = r.data.email,
-                    avatarUrl = r.data.avatarUrl ?: "",
-                    hasSubscription = r.data.hasSubscription,
-                    hasTrial = r.data.hasActiveTrial,
-                )
+                is Result.Success -> {
+                    _state.value = _state.value.copy(
+                        userName = r.data.name,
+                        userEmail = r.data.email,
+                        avatarUrl = r.data.avatarUrl ?: "",
+                        hasSubscription = r.data.hasSubscription,
+                        hasTrial = r.data.hasActiveTrial,
+                    )
+                    // ⭐ v5.1.35: حفظ avatar في tokenStorage عشان الـDrawer يشوفه
+                    r.data.avatarUrl?.takeIf { it.isNotBlank() }?.let { _url ->
+                        try { tokenStorage.setAvatar(_url) } catch (_: Exception) {}
+                    }
+                }
                 else -> {}
             }
         }
         viewModelScope.launch {
             val owner = adminRepo.isOwner()
             _state.value = _state.value.copy(isOwner = owner)
+        }
+    }
+
+    // ⭐ v2.0: تحميل الرصيد والاستخدام
+    fun loadCredits() {
+        viewModelScope.launch {
+            try {
+                when (val r = authRepo.getCreditsBalance()) {
+                    is com.gptplus18.app.util.Result.Success -> {
+                        val d = r.data
+                        _state.value = _state.value.copy(
+                            credits = d.credits,
+                            usdValue = d.usdValue,
+                            subscriptionPlan = d.subscription?.plan,
+                            subscriptionDaysLeft = d.subscription?.daysLeft ?: 0,
+                            dailyChat = d.dailyUsage?.chat ?: 0,
+                            dailyChatLimitFree = d.dailyUsage?.chatLimitFree ?: 10,
+                            dailyChatLimitSub = d.dailyUsage?.chatLimitSub ?: 200,
+                            dailyCode = d.dailyUsage?.code ?: 0,
+                            dailyCodeLimit = d.dailyUsage?.codeLimit ?: 100,
+                        )
+                    }
+                    else -> {}
+                }
+            } catch (_: Exception) { }
         }
     }
 

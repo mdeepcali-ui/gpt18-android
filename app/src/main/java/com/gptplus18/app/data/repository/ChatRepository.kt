@@ -23,6 +23,18 @@ class ChatRepository @Inject constructor(
         return "Bearer $t"
     }
 
+    // ⭐ v2.0: الرصيد
+    suspend fun getCreditsBalance(): com.gptplus18.app.util.Result<com.gptplus18.app.data.models.CreditsBalanceResponse> {
+        val t = tokenStorage.getToken() ?: return com.gptplus18.app.util.Result.Error("غير مصرح")
+        return try {
+            val r = api.getCreditsBalance("Bearer $t")
+            if (r.isSuccessful) com.gptplus18.app.util.Result.Success(r.body()!!)
+            else com.gptplus18.app.util.Result.Error("فشل التحميل (${r.code()})")
+        } catch (e: Exception) {
+            com.gptplus18.app.util.Result.Error(e.message ?: "خطأ شبكة")
+        }
+    }
+
     suspend fun listSessions(): Result<List<Session>> {
         val b = bearer() ?: return Result.Error("غير مصرح")
         return try {

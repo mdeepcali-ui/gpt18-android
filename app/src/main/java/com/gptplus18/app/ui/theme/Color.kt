@@ -11,7 +11,7 @@ val DarkBg = Color(0xFF000000)
 val DarkSurface = Color(0xFF0D0D0D)
 val DarkSurfaceVariant = Color(0xFF1A1A1A)
 
-val DarkTextPrimary = Color(0xFFC8C8D2)   // فضي حقيقي
+val DarkTextPrimary = Color(0xFFFFFFFF)   // v5.1.29: أبيض
 val DarkTextSecondary = Color(0xFFA0A0AC)
 val DarkTextTertiary = Color(0xFF787888)
 

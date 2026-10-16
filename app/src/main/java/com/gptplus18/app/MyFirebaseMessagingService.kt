@@ -71,21 +71,24 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             ?: message.data["body"]
             ?: ""
         val deepLink = message.data["deep_link"]
+        val sessionId = message.data["session_id"]?.toIntOrNull() ?: 0
 
         Log.d(TAG, "   Title: $title")
         Log.d(TAG, "   Data: ${message.data}")
+        Log.d(TAG, "   DeepLink: $deepLink | SessionId: $sessionId")
 
         if (title.isNotBlank() || body.isNotBlank()) {
-            showNotification(title, body, deepLink)
+            showNotification(title, body, deepLink, sessionId)
         }
     }
 
-    private fun showNotification(title: String, body: String, deepLink: String?) {
+    private fun showNotification(title: String, body: String, deepLink: String?, sessionId: Int) {
         createNotificationChannel()
 
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             deepLink?.let { putExtra("deep_link", it) }
+            if (sessionId > 0) putExtra("session_id", sessionId)
         }
 
         val pendingFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

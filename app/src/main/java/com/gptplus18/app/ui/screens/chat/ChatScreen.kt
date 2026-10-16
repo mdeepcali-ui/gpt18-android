@@ -14,6 +14,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -21,6 +22,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
@@ -103,9 +105,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.input.pointer.pointerInput
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
     onNavigateToSubscription: () -> Unit = {},
@@ -113,35 +124,26 @@ fun ChatScreen(
     onNavigateToSettings: () -> Unit = {},
     onNavigateToAdmin: () -> Unit = {},
     onNavigateToAuth: () -> Unit = {},
-    onNavigateToCode: () -> Unit = {},
+    onNavigateToCode: (Int) -> Unit = {},
     vm: ChatViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsState()
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
+    val haptics = com.gptplus18.app.ui.theme.rememberAppHaptics()
     val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val listState = rememberLazyListState()
+    val ui = rememberChatLocalState()
     val clip = LocalClipboardManager.current
 
-    var input by remember { mutableStateOf("") }
-    var deleteDialogFor by remember { mutableStateOf<Session?>(null) }
-    var showAttachSheet by remember { mutableStateOf(false) }
-    var showAddonsSheet by remember { mutableStateOf(false) }
-    var showDeepThinkSheet by remember { mutableStateOf(false) }
-    var showSearch by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
-    var fullscreenImage by remember { mutableStateOf<String?>(null) }
-    var actionsSheetFor by remember { mutableStateOf<Message?>(null) }
     // 📋 قائمة المحادثات — تُفتح من Drawer فقط
-    var showSessionsList by remember { mutableStateOf(false) }
 
-    var cameraUri by remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture(),
     ) { success ->
         if (success) {
-            cameraUri?.let { uri ->
+            ui.cameraUri?.let { uri ->
                 val size = getFileSize(ctx, uri)
                 vm.addAttachment(uri, "image/jpeg", "camera_${System.currentTimeMillis()}.jpg", size)
             }
@@ -154,7 +156,7 @@ fun ChatScreen(
             val uri = androidx.core.content.FileProvider.getUriForFile(
                 ctx, "${ctx.packageName}.fileprovider", file,
             )
-            cameraUri = uri
+            ui.cameraUri = uri
             cameraLauncher.launch(uri)
         } catch (_: Exception) { }
     }
@@ -201,11 +203,9 @@ fun ChatScreen(
     val imeHeight = androidx.compose.foundation.layout.WindowInsets.ime.getBottom(density)
 
     // ⏱ آخر وقت تغيّر فيه الكيبورد (لكشف فتح/غلق تو)
-    var lastImeChangeAt by remember { androidx.compose.runtime.mutableLongStateOf(0L) }
     // 📨 تتبع عدد الرسائل لكشف "رسالة جديدة" مقابل streaming
-    var prevMsgSize by remember { androidx.compose.runtime.mutableIntStateOf(0) }
     LaunchedEffect(imeHeight) {
-        lastImeChangeAt = System.currentTimeMillis()
+        ui.lastImeChangeAt = System.currentTimeMillis()
     }
 
     // 🎯 auto-scroll — يشتغل فقط:
@@ -217,12 +217,12 @@ fun ChatScreen(
         state.messages.lastOrNull()?.content?.length,
     ) {
         // ⭐ هل زادت الرسائل؟ (رسالة جديدة أُرسلت)
-        val sizeIncreased = state.messages.size > prevMsgSize
-        prevMsgSize = state.messages.size
+        val sizeIncreased = state.messages.size > ui.prevMsgSize
+        ui.prevMsgSize = state.messages.size
 
         // إذا فقط تغيّر المحتوى (streaming) + الكيبورد تحرك تواً → تجاهل
         if (!sizeIncreased) {
-            val msSinceImeChange = System.currentTimeMillis() - lastImeChangeAt
+            val msSinceImeChange = System.currentTimeMillis() - ui.lastImeChangeAt
             if (msSinceImeChange < 350) {
                 return@LaunchedEffect
             }
@@ -248,8 +248,8 @@ fun ChatScreen(
     }
 
     // 🚪 BackHandler — من سجل المحادثات → للشات، ومن الشات → خروج
-    BackHandler(enabled = showSessionsList) {
-        showSessionsList = false
+    BackHandler(enabled = ui.showSessionsList) {
+        ui.showSessionsList = false
     }
 
     // 🆕 عند فتح الشاشة لأول مرة — افتح شات جديدة دائماً
@@ -262,17 +262,20 @@ fun ChatScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
+            // ⭐ v5.1.34: إعادة تحميل الصورة كل مرة تُفتح القائمة
+            androidx.compose.runtime.LaunchedEffect(Unit) { vm.refreshAvatar() }
             AppDrawerContent(
                 userName = state.userName,
                 userEmail = "",
                 isOwner = state.isOwner,
                 onNewChat = {
                     vm.newChat()
-                    showSessionsList = false
+                    ui.showSessionsList = false
                     scope.launch { drawerState.close() }
                 },
                 onSessionsClick = {
-                    showSessionsList = true
+                    ui.showSessionsList = true
+                    vm.loadAllSessions()   // ⭐ v5.0.13: إعادة تحميل عند الفتح
                     scope.launch { drawerState.close() }
                 },
                 lastSessionTitle = state.sessions.firstOrNull()?.title,
@@ -288,99 +291,29 @@ fun ChatScreen(
                     onNavigateToAuth()
                 },
                 avatarUrl = state.avatarUrl,
+                // ⭐ v2.0: الرصيد والاشتراك
+                credits = state.credits,
+                usdValue = state.usdValue,
+                subscriptionPlan = state.subscriptionPlan,
             )
         },
     ) {
         Scaffold(
             containerColor = BgPrimary,
             topBar = {
-              Column(Modifier.fillMaxWidth().background(BgPrimary).statusBarsPadding()) {
-                if (showSearch && state.currentSessionId == null) {
-                    TopAppBar(
-                        title = {
-                            OutlinedTextField(
-                                value = searchQuery,
-                                onValueChange = { searchQuery = it; vm.setSearch(it) },
-                                placeholder = { Text(stringResource(R.string.t_043), color = TextTertiary) },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true,
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = TextPrimary,
-                                    unfocusedTextColor = TextPrimary,
-                                    focusedBorderColor = Accent,
-                                    unfocusedBorderColor = Color.Transparent,
-                                    cursorColor = Accent,
-                                ),
-                            )
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = { showSearch = false; searchQuery = ""; vm.setSearch("") }) {
-                                Icon(Icons.Default.Close, stringResource(R.string.t_126), tint = Accent)
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPrimary),
-                        modifier = Modifier.height(40.dp),
-                        windowInsets = WindowInsets(0, 0, 0, 0),
-                    )
-                } else {
-                    TopAppBar(
-                        title = {
-                            if (showSessionsList) {
-                                Text(stringResource(R.string.t_044), color = TextPrimary,
-                                    fontWeight = FontWeight.Bold, fontSize = 15.8.sp)
-                            } else {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    ModeDropdown(
-                                        current = state.currentMode,
-                                        onSelect = { mode -> vm.setMode(mode) },
-                                    )
-                                }
-                            }
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                Icon(Icons.Default.Menu, stringResource(R.string.t_127), tint = TextPrimary)
-                            }
-                        },
-                        actions = {
-                            // 💻 زر البرمجة
-                            IconButton(onClick = onNavigateToCode) {
-                                Icon(
-                                    androidx.compose.material.icons.Icons.Default.Code,
-                                    contentDescription = "البرمجة",
-                                    tint = Accent,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
-                            // ⭐ زر + دائري في الزاوية اليسرى
-                            Box(
-                                modifier = Modifier
-                                    .padding(end = 8.dp, top = 2.dp)
-                                    .size(24.dp)
-                                    .clip(CircleShape)
-                                    .border(3.0.dp, TextPrimary, CircleShape)
-                                    .clickable { vm.newChat() },
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Icon(
-                                    Icons.Default.Add,
-                                    stringResource(R.string.new_chat),
-                                    tint = TextPrimary,
-                                    modifier = Modifier.size(14.dp),
-                                )
-                            }
-                            if (showSessionsList) {
-                                IconButton(onClick = { showSearch = true }) {
-                                    Icon(Icons.Default.Search, stringResource(R.string.t_128), tint = TextPrimary)
-                                }
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPrimary),
-                        modifier = Modifier.height(40.dp),
-                        windowInsets = WindowInsets(0, 0, 0, 0),
-                    )
-                }
-              }
+                ChatHeader(
+                    state = state,
+                    showSearch = ui.showSearch,
+                    searchQuery = ui.searchQuery,
+                    showSessionsList = ui.showSessionsList,
+                    onSearchChange = { ui.searchQuery = it; vm.setSearch(it) },
+                    onSearchOpen = { ui.showSearch = true },
+                    onSearchClose = { ui.showSearch = false; ui.searchQuery = ""; vm.setSearch("") },
+                    onModeSelect = { mode -> vm.setMode(mode) },
+                    onDrawerOpen = { scope.launch { drawerState.open() } },
+                    onNewChat = { vm.newChat() },
+                    onNavigateToCode = onNavigateToCode,
+                )
             },
         ) { padding ->
             Box(
@@ -390,7 +323,7 @@ fun ChatScreen(
             ) {
                 // ⭐ فقاعة الحالة (يفكر / يحلل) — أعلى اليمين في RTL
                 androidx.compose.animation.AnimatedVisibility(
-                    visible = (state.isSending || state.isUploading) && !showSessionsList,
+                    visible = (state.isSending || state.isUploading) && !ui.showSessionsList,
                     enter = androidx.compose.animation.slideInHorizontally(
                         initialOffsetX = { it },
                         animationSpec = androidx.compose.animation.core.tween(260)
@@ -408,10 +341,10 @@ fun ChatScreen(
                         .zIndex(100f)                   // ⭐ فوق الرسائل والصور
                         .padding(top = 8.dp, start = 12.dp),
                 ) {
-                    StatusBubble(label = state.statusLabel.ifBlank { "يفكر..." })
+                    StatusBubble(label = state.statusLabel.ifBlank { "التفكير" })
                 }
 
-                if (showSessionsList) {
+                if (ui.showSessionsList) {
                     var isRefreshing by remember { mutableStateOf(false) }
                     LaunchedEffect(state.allSessions) { isRefreshing = false }
                     PullToRefreshBox(
@@ -423,84 +356,63 @@ fun ChatScreen(
                             sessions = state.allSessions,
                             onOpenChat = {
                                 vm.openSession(it.id)
-                                showSessionsList = false
+                                ui.showSessionsList = false
                             },
-                            onOpenCode = {
-                                showSessionsList = false
-                                onNavigateToCode()
+                            onOpenCode = { session ->
+                                ui.showSessionsList = false
+                                onNavigateToCode(session.id)
                             },
-                            onLongPressChat = { deleteDialogFor = it.toChatSession() },
+                            onLongPressChat = { ui.deleteDialogFor = it.toChatSession() },
                         )
                     }
                 } else {
                     androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
                     Column(Modifier.fillMaxSize()) {
-                        LazyColumn(
-                            state = listState,
-                            modifier = Modifier.weight(1f).fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            contentPadding = PaddingValues(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 80.dp),
-                        ) {
-                            val visibleMessages = state.messages.filter { it.role != "thinking" }
-                            // EMPTY_LOGO_STATE
-                            if (visibleMessages.isEmpty() && !state.isSending && !state.isUploading) {
-                                item {
-                                    EmptyLogoState()
-                                }
-                            }
-                            items(visibleMessages, key = { it.ts.toString() }) { msg ->
-                                MessageBubble(
-                                    msg = msg,
-                                    onImageClick = { url -> fullscreenImage = url },
-                                    onLongPress = { actionsSheetFor = msg },
-                                    onCopy = { text ->
-                                        // ⭐ LTR mark لمنع فقدان المسافات في RTL
-                                        clip.setText(AnnotatedString("\u200E" + text + "\u200F"))
-                                        Toast.makeText(ctx, "✅ تم النسخ", Toast.LENGTH_SHORT).show()
-                                    },
-                                    onEdit = { m -> input = m.content },
-                                    onChoiceClick = { choice ->
-                                        // ⭐ v2.0: إرسال الاختيار مباشرة
-                                        vm.send(choice)
-                                    },
-                                )
-                            }
-                            if (state.isSending || state.isUploading) {
-                                item {
-                                    // ☁️ سحابة التفكير فقط
-                                    val lastThinking = state.thinkingByMessage.values.lastOrNull()
-                                    val thinkingText = buildString {
-                                        val raw = lastThinking?.rawText?.trim().orEmpty()
-                                        if (raw.isNotBlank()) {
-                                            append(raw)
-                                        } else {
-                                            val steps = lastThinking?.steps.orEmpty()
-                                            if (steps.isNotEmpty()) {
-                                                append(steps.joinToString("\n") { "• $it" })
+                        // ⭐ v9.3: مسافة ديناميكية — تختفي عند فتح الكيبورد
+                        val _imeVisible = WindowInsets.isImeVisible
+                        val _bottomPad = if (_imeVisible) 8.dp else 40.dp
+                        androidx.compose.foundation.layout.Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .pointerInput(Unit) {
+                                    awaitEachGesture {
+                                        val _down = awaitFirstDown(
+                                            requireUnconsumed = false,
+                                            pass = PointerEventPass.Final
+                                        )
+                                        if (_down.isConsumed) return@awaitEachGesture
+                                        val _t0 = System.currentTimeMillis()
+                                        val _up = waitForUpOrCancellation(
+                                            pass = PointerEventPass.Final
+                                        )
+                                        if (_up != null && !_up.isConsumed) {
+                                            val _dur = System.currentTimeMillis() - _t0
+                                            val _moved = (_up.position - _down.position).getDistance() > viewConfiguration.touchSlop
+                                            if (_dur < 400 && !_moved) {
+                                                ui.selectionEpoch++
                                             }
                                         }
                                     }
-                                    if (state.statusLabel != stringResource(R.string.t_131)) {
-                                        com.gptplus18.app.ui.components.ThinkingShimmer(
-                                            text = thinkingText.ifBlank { "يجهّز الرد..." },
-                                        )
-                                        androidx.compose.foundation.layout.Spacer(
-                                            Modifier.height(60.dp)
-                                        )
-                                    }
-                                }
-                            }
-
-                            // ⭐ v2.0: بطاقة ملفات الكود
-                            if (state.codeFiles.isNotEmpty() || state.codeZipUrl != null) {
-                                item {
-                                    CodeFilesCard(
-                                        files = state.codeFiles,
-                                        zipUrl = state.codeZipUrl,
-                                    )
-                                }
-                            }
-                            }
+                                },
+                        ) {
+                        ChatMessagesList(
+                            state = state,
+                            vm = vm,
+                            listState = listState,
+                            scope = scope,
+                            haptics = haptics,
+                            ctx = ctx,
+                            clip = clip,
+                            selectionEpoch = ui.selectionEpoch,
+                            bottomPad = _bottomPad,
+                            showSessionsList = ui.showSessionsList,
+                            isScrolledUp = isScrolledUp,
+                            onFullscreenImage = { url -> ui.fullscreenImage = url },
+                            onLongPress = { msg -> ui.actionsSheetFor = msg },
+                            onEditInput = { text -> ui.input = text },
+                        )
+                        }  // نهاية Box
 
                         if (state.pinnedMessages.isNotEmpty()) {
                             PinnedMessagesBar(
@@ -517,1367 +429,54 @@ fun ChatScreen(
                         if (input.isBlank() && state.pendingAttachments.isEmpty()) {
 
                         }
-                        ChatGptComposer(
-                            value = input,
-                            onValueChange = { input = it },
-                            enabled = !state.isSending && !state.isUploading,
-                            attachments = state.pendingAttachments,
-                            onAttachClick = { showAttachSheet = true },
-                            onSend = {
-                                if (state.pendingAttachments.isNotEmpty()) {
-                                    vm.sendWithAttachments(input)
-                                } else if (input.isNotBlank()) {
-                                    vm.send(input)
-                                }
-                                input = ""
-                                // ⭐ إغلاق الكيبورد تلقائياً
-                                keyboardController?.hide()
-                            },
-                            onRemoveAttachment = { vm.removeAttachment(it) },
-                            onVoiceInput = { text -> input = if (input.isBlank()) text else "$input $text" },
-                            onImagePick = { showAttachSheet = true },       // ⭐ v2.0: فتح bottom sheet لاختيار صورة
-                            onEditImagePick = { showAttachSheet = true },   // ⭐ v2.0: نفس الـ sheet
+                        // ⭐ السحابة: عنوان "التفكير" + مربع أسود مع الرد الجاري
+
+
+                        ChatComposer(
+                            value = ui.input,
+                            onValueChange = { ui.input = it },
+                            state = state,
+                            vm = vm,
+                            keyboardController = keyboardController,
+                            haptics = haptics,
+                            onAttachRequest = { ui.showAttachSheet = true },
+                            onImagePickRequest = { ui.showAttachSheet = true },
+                            onEditImagePickRequest = { ui.showAttachSheet = true },
                         )
                     }
 
-                    // ⬇ FAB للنزول السريع
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = isScrolledUp,
-                        enter = androidx.compose.animation.fadeIn(),
-                        exit = androidx.compose.animation.fadeOut(),
-                        modifier = Modifier
-                            .align(androidx.compose.ui.Alignment.BottomEnd)
-                            .padding(end = 16.dp, bottom = 96.dp),
-                    ) {
-                        androidx.compose.foundation.layout.Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(androidx.compose.foundation.shape.CircleShape)
-                                .background(BgSecondary)
-                                .border(1.5.dp, TextSecondary.copy(alpha = 0.5f), androidx.compose.foundation.shape.CircleShape)
-                                .clickable {
-                                    scope.launch {
-                                        val total = listState.layoutInfo.totalItemsCount
-                                        if (total > 0) {
-                                            listState.animateScrollToItem(total - 1)
-                                        }
-                                    }
-                                },
-                            contentAlignment = androidx.compose.ui.Alignment.Center,
-                        ) {
-                            androidx.compose.material3.Icon(
-                                androidx.compose.material.icons.Icons.Default.KeyboardArrowDown,
-                                contentDescription = "انزل للأسفل",
-                                tint = TextPrimary,
-                                modifier = Modifier.size(24.dp),
-                            )
-                        }
-                    }
+                    // (FAB نُقل داخل Box v5.0.10)
                     }
                 }
             }
         }
     }
 
-    if (showAttachSheet) {
-        AttachMenuSheet(
-            onDismiss = { showAttachSheet = false },
-            onCamera = { launchCamera() },
-            onPhotos = { imagePicker.launch("image/*") },
-            onFiles = { filePicker.launch("*/*") },
-            onAddons = { showAddonsSheet = true },
-            onDeepThink = { showDeepThinkSheet = true },
-        )
-    }
-
-    if (showAddonsSheet) {
-        AddonsSheet(
-            onDismiss = { showAddonsSheet = false },
-            onSelect = { text -> input = text },
-        )
-    }
-
-    if (showDeepThinkSheet) {
-        DeepThinkSheet(
-            onDismiss = { showDeepThinkSheet = false },
-            onSelect = { text -> input = text },
-        )
-    }
-
-    deleteDialogFor?.let { s ->
-        AlertDialog(
-            onDismissRequest = { deleteDialogFor = null },
-            title = { Text(stringResource(R.string.t_045), color = TextPrimary) },
-            text = { Text("متأكد بدك تحذف \"${s.title}\"؟", color = TextSecondary) },
-            confirmButton = {
-                TextButton(onClick = { vm.deleteSession(s.id); deleteDialogFor = null }) {
-                    Text(stringResource(R.string.t_046), color = Color(0xFFEF4444))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { deleteDialogFor = null }) {
-                    Text(stringResource(R.string.t_026), color = TextSecondary)
-                }
-            },
-            containerColor = BgSecondary,
-            shape = RoundedCornerShape(24.dp),
-        )
-    }
-
-    actionsSheetFor?.let { msg ->
-        MessageActionsSheet(
-            msg = msg,
-            isPinned = vm.isPinned(msg.ts),
-            onPin = { vm.pinMessage(msg) },
-            onCopy = {
-                clip.setText(AnnotatedString("\u200E" + msg.content + "\u200F"))
-                Toast.makeText(ctx, "✅ تم النسخ", Toast.LENGTH_SHORT).show()
-            },
-            onShare = {
-                val chooserTitle = ctx.getString(R.string.t_133)
-                val intent = Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, msg.content)
-                }
-                ctx.startActivity(Intent.createChooser(intent, chooserTitle))
-            },
-            onReply = { vm.setReplyTo(msg) },
-            onDelete = null,
-            onDismiss = { actionsSheetFor = null },
-        )
-    }
-
-    state.subscriptionPrompt?.let { prompt ->
-        SubscriptionRequiredModal(
-            kind = prompt.kind,
-            message = prompt.message,
-            onSubscribe = {
-                vm.dismissSubscriptionPrompt()
-                onNavigateToSubscription()
-            },
-            onDismiss = { vm.dismissSubscriptionPrompt() },
-        )
-    }
-
-    fullscreenImage?.let { url ->
-        FullscreenImageViewer(imageUrl = url, onDismiss = { fullscreenImage = null })
-    }
-}
-
-@Composable
-private fun ModeDropdown(
-    current: ChatMode,
-    onSelect: (ChatMode) -> Unit,
-) {
-    // ⭐ v2.0: كل شي في Chat — عنوان فقط بدون قائمة
-    val colors = LocalAppColors.current
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .padding(horizontal = 10.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(Icons.AutoMirrored.Filled.Chat, null, tint = colors.textPrimary, modifier = Modifier.size(18.dp))
-        Spacer(Modifier.width(6.dp))
-        Text("Chat", color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.1.sp)
-    }
-}
-
-@Composable
-private fun ModeMenuItem(
-    label: String,
-    icon: ImageVector,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    val colors = LocalAppColors.current
-    DropdownMenuItem(
-        modifier = Modifier.background(colors.surface),
-        colors = MenuDefaults.itemColors(
-            textColor = colors.textPrimary,
-            leadingIconColor = colors.textPrimary,
-        ),
-        text = {
-            Text(
-                label,
-                color = if (selected) colors.accent else colors.textPrimary,
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-            )
-        },
-        onClick = onClick,
-        leadingIcon = {
-            Icon(icon, null, tint = if (selected) colors.accent else colors.textSecondary)
-        },
+    ChatOverlays(
+        state = state,
+        vm = vm,
+        haptics = haptics,
+        ctx = ctx,
+        clip = clip,
+        showAttachSheet = ui.showAttachSheet,
+        showAddonsSheet = ui.showAddonsSheet,
+        showDeepThinkSheet = ui.showDeepThinkSheet,
+        deleteDialogFor = ui.deleteDialogFor,
+        actionsSheetFor = ui.actionsSheetFor,
+        fullscreenImage = ui.fullscreenImage,
+        input = ui.input,
+        onInputChange = { ui.input = it },
+        onDismissAttach = { ui.showAttachSheet = false },
+        onDismissAddons = { ui.showAddonsSheet = false },
+        onDismissDeepThink = { ui.showDeepThinkSheet = false },
+        onDismissDelete = { ui.deleteDialogFor = null },
+        onDismissActions = { ui.actionsSheetFor = null },
+        onDismissFullscreen = { ui.fullscreenImage = null },
+        onOpenAddons = { ui.showAddonsSheet = true },
+        onOpenDeepThink = { ui.showDeepThinkSheet = true },
+        onCamera = { launchCamera() },
+        onPhotos = { imagePicker.launch("image/*") },
+        onFiles = { filePicker.launch("*/*") },
+        onNavigateToSubscription = onNavigateToSubscription,
     )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun SessionsList(
-    sessions: List<Session>,
-    onOpen: (Session) -> Unit,
-    onLongPress: (Session) -> Unit,
-) {
-    if (sessions.isEmpty()) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.t_047), color = TextSecondary, fontSize = 13.2.sp)
-                Text(stringResource(R.string.t_048), color = TextTertiary, fontSize = 11.4.sp,
-                    modifier = Modifier.padding(top = 6.dp))
-            }
-        }
-        return
-    }
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(sessions, key = { it.id }) { s ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(4.dp, RoundedCornerShape(16.dp))
-                    .combinedClickable(
-                        onClick = { onOpen(s) },
-                        onLongClick = { onLongPress(s) },
-                    ),
-                colors = CardDefaults.cardColors(containerColor = BgSecondary),
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Column(Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(s.title, color = TextPrimary, fontWeight = FontWeight.SemiBold,
-                            fontSize = 13.2.sp, modifier = Modifier.weight(1f))
-                        if (s.msgCount > 0) {
-                            Text("${s.msgCount}", color = Accent, fontSize = 9.7.sp,
-                                fontWeight = FontWeight.Bold)
-                        }
-                    }
-                    s.lastMsg?.let {
-                        Text(it.take(80), color = TextSecondary, fontSize = 11.4.sp,
-                            modifier = Modifier.padding(top = 4.dp))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun PinnedMessagesBar(
-    messages: List<Message>,
-    onUnpin: (Double) -> Unit,
-) {
-    val latest = messages.lastOrNull() ?: return
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 6.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF14141A))
-            .border(1.dp, Accent.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .width(3.dp)
-                    .height(28.dp)
-                    .background(Accent, RoundedCornerShape(2.dp)),
-            )
-            Spacer(Modifier.width(8.dp))
-            Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("\ud83d\udccc", fontSize = 9.7.sp)
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        "\u0645\u062b\u0628\u0651\u062a",
-                        color = Accent,
-                        fontSize = 8.8.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    if (messages.size > 1) {
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            "+${messages.size - 1}",
-                            color = TextSecondary,
-                            fontSize = 7.9.sp,
-                        )
-                    }
-                }
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    latest.content.take(80),
-                    color = TextPrimary,
-                    fontSize = 9.7.sp,
-                    maxLines = 1,
-                )
-            }
-            IconButton(
-                onClick = { onUnpin(latest.ts) },
-                modifier = Modifier.size(24.dp),
-            ) {
-                Text("\u2715", color = TextSecondary, fontSize = 10.6.sp)
-            }
-        }
-    }
-}
-
-// ⭐ v2.0: بطاقة ملفات الكود الأنيقة
-@Composable
-private fun CodeFilesCard(
-    files: List<com.gptplus18.app.data.api.CodeFileItem>,
-    zipUrl: String?,
-) {
-    val ctx = LocalContext.current
-    val colors = LocalAppColors.current
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(
-                Brush.linearGradient(
-                    listOf(Color(0xFF1F1F26), Color(0xFF141419))
-                )
-            )
-            .border(
-                width = 0.6.dp,
-                color = Color(0xFF3A3C40),
-                shape = RoundedCornerShape(16.dp),
-            )
-            .padding(14.dp),
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(34.dp)
-                        .clip(CircleShape)
-                        .background(Accent.copy(alpha = 0.15f)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text("📁", fontSize = 15.sp)
-                }
-                Spacer(Modifier.width(10.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "الملفات جاهزة",
-                        color = TextPrimary,
-                        fontSize = 12.3.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = "${files.size} ملف${if (zipUrl != null) " — أو حمّل الكل" else ""}",
-                        color = TextSecondary,
-                        fontSize = 9.7.sp,
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-            // قائمة الملفات
-            files.forEach { f ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(colors.surfaceVariant.copy(alpha = 0.4f))
-                        .clickable {
-                            try {
-                                val i = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(f.url))
-                                ctx.startActivity(i)
-                            } catch (_: Exception) {}
-                        }
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                ) {
-                    Text("📄", fontSize = 13.2.sp)
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = f.name,
-                        color = TextPrimary,
-                        fontSize = 10.6.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.weight(1f),
-                        maxLines = 1,
-                    )
-                    Text(
-                        text = "⬇",
-                        color = Accent,
-                        fontSize = 12.3.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-                Spacer(Modifier.height(4.dp))
-            }
-
-            // زر ZIP
-            if (zipUrl != null) {
-                Spacer(Modifier.height(6.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(
-                            Brush.horizontalGradient(
-                                listOf(Accent, Accent.copy(alpha = 0.8f))
-                            )
-                        )
-                        .clickable {
-                            try {
-                                val i = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(zipUrl))
-                                ctx.startActivity(i)
-                            } catch (_: Exception) {}
-                        }
-                        .padding(vertical = 11.dp),
-                ) {
-                    Text("📦", fontSize = 13.2.sp)
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = "تحميل الكل (ZIP)",
-                        color = Color.Black,
-                        fontSize = 11.4.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
-        }
-    }
-}
-
-// ⭐ v2.0: QuickActionsRow removed — التوجيه الآن عبر StatusBubble فقط
-
-@Composable
-private fun EmptyLogoState() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 60.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        val shineTransition = rememberInfiniteTransition(label = "chat_logo_shine")
-        val shineX by shineTransition.animateFloat(
-            initialValue = -0.5f,
-            targetValue = 1.5f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 900, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart,
-                initialStartOffset = StartOffset(2100),
-            ),
-            label = "chatShineX",
-        )
-        androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(id = R.drawable.logo_transparent),
-            contentDescription = "GPT+18",
-            contentScale = androidx.compose.ui.layout.ContentScale.Fit,
-            modifier = Modifier
-                .size(85.dp)
-                .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
-                .drawWithContent {
-                    drawContent()
-                    val w = size.width
-                    val cx = w * shineX
-                    val bandW = w * 0.55f
-                    drawRect(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color.Black.copy(alpha = 0f),
-                                Color.Black.copy(alpha = 0.85f),
-                                Color.Black.copy(alpha = 0f),
-                            ),
-                            startX = cx - bandW / 2f,
-                            endX = cx + bandW / 2f,
-                        ),
-                        blendMode = BlendMode.SrcAtop,
-                    )
-                },
-        )
-        Spacer(Modifier.height(16.dp))
-        Text(
-            "\u0645\u0631\u062d\u0628\u0627 \u0628\u0643 \u0641\u064a GPT+18",
-            color = TextPrimary,
-            fontSize = 14.1.sp,
-            fontWeight = FontWeight.Bold,
-        )
-    }
-}
-
-@Composable
-private fun _EmptyChatStateUnused(onSuggestionClick: (String) -> Unit) {
-    val suggestions = listOf(
-        "\u0627\u0634\u0631\u062d \u0644\u064a \u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064a \ud83d\udca1",
-        "\u0627\u0643\u062a\u0628 \u0644\u064a \u062f\u0627\u0644\u0629 Python \ud83d\udcbb",
-        "\u0623\u062e\u0628\u0627\u0631 \u0627\u0644\u062a\u0642\u0646\u064a\u0629 \u0627\u0644\u064a\u0648\u0645 \ud83d\udcf0",
-        "\u0627\u0635\u0646\u0639 \u0644\u064a \u0635\u0648\u0631\u0629 \u0642\u0637\u0629 \ud83c\udfa8",
-        "\u0644\u062e\u0651\u0635 \u0644\u064a \u0645\u0642\u0627\u0644\u0629 \ud83d\udcdd",
-        "\u0627\u0642\u062a\u0631\u062d \u0639\u0644\u064a\u0651 \u0641\u0643\u0631\u0629 \u0645\u0634\u0631\u0648\u0639 \ud83e\udd14",
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(96.dp)
-                .clip(androidx.compose.foundation.shape.CircleShape)
-                .background(Accent.copy(alpha = 0.08f))
-                .border(1.5.dp, Accent.copy(alpha = 0.3f), androidx.compose.foundation.shape.CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text("\u2728", fontSize = 37.sp)
-        }
-
-        Spacer(Modifier.height(20.dp))
-
-        Text(
-            "\u0645\u0631\u062d\u0628\u0627 \u0628\u0643 \u0641\u064a GPT+18",
-            color = TextPrimary,
-            fontSize = 17.6.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-        )
-        Spacer(Modifier.height(6.dp))
-        Text(
-            "\u0627\u0628\u062f\u0623 \u0628\u0627\u0644\u0643\u062a\u0627\u0628\u0629 \u0641\u064a \u0627\u0644\u0623\u0633\u0641\u0644 \u0623\u0648 \u0627\u062e\u062a\u0631 \u0627\u0642\u062a\u0631\u0627\u062d\u0627\u064b:",
-            color = TextSecondary,
-            fontSize = 11.4.sp,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-        )
-
-        Spacer(Modifier.height(22.dp))
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            suggestions.forEach { s ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF0E0E12))
-                        .border(1.dp, Color(0xFF1F1F26), RoundedCornerShape(12.dp))
-                        .clickable {
-                            // نشيل الإيموجي من النهاية
-                            onSuggestionClick(s.substringBeforeLast(" "))
-                        }
-                        .padding(horizontal = 14.dp, vertical = 12.dp),
-                ) {
-                    Text(s, color = TextPrimary, fontSize = 11.4.sp)
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
-@Composable
-fun MessageBubble(
-    msg: Message,
-    onImageClick: (String) -> Unit,
-    onLongPress: () -> Unit,
-    onCopy: (String) -> Unit,
-    onEdit: (Message) -> Unit,
-    onChoiceClick: (String) -> Unit = {},
-) {
-    val isUser = msg.role == "user"
-    val imageUrl = MessageHelpers.extractImageUrl(msg.content)
-    val audioUrl = MessageHelpers.extractAudioUrl(msg.content)
-    val videoUrl = MessageHelpers.extractVideoUrl(msg.content)
-    val cleanText = MessageHelpers.stripMediaMarkers(msg.content)
-    // ⭐ محلي: صورة مرفوعة لم تُرفع للسيرفر بعد
-    val localImage = msg.localImageUri
-    val localImages: List<String> = msg.localImageUris ?: (localImage?.let { listOf(it) } ?: emptyList())
-    val ctx = LocalContext.current
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
-    ) {
-        Column(
-            horizontalAlignment = if (isUser) Alignment.End else Alignment.Start,
-            modifier = if (isUser) Modifier.widthIn(max = 320.dp) else Modifier.fillMaxWidth(),
-        ) {
-            if (isUser) {
-                Surface(
-                    color = BubbleBg,
-                    shape = RoundedCornerShape(22.dp),
-                    border = androidx.compose.foundation.BorderStroke(0.5.dp, BubbleBorder),
-                    shadowElevation = 4.dp,
-                    modifier = Modifier.combinedClickable(
-                        onClick = { },
-                        onLongClick = onLongPress,
-                    ),
-                ) {
-                    Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-                        // ⭐ صور محلية (مرفوعة من الجهاز) — عرض كل الصور
-                        if (localImages.isNotEmpty() && imageUrl == null) {
-                            if (localImages.size == 1) {
-                                AsyncImage(
-                                    model = localImages[0],
-                                    contentDescription = stringResource(R.string.t_135),
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .widthIn(max = 220.dp)
-                                        .heightIn(max = 260.dp)
-                                        .clip(RoundedCornerShape(12.dp)),
-                                )
-                            } else {
-                                // شبكة الصور — كل صورة بعرض 100dp
-                                androidx.compose.foundation.layout.FlowRow(
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                                    maxItemsInEachRow = 2,
-                                    modifier = Modifier.widthIn(max = 220.dp),
-                                ) {
-                                    localImages.forEach { uri ->
-                                        AsyncImage(
-                                            model = uri,
-                                            contentDescription = stringResource(R.string.t_135),
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(100.dp)
-                                                .clip(RoundedCornerShape(10.dp)),
-                                        )
-                                    }
-                                }
-                            }
-                            if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
-                        }
-                        // ⭐ صورة من السيرفر
-                        if (imageUrl != null) {
-                            AsyncImage(
-                                model = imageUrl,
-                                contentDescription = stringResource(R.string.t_135),
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(max = 300.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .combinedClickable(
-                                        onClick = { onImageClick(imageUrl) },
-                                        onLongClick = onLongPress,
-                                    ),
-                            )
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                modifier = Modifier.padding(vertical = 4.dp),
-                            ) {
-                                ActionButton(
-                                    icon = Icons.Default.Add,
-                                    label = "حفظ",
-                                    onClick = {
-                                        com.gptplus18.app.util.MediaShareHelper.saveToGallery(ctx, imageUrl, "image") { ok ->
-                                            Toast.makeText(ctx, if (ok) "✅ تم حفظ الصورة بنجاح" else "❌ فشل الحفظ", Toast.LENGTH_SHORT).show()
-                                        }
-                                    },
-                                )
-                                ActionButton(
-                                    icon = Icons.Default.Add,
-                                    label = "مشاركة",
-                                    onClick = {
-                                        kotlinx.coroutines.GlobalScope.launch {
-                                            com.gptplus18.app.util.MediaShareHelper.shareMedia(ctx, imageUrl, "image")
-                                        }
-                                    },
-                                )
-                            }
-                            if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
-                        }
-                        if (cleanText.isNotBlank()) {
-                            // ✨ streaming: فضي ناعم — بعد الاكتمال: أبيض عادي
-                            val isStreaming = (msg.id == -2)
-                            Text(
-                                cleanText,
-                                color = if (isStreaming) androidx.compose.ui.graphics.Color(0xFFB8B8C2) else TextPrimary,
-                                fontSize = if (isStreaming) 12.sp else 14.sp,
-                                fontWeight = if (isStreaming) FontWeight.Normal else FontWeight.Medium,
-                                lineHeight = if (isStreaming) 17.sp else 20.sp,
-                            )
-                        }
-                    }
-                }
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .combinedClickable(
-                            onClick = { },
-                            onLongClick = onLongPress,
-                        ),
-                ) {
-                    // ⭐ مؤشر جاري التحليل
-                    if (msg.isAnalyzing) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(BubbleBg)
-                                .padding(horizontal = 12.dp, vertical = 10.dp),
-                        ) {
-                            androidx.compose.material3.CircularProgressIndicator(
-                                color = Accent,
-                                modifier = Modifier.size(18.dp),
-                                strokeWidth = 2.dp,
-                            )
-                            Spacer(Modifier.width(10.dp))
-                            Text(
-                                "🔍 جاري تحليل الصورة...",
-                                color = TextPrimary,
-                                fontSize = 12.3.sp,
-                                fontWeight = FontWeight.Medium,
-                            )
-                        }
-                    }
-                    if (imageUrl != null) {
-                        AsyncImage(
-                            model = imageUrl,
-                            contentDescription = stringResource(R.string.t_135),
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 320.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .combinedClickable(
-                                    onClick = { onImageClick(imageUrl) },
-                                    onLongClick = onLongPress,
-                                ),
-                        )
-                                                // ⭐ فقاعات إجراءات الصورة (تحويل / تعديل / حفظ / مشاركة)
-                        val _imgCtx = LocalContext.current
-                        val _imgScope = rememberCoroutineScope()
-                        androidx.compose.foundation.lazy.LazyRow(
-                            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            val imgActions = listOf("تحويل", "تعديل", "حفظ", "مشاركة")
-                            items(imgActions) { action ->
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(18.dp))
-                                        .background(Accent.copy(alpha = 0.12f))
-                                        .border(0.8.dp, Accent.copy(alpha = 0.5f), RoundedCornerShape(18.dp))
-                                        .clickable {
-                                            when (action) {
-                                                "تحويل" -> onChoiceClick("حوّلها فيديو")
-                                                "تعديل" -> onChoiceClick("عدّلها")
-                                                "حفظ" -> com.gptplus18.app.util.MediaShareHelper.saveToGallery(_imgCtx, imageUrl, "image") { ok ->
-                                                    android.widget.Toast.makeText(_imgCtx, if (ok) "✅ تم حفظ الصورة بنجاح" else "❌ فشل الحفظ", android.widget.Toast.LENGTH_SHORT).show()
-                                                }
-                                                "مشاركة" -> _imgScope.launch {
-                                                    com.gptplus18.app.util.MediaShareHelper.shareMedia(_imgCtx, imageUrl, "image")
-                                                }
-                                            }
-                                        }
-                                        .padding(horizontal = 14.dp, vertical = 8.dp),
-                                ) {
-                                    Text(action, color = Accent, fontSize = 11.4.sp, fontWeight = FontWeight.Medium)
-                                }
-                            }
-                        }
-if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
-                    }
-                    if (audioUrl != null) {
-                        AudioPlayerCard(
-                            audioUrl = audioUrl,
-                            modifier = Modifier.padding(vertical = 4.dp),
-                        )
-                        if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
-                    }
-                    if (videoUrl != null) {
-                        VideoPlayerCard(
-                            videoUrl = videoUrl,
-                            modifier = Modifier.padding(vertical = 4.dp),
-                        )
-                        if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
-                    }
-                    if (cleanText.isNotBlank()) {
-                        // ✅ Markdown دائم — سواء أثناء البث أو بعده
-                        MarkdownText(cleanText, textColor = TextPrimary, fontSize = 14)
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(4.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.padding(horizontal = 4.dp),
-            ) {
-                MessageTimestamp(msg.ts)
-
-                ActionButton(
-                    icon = Icons.Default.ContentCopy,
-                    label = stringResource(R.string.t_003),
-                    onClick = { onCopy(cleanText) },
-                )
-
-                if (isUser) {
-                    ActionButton(
-                        icon = Icons.Default.Edit,
-                        label = stringResource(R.string.t_063),
-                        onClick = { onEdit(msg) },
-                    )
-                } else {
-                    // 👍 / 👎 / 🔗 لردود AI
-                    var reaction by remember { mutableStateOf(0) }
-                    val shareCtx = LocalContext.current
-
-                    ReactionButton(
-                        icon = androidx.compose.material.icons.Icons.Outlined.ThumbUp,
-                        active = reaction == 1,
-                        onClick = { reaction = if (reaction == 1) 0 else 1 },
-                    )
-                    ReactionButton(
-                        icon = androidx.compose.material.icons.Icons.Outlined.ThumbDown,
-                        active = reaction == -1,
-                        onClick = { reaction = if (reaction == -1) 0 else -1 },
-                    )
-                    ReactionButton(
-                        icon = androidx.compose.material.icons.Icons.Outlined.Link,
-                        active = false,
-                        onClick = {
-                            try {
-                                val intent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/plain"
-                                    putExtra(Intent.EXTRA_TEXT, cleanText)
-                                }
-                                shareCtx.startActivity(Intent.createChooser(intent, null))
-                            } catch (_: Exception) {}
-                        },
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun ReactionButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    active: Boolean,
-    onClick: () -> Unit,
-) {
-    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val scale by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (pressed) 0.85f else 1f,
-        animationSpec = androidx.compose.animation.core.spring(
-            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-            stiffness = androidx.compose.animation.core.Spring.StiffnessHigh
-        ),
-        label = "reactionScale"
-    )
-    val color by androidx.compose.animation.animateColorAsState(
-        targetValue = if (active) Accent else TextSecondary,
-        animationSpec = androidx.compose.animation.core.tween(180),
-        label = "reactionColor"
-    )
-    val bgColor by androidx.compose.animation.animateColorAsState(
-        targetValue = if (active) Accent.copy(alpha = 0.15f)
-                      else androidx.compose.ui.graphics.Color.Transparent,
-        animationSpec = androidx.compose.animation.core.tween(180),
-        label = "reactionBg"
-    )
-
-    Box(
-        modifier = Modifier
-            .size(36.dp)
-            .graphicsLayer { scaleX = scale; scaleY = scale }
-            .clip(androidx.compose.foundation.shape.CircleShape)
-            .background(bgColor)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = color,
-            modifier = Modifier.size(19.dp),
-        )
-    }
-}
-
-@Composable
-fun ActionButton(
-    icon: ImageVector,
-    label: String,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 6.dp, vertical = 3.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(icon, label, tint = TextTertiary, modifier = Modifier.size(12.dp))
-        Spacer(Modifier.width(3.dp))
-        Text(label, color = TextTertiary, fontSize = 9.7.sp)
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun ReplyBar(content: String, onCancel: () -> Unit) {
-    Surface(color = BgSecondary, shape = RoundedCornerShape(16.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(3.dp)
-                    .height(32.dp)
-                    .background(Accent, RoundedCornerShape(2.dp)),
-            )
-            Spacer(Modifier.width(10.dp))
-            Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.t_050), color = Accent, fontSize = 9.7.sp, fontWeight = FontWeight.Bold)
-                Text(content.take(60), color = TextSecondary, fontSize = 10.6.sp, maxLines = 1)
-            }
-            IconButton(onClick = onCancel, modifier = Modifier.size(28.dp)) {
-                Icon(Icons.Default.Close, stringResource(R.string.t_026), tint = TextSecondary,
-                    modifier = Modifier.size(18.dp))
-            }
-        }
-    }
-}
-
-// ═══════════════════════════════════════════════════════════
-// 📋 AllSessionsListView — Chat + Code مع أيقونة نوع
-// ═══════════════════════════════════════════════════════════
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun AllSessionsListView(
-    sessions: List<AllSession>,
-    onOpenChat: (AllSession) -> Unit,
-    onOpenCode: (AllSession) -> Unit,
-    onLongPressChat: (AllSession) -> Unit,
-) {
-    if (sessions.isEmpty()) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.t_047), color = TextSecondary, fontSize = 13.2.sp)
-                Text(stringResource(R.string.t_048), color = TextTertiary, fontSize = 11.4.sp,
-                    modifier = Modifier.padding(top = 6.dp))
-            }
-        }
-        return
-    }
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(sessions, key = { "${it.type}_${it.id}" }) { s ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(4.dp, RoundedCornerShape(16.dp))
-                    .combinedClickable(
-                        onClick = {
-                            if (s.type == "code") onOpenCode(s)
-                            else onOpenChat(s)
-                        },
-                        onLongClick = {
-                            if (s.type == "chat") onLongPressChat(s)
-                        },
-                    ),
-                colors = CardDefaults.cardColors(containerColor = BgSecondary),
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Row(
-                    Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    // أيقونة النوع
-                    Icon(
-                        if (s.type == "code") Icons.Default.Code else Icons.AutoMirrored.Filled.Chat,
-                        contentDescription = null,
-                        tint = if (s.type == "code") Info else Accent,
-                        modifier = Modifier.size(28.dp),
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            s.title,
-                            color = TextPrimary,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 13.2.sp,
-                        )
-                        s.lastMsg?.let {
-                            Text(
-                                it.take(80),
-                                color = TextSecondary,
-                                fontSize = 11.4.sp,
-                                modifier = Modifier.padding(top = 4.dp),
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-// Helper: AllSession → Session (للحذف)
-private fun AllSession.toChatSession(): Session = Session(
-    id = this.id,
-    title = this.title,
-    createdAt = this.createdAt,
-    updatedAt = this.updatedAt,
-    msgCount = this.msgCount,
-    lastMsg = this.lastMsg,
-)
-
-private fun getFileSize(ctx: android.content.Context, uri: Uri): Long {
-    return try {
-        ctx.contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length } ?: 0L
-    } catch (_: Exception) { 0L }
-}
-
-
-/**
- * ⭐ فقاعة الحالة (يفكر / يحلل / يرفع) — تحت البار العلوي
- * - موقع: أعلى اليمين (TopStart في RTL)
- * - شعاع لامع يمر من اليسار لليمين كل 0.7s
- * - نقطة زرقاء نابضة
- */
-@Composable
-fun StatusBubble(label: String) {
-    val isDark = androidx.compose.foundation.isSystemInDarkTheme()
-    val transition = androidx.compose.animation.core.rememberInfiniteTransition(label = "shimmer")
-
-    // ✨ Shimmer — أبطأ (900ms)
-    val shimmerX by transition.animateFloat(
-        initialValue = -1f,
-        targetValue = 2f,
-        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
-            animation = androidx.compose.animation.core.tween(
-                durationMillis = 600,
-                easing = androidx.compose.animation.core.LinearEasing,
-            ),
-            repeatMode = androidx.compose.animation.core.RepeatMode.Restart,
-        ),
-        label = "shimmer_x",
-    )
-
-    // 🔵 نقطة نابضة
-    val pulseScale by transition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.4f,
-        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
-            animation = androidx.compose.animation.core.tween(1400),
-            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
-        ),
-        label = "pulse_scale",
-    )
-    val pulseAlpha by transition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0.5f,
-        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
-            animation = androidx.compose.animation.core.tween(1400),
-            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
-        ),
-        label = "pulse_alpha",
-    )
-
-    // \u2726 خلفية الفقاعة — أزرق داكن متدرج
-    val bgTop = Color(0xFF1C1D1F)
-    val bgBot = Color(0xFF0A0A0B)
-    val borderC = Color(0xFF0A84FF)
-    val shadowC = Color(0xFF3B82F6).copy(alpha = 0.45f)
-
-    // 📝 نص رمادي + وهج أبيض فاتح
-    val baseColor = Color(0xFFB8B8C0)
-    val shimmerColor = Color(0xFFFFFFFF)
-
-    androidx.compose.foundation.layout.Box(
-        modifier = Modifier
-            .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(16.dp),
-                ambientColor = shadowC,
-                spotColor = shadowC,
-            )
-            .shadow(
-                elevation = 12.dp,
-                shape = RoundedCornerShape(16.dp),
-                ambientColor = Color(0xFF3B82F6).copy(alpha = 0.25f),
-                spotColor = Color(0xFF3B82F6).copy(alpha = 0.25f),
-            )
-            .clip(RoundedCornerShape(16.dp))
-            .background(Brush.linearGradient(colors = listOf(bgTop, bgBot)))
-            .border(1.5.dp, borderC, RoundedCornerShape(16.dp)),
-    ) {
-        // ⭐ توهج يمر على كامل الفقاعة
-        androidx.compose.foundation.layout.Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Transparent,
-                            Color(0xFF3B82F6).copy(alpha = 0.22f),
-                            Color.White.copy(alpha = 0.35f),
-                            Color(0xFF3B82F6).copy(alpha = 0.22f),
-                            Color.Transparent,
-                            Color.Transparent,
-                        ),
-                        startX = shimmerX * 400f,
-                        endX = shimmerX * 400f + 200f,
-                    )
-                ),
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(7.dp),
-            modifier = Modifier
-                .widthIn(min = 110.dp)
-                .padding(horizontal = 14.dp, vertical = 7.dp),
-        ) {
-            // ✦ نجمة أنيقة تدور بنعومة
-            androidx.compose.material3.Text(
-                text = "\u2726",
-                color = Color.White.copy(alpha = 0.85f + pulseAlpha * 0.15f),
-                fontSize = 11.4.sp,
-                modifier = Modifier.graphicsLayer(
-                    rotationZ = (shimmerX + 1f) * 60f,
-                    scaleX = 0.9f + pulseScale * 0.1f,
-                    scaleY = 0.9f + pulseScale * 0.1f,
-                ),
-            )
-            androidx.compose.foundation.text.BasicText(
-                text = label,
-                style = androidx.compose.ui.text.TextStyle(
-                    fontSize = 10.6.sp,
-                    fontWeight = FontWeight.Medium,
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            baseColor, baseColor,
-                            shimmerColor, shimmerColor, shimmerColor,
-                            baseColor, baseColor,
-                        ),
-                        startX = shimmerX * 600f,
-                        endX = shimmerX * 600f + 150f,
-                    ),
-                ),
-            )
-        }
-    }
-}
-
-
-// ═══════════════════════════════════════════════════════════
-// 🔒 Subscription Required Modal — احترافي minimalist
-// ═══════════════════════════════════════════════════════════
-@Composable
-private fun SubscriptionRequiredModal(
-    kind: String,
-    message: String,
-    onSubscribe: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val colors = LocalAppColors.current
-    var visible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) { visible = true }
-
-    if (visible) {
-        androidx.compose.ui.window.Dialog(
-            onDismissRequest = onDismiss,
-            properties = androidx.compose.ui.window.DialogProperties(
-                dismissOnBackPress = true,
-                dismissOnClickOutside = true,
-                usePlatformDefaultWidth = false,
-            ),
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.55f))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onDismiss,
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = visible,
-                    enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.scaleIn(
-                        initialScale = 0.92f,
-                        animationSpec = androidx.compose.animation.core.spring(
-                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                            stiffness = androidx.compose.animation.core.Spring.StiffnessLow,
-                        ),
-                    ),
-                    exit = androidx.compose.animation.fadeOut(),
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(0.88f)
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(Color(0xFF1C1C1E))
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                onClick = {},
-                            )
-                            .padding(horizontal = 24.dp, vertical = 28.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        // ⭐ أيقونة premium
-                        Box(
-                            modifier = Modifier
-                                .size(64.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFD4AF37).copy(alpha = 0.12f)),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Outlined.WorkspacePremium,
-                                contentDescription = null,
-                                tint = Color(0xFFD4AF37),
-                                modifier = Modifier.size(32.dp),
-                            )
-                        }
-
-                        Spacer(Modifier.height(20.dp))
-
-                        Text(
-                            text = "هذا الخيار للمشتركين",
-                            color = Color.White,
-                            fontSize = 16.7.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        )
-
-                        Spacer(Modifier.height(10.dp))
-
-                        Text(
-                            text = "استمتع بجميع الميزات مع إحدى باقاتنا",
-                            color = Color(0xFFB8B8C0),
-                            fontSize = 11.4.sp,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            lineHeight = 19.sp,
-                        )
-
-                        Spacer(Modifier.height(24.dp))
-
-                        // ─── صف الأيقونات ───
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                        ) {
-                            FeatureBadge(androidx.compose.material.icons.Icons.Outlined.Image, "صور")
-                            FeatureBadge(androidx.compose.material.icons.Icons.Outlined.Movie, "فيديو")
-                            FeatureBadge(androidx.compose.material.icons.Icons.Outlined.MusicNote, "أغاني")
-                            FeatureBadge(androidx.compose.material.icons.Icons.Outlined.Code, "كود")
-                        }
-
-                        Spacer(Modifier.height(28.dp))
-
-                        // ─── زر أساسي ───
-                        val btnInteractionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-                        val btnPressed by btnInteractionSource.collectIsPressedAsState()
-                        val btnScale by androidx.compose.animation.core.animateFloatAsState(
-                            targetValue = if (btnPressed) 0.96f else 1f,
-                            animationSpec = androidx.compose.animation.core.spring(
-                                dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                                stiffness = androidx.compose.animation.core.Spring.StiffnessHigh,
-                            ),
-                            label = "btnScale",
-                        )
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .graphicsLayer { scaleX = btnScale; scaleY = btnScale }
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(Color.White)
-                                .clickable(
-                                    interactionSource = btnInteractionSource,
-                                    indication = null,
-                                    onClick = { onSubscribe() }
-                                )
-                                .padding(vertical = 15.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = "عرض الباقات",
-                                color = Color(0xFF1C1C1E),
-                                fontSize = 13.2.sp,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                        }
-
-                        Spacer(Modifier.height(12.dp))
-
-                        // ─── زر ثانوي نصي ───
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(10.dp))
-                                .clickable(onClick = onDismiss)
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                        ) {
-                            Text(
-                                text = "لاحقاً",
-                                color = Color(0xFFB8B8C0),
-                                fontSize = 12.3.sp,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun FeatureBadge(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(Color(0xFF2A2A2E)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = Color(0xFFB8B8BC),
-                modifier = Modifier.size(22.dp),
-            )
-        }
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = label,
-            color = Color(0xFFB8B8C0),
-            fontSize = 9.7.sp,
-            fontWeight = FontWeight.Medium,
-        )
-    }
 }

@@ -20,21 +20,19 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.outlined.AutoAwesome
-import androidx.compose.material.icons.outlined.Code
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.MusicNote
-import androidx.compose.material.icons.outlined.PhotoCamera
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Summarize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,45 +40,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.union
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.gptplus18.app.R
 import com.gptplus18.app.data.models.Attachment
 import com.gptplus18.app.ui.theme.LocalAppColors
+import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 
-// ═══ Gunmetal Composer Palette ═══
-private val ComposerTop     = Color(0xFF1C1D1F)
-private val ComposerBottom  = Color(0xFF141517)
-private val ComposerBorder  = Color(0xFF2E3034)
-
-private val BtnBg           = Color(0xFF1F2124)
-private val BtnBgDark       = Color(0xFF151719)
-private val BtnBorder       = Color(0xFF303338)
-private val BtnIcon         = Color(0xFFFFFFFF)
-
-private val SendIdle        = Color(0xFF25272B)
-private val SendIdleBorder  = Color(0xFF2A2C30)
-private val SendActiveBorder = Color(0xFF5A5E66)
-private val SendIdleIcon    = Color(0xFF7A7C82)
-private val SendActiveIcon  = Color(0xFFF0F0F2)
-
-private val SendGray = Color(0xFF3A3A3E)  // legacy (احتياط)
+// ═══ الألوان الأساسية الجديدة ═══
+private val AccentBlue = Color(0xFF4B7EFF)
+private val StopRed    = Color(0xFFFF453A)
 
 @Composable
 fun ChatGptComposer(
@@ -92,45 +78,102 @@ fun ChatGptComposer(
     onSend: () -> Unit,
     onRemoveAttachment: (Long) -> Unit,
     onVoiceInput: ((String) -> Unit)? = null,
-    onImagePick: (() -> Unit)? = null,      // ⭐ v2.0: لاختيار صورة
-    onEditImagePick: (() -> Unit)? = null,  // ⭐ v2.0: لتعديل صورة
+    onImagePick: (() -> Unit)? = null,
+    onEditImagePick: (() -> Unit)? = null,
+    isStreaming: Boolean = false,
+    onStop: (() -> Unit)? = null,
+    showMediaChips: Boolean = true,
 ) {
+    val colors = LocalAppColors.current
+    val isLight = colors.isLight
+
     val hasText = value.isNotBlank()
     val hasAttachments = attachments.isNotEmpty()
-    // ⭐ كل المرفقات مرفوعة 100؟
     val allUploaded = attachments.all { it.isUploaded }
     val hasContent = hasText || hasAttachments
     val isUploading = hasAttachments && !allUploaded
     val canSend = hasContent && allUploaded
-    var showEmojiSheet by remember { mutableStateOf(false) }
-    val colors = LocalAppColors.current
 
-    Box(
+    // v5.1.8 - TextFieldValue داخلي + Custom Toolbar
+    var tfv by remember { mutableStateOf(TextFieldValue(value, TextRange(value.length))) }
+    val tfvRef = remember { mutableStateOf(tfv) }
+    tfvRef.value = tfv
+
+    LaunchedEffect(value) {
+        if (value != tfv.text) tfv = TextFieldValue(value, TextRange(value.length))
+    }
+
+    LaunchedEffect(tfv.selection) {
+        val sel = tfv.selection
+        val txt = tfv.text
+        if (sel.collapsed || sel.start >= sel.end || sel.end > txt.length) return@LaunchedEffect
+        val selText = txt.substring(sel.start, sel.end)
+        if (selText.contains(' ') || selText.contains('\n')) return@LaunchedEffect
+        val urlRegex = Regex("https?://[^\\s\\u200E\\u200F]+")
+        for (m in urlRegex.findAll(txt)) {
+            if (sel.start >= m.range.first && sel.end <= m.range.last + 1 && selText.length < m.value.length) {
+                tfv = tfv.copy(selection = TextRange(m.range.first, m.range.last + 1))
+                break
+            }
+        }
+    }
+
+    val _ctx = androidx.compose.ui.platform.LocalContext.current
+    val customToolbar = remember {
+        CustomTextToolbar(
+            onOpenBrowser = {
+                extractUrlAt(tfvRef.value.text, tfvRef.value.selection)?.let { url ->
+                    runCatching { _ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+                }
+            },
+            canOpenBrowser = { extractUrlAt(tfvRef.value.text, tfvRef.value.selection) != null }
+        )
+    }
+    customToolbar.Render()
+
+    var showEmojiSheet by remember { mutableStateOf(false) }
+
+    // ألوان ديناميكية حسب الوضع
+    val boxBg     = if (isLight) Color(0xFFFFFFFF) else Color(0xFF333333)  // ⭐ v18.9
+    val boxBorder = if (isLight) Color(0xFFE5E5EA) else Color(0xFF3D3D3D)  // ⭐ v18.9
+    val textColor = if (isLight) Color(0xFF1A1A1C) else Color(0xFFE5E5E7)
+    val hintColor = if (isLight) Color(0xFF8E8E93) else Color(0xFF5A5C62)
+    val iconColor = if (isLight) Color(0xFF1A1A1C) else Color(0xFFE5E5E7)
+    val sendIdleBg = if (isLight) Color(0xFFE5E5EA) else Color(0xFF25272B)
+    val sendIdleFg = if (isLight) Color(0xFF8E8E93) else Color(0xFF7A7C82)
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(colors.bg)
-            .padding(horizontal = 8.dp, vertical = 6.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
             .windowInsetsPadding(WindowInsets.ime.union(WindowInsets.navigationBars)),
     ) {
+        // ═══ Chips خارج الصندوق (فقط في الشات) ═══
+        if (showMediaChips) {
+            QuickChipsRow(
+                enabled = enabled,
+                onTextInsert = { t -> onValueChange(t) },
+                isLight = isLight,
+            )
+            Spacer(Modifier.height(10.dp))
+        }
+
+        // ═══ الصندوق الرئيسي ═══
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(
-                    elevation = 20.dp,
-                    shape = RoundedCornerShape(30.dp),
-                    ambientColor = Color.Black.copy(alpha = 0.65f),
-                    spotColor = Color.Black.copy(alpha = 0.5f),
-                )
-                .clip(RoundedCornerShape(30.dp))
-                .background(Brush.verticalGradient(listOf(ComposerTop, ComposerBottom)))
-                .border(0.5.dp, ComposerBorder, RoundedCornerShape(30.dp))
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+                .clip(RoundedCornerShape(28.dp))
+                .background(boxBg)
+                .border(0.8.dp, boxBorder, RoundedCornerShape(28.dp))
+                .padding(horizontal = 14.dp, vertical = 12.dp),
         ) {
+            // مرفقات
             if (attachments.isNotEmpty()) {
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 4.dp, vertical = 4.dp),
+                        .padding(bottom = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(attachments, key = { it.id }) { att ->
@@ -140,135 +183,107 @@ fun ChatGptComposer(
                         )
                     }
                 }
-                Spacer(Modifier.height(4.dp))
             }
-            // ⭐ v2.0: فقاعات سريعة
-            QuickChipsRow(
-                enabled = enabled,
-                onTextInsert = { t -> onValueChange(value + t) },
-                onImagePick = onImagePick,
-                onEditImagePick = onEditImagePick,
-            )
 
+            // حقل النص
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                    .padding(horizontal = 4.dp),
             ) {
                 if (value.isEmpty()) {
                     Text(
                         text = stringResource(R.string.t_001),
-                        color = Color(0xFF5A5C62),
-                        fontSize = 13.2.sp,
+                        color = hintColor,
+                        fontSize = 14.sp,
                     )
                 }
-                BasicTextField(
-                    value = value,
-                    onValueChange = onValueChange,
-                    enabled = true,
-                    textStyle = TextStyle(
-                        color = Color(0xFFE5E5E7),
-                        fontSize = 13.2.sp,
-                        lineHeight = 21.sp,
-                    ),
-                    cursorBrush = SolidColor(Color(0xFFB0B2B8)),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 24.dp, max = 160.dp),
-                    maxLines = 8,
-                )
+                CompositionLocalProvider(LocalTextToolbar provides customToolbar) {
+                    BasicTextField(
+                        value = tfv,
+                        onValueChange = { new ->
+                            tfv = new
+                            onValueChange(new.text)
+                        },
+                        enabled = true,
+                        textStyle = TextStyle(
+                            fontFamily = com.gptplus18.app.ui.theme.CairoFontFamily,
+                            color = textColor,
+                            fontSize = 14.sp,
+                            lineHeight = 22.sp,
+                        ),
+                        cursorBrush = SolidColor(AccentBlue),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 24.dp, max = 160.dp),
+                        maxLines = 8,
+                    )
+                }
             }
+
+            Spacer(Modifier.height(10.dp))
+
+            // ═══ صف الأزرار ═══
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // 😊 إيموجي
-                MetalButton(
-                    onClick = { showEmojiSheet = true },
+                IconOnlyButton(
+                    icon = Icons.Default.Add,
+                    contentDesc = stringResource(R.string.t_231),
+                    onClick = onAttachClick,
                     enabled = enabled,
-                ) {
-                    Icon(
-                        Icons.Default.EmojiEmotions,
-                        stringResource(R.string.t_230),
-                        tint = BtnIcon,
-                        modifier = Modifier.size(12.dp),
-                    )
-                }
+                    tint = iconColor,
+                )
+                Spacer(Modifier.width(16.dp))
 
-                Spacer(Modifier.width(8.dp))
-
-                // 🎤 مايك
                 if (onVoiceInput != null) {
-                    MetalButton(
-                        onClick = {},
-                        enabled = enabled,
-                        noClick = true,
+                    Box(
+                        modifier = Modifier.size(36.dp),
+                        contentAlignment = Alignment.Center,
                     ) {
                         VoiceInputButton(
                             enabled = enabled,
                             onResult = { text -> onVoiceInput(text) },
-                            modifier = Modifier.size(12.dp),
+                            modifier = Modifier.size(22.dp),
                         )
                     }
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(16.dp))
                 }
 
-                // + إرفاق
-                MetalButton(
-                    onClick = onAttachClick,
+                IconOnlyButton(
+                    icon = Icons.Default.EmojiEmotions,
+                    contentDesc = stringResource(R.string.t_230),
+                    onClick = { showEmojiSheet = true },
                     enabled = enabled,
-                ) {
-                    Icon(
-                        Icons.Default.Add,
-                        stringResource(R.string.t_231),
-                        tint = BtnIcon,
-                        modifier = Modifier.size(12.dp),
-                    )
-                }
+                    tint = iconColor,
+                )
 
                 Spacer(Modifier.weight(1f))
 
-                // ← إرسال (دائري)
-                if (hasContent) {
-                    val btnEnabled = canSend && enabled
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .shadow(
-                                elevation = if (btnEnabled) 8.dp else 0.dp,
-                                shape = CircleShape,
-                                ambientColor = Color(0xFF0A84FF).copy(alpha = 0.5f),
-                                spotColor = Color(0xFF0A84FF).copy(alpha = 0.35f),
-                            )
-                            .clip(CircleShape)
-                            .then(
-                                if (btnEnabled) Modifier.background(Color(0xFF0A84FF)) else Modifier.background(SendIdle)
-                            )
-                            .border(
-                                0.5.dp,
-                                Color(0xFF0A84FF),
-                                CircleShape,
-                            )
-                            .clickable(enabled = btnEnabled, onClick = onSend),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        if (isUploading) {
-                            androidx.compose.material3.CircularProgressIndicator(
-                                color = Color(0xFFE5E5E7),
-                                modifier = Modifier.size(18.dp),
-                                strokeWidth = 2.dp,
-                            )
-                        } else {
-                            Icon(
-                                Icons.Default.ArrowUpward,
-                                stringResource(R.string.t_035),
-                                tint = if (btnEnabled) SendActiveIcon else SendIdleIcon,
-                                modifier = Modifier.size(20.dp),
-                            )
-                        }
-                    }
+                if (isStreaming && onStop != null) {
+                    ActionCircleButton(
+                        icon = Icons.Default.Stop,
+                        contentDesc = "إيقاف",
+                        onClick = onStop,
+                        enabled = true,
+                        bgColor = AccentBlue,
+                        iconColor = Color.White,
+                        size = 36.dp,
+                        iconSize = 24.dp,   // ⭐ v5.0.9: 16 → 24 (أكبر 50%)
+                    )
+                } else if (hasContent) {
+                    ActionCircleButton(
+                        icon = Icons.Default.ArrowUpward,
+                        contentDesc = stringResource(R.string.t_035),
+                        onClick = onSend,
+                        enabled = canSend && enabled,
+                        bgColor = if (canSend && enabled) AccentBlue else sendIdleBg,
+                        iconColor = if (canSend && enabled) Color.White else sendIdleFg,
+                        size = 36.dp,
+                        iconSize = 24.dp,   // ⭐ v5.0.9: 16 → 24 (أكبر 50%)
+                        isUploading = isUploading,
+                    )
                 }
             }
         }
@@ -277,9 +292,175 @@ fun ChatGptComposer(
     if (showEmojiSheet) {
         EmojiPickerSheet(
             onDismiss = { showEmojiSheet = false },
-            onSelect = { emoji ->
-                onValueChange(value + emoji)
+            onSelect = { emoji -> onValueChange(value + emoji) },
+        )
+    }
+}
+
+// ═══ زر أيقونة شفاف ═══
+@Composable
+private fun IconOnlyButton(
+    icon: ImageVector,
+    contentDesc: String,
+    onClick: () -> Unit,
+    enabled: Boolean,
+    tint: Color,
+) {
+    var pressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) 0.92f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessHigh,
+        ),
+        label = "iconBtnScale",
+    )
+    Box(
+        modifier = Modifier
+            .size(36.dp)
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .clip(CircleShape)
+            .clickable(enabled = enabled) {
+                pressed = true
+                onClick()
             },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDesc,
+            tint = if (enabled) tint else tint.copy(alpha = 0.4f),
+            modifier = Modifier.size(22.dp),
+        )
+    }
+}
+
+// ═══ زر دائري ملوّن (إرسال/إيقاف) ═══
+@Composable
+private fun ActionCircleButton(
+    icon: ImageVector,
+    contentDesc: String,
+    onClick: () -> Unit,
+    enabled: Boolean,
+    bgColor: Color,
+    iconColor: Color,
+    size: Dp,
+    iconSize: Dp,
+    isUploading: Boolean = false,
+) {
+    val _interaction = androidx.compose.runtime.remember { MutableInteractionSource() }
+    val _pressed by _interaction.collectIsPressedAsState()
+    val _scale by animateFloatAsState(
+        targetValue = if (_pressed && enabled) 0.88f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessHigh,
+        ),
+        label = "send_btn_scale",
+    )
+    // ⭐ v19.0: Icon Launch — السهم "ينطلق" للأعلى عند الضغط
+    val _iconLift by animateFloatAsState(
+        targetValue = if (_pressed && enabled) -3f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessHigh,
+        ),
+        label = "send_icon_lift",
+    )
+    Box(
+        modifier = Modifier
+            .size(size)
+            .graphicsLayer { scaleX = _scale; scaleY = _scale }
+            .clip(CircleShape)
+            .background(bgColor)
+            .clickable(
+                interactionSource = _interaction,
+                indication = null,
+                enabled = enabled,
+                onClick = onClick,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (isUploading) {
+            CircularProgressIndicator(
+                color = iconColor,
+                modifier = Modifier.size(iconSize),
+                strokeWidth = 2.dp,
+            )
+        } else {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDesc,
+                tint = iconColor,
+                modifier = Modifier
+                    .size(iconSize)
+                    .graphicsLayer { translationY = _iconLift },
+            )
+        }
+    }
+}
+
+// ═══ صف الـ chips (خارج الصندوق) ═══
+@Composable
+private fun QuickChipsRow(
+    enabled: Boolean,
+    onTextInsert: (String) -> Unit,
+    isLight: Boolean,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SmallChip(
+            label = "صورة",
+            icon = Icons.Outlined.AutoAwesome,
+            onClick = { onTextInsert("أنشئ صورة ") },
+            enabled = enabled,
+            isLight = isLight,
+        )
+        SmallChip(
+            label = "أغنية",
+            icon = Icons.Outlined.MusicNote,
+            onClick = { onTextInsert("أنشئ أغنية عن ") },
+            enabled = enabled,
+            isLight = isLight,
+        )
+    }
+}
+
+@Composable
+private fun SmallChip(
+    label: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    enabled: Boolean,
+    isLight: Boolean,
+) {
+    val bg = if (isLight) Color(0xFFF0F0F2) else Color(0xFF1A1B1E)
+    val fg = if (isLight) Color(0xFF6E6E73) else Color(0xFFA0A2A8)
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(bg)
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = fg,
+            modifier = Modifier.size(14.dp),
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = label,
+            color = fg,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
         )
     }
 }
@@ -395,15 +576,13 @@ private fun AttachmentChip(
         }
 
         if (attachment.isUploading) {
-            // 🌑 طبقة تعتيم خلف المؤشر
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.55f)),
                 contentAlignment = Alignment.Center,
             ) {
-                // 🎯 دائرة progress + نسبة مئوية
-                androidx.compose.material3.CircularProgressIndicator(
+                CircularProgressIndicator(
                     progress = { attachment.progress.coerceIn(0f, 1f) },
                     color = Color(0xFFA8AAB0),
                     trackColor = Color.White.copy(alpha = 0.25f),
@@ -417,7 +596,6 @@ private fun AttachmentChip(
                     fontWeight = FontWeight.Bold,
                 )
             }
-            // 📊 شريط progress سفلي واضح
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -436,6 +614,21 @@ private fun AttachmentChip(
     }
 }
 
+// v5.1.8 - استخراج رابط URL عند موقع التحديد
+private fun extractUrlAt(text: String, sel: TextRange): String? {
+    if (text.isEmpty()) return null
+    val urlRegex = Regex("https?://[^\\s\\u200E\\u200F]+")
+    for (m in urlRegex.findAll(text)) {
+        val r = m.range
+        if (sel.collapsed) {
+            if (sel.start in r.first..(r.last + 1)) return m.value
+        } else {
+            if (sel.start >= r.first && sel.end <= r.last + 1) return m.value
+        }
+    }
+    return null
+}
+
 private fun fileEmoji(name: String): String {
     val n = name.lowercase()
     return when {
@@ -447,127 +640,5 @@ private fun fileEmoji(name: String): String {
         n.endsWith(".mp3") || n.endsWith(".wav") -> "🎵"
         n.endsWith(".mp4") || n.endsWith(".mov") -> "🎥"
         else -> "📎"
-    }
-}
-
-
-// ═══════════════════════════════════════════════════════════
-//  Gunmetal — Quick Actions + Small Chips
-// ═══════════════════════════════════════════════════════════
-
-private val ChipBg          = Color(0xFF1A1B1E)
-private val ChipBorder      = Color(0xFF25272B)
-private val ChipText        = Color(0xFFA0A2A8)
-private val ChipIcon        = Color(0xFF8A8C92)
-
-
-@Composable
-private fun QuickChipsRow(
-    enabled: Boolean,
-    onTextInsert: (String) -> Unit,
-    onImagePick: (() -> Unit)?,
-    onEditImagePick: (() -> Unit)?,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        SmallChip(
-            label = "صورة",
-            icon = androidx.compose.material.icons.Icons.Outlined.AutoAwesome,
-            onClick = { onTextInsert("أنشئ صورة ") },
-            enabled = enabled,
-        )
-        SmallChip(
-            label = "أغنية",
-            icon = androidx.compose.material.icons.Icons.Outlined.MusicNote,
-            onClick = { onTextInsert("أنشئ أغنية عن ") },
-            enabled = enabled,
-        )
-        SmallChip(
-            label = "فيديو",
-            icon = androidx.compose.material.icons.Icons.Outlined.Movie,
-            onClick = { onTextInsert("أنشئ فيديو عن ") },
-            enabled = enabled,
-        )
-    }
-}
-
-
-@Composable
-private fun SmallChip(
-    label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit,
-    enabled: Boolean,
-) {
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(ChipBg)
-            .border(0.5.dp, ChipBorder, RoundedCornerShape(12.dp))
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = ChipIcon,
-            modifier = Modifier.size(12.dp),
-        )
-        Spacer(Modifier.width(4.dp))
-        Text(
-            text = label,
-            color = ChipText,
-            fontSize = 9.7.sp,
-        )
-    }
-}
-
-// ═══════════════════════════════════════════════════════════
-//  MetalButton — زر معدني ثقيل صغير (32dp)
-// ═══════════════════════════════════════════════════════════
-
-@Composable
-private fun MetalButton(
-    onClick: () -> Unit,
-    enabled: Boolean,
-    noClick: Boolean = false,
-    content: @Composable () -> Unit,
-) {
-    var pressed by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.94f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessHigh,
-        ),
-        label = "metalBtnScale",
-    )
-
-    Box(
-        modifier = Modifier
-            .size(24.dp)
-            .graphicsLayer { scaleX = scale; scaleY = scale }
-            .shadow(
-                elevation = 2.dp,
-                shape = CircleShape,
-                ambientColor = Color.Black.copy(alpha = 0.3f),
-                spotColor = Color.Black.copy(alpha = 0.2f),
-            )
-            .clip(CircleShape)
-            .background(BtnBg)
-            .border(1.5.dp, Color(0xFF0A84FF), CircleShape)
-            .then(
-                if (!noClick) Modifier.clickable(enabled = enabled, onClick = onClick)
-                else Modifier
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        content()
     }
 }

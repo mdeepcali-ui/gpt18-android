@@ -20,6 +20,9 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,6 +52,18 @@ fun FullscreenImageViewer(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
 
+    // ⭐ v19.0: Entry animation (Scale + Fade)
+    var _entered by remember { mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(Unit) { _entered = true }
+    val _entryProgress by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (_entered) 1f else 0f,
+        animationSpec = androidx.compose.animation.core.tween(
+            durationMillis = 280,
+            easing = androidx.compose.animation.core.FastOutSlowInEasing,
+        ),
+        label = "viewer_entry",
+    )
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -56,7 +71,12 @@ fun FullscreenImageViewer(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black),
+                .background(Color.Black.copy(alpha = _entryProgress))
+                .graphicsLayer {
+                    scaleX = 0.9f + (0.1f * _entryProgress)
+                    scaleY = 0.9f + (0.1f * _entryProgress)
+                    alpha = _entryProgress
+                },
         ) {
             AsyncImage(
                 model = imageUrl,

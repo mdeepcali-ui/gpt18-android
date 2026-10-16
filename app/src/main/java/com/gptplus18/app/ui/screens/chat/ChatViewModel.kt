@@ -51,6 +51,14 @@ data class ChatUiState(
     val isOwner: Boolean = false,
     val pinnedMessages: List<Message> = emptyList(),
     val subscriptionPrompt: SubscriptionPrompt? = null,
+    // ⭐ v2.0: زر اشحن رصيد عند رفض الميزات المدفوعة
+    val topupRequired: Boolean = false,
+    val topupMessage: String? = null,
+    val topupAction: String? = null,   // "image" | "song" | "image_edit" | "code"
+    // ⭐ v2.0: الرصيد والاشتراك
+    val credits: Int = 0,
+    val usdValue: Double = 0.0,
+    val subscriptionPlan: String? = null,
 )
 
 data class SubscriptionPrompt(
@@ -71,7 +79,49 @@ class ChatViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ChatUiState())
+
+    // ⏹ Job الـ streaming الحالي — للإيقاف
+    private var streamJob: kotlinx.coroutines.Job? = null
     val state: StateFlow<ChatUiState> = _state.asStateFlow()
+
+    /** ⭐ v5.1.34: إعادة تحميل الصورة من الـ storage */
+    fun clearTopup() {
+        _state.value = _state.value.copy(
+            topupRequired = false,
+            topupMessage = null,
+            topupAction = null,
+        )
+    }
+
+    // ⭐ v2.0: تحميل الرصيد
+    fun loadCredits() {
+        viewModelScope.launch {
+            try {
+                when (val r = chatRepo.getCreditsBalance()) {
+                    is com.gptplus18.app.util.Result.Success -> {
+                        val d = r.data
+                        _state.value = _state.value.copy(
+                            credits = d.credits,
+                            usdValue = d.usdValue,
+                            subscriptionPlan = d.subscription?.plan,
+                        )
+                    }
+                    else -> {}
+                }
+            } catch (_: Exception) { }
+        }
+    }
+
+    fun refreshAvatar() {
+        viewModelScope.launch {
+            try {
+                val name = tokenStorage.getName()?.takeIf { it.isNotBlank() } ?: "المستخدم"
+                val avatar = tokenStorage.getAvatar() ?: ""
+                _state.value = _state.value.copy(userName = name, avatarUrl = avatar)
+            } catch (_: Exception) { }
+            loadCredits()
+        }
+    }
 
     init {
         viewModelScope.launch {
@@ -257,12 +307,8 @@ class ChatViewModel @Inject constructor(
             ts = System.currentTimeMillis() / 1000.0,
         )
         val thinkId = System.currentTimeMillis()
-        val thinkingSteps = when (current.currentMode.key) {
-            "code" -> listOf("تحليل الطلب", "بناء الخطة", "كتابة الكود", "المراجعة")
-            "media" -> listOf("فهم الوصف", "توليد النموذج", "التحسين النهائي")
-            "max" -> listOf("التحليل", "التخطيط", "التنفيذ", "الصياغة")
-            else -> listOf("فهم السؤال", "جمع السياق", "صياغة الرد")
-        }
+        // ⭐ v3.4: بلا steps وهمية — فقط placeholder "يفكّر..."
+        val thinkingSteps = emptyList<String>()
 
         val assistantTs = System.currentTimeMillis() / 1000.0 + 1
         val emptyAssistant = Message(
@@ -286,7 +332,7 @@ class ChatViewModel @Inject constructor(
             )),
         )
 
-        viewModelScope.launch {
+        streamJob = viewModelScope.launch {
             val sb = StringBuilder()
             var finalSessionId = current.currentSessionId
             var gotError = false
@@ -338,20 +384,18 @@ class ChatViewModel @Inject constructor(
                                 )
                             }
                         }
-                        // ⭐ v2.5.5: Typewriter — كل حرف على حدة بـ 12ms delay
+                        // ⭐ الرد يظهر دفعة وحدة (بلا typewriter)
+                        // ⭐ السحابة تبقى ظاهرة حتى Done (نشيل التنظيف من هنا)
                         is StreamEvent.Delta -> {
-                            for (c in ev.text) {
-                                sb.append(c)
-                                val currentText = sb.toString()
-                                _state.value = _state.value.copy(
-                                    messages = _state.value.messages.map { m ->
-                                        if (m.id == -2 && m.ts == assistantTs) {
-                                            m.copy(content = currentText)
-                                        } else m
-                                    },
-                                )
-                                kotlinx.coroutines.delay(2)
-                            }
+                            sb.append(ev.text)
+                            val currentText = sb.toString()
+                            _state.value = _state.value.copy(
+                                messages = _state.value.messages.map { m ->
+                                    if (m.id == -2 && m.ts == assistantTs) {
+                                        m.copy(content = currentText)
+                                    } else m
+                                },
+                            )
                         }
                         is StreamEvent.CodeFiles -> {
                             _state.value = _state.value.copy(
@@ -379,10 +423,16 @@ class ChatViewModel @Inject constructor(
                                 },
                                 currentSessionId = finalSessionId,
                                 isSending = false,
-                                pendingMediaType = null,  // ⭐ v2.0: تنظيف بعد انتهاء
+                                pendingMediaType = null,
                                 statusLabel = "",
+                                // ⭐ نحافظ على التفكير مؤقتاً للأنيميشن
                                 thinkingByMessage = newThinking,
                             )
+                            // ⭐ بعد 600ms — نمسح التفكير (بعد الأنيميشن)
+                            viewModelScope.launch {
+                                kotlinx.coroutines.delay(600)
+                                _state.value = _state.value.copy(thinkingByMessage = emptyMap())
+                            }
                             finalSessionId?.let { sid ->
                                 cacheRepo.saveMessages(sid, _state.value.messages)
                             }
@@ -400,6 +450,14 @@ class ChatViewModel @Inject constructor(
                                 isSending = false,
                             )
                         }
+                        // ⭐ v2.0: زر "اشحن رصيد"
+                        is StreamEvent.TopupRequired -> {
+                            _state.value = _state.value.copy(
+                                topupRequired = true,
+                                topupAction = ev.action,
+                                isSending = false,
+                            )
+                        }
                         is StreamEvent.Error -> {
                             gotError = true
                             _state.value = _state.value.copy(
@@ -408,6 +466,7 @@ class ChatViewModel @Inject constructor(
                                 error = ev.message,
                             )
                         }
+                        else -> {}   // ⭐ v5.0.2: FinalContent للشات غير مستخدم
                     }
                 }
 
@@ -446,6 +505,31 @@ class ChatViewModel @Inject constructor(
      * - لو النموذج لسا ما وصل [[رد]] → يرجع فاضي
      * - لو في [[رد]]...[[/رد]] → يرجع النص بينهم فقط
      */
+
+
+    /**
+     * ⏹ إيقاف الرد الجاري
+     * - يلغي الـ Job
+     * - يثبّت الرسالة المؤقتة (يحفظ النص يلي وصل)
+     * - يحرّر isSending
+     */
+    fun stopStreaming() {
+        val job = streamJob ?: return
+        streamJob = null
+        job.cancel()
+        // ثبّت الرسالة المؤقتة (id=-2) → نخليها id=0 مع النص الحالي
+        val msgs = _state.value.messages.map { m ->
+            if (m.id == -2) m.copy(id = 0) else m
+        }
+        _state.value = _state.value.copy(
+            messages = msgs,
+            isSending = false,
+            statusLabel = "",
+            pendingMediaType = null,
+        )
+        android.util.Log.d("ChatVM", "stopStreaming() — cancelled")
+    }
+
     private fun cleanStreamingText(raw: String): String {
         if (raw.isBlank()) return ""
 

@@ -157,10 +157,10 @@ fun SettingsScreen(
                     try {
                         val intent = Intent(Intent.ACTION_SENDTO).apply {
                             data = Uri.parse("mailto:m.deep.cali@outlook.sa")
-                            putExtra(Intent.EXTRA_SUBJECT, "دعم GPT+18 — v${BuildConfig.VERSION_NAME}")
+                            putExtra(Intent.EXTRA_SUBJECT, "دعم GPT+18")
                             putExtra(
                                 Intent.EXTRA_TEXT,
-                                "\n\n\n---\nاسم المستخدم: ${state.userName}\nالإصدار: ${BuildConfig.VERSION_NAME}\nالمعرّف: ${state.uid}"
+                                "\n\n\n---\nاسم المستخدم: ${state.userName}\nالمعرّف: ${state.uid}"
                             )
                         }
                         ctx.startActivity(intent)

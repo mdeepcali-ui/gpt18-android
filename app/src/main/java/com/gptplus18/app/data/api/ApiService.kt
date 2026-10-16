@@ -8,6 +8,19 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
+import com.gptplus18.app.data.models.RunRequest
+import com.gptplus18.app.data.models.RunResponse
+import com.gptplus18.app.data.models.ServersListResponse
+import com.gptplus18.app.data.models.AddServerRequest
+import com.gptplus18.app.data.models.AddServerResponse
+import com.gptplus18.app.data.models.TestServerResponse
+import com.gptplus18.app.data.models.ExecServerRequest
+import com.gptplus18.app.data.models.ExecServerResponse
+import com.gptplus18.app.data.models.SaveWorkspaceRequest
+import com.gptplus18.app.data.models.SaveWorkspaceResponse
+import com.gptplus18.app.data.models.DetachRequest
+import com.gptplus18.app.data.models.DetachResponse
+import com.gptplus18.app.data.models.ActiveTasksResponse
 
 interface ApiService {
 
@@ -32,6 +45,19 @@ interface ApiService {
 
     @GET("api/auth/subscription")
     suspend fun mySubscription(@Header("Authorization") bearer: String): Response<MySubscriptionResponse>
+
+    // ⭐ v2.0: Credits endpoints
+    @GET("api/credits/balance")
+    suspend fun getCreditsBalance(@Header("Authorization") bearer: String): Response<CreditsBalanceResponse>
+
+    @GET("api/credits/transactions")
+    suspend fun getCreditsTransactions(
+        @Header("Authorization") bearer: String,
+        @Query("limit") limit: Int = 50
+    ): Response<CreditsTransactionsResponse>
+
+    @GET("api/credits/pricing")
+    suspend fun getCreditsPricing(): Response<SubscriptionPublic>
 
     @POST("api/auth/start-trial")
     suspend fun startTrial(@Header("Authorization") bearer: String): Response<Any>
@@ -159,7 +185,7 @@ interface ApiService {
     ): Response<VideoResponse>
 
     // ─── Public ───
-    @GET("api/subscription-public")
+    @GET("api/auth/plans")
     suspend fun subscriptionPublic(): Response<SubscriptionPublic>
 
 
@@ -267,6 +293,68 @@ interface ApiService {
         @Body body: BirthDateBody,
     ): Response<Any>
 
+    @POST("api/code/run")
+    suspend fun codeRun(
+        @Header("Authorization") bearer: String,
+        @Body body: RunRequest,
+    ): Response<RunResponse>
+
+    // ⭐ v10.0: SSH Servers
+    @GET("api/ssh/servers")
+    suspend fun listServers(@Header("Authorization") bearer: String): Response<ServersListResponse>
+
+    @POST("api/ssh/servers")
+    suspend fun addServer(
+        @Header("Authorization") bearer: String,
+        @Body body: AddServerRequest,
+    ): Response<AddServerResponse>
+
+    @DELETE("api/ssh/servers/{id}")
+    suspend fun deleteServer(
+        @Header("Authorization") bearer: String,
+        @Path("id") id: Int,
+    ): Response<Map<String, Any>>
+
+    @POST("api/ssh/servers/{id}/test")
+    suspend fun testServer(
+        @Header("Authorization") bearer: String,
+        @Path("id") id: Int,
+    ): Response<TestServerResponse>
+
+    @POST("api/ssh/servers/{id}/exec")
+    suspend fun execOnServer(
+        @Header("Authorization") bearer: String,
+        @Path("id") id: Int,
+        @Body body: ExecServerRequest,
+    ): Response<ExecServerResponse>
+
+
+    @POST("api/code/save-workspace")
+    suspend fun codeSaveWorkspace(
+        @Header("Authorization") bearer: String,
+        @Body body: SaveWorkspaceRequest,
+    ): Response<SaveWorkspaceResponse>
+
+
+    // ⭐ v18.8: Task Persistence
+    @POST("api/code/stream-detach")
+    suspend fun codeStreamDetach(
+        @Header("Authorization") bearer: String,
+        @Body body: DetachRequest,
+    ): Response<DetachResponse>
+
+    @GET("api/code/tasks/active")
+    suspend fun codeActiveTasks(
+        @Header("Authorization") bearer: String,
+    ): Response<ActiveTasksResponse>
+
+    @POST("api/code/task/{taskId}/cancel")
+    suspend fun codeTaskCancel(
+        @Header("Authorization") bearer: String,
+        @Path("taskId") taskId: String,
+    ): Response<Map<String, Any>>
+
 }
 
 data class BirthDateBody(val birth_date: String)
+

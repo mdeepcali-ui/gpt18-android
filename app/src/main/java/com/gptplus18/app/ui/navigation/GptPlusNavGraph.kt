@@ -28,7 +28,7 @@ import com.gptplus18.app.ui.screens.splash.SplashScreen
 import com.gptplus18.app.ui.screens.disclaimer.DisclaimerScreen
 import com.gptplus18.app.ui.screens.agecheck.AgeCheckScreen
 import com.gptplus18.app.ui.screens.settings.SettingsScreen
-import com.gptplus18.app.ui.screens.subscription.BillingScreen
+import com.gptplus18.app.ui.screens.subscription.SubscriptionScreen
 import com.gptplus18.app.ui.theme.Accent
 import com.gptplus18.app.ui.theme.BgPrimary
 import com.gptplus18.app.ui.theme.BgSecondary
@@ -42,11 +42,16 @@ object Routes {
     const val AUTH = "auth"
     const val CHAT = "chat"
     const val CODE = "code"
+    const val CODE_ARG_ID = "sessionId"
+    const val CODE_ROUTE = "code?sessionId={sessionId}"
+    fun codeWithId(id: Int) = "code?sessionId=" + id
     const val SUBSCRIPTION = "subscription"
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
     const val ABOUT = "about"
     const val ADMIN = "admin"
+    const val SERVERS = "servers"
+    const val PROJECTS = "projects"
 }
 
 @Composable
@@ -54,6 +59,7 @@ fun GptPlusNavGraph(
     navController: NavHostController,
     deepLinkRoute: String? = null,
     deepLinkTick: Int = 0,
+    deepLinkSessionId: Int? = null,
 ) {
     val backStack by navController.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
@@ -61,7 +67,14 @@ fun GptPlusNavGraph(
     // Deep link handling — يتفعل كل مرة tick يتغير
     androidx.compose.runtime.LaunchedEffect(deepLinkTick) {
         if (deepLinkTick > 0 && deepLinkRoute != null) {
-            navController.navigate(deepLinkRoute) {
+            // ⭐ v18.9: لو code route + sessionId → نبني route صحيح
+            val target = when {
+                deepLinkRoute == Routes.CODE_ROUTE && deepLinkSessionId != null && deepLinkSessionId > 0 ->
+                    Routes.codeWithId(deepLinkSessionId)
+                deepLinkRoute == Routes.CODE_ROUTE -> Routes.CODE
+                else -> deepLinkRoute
+            }
+            navController.navigate(target) {
                 popUpTo(navController.graph.findStartDestination().id) {
                     inclusive = true
                 }
@@ -210,8 +223,9 @@ fun GptPlusNavGraph(
                             popUpTo(0) { inclusive = true }
                         }
                     },
-                    onNavigateToCode = {
-                        navController.navigate(Routes.CODE) {
+                    onNavigateToCode = { sessionId ->
+                        val _route = if (sessionId > 0) Routes.codeWithId(sessionId) else Routes.CODE
+                        navController.navigate(_route) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
@@ -219,8 +233,28 @@ fun GptPlusNavGraph(
                     },
                 )
             }
-            composable(Routes.CODE) {
+            composable(Routes.PROJECTS) {
+                com.gptplus18.app.ui.screens.projects.ProjectsScreen(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(Routes.SERVERS) {
+                com.gptplus18.app.ui.screens.servers.ServersScreen(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(
+                route = Routes.CODE_ROUTE,
+                arguments = listOf(
+                    androidx.navigation.navArgument(Routes.CODE_ARG_ID) {
+                        type = androidx.navigation.NavType.IntType
+                        defaultValue = -1
+                    },
+                ),
+            ) { backStackEntry ->
+                val _sid = backStackEntry.arguments?.getInt(Routes.CODE_ARG_ID) ?: -1
                 CodeScreen(
+                    openSessionId = if (_sid > 0) _sid else null,
                     onNavigateToChat = {
                         navController.navigate(Routes.CHAT) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -228,10 +262,41 @@ fun GptPlusNavGraph(
                             restoreState = true
                         }
                     },
+                    onNavigateToSubscription = {
+                        navController.navigate(Routes.SUBSCRIPTION) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onNavigateToServers = {
+                        navController.navigate(Routes.SERVERS)
+                    },
+                    onNavigateToProjects = {
+                        navController.navigate(Routes.PROJECTS)
+                    },
+                    onNavigateToProfile = {
+                        navController.navigate(Routes.PROFILE) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate(Routes.SETTINGS)
+                    },
+                    onNavigateToAdmin = {
+                        navController.navigate(Routes.ADMIN)
+                    },
+                    onNavigateToAuth = {
+                        navController.navigate(Routes.AUTH) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
                 )
             }
             // ⭐ v2.0: Code + Media دُمجا في Chat (تُستدعى تلقائياً حسب النية)
-            composable(Routes.SUBSCRIPTION) { BillingScreen(onBack = { navController.popBackStack() }) }
+            composable(Routes.SUBSCRIPTION) { SubscriptionScreen(onBack = { navController.popBackStack() }) }
             composable(Routes.PROFILE) {
                 ProfileScreen(
                     onAdminClick = { navController.navigate(Routes.ADMIN) },
@@ -241,6 +306,7 @@ fun GptPlusNavGraph(
                             popUpTo(0) { inclusive = true }
                         }
                     },
+                    onNavigateToSubscription = { navController.navigate(Routes.SUBSCRIPTION) },
                 )
             }
             composable(Routes.SETTINGS) {

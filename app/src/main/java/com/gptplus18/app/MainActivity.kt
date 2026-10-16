@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
     // 🔗 Deep Link state — في مستوى Activity (بدل recreate)
     private var deepLinkRoute by mutableStateOf<String?>(null)
     private var deepLinkTick by mutableStateOf(0)
+    private var deepLinkSessionId by mutableStateOf<Int?>(null)
 
     // 🔔 طلب إذن الإشعارات (Android 13+)
     private val notifPermLauncher = registerForActivityResult(
@@ -80,6 +81,7 @@ class MainActivity : ComponentActivity() {
 
         // نعالج الـ deep link الأولي
         deepLinkRoute = parseDeepLink(intent)
+        deepLinkSessionId = parseDeepLinkSession(intent)
         if (deepLinkRoute != null) deepLinkTick = 1
 
         setContent {
@@ -141,6 +143,7 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             deepLinkRoute = deepLinkRoute,
                             deepLinkTick = deepLinkTick,
+                            deepLinkSessionId = deepLinkSessionId,
                         )
 
                         updateInfo?.let { info ->
@@ -158,6 +161,28 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+
+        // ⭐ v18.9: نعالج extras الإشعار
+        val extraLink = intent.getStringExtra("deep_link")
+        if (!extraLink.isNullOrBlank()) {
+            val route = when (extraLink) {
+                "code" -> Routes.CODE_ROUTE
+                "chat" -> Routes.CHAT
+                "subscription" -> Routes.SUBSCRIPTION
+                "admin" -> Routes.ADMIN
+                "servers" -> Routes.SERVERS
+                "projects" -> Routes.PROJECTS
+                else -> null
+            }
+            if (route != null) {
+                deepLinkRoute = route
+                deepLinkSessionId = if (route == Routes.CODE_ROUTE) {
+                    getSessionIdExtra(intent)
+                } else null
+                deepLinkTick++
+                return
+            }
+        }
 
         val data = intent.data
         if (data?.scheme == "gptplus18" && data.host == "auth") {
@@ -183,11 +208,48 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /** يقرأ session_id سواء وصل Int (foreground) أو String (FCM background). */
+    private fun getSessionIdExtra(intent: Intent?): Int? {
+        if (intent == null) return null
+        // جرّب Int أولاً
+        val asInt = intent.getIntExtra("session_id", -1)
+        if (asInt > 0) return asInt
+        // جرّب String (FCM background)
+        val asStr = intent.getStringExtra("session_id")
+        val parsed = asStr?.toIntOrNull() ?: -1
+        return if (parsed > 0) parsed else null
+    }
+
+    private fun parseDeepLinkSession(intent: Intent?): Int? {
+        if (intent == null) return null
+        val extraLink = intent.getStringExtra("deep_link") ?: return null
+        if (extraLink != "code") return null
+        return getSessionIdExtra(intent)
+    }
+
     private fun parseDeepLink(intent: Intent?): String? {
-        val data = intent?.data ?: return null
+        if (intent == null) return null
+
+        // ⭐ v18.9: أولوية لـ extras (من الإشعارات)
+        val extraLink = intent.getStringExtra("deep_link")
+        if (!extraLink.isNullOrBlank()) {
+            return when (extraLink) {
+                "code" -> Routes.CODE_ROUTE
+                "chat" -> Routes.CHAT
+                "subscription" -> Routes.SUBSCRIPTION
+                "admin" -> Routes.ADMIN
+                "servers" -> Routes.SERVERS
+                "projects" -> Routes.PROJECTS
+                else -> null
+            }
+        }
+
+        // fallback — data URI
+        val data = intent.data ?: return null
         return when {
             data.scheme == "gptplus18" && data.host == "auth" -> Routes.CHAT
             data.path?.startsWith("/chat") == true -> Routes.CHAT
+            data.path?.startsWith("/code") == true -> Routes.CODE_ROUTE
             data.path?.startsWith("/subscription") == true -> Routes.SUBSCRIPTION
             data.path?.startsWith("/admin") == true -> Routes.ADMIN
             else -> null

@@ -127,9 +127,8 @@ fun AboutScreen(onBack: () -> Unit = {}) {
             // ⭐ A1: معلومات عن التطبيق
             SectionTitle("معلومات عن التطبيق")
 
-            InfoRow("📱", "الإصدار", com.gptplus18.app.BuildConfig.VERSION_NAME)
-            InfoRow("🧠", "نماذج الذكاء", "Gemma 4 · Gemini · Claude")
-            InfoRow("🎨", "القدرات", "دردشة · برمجة · صور · أغاني · فيديو")
+
+            InfoRow("🎨", "القدرات", "دردشة · برمجة · صور · أغاني")
             InfoRow("🌍", "اللغات المدعومة", "العربية · English")
             InfoRow("🔒", "الخصوصية", "بياناتك مشفّرة وآمنة")
 

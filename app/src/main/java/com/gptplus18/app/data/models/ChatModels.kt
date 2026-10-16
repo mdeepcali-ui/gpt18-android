@@ -11,6 +11,13 @@ data class Session(
     @SerializedName("last_msg") val lastMsg: String? = null,
 )
 
+data class LocalAttachment(
+    val name: String,
+    val mime: String,
+    val isImage: Boolean = false,
+    val localUri: String? = null,  // للصور — URI محلي
+)
+
 data class Message(
     @SerializedName("id") val id: Int,
     @SerializedName("role") val role: String,  // "user" | "assistant"
@@ -20,6 +27,7 @@ data class Message(
     val localImageUri: String? = null,          // للتوافق الخلفي
     val localImageUris: List<String>? = null,   // ⭐ متعدد — كل الصور المرفقة
     val isAnalyzing: Boolean = false,
+    val localAttachments: List<LocalAttachment>? = null,  // ⭐ v9.1: كل المرفقات (صور + ملفات)
 )
 
 data class SessionsList(

@@ -119,6 +119,12 @@ class StreamingClient {
                                 plan = obj.optString("plan", "free"),
                             ))
                         }
+                        // ⭐ v2.0: حدث "اشحن رصيد" للميزات المدفوعة
+                        obj.optBoolean("topup_required", false) -> {
+                            trySend(StreamEvent.TopupRequired(
+                                action = obj.optString("action", ""),
+                            ))
+                        }
                         // ⭐ التفكير (يُعرض في سحابة التفكير)
                         obj.has("thinking_delta") -> {
                             val td = obj.optString("thinking_delta", "")
@@ -127,6 +133,13 @@ class StreamingClient {
                             }
                         }
                         // ⭐ الرد الفعلي (يُضاف حرف بحرف)
+                        obj.has("final_content") -> {
+                            // ⭐ v5.0.2: الرد كامل دفعة وحدة
+                            val fc = obj.optString("final_content", "")
+                            if (fc.isNotEmpty()) {
+                                trySend(StreamEvent.FinalContent(fc))
+                            }
+                        }
                         obj.has("delta") -> {
                             val delta = obj.optString("delta", "")
                             if (delta.isNotEmpty()) {
@@ -148,6 +161,47 @@ class StreamingClient {
                                 imageUrl = imageUrl,
                             ))
                             close()
+                        }
+                        obj.has("save_request") -> {
+                            // ⭐ v10.0: المساعد يريد يحفظ ملفات على الموبايل
+                            try {
+                                val sr = obj.getJSONObject("save_request")
+                                val folder = sr.optString("folder_name", "project")
+                                val count = sr.optInt("count", 0)
+                                val totalBytes = sr.optLong("total_bytes", 0L)
+                                val filesObj = sr.optJSONObject("files")
+                                val filesMap = mutableMapOf<String, String>()
+                                val binariesMap = mutableMapOf<String, StreamEvent.BinaryFile>()
+                                if (filesObj != null) {
+                                    val keys = filesObj.keys()
+                                    while (keys.hasNext()) {
+                                        val k = keys.next()
+                                        val v = filesObj.opt(k)
+                                        if (v is String) {
+                                            filesMap[k] = v
+                                        } else if (v is org.json.JSONObject) {
+                                            val b64 = v.optString("__base64__", "")
+                                            val mime = v.optString("__content_type__", "application/octet-stream")
+                                            if (b64.isNotEmpty()) {
+                                                binariesMap[k] = StreamEvent.BinaryFile(b64, mime)
+                                            }
+                                        }
+                                    }
+                                }
+                                if (count > 0 && (filesMap.isNotEmpty() || binariesMap.isNotEmpty())) {
+                                    trySend(
+                                        StreamEvent.SaveRequest(
+                                            folderName = folder,
+                                            files = filesMap,
+                                            binaries = binariesMap,
+                                            count = count,
+                                            totalBytes = totalBytes,
+                                        )
+                                    )
+                                }
+                            } catch (e: Exception) {
+                                trySend(StreamEvent.Error("save_request parse: ${e.message}"))
+                            }
                         }
                         obj.has("error") -> {
                             doneEmitted = true
@@ -197,6 +251,7 @@ class StreamingClient {
         request: String,
         model: String? = null,
         useTeam: Boolean = true,
+        fileIds: List<String> = emptyList(),
     ): Flow<StreamEvent> = callbackFlow {
 
         val jsonBody = JSONObject().apply {
@@ -204,6 +259,11 @@ class StreamingClient {
             put("use_team", useTeam)
             if (sessionId != null) put("session_id", sessionId)
             if (model != null) put("model", model)
+            if (fileIds.isNotEmpty()) {
+                val arr = org.json.JSONArray()
+                fileIds.forEach { arr.put(it) }
+                put("file_ids", arr)
+            }
         }.toString()
 
         val req = Request.Builder()
@@ -239,6 +299,13 @@ class StreamingClient {
                                 if (st.isNotEmpty()) {
                                     trySend(StreamEvent.Status(st))
                                 }
+                            }
+                        }
+                        obj.has("final_content") -> {
+                            // ⭐ v5.0.2: الرد كامل دفعة وحدة
+                            val fc = obj.optString("final_content", "")
+                            if (fc.isNotEmpty()) {
+                                trySend(StreamEvent.FinalContent(fc))
                             }
                         }
                         obj.has("delta") -> {
@@ -298,6 +365,7 @@ class StreamingClient {
 sealed class StreamEvent {
     data class ThinkingDelta(val text: String) : StreamEvent()
     data class Delta(val text: String) : StreamEvent()
+    data class FinalContent(val text: String) : StreamEvent()
     data class Status(val text: String, val mediaType: String = "") : StreamEvent()
     data class ImageUrl(val url: String, val prompt: String = "") : StreamEvent()
     data class Done(
@@ -309,12 +377,29 @@ sealed class StreamEvent {
     ) : StreamEvent()
     data class Error(val message: String) : StreamEvent()
     data class CodeFiles(val files: List<CodeFileItem>, val zipUrl: String?) : StreamEvent()
+    // ⭐ v10.0: save_to_phone request
+    data class SaveRequest(
+        val folderName: String,
+        val files: Map<String, String>,          // ملفات نصية
+        val binaries: Map<String, BinaryFile>,   // ملفات ثنائية
+        val count: Int,
+        val totalBytes: Long,
+    ) : StreamEvent()
+
+    // ⭐ v10.1: ملف ثنائي base64
+    data class BinaryFile(
+        val base64: String,
+        val mimeType: String,
+    ) : StreamEvent()
     data class SubscriptionRequired(
         val kind: String,
         val reason: String,
         val message: String,
         val plan: String,
     ) : StreamEvent()
+
+        // ⭐ v2.0: اشحن رصيد
+        data class TopupRequired(val action: String) : StreamEvent()
 }
 
 data class CodeFileItem(

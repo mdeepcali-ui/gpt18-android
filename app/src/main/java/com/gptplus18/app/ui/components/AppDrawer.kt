@@ -13,6 +13,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.ui.draw.shadow
+import androidx.compose.material.icons.filled.WorkspacePremium
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AdminPanelSettings
@@ -52,9 +56,15 @@ fun AppDrawerContent(
     onSubscription: () -> Unit,
     onProfile: () -> Unit,
     onSettings: () -> Unit = {},
+    onProjects: () -> Unit = {},
+    onServers: () -> Unit = {},
     onAdmin: () -> Unit,
     onLogout: () -> Unit,
     avatarUrl: String = "",
+    // ⭐ v2.0: الرصيد والاشتراك
+    credits: Int = 0,
+    usdValue: Double = 0.0,
+    subscriptionPlan: String? = null,
 ) {
     val colors = LocalAppColors.current
     ModalDrawerSheet(
@@ -66,7 +76,21 @@ fun AppDrawerContent(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
         ) {
-            DrawerHeader(userName, userEmail, avatarUrl)
+            DrawerHeader(userName, userEmail, avatarUrl, subscriptionPlan)
+
+            // ⭐ v2.0: عرض الرصيد + الاشتراك
+            DrawerBalanceChip(
+                credits = credits,
+                usdValue = usdValue,
+                subscriptionPlan = subscriptionPlan,
+                onClick = onSubscription,
+            )
+
+            // ⭐ v2.1: زر الترقية (يظهر فقط للمجاني)
+            if (subscriptionPlan == null) {
+                Spacer(Modifier.height(10.dp))
+                DrawerUpgradeButton(onClick = onSubscription)
+            }
 
             Spacer(Modifier.height(6.dp))
 
@@ -119,6 +143,22 @@ fun AppDrawerContent(
                 onClick = onSettings,
             )
 
+            DrawerItemNew(
+                icon = Icons.Default.History,
+                label = "\u0645\u0634\u0627\u0631\u064a\u0639\u064a",
+                subtitle = "\u0627\u0644\u0645\u0634\u0627\u0631\u064a\u0639 \u0627\u0644\u0645\u062d\u0641\u0648\u0638\u0629 \u0639\u0644\u0649 \u0645\u0648\u0628\u0627\u064a\u0644\u0643",
+                iconTint = Color(0xFF3B82F6),
+                onClick = onProjects,
+            )
+
+            DrawerItemNew(
+                icon = com.gptplus18.app.ui.components.icons.ServerIcon,
+                label = "\u0633\u064a\u0631\u0641\u0631\u0627\u062a\u064a",
+                subtitle = "\u0633\u064a\u0631\u0641\u0631\u0627\u062a SSH \u0627\u0644\u0645\u0631\u0628\u0648\u0637\u0629",
+                iconTint = Color(0xFF3B82F6),
+                onClick = onServers,
+            )
+
             if (isOwner) {
                 Spacer(Modifier.height(4.dp))
                 DrawerSectionLabel("\u0627\u0644\u0625\u062f\u0627\u0631\u0629", "\ud83d\udee1\ufe0f")
@@ -153,7 +193,7 @@ fun AppDrawerContent(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    "GPT+18 \u00b7 v2.1.0",
+                    "GPT+18 \u00b7 v" + com.gptplus18.app.BuildConfig.VERSION_NAME,
                     color = colors.textTertiary,
                     fontSize = 9.7.sp,
                     fontWeight = FontWeight.Medium,
@@ -165,7 +205,12 @@ fun AppDrawerContent(
 }
 
 @Composable
-private fun DrawerHeader(userName: String, userEmail: String, avatarUrl: String) {
+private fun DrawerHeader(
+    userName: String,
+    userEmail: String,
+    avatarUrl: String,
+    subscriptionPlan: String? = null,
+) {
     val colors = LocalAppColors.current
     Box(
         modifier = Modifier
@@ -182,13 +227,17 @@ private fun DrawerHeader(userName: String, userEmail: String, avatarUrl: String)
     ) {
         Column {
             // Avatar + status
+            val _planColor = com.gptplus18.app.ui.components.PlanColors.forPlan(subscriptionPlan)
+            val _borderColor = if (subscriptionPlan != null) _planColor else Accent.copy(alpha = 0.4f)
+            val _borderWidth = if (subscriptionPlan != null) 2.5.dp else 2.dp
+
             Box(contentAlignment = Alignment.BottomEnd) {
                 Box(
                     modifier = Modifier
                         .size(64.dp)
                         .clip(CircleShape)
                         .background(colors.surfaceVariant)
-                        .border(2.dp, Accent.copy(alpha = 0.4f), CircleShape),
+                        .border(_borderWidth, _borderColor, CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
                     val avatarModel = remember(avatarUrl) {
@@ -230,12 +279,21 @@ private fun DrawerHeader(userName: String, userEmail: String, avatarUrl: String)
 
             Spacer(Modifier.height(14.dp))
 
-            Text(
-                userName.ifEmpty { stringResource(R.string.t_196) },
-                color = TextPrimary,
-                fontWeight = FontWeight.Bold,
-                fontSize = 15.sp,
-            )
+            // ⭐ الاسم + الشارة
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    userName.ifEmpty { stringResource(R.string.t_196) },
+                    color = if (subscriptionPlan != null) _planColor else TextPrimary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                )
+                if (subscriptionPlan != null) {
+                    Spacer(Modifier.width(6.dp))
+                    com.gptplus18.app.ui.components.SubscriberBadge(plan = subscriptionPlan)
+                }
+            }
             Spacer(Modifier.height(2.dp))
             Text(
                 userEmail,
@@ -341,5 +399,155 @@ private fun DrawerItemNew(
             fontSize = 15.8.sp,
             fontWeight = FontWeight.Bold,
         )
+    }
+}
+
+@Composable
+private fun DrawerBalanceChip(
+    credits: Int,
+    usdValue: Double,
+    subscriptionPlan: String?,
+    onClick: () -> Unit = {},
+) {
+    val colors = LocalAppColors.current
+    val isArabic = java.util.Locale.getDefault().language == "ar"
+
+    val planLabel = when (subscriptionPlan) {
+        "chat" -> if (isArabic) "باقة دردشة" else "Chat plan"
+        "code" -> if (isArabic) "باقة برمجة" else "Code plan"
+        "full" -> if (isArabic) "الباقة الكاملة" else "Full plan"
+        else -> if (isArabic) "مجاني" else "Free"
+    }
+
+    val planColor = when (subscriptionPlan) {
+        "chat" -> Accent
+        "code" -> Color(0xFF4ADE80)
+        "full" -> Color(0xFFFFB800)
+        else -> colors.textTertiary
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(colors.surface)
+            .border(1.dp, colors.surfaceVariant, RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        // أيقونة الرصيد
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(planColor.copy(alpha = 0.15f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                androidx.compose.material.icons.Icons.Default.AccountBalanceWallet,
+                contentDescription = null,
+                tint = planColor,
+                modifier = Modifier.size(16.dp),
+            )
+        }
+
+        Spacer(Modifier.width(10.dp))
+
+        Column(Modifier.weight(1f)) {
+            Text(
+                "$${String.format(java.util.Locale.US, "%.2f", usdValue)}",
+                color = TextPrimary,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                planLabel,
+                color = planColor,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ⭐ v2.1: زر الترقية — تصميم احترافي بأزرق + ظل فخم
+// ═══════════════════════════════════════════════════════════════
+@Composable
+private fun DrawerUpgradeButton(onClick: () -> Unit) {
+    val colors = LocalAppColors.current
+    val isArabic = java.util.Locale.getDefault().language == "ar"
+
+    val blue = Color(0xFF3B82F6)
+
+    val title = if (isArabic) "ترقية حسابك" else "Upgrade Account"
+    val subtitle = if (isArabic) "افتح كل الميزات" else "Unlock all features"
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .shadow(
+                elevation = 12.dp,
+                shape = RoundedCornerShape(14.dp),
+                ambientColor = blue.copy(alpha = 0.5f),
+                spotColor = blue.copy(alpha = 0.5f),
+            )
+            .clip(RoundedCornerShape(14.dp))
+            .background(colors.surface)
+            .border(
+                width = 1.5.dp,
+                color = blue,
+                shape = RoundedCornerShape(14.dp),
+            )
+            .clickable { onClick() }
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            // ⭐ أيقونة النجوم
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(blue.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    androidx.compose.material.icons.Icons.Default.WorkspacePremium,
+                    contentDescription = null,
+                    tint = blue,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+
+            Spacer(Modifier.width(12.dp))
+
+            Column(Modifier.weight(1f)) {
+                Text(
+                    title,
+                    color = blue,
+                    fontSize = 13.5.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    subtitle,
+                    color = colors.textTertiary,
+                    fontSize = 10.5.sp,
+                )
+            }
+
+            Icon(
+                androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = blue,
+                modifier = Modifier.size(16.dp),
+            )
+        }
     }
 }

@@ -250,7 +250,7 @@ fun AuthScreen(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    "GPT+18 \u00b7 \u0646\u0633\u062e\u0629 v1.2.0",
+                    "GPT+18 \u00b7 v" + com.gptplus18.app.BuildConfig.VERSION_NAME,
                     color = TextTertiary,
                     fontSize = 8.8.sp,
                     letterSpacing = 0.5.sp,

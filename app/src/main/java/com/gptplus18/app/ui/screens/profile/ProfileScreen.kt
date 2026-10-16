@@ -16,6 +16,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Forum
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Language
@@ -26,6 +30,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.foundation.border
+import androidx.compose.material.icons.filled.WorkspacePremium
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +54,7 @@ fun ProfileScreen(
     onAdminClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onLogout: () -> Unit = {},
+    onNavigateToSubscription: () -> Unit = {},
     vm: ProfileViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsState()
@@ -97,6 +106,11 @@ fun ProfileScreen(
                 }
             }
 
+            // ⭐ v2.5: إطار الأفاتار حسب الباقة
+            val _planColor = com.gptplus18.app.ui.components.PlanColors.forPlan(state.subscriptionPlan)
+            val _borderColor = if (state.subscriptionPlan != null) _planColor else Accent.copy(alpha = 0.4f)
+            val _borderWidth = if (state.subscriptionPlan != null) 3.dp else 2.dp
+
             Box(
                 modifier = Modifier.size(110.dp),
                 contentAlignment = Alignment.BottomEnd,
@@ -106,6 +120,7 @@ fun ProfileScreen(
                         .size(100.dp)
                         .clip(CircleShape)
                         .background(Accent)
+                        .border(_borderWidth, _borderColor, CircleShape)
                         .clickable { pickLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center,
                 ) {
@@ -154,7 +169,22 @@ fun ProfileScreen(
             }
 
             Spacer(Modifier.height(16.dp))
-            Text(state.userName.ifEmpty { stringResource(R.string.t_196) }, color = TextPrimary, fontSize = 19.4.sp, fontWeight = FontWeight.Bold)
+            // ⭐ v2.5: الاسم + الشارة
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    state.userName.ifEmpty { stringResource(R.string.t_196) },
+                    color = if (state.subscriptionPlan != null) _planColor else TextPrimary,
+                    fontSize = 19.4.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                if (state.subscriptionPlan != null) {
+                    Spacer(Modifier.width(8.dp))
+                    com.gptplus18.app.ui.components.SubscriberBadge(
+                        plan = state.subscriptionPlan,
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
+                }
+            }
             Spacer(Modifier.height(4.dp))
             Text(state.userEmail, color = TextSecondary, fontSize = 12.3.sp)
 
@@ -179,6 +209,23 @@ fun ProfileScreen(
                     )
                 }
             }
+
+            Spacer(Modifier.height(14.dp))
+
+            // ⭐ v2.0: بطاقة الرصيد + الاستخدام اليومي
+            ProfileBalanceCard(
+                credits = state.credits,
+                usdValue = state.usdValue,
+                subscriptionPlan = state.subscriptionPlan,
+                subscriptionDaysLeft = state.subscriptionDaysLeft,
+                dailyChat = state.dailyChat,
+                dailyChatLimitFree = state.dailyChatLimitFree,
+                dailyChatLimitSub = state.dailyChatLimitSub,
+                dailyCode = state.dailyCode,
+                dailyCodeLimit = state.dailyCodeLimit,
+                onTopup = onNavigateToSubscription,
+                onUpgrade = onNavigateToSubscription,
+            )
 
             Spacer(Modifier.height(20.dp))
 
@@ -397,4 +444,254 @@ private fun fontScaleLabel(scale: Float): String = when (scale) {
     1.15f -> stringResource(R.string.t_201)
     1.3f -> stringResource(R.string.t_202)
     else -> stringResource(R.string.t_200)
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ⭐ v2.0: بطاقة الرصيد + الاستخدام اليومي
+// ═══════════════════════════════════════════════════════════════
+@Composable
+private fun ProfileBalanceCard(
+    credits: Int,
+    usdValue: Double,
+    subscriptionPlan: String?,
+    subscriptionDaysLeft: Int,
+    dailyChat: Int,
+    dailyChatLimitFree: Int,
+    dailyChatLimitSub: Int,
+    dailyCode: Int,
+    dailyCodeLimit: Int,
+    onTopup: () -> Unit,
+    onUpgrade: () -> Unit = {},
+) {
+    val colors = LocalAppColors.current
+    val isArabic = java.util.Locale.getDefault().language == "ar"
+
+    val planLabel = when (subscriptionPlan) {
+        "chat" -> if (isArabic) "باقة دردشة" else "Chat plan"
+        "code" -> if (isArabic) "باقة برمجة" else "Code plan"
+        "full" -> if (isArabic) "الباقة الكاملة" else "Full plan"
+        else -> if (isArabic) "مجاني" else "Free"
+    }
+    val planColor = when (subscriptionPlan) {
+        "chat" -> Accent
+        "code" -> Color(0xFF4ADE80)
+        "full" -> Color(0xFFFFB800)
+        else -> colors.textTertiary
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = BgSecondary),
+        shape = RoundedCornerShape(16.dp),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            // ═══ الرصيد ═══
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(planColor.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        androidx.compose.material.icons.Icons.Default.AccountBalanceWallet,
+                        contentDescription = null,
+                        tint = planColor,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        if (isArabic) "الرصيد" else "Balance",
+                        color = TextSecondary,
+                        fontSize = 11.5.sp,
+                    )
+                    Text(
+                        "$${String.format(java.util.Locale.US, "%.2f", usdValue)}",
+                        color = TextPrimary,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        planLabel,
+                        color = planColor,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    if (subscriptionDaysLeft > 0) {
+                        Text(
+                            if (isArabic) "$subscriptionDaysLeft يوم" else "$subscriptionDaysLeft days",
+                            color = colors.textTertiary,
+                            fontSize = 10.sp,
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+            Divider(color = colors.surfaceVariant, thickness = 1.dp)
+            Spacer(Modifier.height(14.dp))
+
+            // ═══ الاستخدام اليومي ═══
+            Text(
+                if (isArabic) "الاستخدام اليومي" else "Daily usage",
+                color = TextSecondary,
+                fontSize = 11.5.sp,
+            )
+            Spacer(Modifier.height(8.dp))
+
+            // دردشة
+            DailyUsageRow(
+                icon = androidx.compose.material.icons.Icons.Default.Forum,
+                label = if (isArabic) "دردشة" else "Chat",
+                used = dailyChat,
+                limit = if (subscriptionPlan != null) dailyChatLimitSub else dailyChatLimitFree,
+                accent = Accent,
+            )
+
+            Spacer(Modifier.height(6.dp))
+
+            // برمجة
+            DailyUsageRow(
+                icon = androidx.compose.material.icons.Icons.Default.Code,
+                label = if (isArabic) "برمجة" else "Code",
+                used = dailyCode,
+                limit = dailyCodeLimit,
+                accent = Color(0xFF4ADE80),
+            )
+
+            Spacer(Modifier.height(14.dp))
+
+            // ═══ زر شحن ═══
+            Button(
+                onClick = onTopup,
+                modifier = Modifier.fillMaxWidth().height(40.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Accent,
+                    contentColor = Color(0xFF0F0F0F),
+                ),
+            ) {
+                Icon(
+                    androidx.compose.material.icons.Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    if (isArabic) "اشحن رصيد" else "Top-up Balance",
+                    fontSize = 12.5.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+
+            // ⭐ v2.1: زر الترقية (يظهر فقط للمجاني)
+            if (subscriptionPlan == null) {
+                Spacer(Modifier.height(10.dp))
+                UpgradeButtonBlue(onClick = onUpgrade)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DailyUsageRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    used: Int,
+    limit: Int,
+    accent: Color,
+) {
+    val colors = LocalAppColors.current
+    val ratio = if (limit > 0) (used.toFloat() / limit).coerceIn(0f, 1f) else 0f
+
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(14.dp))
+            Spacer(Modifier.width(6.dp))
+            Text(label, color = TextSecondary, fontSize = 11.sp, modifier = Modifier.weight(1f))
+            Text("$used / $limit", color = TextPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        }
+        Spacer(Modifier.height(4.dp))
+        LinearProgressIndicator(
+            progress = { ratio },
+            modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)),
+            color = accent,
+            trackColor = colors.surfaceVariant,
+        )
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ⭐ v2.1: زر الترقية الفخم — أزرق + ظل
+// ═══════════════════════════════════════════════════════════════
+@Composable
+private fun UpgradeButtonBlue(onClick: () -> Unit) {
+    val colors = LocalAppColors.current
+    val isArabic = java.util.Locale.getDefault().language == "ar"
+    val blue = Color(0xFF3B82F6)
+
+    val title = if (isArabic) "ترقية حسابك" else "Upgrade Account"
+    val subtitle = if (isArabic) "افتح كل الميزات" else "Unlock all features"
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 12.dp,
+                shape = RoundedCornerShape(14.dp),
+                ambientColor = blue.copy(alpha = 0.5f),
+                spotColor = blue.copy(alpha = 0.5f),
+            )
+            .clip(RoundedCornerShape(14.dp))
+            .background(colors.surface)
+            .border(1.5.dp, blue, RoundedCornerShape(14.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(blue.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    androidx.compose.material.icons.Icons.Default.WorkspacePremium,
+                    contentDescription = null,
+                    tint = blue,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    title,
+                    color = blue,
+                    fontSize = 13.5.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    subtitle,
+                    color = colors.textTertiary,
+                    fontSize = 10.5.sp,
+                )
+            }
+            Icon(
+                androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = blue,
+                modifier = Modifier.size(16.dp),
+            )
+        }
+    }
 }

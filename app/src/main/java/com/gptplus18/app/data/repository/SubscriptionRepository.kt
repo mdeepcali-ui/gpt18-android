@@ -33,10 +33,10 @@ class SubscriptionRepository @Inject constructor(
         }
     }
 
-    suspend fun verifyPayment(plan: String, network: String, txHash: String): Result<VerifyPaymentResponse> {
+    suspend fun verifyPayment(plan: String, network: String, txHash: String, topupAmount: Double? = null): Result<VerifyPaymentResponse> {
         val t = tokenStorage.getToken() ?: return Result.Error("غير مصرح")
         return try {
-            val r = api.verifyPayment("Bearer $t", VerifyPaymentRequest(plan, network, txHash))
+            val r = api.verifyPayment("Bearer $t", VerifyPaymentRequest(plan, network, txHash, topupAmount))
             if (r.isSuccessful) {
                 val body = r.body()!!
                 if (body.ok) Result.Success(body)
