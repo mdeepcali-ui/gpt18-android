@@ -106,7 +106,7 @@ fun CodeAccessBanner(
                     Text(
                         title,
                         color = TextPrimary,
-                        fontSize = 11.5.sp, lineHeight = 14.sp,
+                        fontSize = 9.2.sp, lineHeight = 14.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     if (hasBalance) {
@@ -129,7 +129,7 @@ fun CodeAccessBanner(
             Text(
                 subtitle,
                 color = TextSecondary,
-                fontSize = 9.5.sp,
+                fontSize = 9.sp,
                 lineHeight = 16.sp,
             )
 
@@ -150,7 +150,7 @@ fun CodeAccessBanner(
                 Text(
                     buttonText,
                     color = Color(0xFFFFB800),
-                    fontSize = 10.5.sp, lineHeight = 13.sp,
+                    fontSize = 9.sp, lineHeight = 13.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 Spacer(Modifier.width(6.dp))

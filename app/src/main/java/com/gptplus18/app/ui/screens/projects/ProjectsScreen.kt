@@ -87,7 +87,7 @@ fun ProjectsScreen(
                                         SortMode.SIZE -> "الحجم"
                                     },
                                     color = AccentBlue,
-                                    fontSize = 12.sp,
+                                    fontSize = 9.6.sp,
                                 )
                             }
                             DropdownMenu(
@@ -150,7 +150,7 @@ fun ProjectsScreen(
                         Text(
                             "اختر ما تريد:\n\n1) حذف السجل فقط — الملفات تبقى\n2) حذف كل شي — السجل + الملفات",
                             color = colors.textSecondary,
-                            fontSize = 12.sp,
+                            fontSize = 9.6.sp,
                         )
                     },
                     confirmButton = {
@@ -239,7 +239,7 @@ private fun RenameDialog(
                     value = name,
                     onValueChange = { if (it.length <= 64) name = it },
                     singleLine = true,
-                    textStyle = TextStyle(fontFamily = ScheherazadeFontFamily, color = colors.textPrimary, fontSize = 13.sp),
+                    textStyle = TextStyle(fontFamily = ScheherazadeFontFamily, color = colors.textPrimary, fontSize = 10.4.sp),
                     cursorBrush = SolidColor(AccentBlue),
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -305,14 +305,14 @@ private fun ProjectCard(
     ) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("📦", fontSize = 20.sp)
+                Text("📦", fontSize = 16.sp)
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
                         project.folderName,
                         color = colors.textPrimary,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
+                        fontSize = 11.2.sp,
                         fontFamily = FontFamily.Monospace,
                     )
                     Spacer(Modifier.height(2.dp))
@@ -321,7 +321,7 @@ private fun ProjectCard(
                         if (sizeStr.isNotBlank()) { append(" · "); append(sizeStr) }
                         if (dateStr.isNotBlank()) { append(" · "); append(dateStr) }
                     }
-                    Text(details, color = colors.textSecondary, fontSize = 11.sp)
+                    Text(details, color = colors.textSecondary, fontSize = 9.sp)
                 }
                 IconButton(onClick = onRename) {
                     Icon(Icons.Default.Edit, "إعادة تسمية", tint = AccentBlue, modifier = Modifier.size(16.dp))
@@ -334,7 +334,7 @@ private fun ProjectCard(
             Text(
                 "المسار: " + project.folderPath,
                 color = AccentBlue,
-                fontSize = 11.sp,
+                fontSize = 9.sp,
                 fontFamily = FontFamily.Monospace,
             )
         }

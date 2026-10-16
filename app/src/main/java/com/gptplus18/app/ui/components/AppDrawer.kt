@@ -195,7 +195,7 @@ fun AppDrawerContent(
                 Text(
                     "GPT+18 \u00b7 v" + com.gptplus18.app.BuildConfig.VERSION_NAME,
                     color = colors.textTertiary,
-                    fontSize = 9.7.sp,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.Medium,
                 )
             }
@@ -259,7 +259,7 @@ private fun DrawerHeader(
                     } else {
                         Text(
                             userName.take(1).uppercase().ifEmpty { "?" },
-                            fontSize = 22.9.sp,
+                            fontSize = 18.3.sp,
                             fontWeight = FontWeight.Bold,
                             color = Accent,
                         )
@@ -287,7 +287,7 @@ private fun DrawerHeader(
                     userName.ifEmpty { stringResource(R.string.t_196) },
                     color = if (subscriptionPlan != null) _planColor else TextPrimary,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
+                    fontSize = 12.sp,
                 )
                 if (subscriptionPlan != null) {
                     Spacer(Modifier.width(6.dp))
@@ -298,7 +298,7 @@ private fun DrawerHeader(
             Text(
                 userEmail,
                 color = TextSecondary,
-                fontSize = 10.6.sp,
+                fontSize = 9.sp,
                 maxLines = 1,
             )
         }
@@ -314,12 +314,12 @@ private fun DrawerSectionLabel(text: String, emoji: String) {
             .padding(horizontal = 22.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(emoji, fontSize = 10.6.sp)
+        Text(emoji, fontSize = 9.sp)
         Spacer(Modifier.width(6.dp))
         Text(
             text,
             color = colors.textTertiary,
-            fontSize = 9.7.sp,
+            fontSize = 9.sp,
             fontWeight = FontWeight.Bold,
         )
     }
@@ -380,14 +380,14 @@ private fun DrawerItemNew(
             Text(
                 label,
                 color = if (highlight) Accent else TextPrimary,
-                fontSize = 12.3.sp,
+                fontSize = 9.8.sp,
                 fontWeight = if (highlight) FontWeight.Bold else FontWeight.SemiBold,
             )
             if (subtitle != null && subtitle.isNotBlank()) {
                 Text(
                     subtitle,
                     color = colors.textTertiary,
-                    fontSize = 9.7.sp,
+                    fontSize = 9.sp,
                     maxLines = 1,
                     modifier = Modifier.padding(top = 2.dp),
                 )
@@ -396,7 +396,7 @@ private fun DrawerItemNew(
         Text(
             "\u203a",
             color = colors.textTertiary,
-            fontSize = 15.8.sp,
+            fontSize = 12.6.sp,
             fontWeight = FontWeight.Bold,
         )
     }
@@ -459,13 +459,13 @@ private fun DrawerBalanceChip(
             Text(
                 "$${String.format(java.util.Locale.US, "%.2f", usdValue)}",
                 color = TextPrimary,
-                fontSize = 14.sp,
+                fontSize = 11.2.sp,
                 fontWeight = FontWeight.Bold,
             )
             Text(
                 planLabel,
                 color = planColor,
-                fontSize = 10.sp,
+                fontSize = 9.sp,
                 fontWeight = FontWeight.Medium,
             )
         }
@@ -531,14 +531,14 @@ private fun DrawerUpgradeButton(onClick: () -> Unit) {
                 Text(
                     title,
                     color = blue,
-                    fontSize = 13.5.sp,
+                    fontSize = 10.8.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     subtitle,
                     color = colors.textTertiary,
-                    fontSize = 10.5.sp,
+                    fontSize = 9.sp,
                 )
             }
 

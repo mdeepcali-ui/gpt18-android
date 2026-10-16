@@ -356,7 +356,7 @@ fun MarkdownText(
                                 Text(
                                     text = "◆  ◆  ◆",
                                     color = Accent,
-                                    fontSize = 10.6.sp,
+                                    fontSize = 9.sp,
                                     letterSpacing = 6.sp,
                                 )
                             }
@@ -384,7 +384,7 @@ fun MarkdownText(
                             Text(
                                 text = block.num,
                                 color = Accent,
-                                fontSize = 13.2.sp,
+                                fontSize = 10.6.sp,
                                 fontWeight = FontWeight.Bold,
                             )
                         }
@@ -548,7 +548,7 @@ private fun TextBlockView(text: String) {
                     Text(
                         text = "\u0646\u0635",
                         color = Color(0xFF7DD3FC),
-                        fontSize = 10.6.sp,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Spacer(Modifier.weight(1f))
@@ -577,7 +577,7 @@ private fun TextBlockView(text: String) {
                         Text(
                             stringResource(R.string.t_003),
                             color = Accent,
-                            fontSize = 9.7.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Medium,
                         )
                     }
@@ -712,7 +712,7 @@ private fun CodeBlockView(lang: String, code: String) {
                         Text(
                             stringResource(R.string.t_003),
                             color = Accent,
-                            fontSize = 9.7.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Medium,
                         )
                     }
@@ -734,7 +734,7 @@ private fun CodeBlockView(lang: String, code: String) {
                         Spacer(Modifier.width(7.dp))
                         Text(
                             text = langIcon,
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                             fontFamily = FontFamily.Monospace,
                             color = langAccentColor,
                         )
@@ -742,7 +742,7 @@ private fun CodeBlockView(lang: String, code: String) {
                         Text(
                             text = langDisplay,
                             color = langAccentColor,
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.SemiBold,
                             letterSpacing = 0.3.sp,
@@ -759,7 +759,7 @@ private fun CodeBlockView(lang: String, code: String) {
                     Text(
                         text = highlightSyntax(displayCode, lang, isLight),
                         fontFamily = FontFamily.Monospace,
-                        fontSize = 11.4.sp,
+                        fontSize = 9.1.sp,
                         lineHeight = 19.sp,
                         softWrap = false,
                         style = TextStyle(textDirection = TextDirection.Ltr),
@@ -781,7 +781,7 @@ private fun CodeBlockView(lang: String, code: String) {
                             else
                                 "▼ عرض الكود كامل ($totalLines سطر)",
                             color = langAccentColor,
-                            fontSize = 10.6.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.SemiBold,
                         )
                     }
@@ -1118,12 +1118,12 @@ fun MarkdownTextBox(
                 .padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("\u2705", fontSize = 10.6.sp)
+            Text("\u2705", fontSize = 9.sp)
             Spacer(Modifier.width(6.dp))
             Text(
                 "\u0645\u062d\u062a\u0648\u0649 \u0645\u0646\u0638\u0645",
                 color = TextSecondary,
-                fontSize = 9.7.sp,
+                fontSize = 9.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f),
             )
@@ -1141,7 +1141,7 @@ fun MarkdownTextBox(
                     modifier = Modifier.size(12.dp),
                 )
                 Spacer(Modifier.width(4.dp))
-                Text("\u0646\u0633\u062e", color = Accent, fontSize = 9.7.sp)
+                Text("\u0646\u0633\u062e", color = Accent, fontSize = 9.sp)
             }
         }
         Box(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
@@ -1204,7 +1204,7 @@ fun CollapsibleMarkdownTextBox(
                 Text(
                     text = if (expanded) "\u25b2 \u0637\u064a \u0627\u0644\u0631\u062f" else "\u25bc \u0639\u0631\u0636 \u0627\u0644\u0631\u062f \u0643\u0627\u0645\u0644\u0627\u064b (${text.length} \u062d\u0631\u0641)",
                     color = Accent,
-                    fontSize = 11.4.sp,
+                    fontSize = 9.1.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
             }

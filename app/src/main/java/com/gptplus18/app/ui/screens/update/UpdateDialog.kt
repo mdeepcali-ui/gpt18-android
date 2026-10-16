@@ -45,7 +45,7 @@ fun UpdateDialog(
                 if (info.forceUpdate) stringResource(R.string.t_222) else stringResource(R.string.t_223),
                 color = TextPrimary,
                 fontWeight = FontWeight.Bold,
-                fontSize = 17.6.sp,
+                fontSize = 14.1.sp,
             )
         },
         text = {
@@ -53,28 +53,28 @@ fun UpdateDialog(
                 Text(
                     "الإصدار الجديد: ${info.latestName}",
                     color = Accent,
-                    fontSize = 13.2.sp,
+                    fontSize = 10.6.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
                     "الإصدار الحالي: ${info.currentVersion}",
                     color = TextSecondary,
-                    fontSize = 11.4.sp,
+                    fontSize = 9.1.sp,
                 )
                 if (info.changelog.isNotBlank()) {
                     Spacer(Modifier.height(12.dp))
                     Text(
                         stringResource(R.string.t_089),
                         color = TextPrimary,
-                        fontSize = 12.3.sp,
+                        fontSize = 9.8.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     Spacer(Modifier.height(6.dp))
                     Text(
                         info.changelog,
                         color = TextSecondary,
-                        fontSize = 11.4.sp,
+                        fontSize = 9.1.sp,
                     )
                 }
             }

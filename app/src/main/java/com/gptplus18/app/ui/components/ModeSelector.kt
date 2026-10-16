@@ -48,7 +48,7 @@ fun ModeSelector(
             Text(
                 text = currentMode.label,
                 color = colors.textPrimary,
-                fontSize = 12.3.sp,
+                fontSize = 9.8.sp,
                 fontWeight = FontWeight.SemiBold,
             )
             Icon(
@@ -70,7 +70,7 @@ fun ModeSelector(
                 Text(
                     stringResource(R.string.t_005),
                     color = colors.textSecondary,
-                    fontSize = 10.6.sp,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 )
@@ -87,17 +87,17 @@ fun ModeSelector(
                         text = {
                             Column(Modifier.padding(vertical = 4.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(mode.emoji, fontSize = 14.1.sp)
+                                    Text(mode.emoji, fontSize = 11.3.sp)
                                     Spacer(Modifier.width(10.dp))
                                     Text(
                                         mode.label,
                                         color = if (locked) colors.textTertiary else colors.textPrimary,
-                                        fontSize = 13.2.sp,
+                                        fontSize = 10.6.sp,
                                         fontWeight = FontWeight.SemiBold,
                                     )
                                     if (locked) {
                                         Spacer(Modifier.width(6.dp))
-                                        Text("🔒", fontSize = 10.6.sp)
+                                        Text("🔒", fontSize = 9.sp)
                                     }
                                     Spacer(Modifier.weight(1f))
                                     if (mode == currentMode) {
@@ -113,7 +113,7 @@ fun ModeSelector(
                                 Text(
                                     mode.description,
                                     color = if (locked) colors.textTertiary else colors.textSecondary,
-                                    fontSize = 10.6.sp,
+                                    fontSize = 9.sp,
                                     modifier = Modifier.padding(start = 26.dp),
                                 )
                             }

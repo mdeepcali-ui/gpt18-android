@@ -78,8 +78,8 @@ internal fun SessionsList(
     if (sessions.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.t_047), color = TextSecondary, fontSize = 13.2.sp)
-                Text(stringResource(R.string.t_048), color = TextTertiary, fontSize = 11.4.sp,
+                Text(stringResource(R.string.t_047), color = TextSecondary, fontSize = 10.6.sp)
+                Text(stringResource(R.string.t_048), color = TextTertiary, fontSize = 9.1.sp,
                     modifier = Modifier.padding(top = 6.dp))
             }
         }
@@ -105,14 +105,14 @@ internal fun SessionsList(
                 Column(Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(s.title, color = TextPrimary, fontWeight = FontWeight.SemiBold,
-                            fontSize = 13.2.sp, modifier = Modifier.weight(1f))
+                            fontSize = 10.6.sp, modifier = Modifier.weight(1f))
                         if (s.msgCount > 0) {
-                            Text("${s.msgCount}", color = Accent, fontSize = 9.7.sp,
+                            Text("${s.msgCount}", color = Accent, fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold)
                         }
                     }
                     s.lastMsg?.let {
-                        Text(it.take(80), color = TextSecondary, fontSize = 11.4.sp,
+                        Text(it.take(80), color = TextSecondary, fontSize = 9.1.sp,
                             modifier = Modifier.padding(top = 4.dp))
                     }
                 }
@@ -148,12 +148,12 @@ internal fun PinnedMessagesBar(
             Spacer(Modifier.width(8.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("\ud83d\udccc", fontSize = 9.7.sp)
+                    Text("\ud83d\udccc", fontSize = 9.sp)
                     Spacer(Modifier.width(4.dp))
                     Text(
                         "\u0645\u062b\u0628\u0651\u062a",
                         color = Accent,
-                        fontSize = 8.8.sp,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     if (messages.size > 1) {
@@ -161,7 +161,7 @@ internal fun PinnedMessagesBar(
                         Text(
                             "+${messages.size - 1}",
                             color = TextSecondary,
-                            fontSize = 7.9.sp,
+                            fontSize = 9.sp,
                         )
                     }
                 }
@@ -169,7 +169,7 @@ internal fun PinnedMessagesBar(
                 Text(
                     latest.content.take(80),
                     color = TextPrimary,
-                    fontSize = 9.7.sp,
+                    fontSize = 9.sp,
                     maxLines = 1,
                 )
             }
@@ -177,7 +177,7 @@ internal fun PinnedMessagesBar(
                 onClick = { onUnpin(latest.ts) },
                 modifier = Modifier.size(24.dp),
             ) {
-                Text("\u2715", color = TextSecondary, fontSize = 10.6.sp)
+                Text("\u2715", color = TextSecondary, fontSize = 9.sp)
             }
         }
     }
@@ -198,8 +198,8 @@ internal fun AllSessionsListView(
     if (sessions.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.t_047), color = TextSecondary, fontSize = 13.2.sp)
-                Text(stringResource(R.string.t_048), color = TextTertiary, fontSize = 11.4.sp,
+                Text(stringResource(R.string.t_047), color = TextSecondary, fontSize = 10.6.sp)
+                Text(stringResource(R.string.t_048), color = TextTertiary, fontSize = 9.1.sp,
                     modifier = Modifier.padding(top = 6.dp))
             }
         }
@@ -245,13 +245,13 @@ internal fun AllSessionsListView(
                             s.title,
                             color = TextPrimary,
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 13.2.sp,
+                            fontSize = 10.6.sp,
                         )
                         s.lastMsg?.let {
                             Text(
                                 it.take(80),
                                 color = TextSecondary,
-                                fontSize = 11.4.sp,
+                                fontSize = 9.1.sp,
                                 modifier = Modifier.padding(top = 4.dp),
                             )
                         }

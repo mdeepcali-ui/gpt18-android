@@ -120,6 +120,6 @@ private fun ToolbarBtn(icon: ImageVector, label: String, onClick: () -> Unit) {
             modifier = Modifier.size(15.dp),
         )
         Spacer(Modifier.width(5.dp))
-        Text(text = label, color = Color(0xFFE0E0F0), fontSize = 11.sp)
+        Text(text = label, color = Color(0xFFE0E0F0), fontSize = 9.sp)
     }
 }

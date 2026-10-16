@@ -115,7 +115,7 @@ internal fun AppToast(
                 Text(
                     text = message ?: "",
                     color = Color.White,
-                    fontSize = 13.sp,
+                    fontSize = 10.4.sp,
                     fontWeight = FontWeight.Medium,
                 )
             }

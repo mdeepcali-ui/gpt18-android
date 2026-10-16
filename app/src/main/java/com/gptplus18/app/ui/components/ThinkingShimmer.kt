@@ -248,7 +248,7 @@ fun ThinkingShimmer(
                 text = statusInfo.label,
                 style = TextStyle(
                     fontFamily = ScheherazadeFontFamily,
-                    fontSize = 15.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     brush = _titleGradient,
                 ),
@@ -306,7 +306,7 @@ fun ThinkingShimmer(
                             text = displayText,
                             style = TextStyle(
                                 fontFamily = ScheherazadeFontFamily,
-                                fontSize = 12.5.sp,
+                                fontSize = 10.sp,
                                 lineHeight = 18.sp,
                                 fontWeight = FontWeight.Normal,
                                 letterSpacing = 0.2.sp,

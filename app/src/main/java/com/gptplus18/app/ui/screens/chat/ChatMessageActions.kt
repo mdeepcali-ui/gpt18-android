@@ -126,7 +126,7 @@ fun ActionButton(
     ) {
         Icon(icon, label, tint = TextTertiary, modifier = Modifier.size(12.dp))
         Spacer(Modifier.width(3.dp))
-        Text(label, color = TextTertiary, fontSize = 9.7.sp)
+        Text(label, color = TextTertiary, fontSize = 9.sp)
     }
 }
 
@@ -146,8 +146,8 @@ internal fun ReplyBar(content: String, onCancel: () -> Unit) {
             )
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.t_050), color = Accent, fontSize = 9.7.sp, fontWeight = FontWeight.Bold)
-                Text(content.take(60), color = TextSecondary, fontSize = 10.6.sp, maxLines = 1)
+                Text(stringResource(R.string.t_050), color = Accent, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                Text(content.take(60), color = TextSecondary, fontSize = 9.sp, maxLines = 1)
             }
             IconButton(onClick = onCancel, modifier = Modifier.size(28.dp)) {
                 Icon(Icons.Default.Close, stringResource(R.string.t_026), tint = TextSecondary,

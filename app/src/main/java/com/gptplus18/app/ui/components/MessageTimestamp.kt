@@ -16,7 +16,7 @@ fun MessageTimestamp(ts: Double, modifier: Modifier = Modifier) {
     Text(
         text = fmt.format(date),
         color = TextTertiary,
-        fontSize = 8.8.sp,
+        fontSize = 9.sp,
         modifier = modifier,
     )
 }

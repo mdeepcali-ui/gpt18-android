@@ -146,7 +146,7 @@ internal fun SubscriptionRequiredModal(
                         Text(
                             text = "هذا الخيار للمشتركين",
                             color = Color.White,
-                            fontSize = 16.7.sp,
+                            fontSize = 13.4.sp,
                             fontWeight = FontWeight.SemiBold,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                         )
@@ -156,7 +156,7 @@ internal fun SubscriptionRequiredModal(
                         Text(
                             text = "استمتع بجميع الميزات مع إحدى باقاتنا",
                             color = Color(0xFFB8B8C0),
-                            fontSize = 11.4.sp,
+                            fontSize = 9.1.sp,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                             lineHeight = 19.sp,
                         )
@@ -204,7 +204,7 @@ internal fun SubscriptionRequiredModal(
                             Text(
                                 text = "عرض الباقات",
                                 color = Color(0xFF1C1C1E),
-                                fontSize = 13.2.sp,
+                                fontSize = 10.6.sp,
                                 fontWeight = FontWeight.SemiBold,
                             )
                         }
@@ -221,7 +221,7 @@ internal fun SubscriptionRequiredModal(
                             Text(
                                 text = "لاحقاً",
                                 color = Color(0xFFB8B8C0),
-                                fontSize = 12.3.sp,
+                                fontSize = 9.8.sp,
                             )
                         }
                     }
@@ -255,7 +255,7 @@ internal fun FeatureBadge(
         Text(
             text = label,
             color = Color(0xFFB8B8C0),
-            fontSize = 9.7.sp,
+            fontSize = 9.sp,
             fontWeight = FontWeight.Medium,
         )
     }
@@ -296,14 +296,14 @@ internal fun TopupRequiredModal(
                 title,
                 color = TextPrimary,
                 fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
+                fontSize = 12.8.sp,
             )
         },
         text = {
             Text(
                 msg,
                 color = TextSecondary,
-                fontSize = 13.sp,
+                fontSize = 10.4.sp,
                 lineHeight = 22.sp,
             )
         },

@@ -173,7 +173,7 @@ fun StatusBubble(label: String) {
             androidx.compose.material3.Text(
                 text = "\u2726",
                 color = starTint.copy(alpha = 0.92f),
-                fontSize = 12.sp,
+                fontSize = 9.6.sp,
                 modifier = Modifier.graphicsLayer(rotationZ = starRot),
             )
 
@@ -182,7 +182,7 @@ fun StatusBubble(label: String) {
                 text = label,
                 style = androidx.compose.ui.text.TextStyle(
                     fontFamily = ScheherazadeFontFamily,
-                    fontSize = 11.sp,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.Medium,
                     letterSpacing = 0.3.sp,
                     brush = Brush.horizontalGradient(

@@ -74,7 +74,7 @@ internal fun CodeHeader(
                     text = stringResource(R.string.t_051),
                     color = TextPrimary,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
+                    fontSize = 12.sp,
                     lineHeight = 18.sp,
                 )
             },

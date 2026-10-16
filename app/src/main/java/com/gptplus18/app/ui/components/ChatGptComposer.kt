@@ -196,7 +196,7 @@ fun ChatGptComposer(
                     Text(
                         text = stringResource(R.string.t_001),
                         color = hintColor,
-                        fontSize = 14.sp,
+                        fontSize = 11.2.sp,
                     )
                 }
                 CompositionLocalProvider(LocalTextToolbar provides customToolbar) {
@@ -210,7 +210,7 @@ fun ChatGptComposer(
                         textStyle = TextStyle(
                             fontFamily = ScheherazadeFontFamily,
                             color = textColor,
-                            fontSize = 14.sp,
+                            fontSize = 11.2.sp,
                             lineHeight = 17.sp,
                         ),
                         cursorBrush = SolidColor(AccentBlue),
@@ -463,7 +463,7 @@ private fun SmallChip(
             maxLines = 1,
             text = label,
             color = fg,
-            fontSize = 8.sp,
+            fontSize = 9.sp,
             lineHeight = 10.sp,
             fontWeight = FontWeight.Medium,
         )
@@ -489,7 +489,7 @@ private fun EmojiPickerSheet(
                 Text(
                     stringResource(R.string.t_002),
                     color = colors.textPrimary,
-                    fontSize = 15.8.sp,
+                    fontSize = 12.6.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 12.dp),
                 )
@@ -507,7 +507,7 @@ private fun EmojiPickerSheet(
                                 .clickable { onSelect(emoji) },
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text(emoji, fontSize = 22.9.sp)
+                            Text(emoji, fontSize = 18.3.sp)
                         }
                     }
                 }
@@ -558,7 +558,7 @@ private fun AttachmentChip(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(fileEmoji(attachment.fileName), fontSize = 28.2.sp)
+                Text(fileEmoji(attachment.fileName), fontSize = 22.6.sp)
             }
         }
 
@@ -597,7 +597,7 @@ private fun AttachmentChip(
                 Text(
                     text = "${(attachment.progress * 100).toInt().coerceIn(0, 100)}%",
                     color = Color.White,
-                    fontSize = 9.7.sp,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }

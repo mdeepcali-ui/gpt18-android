@@ -129,7 +129,7 @@ fun OnboardingScreen(
                     Text(
                         if (isLastPage) stringResource(R.string.t_194) else stringResource(R.string.t_195),
                         color = BgPrimary,
-                        fontSize = 14.1.sp,
+                        fontSize = 11.3.sp,
                         fontWeight = FontWeight.Bold,
                     )
                 }
@@ -139,7 +139,7 @@ fun OnboardingScreen(
                         onClick = onFinish,
                         modifier = Modifier.padding(top = 8.dp),
                     ) {
-                        Text(stringResource(R.string.t_068), color = TextSecondary, fontSize = 12.3.sp)
+                        Text(stringResource(R.string.t_068), color = TextSecondary, fontSize = 9.8.sp)
                     }
                 }
             }
@@ -183,7 +183,7 @@ private fun OnboardingPageView(page: OnboardingPage) {
         Text(
             text = page.title,
             color = TextPrimary,
-            fontSize = 24.6.sp,
+            fontSize = 19.7.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
         )
@@ -193,7 +193,7 @@ private fun OnboardingPageView(page: OnboardingPage) {
         Text(
             text = page.description,
             color = TextSecondary,
-            fontSize = 14.1.sp,
+            fontSize = 11.3.sp,
             textAlign = TextAlign.Center,
             lineHeight = 24.sp,
         )

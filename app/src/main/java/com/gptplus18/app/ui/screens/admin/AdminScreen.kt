@@ -98,10 +98,10 @@ fun AdminScreen(vm: AdminViewModel = hiltViewModel()) {
         if (!state.isOwner) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("🔒", fontSize = 42.2.sp)
+                    Text("🔒", fontSize = 33.8.sp)
                     Spacer(Modifier.height(16.dp))
-                    Text(stringResource(R.string.t_016), color = Error, fontSize = 19.4.sp, fontWeight = FontWeight.Bold)
-                    Text(stringResource(R.string.t_017), color = TextSecondary, fontSize = 12.3.sp,
+                    Text(stringResource(R.string.t_016), color = Error, fontSize = 15.5.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.t_017), color = TextSecondary, fontSize = 9.8.sp,
                         modifier = Modifier.padding(top = 8.dp))
                 }
             }
@@ -187,7 +187,7 @@ private fun UsersTab(
             state.error?.let { InfoCard(it, false) }
         }
         item {
-            Text(stringResource(R.string.t_020), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.t_020), color = Accent, fontSize = 10.6.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard(
@@ -228,7 +228,7 @@ private fun UsersTab(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.CardGiftcard, null, tint = Color(0xFF3B82F6), modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.t_021), color = Color(0xFF3B82F6), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_021), color = Color(0xFF3B82F6), fontSize = 10.4.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
@@ -258,7 +258,7 @@ private fun UsersTab(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Settings, null, tint = Color(0xFF3B82F6), modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.t_024), color = Color(0xFF3B82F6), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_024), color = Color(0xFF3B82F6), fontSize = 10.4.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
@@ -289,7 +289,7 @@ private fun UsersTab(
         }
         item {
             Spacer(Modifier.height(8.dp))
-            Text("المستخدمون (${state.filtered.size})", color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
+            Text("المستخدمون (${state.filtered.size})", color = Accent, fontSize = 10.6.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = state.search,
@@ -341,7 +341,7 @@ private fun NotificationsTab(
             state.error?.let { InfoCard(it, false) }
         }
         item {
-            Text(stringResource(R.string.t_028), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.t_028), color = Accent, fontSize = 10.6.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard(
@@ -372,10 +372,10 @@ private fun NotificationsTab(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Campaign, null, tint = Warning, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.t_029), color = Warning, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_029), color = Warning, fontSize = 10.6.sp, fontWeight = FontWeight.Bold)
             }
             Text(stringResource(R.string.t_030),
-                color = TextTertiary, fontSize = 9.7.sp,
+                color = TextTertiary, fontSize = 9.sp,
                 modifier = Modifier.padding(top = 4.dp))
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
@@ -413,7 +413,7 @@ private fun NotificationsTab(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Send, null, tint = Accent, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.t_033), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_033), color = Accent, fontSize = 10.6.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
@@ -463,12 +463,12 @@ private fun NotificationsTab(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Notifications, null, tint = Accent, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.t_036), color = Accent, fontSize = 13.2.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_036), color = Accent, fontSize = 10.6.sp, fontWeight = FontWeight.Bold)
             }
         }
         if (state.notifStats.recent.isEmpty()) {
             item {
-                Text(stringResource(R.string.t_037), color = TextTertiary, fontSize = 11.4.sp,
+                Text(stringResource(R.string.t_037), color = TextTertiary, fontSize = 9.1.sp,
                     modifier = Modifier.padding(vertical = 12.dp))
             }
         } else {
@@ -513,14 +513,14 @@ private fun NotifLogRow(event: String, title: String, uid: Int, sentAt: Double) 
             Modifier.fillMaxWidth().padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(emoji, fontSize = 17.6.sp)
+            Text(emoji, fontSize = 14.1.sp)
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Text(title.ifBlank { event },
-                    color = TextPrimary, fontSize = 11.4.sp, fontWeight = FontWeight.SemiBold,
+                    color = TextPrimary, fontSize = 9.1.sp, fontWeight = FontWeight.SemiBold,
                     maxLines = 1)
                 Text("uid: $uid • $timeText",
-                    color = TextTertiary, fontSize = 9.7.sp)
+                    color = TextTertiary, fontSize = 9.sp)
             }
         }
     }
@@ -566,7 +566,7 @@ private fun StatCard(
                 Text(
                     label,
                     color = TextSecondary,
-                    fontSize = 10.5.sp,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.Medium,
                 )
             }
@@ -577,7 +577,7 @@ private fun StatCard(
             Text(
                 "$value",
                 color = color,
-                fontSize = 24.sp,
+                fontSize = 19.2.sp,
                 fontWeight = FontWeight.Bold,
             )
         }
@@ -610,7 +610,7 @@ private fun PlanChip(
         Text(
             label,
             color = if (active) blue else TextSecondary,
-            fontSize = 12.sp,
+            fontSize = 9.6.sp,
             fontWeight = if (active) FontWeight.Bold else FontWeight.Medium,
             textAlign = TextAlign.Center,
         )
@@ -634,7 +634,7 @@ private fun FilterChip(
         Text(
             label,
             color = if (active) BgPrimary else TextSecondary,
-            fontSize = 10.6.sp,
+            fontSize = 9.sp,
             fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
         )
@@ -660,10 +660,10 @@ private fun UserRow(u: AdminUser) {
         Column(Modifier.padding(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(u.name.ifBlank { "?" },
-                    color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 13.2.sp)
+                    color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 10.6.sp)
                 if (u.isOwner) {
                     Spacer(Modifier.width(6.dp))
-                    Text("👑", fontSize = 10.6.sp)
+                    Text("👑", fontSize = 9.sp)
                 }
                 Spacer(Modifier.weight(1f))
                 Box(
@@ -671,20 +671,20 @@ private fun UserRow(u: AdminUser) {
                         .background(statusColor.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
                         .padding(horizontal = 8.dp, vertical = 3.dp),
                 ) {
-                    Text(status, color = statusColor, fontSize = 9.7.sp, fontWeight = FontWeight.Bold)
+                    Text(status, color = statusColor, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                 }
             }
             Spacer(Modifier.height(4.dp))
-            Text(u.email, color = TextSecondary, fontSize = 11.4.sp)
+            Text(u.email, color = TextSecondary, fontSize = 9.1.sp)
             if (u.subExpires > now) {
                 val days = ((u.subExpires - now) / 86400).toInt()
                 Text("متبقي $days يوم",
-                    color = TextTertiary, fontSize = 9.7.sp,
+                    color = TextTertiary, fontSize = 9.sp,
                     modifier = Modifier.padding(top = 4.dp))
             } else if (u.trialExpires > now) {
                 val mins = ((u.trialExpires - now) / 60).toInt()
                 Text("متبقي $mins دقيقة",
-                    color = TextTertiary, fontSize = 9.7.sp,
+                    color = TextTertiary, fontSize = 9.sp,
                     modifier = Modifier.padding(top = 4.dp))
             }
         }
@@ -715,7 +715,7 @@ private fun InfoCard(text: String, success: Boolean) {
             Text(
                 text,
                 color = accent,
-                fontSize = 12.sp,
+                fontSize = 9.6.sp,
                 fontWeight = FontWeight.Medium,
             )
         }
@@ -751,7 +751,7 @@ private fun AdminTabButton(
         Text(
             label,
             color = if (selected) Color.White else colors.textSecondary,
-            fontSize = 12.5.sp,
+            fontSize = 10.sp,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
             textAlign = TextAlign.Center,
         )
@@ -806,7 +806,7 @@ private fun AdminButton(
                 Text(
                     label,
                     color = color,
-                    fontSize = 12.5.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }

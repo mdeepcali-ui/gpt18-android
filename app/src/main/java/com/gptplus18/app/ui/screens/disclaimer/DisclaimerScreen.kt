@@ -115,7 +115,7 @@ fun DisclaimerScreen(
             Text(
                 title,
                 color = TextPrimary,
-                fontSize = 24.sp,
+                fontSize = 19.2.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
@@ -124,7 +124,7 @@ fun DisclaimerScreen(
             Text(
                 subtitle,
                 color = TextSecondary,
-                fontSize = 12.5.sp,
+                fontSize = 10.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -164,7 +164,7 @@ fun DisclaimerScreen(
             Text(
                 footerText,
                 color = colors.textTertiary,
-                fontSize = 10.5.sp,
+                fontSize = 9.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -193,7 +193,7 @@ fun DisclaimerScreen(
                 Spacer(Modifier.width(8.dp))
                 Text(
                     buttonText,
-                    fontSize = 14.sp,
+                    fontSize = 11.2.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }
@@ -245,7 +245,7 @@ private fun SectionCard(
                 Text(
                     title,
                     color = TextPrimary,
-                    fontSize = 14.sp,
+                    fontSize = 11.2.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }
@@ -256,7 +256,7 @@ private fun SectionCard(
             Text(
                 body,
                 color = TextSecondary,
-                fontSize = 12.sp,
+                fontSize = 9.6.sp,
                 lineHeight = 21.sp,
             )
         }

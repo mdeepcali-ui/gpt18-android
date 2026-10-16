@@ -176,19 +176,19 @@ private fun ServerCard(
     ) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("🖥️", fontSize = 20.sp)
+                Text("🖥️", fontSize = 16.sp)
                 Spacer(Modifier.width(8.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(server.label, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(server.label, color = textPrimary, fontWeight = FontWeight.Bold, fontSize = 11.2.sp)
                     Spacer(Modifier.height(2.dp))
                     Text(
                         "${server.username}@${server.host}:${server.port}",
                         color = textSecondary,
-                        fontSize = 11.sp,
+                        fontSize = 9.sp,
                         fontFamily = FontFamily.Monospace,
                     )
                 }
-                Text(statusIcon, fontSize = 16.sp)
+                Text(statusIcon, fontSize = 12.8.sp)
             }
             Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -206,7 +206,7 @@ private fun ServerCard(
                             strokeWidth = 2.dp,
                         )
                     } else {
-                        Text("اختبار", color = AccentBlue, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text("اختبار", color = AccentBlue, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                     }
                 }
                 Box(
@@ -219,7 +219,7 @@ private fun ServerCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Delete, null, tint = Danger, modifier = Modifier.size(12.dp))
                         Spacer(Modifier.width(4.dp))
-                        Text("حذف", color = Danger, fontSize = 11.sp)
+                        Text("حذف", color = Danger, fontSize = 9.sp)
                     }
                 }
             }
@@ -260,7 +260,7 @@ private fun AddServerDialog(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Text("🌐 سيرفر جديد", color = textPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text("🌐 سيرفر جديد", color = textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
 
                 DialogField("الاسم (مثل production)", label, bgMid, textPrimary, textDim) { label = it }
                 DialogField("Host (IP أو دومين)", host, bgMid, textPrimary, textDim) { host = it }
@@ -291,7 +291,7 @@ private fun AddServerDialog(
                             .border(1.dp, textDim.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
                             .clickable { onDismiss() },
                         contentAlignment = Alignment.Center,
-                    ) { Text("إلغاء", color = textDim, fontSize = 13.sp) }
+                    ) { Text("إلغاء", color = textDim, fontSize = 10.4.sp) }
 
                     Box(
                         modifier = Modifier
@@ -302,7 +302,7 @@ private fun AddServerDialog(
                                 onSubmit(label, host, port.toIntOrNull() ?: 22, user, authType, secret)
                             },
                         contentAlignment = Alignment.Center,
-                    ) { Text("حفظ", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold) }
+                    ) { Text("حفظ", color = Color.White, fontSize = 10.4.sp, fontWeight = FontWeight.Bold) }
                 }
             }
         }
@@ -329,13 +329,13 @@ private fun DialogField(
         contentAlignment = Alignment.CenterStart,
     ) {
         if (value.isEmpty()) {
-            Text(placeholder, color = dimColor, fontSize = 12.sp)
+            Text(placeholder, color = dimColor, fontSize = 9.6.sp)
         }
         BasicTextField(
             value = value,
             onValueChange = onChange,
             singleLine = true,
-            textStyle = TextStyle(fontFamily = ScheherazadeFontFamily, color = textColor, fontSize = 13.sp),
+            textStyle = TextStyle(fontFamily = ScheherazadeFontFamily, color = textColor, fontSize = 10.4.sp),
             cursorBrush = SolidColor(AccentBlue),
             visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
             modifier = Modifier.fillMaxWidth(),
@@ -358,7 +358,7 @@ private fun AuthChip(label: String, selected: Boolean, onClick: () -> Unit) {
         Text(
             label,
             color = if (selected) AccentBlue else Color(0xFF8A8A8A),
-            fontSize = 11.sp,
+            fontSize = 9.sp,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
         )
     }

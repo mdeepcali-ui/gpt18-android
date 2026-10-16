@@ -114,7 +114,7 @@ internal fun EmptyLogoState() {
         Text(
             "\u0645\u0631\u062d\u0628\u0627 \u0628\u0643 \u0641\u064a GPT+18",
             color = TextPrimary,
-            fontSize = 14.1.sp,
+            fontSize = 11.3.sp,
             fontWeight = FontWeight.Bold,
         )
     }
@@ -146,7 +146,7 @@ internal fun EmptyChatState(onSuggestionClick: (String) -> Unit) {
                 .border(1.5.dp, Accent.copy(alpha = 0.3f), androidx.compose.foundation.shape.CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Text("\u2728", fontSize = 37.sp)
+            Text("\u2728", fontSize = 29.6.sp)
         }
 
         Spacer(Modifier.height(20.dp))
@@ -154,7 +154,7 @@ internal fun EmptyChatState(onSuggestionClick: (String) -> Unit) {
         Text(
             "\u0645\u0631\u062d\u0628\u0627 \u0628\u0643 \u0641\u064a GPT+18",
             color = TextPrimary,
-            fontSize = 17.6.sp,
+            fontSize = 14.1.sp,
             fontWeight = FontWeight.Bold,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
@@ -162,7 +162,7 @@ internal fun EmptyChatState(onSuggestionClick: (String) -> Unit) {
         Text(
             "\u0627\u0628\u062f\u0623 \u0628\u0627\u0644\u0643\u062a\u0627\u0628\u0629 \u0641\u064a \u0627\u0644\u0623\u0633\u0641\u0644 \u0623\u0648 \u0627\u062e\u062a\u0631 \u0627\u0642\u062a\u0631\u0627\u062d\u0627\u064b:",
             color = TextSecondary,
-            fontSize = 11.4.sp,
+            fontSize = 9.1.sp,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
 
@@ -185,7 +185,7 @@ internal fun EmptyChatState(onSuggestionClick: (String) -> Unit) {
                         }
                         .padding(horizontal = 14.dp, vertical = 12.dp),
                 ) {
-                    Text(s, color = TextPrimary, fontSize = 11.4.sp)
+                    Text(s, color = TextPrimary, fontSize = 9.1.sp)
                 }
             }
         }

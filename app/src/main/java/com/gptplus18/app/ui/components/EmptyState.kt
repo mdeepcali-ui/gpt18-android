@@ -88,7 +88,7 @@ internal fun EmptyState(
         Text(
             text = title,
             color = colors.textPrimary,
-            fontSize = 20.sp,
+            fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
         )
@@ -99,7 +99,7 @@ internal fun EmptyState(
         Text(
             text = description,
             color = colors.textSecondary,
-            fontSize = 14.sp,
+            fontSize = 11.2.sp,
             lineHeight = 21.sp,
             textAlign = TextAlign.Center,
         )
@@ -118,7 +118,7 @@ internal fun EmptyState(
             ) {
                 Text(
                     text = ctaText,
-                    fontSize = 14.sp,
+                    fontSize = 11.2.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
             }

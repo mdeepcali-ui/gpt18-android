@@ -73,7 +73,7 @@ fun RunButton(
         Text(
             text = "RUN",
             color = accentBlue,
-            fontSize = 11.sp,
+            fontSize = 9.sp,
             lineHeight = 11.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.sp,
@@ -147,7 +147,7 @@ fun RunDialog(
                     Text(
                         text = "▶  تنفيذ مباشر",
                         color = textPrimary,
-                        fontSize = 15.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -165,7 +165,7 @@ fun RunDialog(
                                 Text(
                                     text = if (lang == "python") "Python" else "Shell",
                                     color = accentBlue,
-                                    fontSize = 11.sp,
+                                    fontSize = 9.sp,
             lineHeight = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                 )
@@ -182,11 +182,11 @@ fun RunDialog(
                                 containerColor = bgMid,
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("Python", color = textPrimary, fontSize = 12.sp) },
+                                    text = { Text("Python", color = textPrimary, fontSize = 9.6.sp) },
                                     onClick = { lang = "python"; showLangMenu = false },
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Shell", color = textPrimary, fontSize = 12.sp) },
+                                    text = { Text("Shell", color = textPrimary, fontSize = 9.6.sp) },
                                     onClick = { lang = "shell"; showLangMenu = false },
                                 )
                             }
@@ -195,7 +195,7 @@ fun RunDialog(
                         Text(
                             text = "✕",
                             color = textDim,
-                            fontSize = 16.sp,
+                            fontSize = 12.8.sp,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(50))
                                 .clickable(enabled = !isRunning) { onDismiss() }
@@ -220,7 +220,7 @@ fun RunDialog(
                                    else "echo hello world",
                             color = textDim,
                             fontFamily = FontFamily.Monospace,
-                            fontSize = 12.sp,
+                            fontSize = 9.6.sp,
                         )
                     }
                     BasicTextField(
@@ -230,7 +230,7 @@ fun RunDialog(
                         textStyle = TextStyle(
                             color = textPrimary,
                             fontFamily = FontFamily.Monospace,
-                            fontSize = 12.sp,
+                            fontSize = 9.6.sp,
                         ),
                         cursorBrush = SolidColor(accentBlue),
                         modifier = Modifier
@@ -277,7 +277,7 @@ fun RunDialog(
                     Text(
                         text = "⚠ $lastError",
                         color = Color(0xFFEF4444),
-                        fontSize = 11.sp,
+                        fontSize = 9.sp,
             lineHeight = 11.sp,
                         modifier = Modifier.padding(horizontal = 4.dp),
                     )
@@ -298,7 +298,7 @@ fun RunDialog(
                             .clickable(enabled = !isRunning) { onDismiss() },
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text("إلغاء", color = textDim, fontSize = 13.sp)
+                        Text("إلغاء", color = textDim, fontSize = 10.4.sp)
                     }
 
                     Box(
@@ -325,7 +325,7 @@ fun RunDialog(
                             Text(
                                 "▶  نفّذ",
                                 color = Color.White,
-                                fontSize = 13.sp,
+                                fontSize = 10.4.sp,
                                 fontWeight = FontWeight.Bold,
                             )
                         }
@@ -361,7 +361,7 @@ private fun ToolKey(
             Text(
                 text = symbol,
                 color = accentBlue,
-                fontSize = 12.sp,
+                fontSize = 9.6.sp,
                 fontWeight = FontWeight.Bold,
             )
             Spacer(Modifier.width(4.dp))
@@ -425,7 +425,7 @@ fun SaveButton(
             Text(
                 text = "SAVE",
                 color = accentBlue,
-                fontSize = 11.sp,
+                fontSize = 9.sp,
             lineHeight = 11.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 0.sp,
@@ -477,11 +477,11 @@ fun SaveDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("حفظ على موبايلي", color = textPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text("حفظ على موبايلي", color = textPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Text(
                         text = "X",
                         color = textDim,
-                        fontSize = 16.sp,
+                        fontSize = 12.8.sp,
                         modifier = Modifier
                             .clip(RoundedCornerShape(50))
                             .clickable(enabled = !isSaving) { onDismiss() }
@@ -492,7 +492,7 @@ fun SaveDialog(
                 Text(
                     "رح يُحفظ workspace كامل في Downloads/{اسم}/",
                     color = textDim,
-                    fontSize = 11.sp,
+                    fontSize = 9.sp,
             lineHeight = 11.sp,
                 )
 
@@ -513,7 +513,7 @@ fun SaveDialog(
                         singleLine = true,
                         textStyle = TextStyle(
                             color = textPrimary,
-                            fontSize = 13.sp,
+                            fontSize = 10.4.sp,
                             fontFamily = FontFamily.Monospace,
                         ),
                         cursorBrush = SolidColor(accentBlue),
@@ -525,7 +525,7 @@ fun SaveDialog(
                     Text(
                         text = "خطأ: " + lastError,
                         color = Color(0xFFEF4444),
-                        fontSize = 11.sp,
+                        fontSize = 9.sp,
             lineHeight = 11.sp,
                     )
                 }
@@ -541,7 +541,7 @@ fun SaveDialog(
                             .border(1.dp, textDim.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
                             .clickable(enabled = !isSaving) { onDismiss() },
                         contentAlignment = Alignment.Center,
-                    ) { Text("إلغاء", color = textDim, fontSize = 13.sp) }
+                    ) { Text("إلغاء", color = textDim, fontSize = 10.4.sp) }
 
                     Box(
                         modifier = Modifier
@@ -558,7 +558,7 @@ fun SaveDialog(
                                 strokeWidth = 2.dp,
                             )
                         } else {
-                            Text("احفظ", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            Text("احفظ", color = Color.White, fontSize = 10.4.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }

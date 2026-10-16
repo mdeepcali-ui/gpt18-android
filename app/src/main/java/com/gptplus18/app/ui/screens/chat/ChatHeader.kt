@@ -121,7 +121,7 @@ internal fun ChatHeader(
                             stringResource(R.string.t_044),
                             color = TextPrimary,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
+                            fontSize = 11.2.sp,
                             lineHeight = 17.sp,
                         )
                     } else {

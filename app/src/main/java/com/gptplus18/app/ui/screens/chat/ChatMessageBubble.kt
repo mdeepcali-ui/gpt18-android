@@ -141,20 +141,20 @@ internal fun CodeFilesCard(
                         .background(Accent.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("📁", fontSize = 15.sp)
+                    Text("📁", fontSize = 12.sp)
                 }
                 Spacer(Modifier.width(10.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "الملفات جاهزة",
                         color = TextPrimary,
-                        fontSize = 12.3.sp,
+                        fontSize = 9.8.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
                         text = "${files.size} ملف${if (zipUrl != null) " — أو حمّل الكل" else ""}",
                         color = TextSecondary,
-                        fontSize = 9.7.sp,
+                        fontSize = 9.sp,
                     )
                 }
             }
@@ -177,12 +177,12 @@ internal fun CodeFilesCard(
                         }
                         .padding(horizontal = 10.dp, vertical = 8.dp),
                 ) {
-                    Text("📄", fontSize = 13.2.sp)
+                    Text("📄", fontSize = 10.6.sp)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         text = f.name,
                         color = TextPrimary,
-                        fontSize = 10.6.sp,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.weight(1f),
                         maxLines = 1,
@@ -190,7 +190,7 @@ internal fun CodeFilesCard(
                     Text(
                         text = "⬇",
                         color = Accent,
-                        fontSize = 12.3.sp,
+                        fontSize = 9.8.sp,
                         fontWeight = FontWeight.Bold,
                     )
                 }
@@ -219,12 +219,12 @@ internal fun CodeFilesCard(
                         }
                         .padding(vertical = 11.dp),
                 ) {
-                    Text("📦", fontSize = 13.2.sp)
+                    Text("📦", fontSize = 10.6.sp)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         text = "تحميل الكل (ZIP)",
                         color = Color.Black,
-                        fontSize = 11.4.sp,
+                        fontSize = 9.1.sp,
                         fontWeight = FontWeight.Bold,
                     )
                 }
@@ -250,7 +250,7 @@ internal fun UserMessageText(text: String) {
             Text(
                 text,
                 color = TextPrimary,
-                fontSize = 14.sp,
+                fontSize = 11.2.sp,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 20.sp,
             )
@@ -263,7 +263,7 @@ internal fun UserMessageText(text: String) {
             Text(
                 text = text,
                 color = TextPrimary,
-                fontSize = 14.sp,
+                fontSize = 11.2.sp,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 20.sp,
                 maxLines = if (expanded) Int.MAX_VALUE else PREVIEW_LINES,
@@ -281,7 +281,7 @@ internal fun UserMessageText(text: String) {
             Text(
                 text = if (expanded) "▲ عرض أقل" else "▼ عرض المزيد (${text.length} حرف)",
                 color = Accent,
-                fontSize = 11.4.sp,
+                fontSize = 9.1.sp,
                 fontWeight = FontWeight.SemiBold,
             )
         }
@@ -429,7 +429,7 @@ fun MessageBubble(
                                 Text(
                                     text = att.name,
                                     color = androidx.compose.ui.graphics.Color(0xFFE4E4E7),
-                                    fontSize = 12.sp,
+                                    fontSize = 9.6.sp,
                                     maxLines = 1,
                                     modifier = Modifier.weight(1f),
                                 )
@@ -483,7 +483,7 @@ fun MessageBubble(
                                 Text(
                                     cleanText,
                                     color = androidx.compose.ui.graphics.Color(0xFFB8B8C2),
-                                    fontSize = 12.sp,
+                                    fontSize = 9.6.sp,
                                     fontWeight = FontWeight.Normal,
                                     lineHeight = 17.sp,
                                 )
@@ -521,7 +521,7 @@ fun MessageBubble(
                             Text(
                                 "🔍 جاري تحليل الصورة...",
                                 color = TextPrimary,
-                                fontSize = 12.3.sp,
+                                fontSize = 9.8.sp,
                                 fontWeight = FontWeight.Medium,
                             )
                         }
@@ -568,7 +568,7 @@ fun MessageBubble(
                                         }
                                         .padding(horizontal = 14.dp, vertical = 8.dp),
                                 ) {
-                                    Text(action, color = Accent, fontSize = 11.4.sp, fontWeight = FontWeight.Medium)
+                                    Text(action, color = Accent, fontSize = 9.1.sp, fontWeight = FontWeight.Medium)
                                 }
                             }
                         }

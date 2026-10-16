@@ -142,7 +142,7 @@ fun AgeCheckScreen(
             Text(
                 title,
                 color = TextPrimary,
-                fontSize = 24.sp,
+                fontSize = 19.2.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
@@ -150,7 +150,7 @@ fun AgeCheckScreen(
             Text(
                 subtitle,
                 color = TextSecondary,
-                fontSize = 13.sp,
+                fontSize = 10.4.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 21.sp,
             )
@@ -204,7 +204,7 @@ fun AgeCheckScreen(
                     Text(
                         errorMsg!!,
                         color = Color(0xFFEF4444),
-                        fontSize = 12.5.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Medium,
                     )
                 }
@@ -230,7 +230,7 @@ fun AgeCheckScreen(
                 Text(
                     privacyNote,
                     color = colors.textTertiary,
-                    fontSize = 11.sp,
+                    fontSize = 9.sp,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -251,7 +251,7 @@ fun AgeCheckScreen(
             ) {
                 Text(
                     btnText,
-                    fontSize = 14.5.sp,
+                    fontSize = 11.6.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }
@@ -273,7 +273,7 @@ private fun DateField(
         Text(
             label,
             color = colors.textTertiary,
-            fontSize = 11.sp,
+            fontSize = 9.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(start = 4.dp, bottom = 6.dp),
         )
@@ -285,7 +285,7 @@ private fun DateField(
             textStyle = androidx.compose.ui.text.TextStyle(
                 fontFamily = ScheherazadeFontFamily,
                 color = TextPrimary,
-                fontSize = 18.sp,
+                fontSize = 14.4.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             ),
@@ -347,14 +347,14 @@ private fun RejectScreen(isArabic: Boolean, onExit: () -> Unit) {
             Text(
                 title,
                 color = Color(0xFFEF4444),
-                fontSize = 20.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
             )
             Spacer(Modifier.height(12.dp))
             Text(
                 msg,
                 color = TextPrimary,
-                fontSize = 13.5.sp,
+                fontSize = 10.8.sp,
                 lineHeight = 22.sp,
                 textAlign = TextAlign.Center,
             )
@@ -370,7 +370,7 @@ private fun RejectScreen(isArabic: Boolean, onExit: () -> Unit) {
                     contentColor = Color.White,
                 ),
             ) {
-                Text(btn, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(btn, fontWeight = FontWeight.Bold, fontSize = 11.2.sp)
             }
         }
     }

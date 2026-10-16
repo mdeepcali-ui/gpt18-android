@@ -70,7 +70,7 @@ fun AboutScreen(onBack: () -> Unit = {}) {
             ) {
                 Text(
                     "GPT+18",
-                    fontSize = 19.4.sp,
+                    fontSize = 15.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = Accent,
                 )
@@ -81,19 +81,19 @@ fun AboutScreen(onBack: () -> Unit = {}) {
             Text(
                 "GPT+18",
                 color = TextPrimary,
-                fontSize = 22.9.sp,
+                fontSize = 18.3.sp,
                 fontWeight = FontWeight.Bold,
             )
             Text(
                 stringResource(R.string.t_009),
                 color = TextSecondary,
-                fontSize = 12.3.sp,
+                fontSize = 9.8.sp,
                 modifier = Modifier.padding(top = 6.dp),
             )
             Text(
                 stringResource(R.string.t_010),
                 color = TextTertiary,
-                fontSize = 10.6.sp,
+                fontSize = 9.sp,
                 modifier = Modifier.padding(top = 4.dp),
             )
 
@@ -110,13 +110,13 @@ fun AboutScreen(onBack: () -> Unit = {}) {
                         stringResource(R.string.t_011),
                         color = Accent,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 13.2.sp,
+                        fontSize = 10.6.sp,
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
                         stringResource(R.string.t_012),
                         color = TextSecondary,
-                        fontSize = 12.3.sp,
+                        fontSize = 9.8.sp,
                         lineHeight = 22.sp,
                     )
                 }
@@ -143,13 +143,13 @@ fun AboutScreen(onBack: () -> Unit = {}) {
             Text(
                 stringResource(R.string.t_013),
                 color = TextTertiary,
-                fontSize = 10.6.sp,
+                fontSize = 9.sp,
                 textAlign = TextAlign.Center,
             )
             Text(
                 stringResource(R.string.t_014),
                 color = TextTertiary,
-                fontSize = 9.7.sp,
+                fontSize = 9.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 4.dp),
             )
@@ -168,11 +168,11 @@ private fun InfoRow(emoji: String, label: String, value: String) {
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(emoji, fontSize = 17.6.sp)
+        Text(emoji, fontSize = 14.1.sp)
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(label, color = TextPrimary, fontSize = 12.3.sp, fontWeight = FontWeight.SemiBold)
-            Text(value, color = TextSecondary, fontSize = 10.6.sp,
+            Text(label, color = TextPrimary, fontSize = 9.8.sp, fontWeight = FontWeight.SemiBold)
+            Text(value, color = TextSecondary, fontSize = 9.sp,
                 modifier = Modifier.padding(top = 2.dp))
         }
     }
@@ -184,7 +184,7 @@ private fun SectionTitle(t: String) {
     Text(
         t,
         color = TextSecondary,
-        fontSize = 11.4.sp,
+        fontSize = 9.1.sp,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(bottom = 8.dp, start = 4.dp).fillMaxWidth(),
     )
@@ -213,13 +213,13 @@ private fun LinkRow(
         Icon(icon, null, tint = Accent, modifier = Modifier.size(20.dp))
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(label, color = TextPrimary, fontSize = 12.3.sp)
+            Text(label, color = TextPrimary, fontSize = 9.8.sp)
             if (subtitle.isNotBlank()) {
-                Text(subtitle, color = TextSecondary, fontSize = 10.6.sp,
+                Text(subtitle, color = TextSecondary, fontSize = 9.sp,
                     modifier = Modifier.padding(top = 2.dp))
             }
         }
-        Text("→", color = Accent, fontSize = 14.1.sp)
+        Text("→", color = Accent, fontSize = 11.3.sp)
     }
     Spacer(Modifier.height(8.dp))
 }

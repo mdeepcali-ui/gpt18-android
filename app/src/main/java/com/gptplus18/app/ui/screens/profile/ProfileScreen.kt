@@ -146,7 +146,7 @@ fun ProfileScreen(
                     } else {
                         Text(
                             state.userName.take(1).uppercase().ifEmpty { "?" },
-                            fontSize = 37.sp, fontWeight = FontWeight.Bold, color = BgPrimary,
+                            fontSize = 29.6.sp, fontWeight = FontWeight.Bold, color = BgPrimary,
                         )
                     }
                 }
@@ -159,13 +159,13 @@ fun ProfileScreen(
                         .clickable { pickLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("📷", fontSize = 12.3.sp)
+                    Text("📷", fontSize = 9.8.sp)
                 }
             }
 
             if (state.isUploadingAvatar) {
                 Spacer(Modifier.height(6.dp))
-                Text("⏳ جاري الرفع...", color = Accent, fontSize = 10.6.sp)
+                Text("⏳ جاري الرفع...", color = Accent, fontSize = 9.sp)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -174,7 +174,7 @@ fun ProfileScreen(
                 Text(
                     state.userName.ifEmpty { stringResource(R.string.t_196) },
                     color = if (state.subscriptionPlan != null) _planColor else TextPrimary,
-                    fontSize = 19.4.sp,
+                    fontSize = 15.5.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 if (state.subscriptionPlan != null) {
@@ -186,7 +186,7 @@ fun ProfileScreen(
                 }
             }
             Spacer(Modifier.height(4.dp))
-            Text(state.userEmail, color = TextSecondary, fontSize = 12.3.sp)
+            Text(state.userEmail, color = TextSecondary, fontSize = 9.8.sp)
 
             Spacer(Modifier.height(24.dp))
 
@@ -197,7 +197,7 @@ fun ProfileScreen(
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Column(Modifier.padding(16.dp)) {
-                    Text(stringResource(R.string.t_070), color = Accent, fontWeight = FontWeight.Bold, fontSize = 13.2.sp)
+                    Text(stringResource(R.string.t_070), color = Accent, fontWeight = FontWeight.Bold, fontSize = 10.6.sp)
                     Spacer(Modifier.height(8.dp))
                     Text(
                         when {
@@ -205,7 +205,7 @@ fun ProfileScreen(
                             state.hasTrial -> stringResource(R.string.t_084)
                             else -> stringResource(R.string.t_085)
                         },
-                        color = TextPrimary, fontSize = 14.1.sp,
+                        color = TextPrimary, fontSize = 11.3.sp,
                     )
                 }
             }
@@ -243,9 +243,9 @@ fun ProfileScreen(
                     ) {
                         Icon(Icons.Default.AdminPanelSettings, null, tint = Accent)
                         Spacer(Modifier.width(12.dp))
-                        Text(stringResource(R.string.t_071), color = Accent, fontWeight = FontWeight.Bold, fontSize = 13.2.sp)
+                        Text(stringResource(R.string.t_071), color = Accent, fontWeight = FontWeight.Bold, fontSize = 10.6.sp)
                         Spacer(Modifier.weight(1f))
-                        Text("→", color = Accent, fontSize = 15.8.sp)
+                        Text("→", color = Accent, fontSize = 12.6.sp)
                     }
                 }
                 Spacer(Modifier.height(16.dp))
@@ -292,7 +292,7 @@ fun ProfileScreen(
                     Text(stringResource(R.string.t_074), color = TextPrimary, modifier = Modifier.weight(1f))
                     Text(
                         text = fontScaleLabel(state.fontScale),
-                        color = Accent, fontSize = 11.4.sp, fontWeight = FontWeight.SemiBold,
+                        color = Accent, fontSize = 9.1.sp, fontWeight = FontWeight.SemiBold,
                     )
                 }
 
@@ -368,9 +368,9 @@ fun ProfileScreen(
                 ) {
                     Icon(Icons.Default.Settings, null, tint = Accent)
                     Spacer(Modifier.width(12.dp))
-                    Text(stringResource(R.string.t_076), color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 13.2.sp)
+                    Text(stringResource(R.string.t_076), color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 10.6.sp)
                     Spacer(Modifier.weight(1f))
-                    Text("→", color = Accent, fontSize = 15.8.sp)
+                    Text("→", color = Accent, fontSize = 12.6.sp)
                 }
             }
 
@@ -429,7 +429,7 @@ private fun FontSizeOption(
             Spacer(Modifier.height(4.dp))
             Text(
                 text = label,
-                fontSize = 9.7.sp,
+                fontSize = 9.sp,
                 color = if (selected) BgPrimary else TextSecondary,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
             )
@@ -506,12 +506,12 @@ private fun ProfileBalanceCard(
                     Text(
                         if (isArabic) "الرصيد" else "Balance",
                         color = TextSecondary,
-                        fontSize = 11.5.sp,
+                        fontSize = 9.2.sp,
                     )
                     Text(
                         "$${String.format(java.util.Locale.US, "%.2f", usdValue)}",
                         color = TextPrimary,
-                        fontSize = 20.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                     )
                 }
@@ -519,14 +519,14 @@ private fun ProfileBalanceCard(
                     Text(
                         planLabel,
                         color = planColor,
-                        fontSize = 11.sp,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     if (subscriptionDaysLeft > 0) {
                         Text(
                             if (isArabic) "$subscriptionDaysLeft يوم" else "$subscriptionDaysLeft days",
                             color = colors.textTertiary,
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                         )
                     }
                 }
@@ -540,7 +540,7 @@ private fun ProfileBalanceCard(
             Text(
                 if (isArabic) "الاستخدام اليومي" else "Daily usage",
                 color = TextSecondary,
-                fontSize = 11.5.sp,
+                fontSize = 9.2.sp,
             )
             Spacer(Modifier.height(8.dp))
 
@@ -584,7 +584,7 @@ private fun ProfileBalanceCard(
                 Spacer(Modifier.width(6.dp))
                 Text(
                     if (isArabic) "اشحن رصيد" else "Top-up Balance",
-                    fontSize = 12.5.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }
@@ -613,8 +613,8 @@ private fun DailyUsageRow(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(14.dp))
             Spacer(Modifier.width(6.dp))
-            Text(label, color = TextSecondary, fontSize = 11.sp, modifier = Modifier.weight(1f))
-            Text("$used / $limit", color = TextPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text(label, color = TextSecondary, fontSize = 9.sp, modifier = Modifier.weight(1f))
+            Text("$used / $limit", color = TextPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.height(4.dp))
         LinearProgressIndicator(
@@ -676,14 +676,14 @@ private fun UpgradeButtonBlue(onClick: () -> Unit) {
                 Text(
                     title,
                     color = blue,
-                    fontSize = 13.5.sp,
+                    fontSize = 10.8.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     subtitle,
                     color = colors.textTertiary,
-                    fontSize = 10.5.sp,
+                    fontSize = 9.sp,
                 )
             }
             Icon(

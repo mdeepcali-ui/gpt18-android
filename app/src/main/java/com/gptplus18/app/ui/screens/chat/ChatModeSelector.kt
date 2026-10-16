@@ -52,7 +52,7 @@ internal fun ModeDropdown(
     ) {
         Icon(Icons.AutoMirrored.Filled.Chat, null, tint = colors.textPrimary, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(6.dp))
-        Text("Chat", color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.1.sp)
+        Text("Chat", color = colors.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 11.3.sp)
     }
 }
 

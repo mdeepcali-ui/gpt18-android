@@ -70,7 +70,7 @@ internal fun FilesDownloadSection(
                 "📥 الملفات الجاهزة",
                 color = TextPrimary,
                 fontWeight = FontWeight.Bold,
-                fontSize = 12.3.sp,
+                fontSize = 9.8.sp,
             )
             Spacer(Modifier.height(8.dp))
 
@@ -107,18 +107,18 @@ internal fun FilesDownloadSection(
                             } catch (_: Exception) {}
                         },
                 ) {
-                    Text("📄", fontSize = 14.1.sp)
+                    Text("📄", fontSize = 11.3.sp)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         f.name,
                         color = TextPrimary,
-                        fontSize = 11.4.sp,
+                        fontSize = 9.1.sp,
                         modifier = Modifier.weight(1f),
                     )
                     Text(
                         "${f.size / 1024} KB",
                         color = TextSecondary,
-                        fontSize = 9.7.sp,
+                        fontSize = 9.sp,
                     )
                 }
             }
@@ -136,10 +136,10 @@ internal fun SessionList(
     if (sessions.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.t_051), color = Accent, fontSize = 17.6.sp, fontWeight = FontWeight.Bold)
-                Text(stringResource(R.string.t_053), color = TextSecondary, fontSize = 11.4.sp,
+                Text(stringResource(R.string.t_051), color = Accent, fontSize = 14.1.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.t_053), color = TextSecondary, fontSize = 9.1.sp,
                     modifier = Modifier.padding(top = 8.dp))
-                Text(stringResource(R.string.t_054), color = TextTertiary, fontSize = 10.6.sp,
+                Text(stringResource(R.string.t_054), color = TextTertiary, fontSize = 9.sp,
                     modifier = Modifier.padding(top = 4.dp))
             }
         }
@@ -160,9 +160,9 @@ internal fun SessionList(
                 shape = RoundedCornerShape(12.dp),
             ) {
                 Column(Modifier.padding(14.dp)) {
-                    Text(s.title, color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 13.2.sp)
+                    Text(s.title, color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 10.6.sp)
                     s.lastRequest?.let {
-                        Text(it.take(80), color = TextSecondary, fontSize = 10.6.sp,
+                        Text(it.take(80), color = TextSecondary, fontSize = 9.sp,
                             fontFamily = FontFamily.Monospace,
                             modifier = Modifier.padding(top = 6.dp))
                     }

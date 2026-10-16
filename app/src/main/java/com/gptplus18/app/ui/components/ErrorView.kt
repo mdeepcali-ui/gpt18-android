@@ -90,7 +90,7 @@ internal fun ErrorView(
         Text(
             text = title,
             color = colors.textPrimary,
-            fontSize = 18.sp,
+            fontSize = 14.4.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
         )
@@ -101,7 +101,7 @@ internal fun ErrorView(
         Text(
             text = description,
             color = colors.textSecondary,
-            fontSize = 13.sp,
+            fontSize = 10.4.sp,
             lineHeight = 20.sp,
             textAlign = TextAlign.Center,
         )
@@ -129,7 +129,7 @@ internal fun ErrorView(
                     Text(
                         text = retryText,
                         color = Color.White,
-                        fontSize = 14.sp,
+                        fontSize = 11.2.sp,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }

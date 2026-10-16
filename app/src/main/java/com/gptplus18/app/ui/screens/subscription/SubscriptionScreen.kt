@@ -93,14 +93,14 @@ fun SubscriptionScreen(
             Text(
                 if (isArabic) "اختر الباقة المناسبة" else "Choose Your Plan",
                 color = TextPrimary,
-                fontSize = 17.sp,
+                fontSize = 13.6.sp,
                 fontWeight = FontWeight.Bold,
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 if (isArabic) "دفعة واحدة، تحكم كامل باستهلاكك" else "One-time payment, full control",
                 color = colors.textTertiary,
-                fontSize = 11.5.sp,
+                fontSize = 9.2.sp,
             )
             Spacer(Modifier.height(12.dp))
             state.plans.forEach { (key, plan) ->
@@ -125,7 +125,7 @@ fun SubscriptionScreen(
             Text(
                 if (isArabic) "💡 كل المدفوعات عبر USDT آمنة ومشفرة" else "💡 All payments via USDT are secure",
                 color = colors.textTertiary,
-                fontSize = 11.sp,
+                fontSize = 9.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -174,10 +174,10 @@ private fun BalanceCard(state: SubscriptionState, isArabic: Boolean) {
                 }
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(if (isArabic) "رصيدك الحالي" else "Your Balance", color = TextSecondary, fontSize = 12.sp)
+                    Text(if (isArabic) "رصيدك الحالي" else "Your Balance", color = TextSecondary, fontSize = 9.6.sp)
                     Text(
                         "$${String.format(Locale.US, "%.2f", my?.usdValue ?: 0.0)}",
-                        color = TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold,
+                        color = TextPrimary, fontSize = 19.2.sp, fontWeight = FontWeight.Bold,
                     )
                 }
             }
@@ -206,9 +206,9 @@ private fun StatItem(icon: ImageVector, label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(icon, contentDescription = null, tint = Accent, modifier = Modifier.size(16.dp))
         Spacer(Modifier.height(4.dp))
-        Text(label, color = TextSecondary, fontSize = 10.5.sp)
+        Text(label, color = TextSecondary, fontSize = 9.sp)
         Spacer(Modifier.height(2.dp))
-        Text(value, color = TextPrimary, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+        Text(value, color = TextPrimary, fontSize = 9.2.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -266,7 +266,7 @@ private fun PlanCard(
             ) {
                 Text(
                     if (isArabic) "الأكثر قيمة" else "Best value",
-                    color = accent, fontSize = 9.5.sp, fontWeight = FontWeight.Bold,
+                    color = accent, fontSize = 9.sp, fontWeight = FontWeight.Bold,
                 )
             }
         }
@@ -294,16 +294,16 @@ private fun PlanCard(
                 }
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(plan.name, color = TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text(plan.name, color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(2.dp))
                     Text(
                         if (isArabic) "شهرياً · يُلغى في أي وقت" else "Monthly · Cancel anytime",
-                        color = colors.textTertiary, fontSize = 10.5.sp,
+                        color = colors.textTertiary, fontSize = 9.sp,
                     )
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("$${plan.price.toInt()}", color = accent, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                    Text(if (isArabic) "/شهر" else "/mo", color = colors.textTertiary, fontSize = 10.sp)
+                    Text("$${plan.price.toInt()}", color = accent, fontSize = 17.6.sp, fontWeight = FontWeight.Bold)
+                    Text(if (isArabic) "/شهر" else "/mo", color = colors.textTertiary, fontSize = 9.sp)
                 }
             }
             Spacer(Modifier.height(12.dp))
@@ -314,7 +314,7 @@ private fun PlanCard(
                 ) {
                     Icon(Icons.Default.Check, contentDescription = null, tint = accent, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text(feat, color = TextSecondary, fontSize = 12.sp)
+                    Text(feat, color = TextSecondary, fontSize = 9.6.sp)
                 }
             }
             Spacer(Modifier.height(14.dp))
@@ -327,7 +327,7 @@ private fun PlanCard(
                     contentColor = Color(0xFF0F0F0F),
                 ),
             ) {
-                Text(if (isArabic) "اشترك الآن" else "Subscribe Now", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                Text(if (isArabic) "اشترك الآن" else "Subscribe Now", fontWeight = FontWeight.Bold, fontSize = 10.4.sp)
             }
         }
     }
@@ -362,18 +362,18 @@ private fun TopupCard(
                 }
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(if (isArabic) "شحن رصيد" else "Top-up Balance", color = TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text(if (isArabic) "شحن رصيد" else "Top-up Balance", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(2.dp))
                     Text(
                         if (isArabic) "دون تاريخ انتهاء — استخدمه وقت ما بدك" else "No expiry — use anytime",
-                        color = colors.textTertiary, fontSize = 10.5.sp,
+                        color = colors.textTertiary, fontSize = 9.sp,
                     )
                 }
             }
             Spacer(Modifier.height(14.dp))
             Text(
                 if (isArabic) "اختر مبلغ الشحن (الحد الأدنى \$5)" else "Choose amount (min \$5)",
-                color = TextSecondary, fontSize = 11.5.sp,
+                color = TextSecondary, fontSize = 9.2.sp,
             )
             Spacer(Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -388,7 +388,7 @@ private fun TopupCard(
                             .padding(vertical = 12.dp),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text("$$amt", color = Accent, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text("$$amt", color = Accent, fontSize = 11.2.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -437,7 +437,7 @@ private fun PaymentDialog(
                     Text(
                         if (isArabic) "إتمام الدفع" else "Complete Payment",
                         color = TextPrimary,
-                        fontSize = 16.sp,
+                        fontSize = 12.8.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f),
                     )
@@ -467,7 +467,7 @@ private fun PaymentDialog(
                     Text(
                         if (isArabic) "اختر الشبكة:" else "Choose network:",
                         color = TextSecondary,
-                        fontSize = 12.sp,
+                        fontSize = 9.6.sp,
                     )
                     Spacer(Modifier.height(8.dp))
 
@@ -499,7 +499,7 @@ private fun PaymentDialog(
                     Text(
                         if (isArabic) "حوّل المبلغ على:" else "Send to:",
                         color = TextSecondary,
-                        fontSize = 12.sp,
+                        fontSize = 9.6.sp,
                     )
                     Spacer(Modifier.height(8.dp))
 
@@ -516,7 +516,7 @@ private fun PaymentDialog(
                         Text(
                             wallet,
                             color = Accent,
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.weight(1f),
                             maxLines = 1,
@@ -583,7 +583,7 @@ private fun PaymentDialog(
                     Text(
                         if (isArabic) "امسح الرمز للتحويل السريع" else "Scan for quick transfer",
                         color = colors.textTertiary,
-                        fontSize = 10.5.sp,
+                        fontSize = 9.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -594,7 +594,7 @@ private fun PaymentDialog(
                     Text(
                         if (isArabic) "ثم الصق رقم العملية (TX Hash):" else "Then paste TX Hash:",
                         color = TextSecondary,
-                        fontSize = 12.sp,
+                        fontSize = 9.6.sp,
                     )
                     Spacer(Modifier.height(8.dp))
 
@@ -603,7 +603,7 @@ private fun PaymentDialog(
                         onValueChange = { vm.setTxHash(it) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        textStyle = androidx.compose.ui.text.TextStyle(fontFamily = ScheherazadeFontFamily, fontSize = 12.sp),
+                        textStyle = androidx.compose.ui.text.TextStyle(fontFamily = ScheherazadeFontFamily, fontSize = 9.6.sp),
                         colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Accent,
                             unfocusedBorderColor = colors.surfaceVariant,
@@ -634,7 +634,7 @@ private fun PaymentDialog(
                     ) {
                         Text(
                             if (isArabic) "إلغاء" else "Cancel",
-                            fontSize = 13.sp,
+                            fontSize = 10.4.sp,
                             fontWeight = FontWeight.Medium,
                         )
                     }
@@ -659,7 +659,7 @@ private fun PaymentDialog(
                         } else {
                             Text(
                                 if (isArabic) "تحقق" else "Verify",
-                                fontSize = 13.sp,
+                                fontSize = 10.4.sp,
                                 fontWeight = FontWeight.Bold,
                             )
                         }
@@ -701,14 +701,14 @@ private fun androidx.compose.foundation.layout.RowScope.NetworkChip(
             Text(
                 label,
                 color = titleColor,
-                fontSize = 13.sp,
+                fontSize = 10.4.sp,
                 fontWeight = FontWeight.Bold,
             )
             Spacer(Modifier.height(2.dp))
             Text(
                 subtitle,
                 color = colors.textTertiary,
-                fontSize = 10.sp,
+                fontSize = 9.sp,
             )
         }
     }
