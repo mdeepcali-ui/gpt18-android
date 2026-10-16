@@ -426,7 +426,7 @@ fun ChatScreen(
                         }
 
                         // QUICK_ACTIONS_MARKER
-                        if (input.isBlank() && state.pendingAttachments.isEmpty()) {
+                        if (ui.input.isBlank() && state.pendingAttachments.isEmpty()) {
 
                         }
                         // ⭐ السحابة: عنوان "التفكير" + مربع أسود مع الرد الجاري

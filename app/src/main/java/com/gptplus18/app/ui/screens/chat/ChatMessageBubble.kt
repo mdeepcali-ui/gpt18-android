@@ -114,6 +114,22 @@ internal fun CodeFilesCard(
     zipUrl: String?,
 ) {
     val ctx = LocalContext.current
+
+    // ⭐ v19.0: Copy Success Flash
+    var _copiedFlash by remember { androidx.compose.runtime.mutableStateOf(false) }
+    val _flashAlpha by animateFloatAsState(
+        targetValue = if (_copiedFlash) 1f else 0f,
+        animationSpec = androidx.compose.animation.core.tween(
+            durationMillis = if (_copiedFlash) 120 else 450,
+        ),
+        label = "copy_flash",
+    )
+    LaunchedEffect(_copiedFlash) {
+        if (_copiedFlash) {
+            kotlinx.coroutines.delay(180)
+            _copiedFlash = false
+        }
+    }
     val colors = LocalAppColors.current
 
     Box(
@@ -332,21 +348,6 @@ fun MessageBubble(
                     ),
                     label = "bubble_press",
                 )
-                // ⭐ v19.0: Copy Success Flash — وميض أخضر بعد النسخ
-                var _copiedFlash by remember { androidx.compose.runtime.mutableStateOf(false) }
-                val _flashAlpha by animateFloatAsState(
-                    targetValue = if (_copiedFlash) 1f else 0f,
-                    animationSpec = androidx.compose.animation.core.tween(
-                        durationMillis = if (_copiedFlash) 120 else 450,
-                    ),
-                    label = "copy_flash",
-                )
-                LaunchedEffect(_copiedFlash) {
-                    if (_copiedFlash) {
-                        kotlinx.coroutines.delay(180)
-                        _copiedFlash = false
-                    }
-                }
                 // ⭐ v19.0: Border color يتغير مع Flash (أخضر عند النسخ)
                 val _flashGreen = androidx.compose.ui.graphics.Color(0xFF5EBF7A)
                 val _borderColor = androidx.compose.ui.graphics.lerp(

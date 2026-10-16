@@ -111,6 +111,8 @@ fun CodeScreen(
         ctx.contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length } ?: 0L
     } catch (_: Exception) { 0L }
 
+    val ui = rememberCodeLocalState()
+
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture(),
     ) { success ->
@@ -154,7 +156,6 @@ fun CodeScreen(
     // X2: viewer
     val state by vm.state.collectAsState()
     val listState = rememberLazyListState()
-    val ui = rememberCodeLocalState()
 
     // ⭐ v5.0.9: هل المستخدم مبتعد عن الأسفل؟
     val isScrolledUp by remember {
