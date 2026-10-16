@@ -151,7 +151,7 @@ fun GptPlus18Theme(
     ) {
         MaterialTheme(
             colorScheme = scheme,
-            typography = AppTypography,   // ← Cairo + 15 levels
+            typography = AppTypography,   // ← Rubik + 15 levels
             shapes = M3Shapes,             // ← M3 compatible
             content = content,
         )

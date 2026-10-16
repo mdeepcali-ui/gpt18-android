@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.compose.material.icons.outlined.Folder
+import com.gptplus18.app.ui.theme.RubikFontFamily
 
 private val AccentBlue = Color(0xFF3B82F6)
 private val Danger = Color(0xFFEF4444)
@@ -238,7 +239,7 @@ private fun RenameDialog(
                     value = name,
                     onValueChange = { if (it.length <= 64) name = it },
                     singleLine = true,
-                    textStyle = TextStyle(fontFamily = com.gptplus18.app.ui.theme.CairoFontFamily, color = colors.textPrimary, fontSize = 13.sp),
+                    textStyle = TextStyle(fontFamily = RubikFontFamily, color = colors.textPrimary, fontSize = 13.sp),
                     cursorBrush = SolidColor(AccentBlue),
                     modifier = Modifier.fillMaxWidth(),
                 )
