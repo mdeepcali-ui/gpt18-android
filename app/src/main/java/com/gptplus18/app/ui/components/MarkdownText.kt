@@ -109,7 +109,7 @@ fun MarkdownText(
     onImageClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     textColor: Color = TextPrimary,
-    fontSize: Int = 17,
+    fontSize: Int = 10,
 ) {
     val blocks = parseMarkdownBlocks(text)
 
@@ -1087,7 +1087,7 @@ fun MarkdownTextBox(
     onImageClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     textColor: Color = TextPrimary,
-    fontSize: Int = 15,
+    fontSize: Int = 10,
 ) {
     val important = isImportantReply(text)
     val clip = LocalClipboardManager.current
@@ -1164,7 +1164,7 @@ fun CollapsibleMarkdownTextBox(
     onImageClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     textColor: Color = TextPrimary,
-    fontSize: Int = 15,
+    fontSize: Int = 10,
 ) {
     val needCollapse = text.length > COLLAPSE_THRESHOLD
     var expanded by remember { mutableStateOf(!needCollapse) }

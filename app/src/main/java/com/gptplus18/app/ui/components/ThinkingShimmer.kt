@@ -248,7 +248,7 @@ fun ThinkingShimmer(
                 text = statusInfo.label,
                 style = TextStyle(
                     fontFamily = ScheherazadeFontFamily,
-                    fontSize = 12.sp,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.SemiBold,
                     brush = _titleGradient,
                 ),
@@ -290,7 +290,7 @@ fun ThinkingShimmer(
                         MarkdownText(
                             text = safeText,
                             textColor = baseText,
-                            fontSize = 13,
+                            fontSize = 10,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     } else {
@@ -306,7 +306,7 @@ fun ThinkingShimmer(
                             text = displayText,
                             style = TextStyle(
                                 fontFamily = ScheherazadeFontFamily,
-                                fontSize = 10.sp,
+                                fontSize = 9.sp,
                                 lineHeight = 18.sp,
                                 fontWeight = FontWeight.Normal,
                                 letterSpacing = 0.2.sp,
