@@ -74,6 +74,7 @@ fun RunButton(
             text = "RUN",
             color = accentBlue,
             fontSize = 11.sp,
+            lineHeight = 11.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.sp,
         )
@@ -164,6 +165,7 @@ fun RunDialog(
                                     text = if (lang == "python") "Python" else "Shell",
                                     color = accentBlue,
                                     fontSize = 11.sp,
+            lineHeight = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                 )
                                 Icon(
@@ -275,6 +277,7 @@ fun RunDialog(
                         text = "⚠ $lastError",
                         color = Color(0xFFEF4444),
                         fontSize = 11.sp,
+            lineHeight = 11.sp,
                         modifier = Modifier.padding(horizontal = 4.dp),
                     )
                 }
@@ -422,6 +425,7 @@ fun SaveButton(
                 text = "SAVE",
                 color = accentBlue,
                 fontSize = 11.sp,
+            lineHeight = 11.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.sp,
             )
@@ -487,6 +491,7 @@ fun SaveDialog(
                     "رح يُحفظ workspace كامل في Downloads/{اسم}/",
                     color = textDim,
                     fontSize = 11.sp,
+            lineHeight = 11.sp,
                 )
 
                 Box(
@@ -519,6 +524,7 @@ fun SaveDialog(
                         text = "خطأ: " + lastError,
                         color = Color(0xFFEF4444),
                         fontSize = 11.sp,
+            lineHeight = 11.sp,
                     )
                 }
 
