@@ -43,6 +43,8 @@ import coil.compose.AsyncImage
 import com.gptplus18.app.R
 import com.gptplus18.app.ui.theme.LocalAppColors
 import com.gptplus18.app.ui.theme.*
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.translate
 
 @Composable
 fun AppDrawerContent(
