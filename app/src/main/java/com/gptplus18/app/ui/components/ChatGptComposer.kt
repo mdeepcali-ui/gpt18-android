@@ -64,7 +64,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
-import com.gptplus18.app.ui.theme.TajawalFontFamily
+import com.gptplus18.app.ui.theme.NotoNaskhFontFamily
 
 // ═══ الألوان الأساسية الجديدة ═══
 private val AccentBlue = Color(0xFF4B7EFF)
@@ -209,7 +209,7 @@ fun ChatGptComposer(
                         },
                         enabled = true,
                         textStyle = TextStyle(
-                            fontFamily = TajawalFontFamily,
+                            fontFamily = NotoNaskhFontFamily,
                             fontWeight = FontWeight.Bold,
                             color = textColor,
                             fontSize = 11.2.sp,

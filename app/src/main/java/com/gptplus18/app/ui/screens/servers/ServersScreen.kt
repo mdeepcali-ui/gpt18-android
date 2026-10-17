@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gptplus18.app.ui.theme.LocalAppColors
 import androidx.compose.material.icons.outlined.Cloud
-import com.gptplus18.app.ui.theme.TajawalFontFamily
+import com.gptplus18.app.ui.theme.NotoNaskhFontFamily
 
 private val AccentBlue = Color(0xFF3B82F6)
 private val Danger = Color(0xFFEF4444)
@@ -335,7 +335,7 @@ private fun DialogField(
             value = value,
             onValueChange = onChange,
             singleLine = true,
-            textStyle = TextStyle(fontFamily = TajawalFontFamily, color = textColor, fontSize = 10.4.sp),
+            textStyle = TextStyle(fontFamily = NotoNaskhFontFamily, color = textColor, fontSize = 10.4.sp),
             cursorBrush = SolidColor(AccentBlue),
             visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
             modifier = Modifier.fillMaxWidth(),

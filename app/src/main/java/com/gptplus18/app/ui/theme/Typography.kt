@@ -20,7 +20,7 @@ import com.gptplus18.app.R
  *
  *  المبادئ:
  *    • 15 مستوى Material 3 رسمي — لا أرقام عشوائية
- *    • خط Tajawal للعربية + اللاتينية (OFL License)
+ *    • خط Noto Naskh للعربية + اللاتينية (OFL License)
  *    • lineHeight × 1.6 للعربية (RTL-optimized)
  *    • letterSpacing = 0 للعربية، 0.15 للاتينية
  *    • أوزان صحيحة: Regular(400), Medium(500), SemiBold(600), Bold(700)
@@ -31,13 +31,13 @@ import com.gptplus18.app.R
  */
 
 // ─────────────────────────────────────────────────────────────
-//  Font Family — Tajawal
+//  Font Family — Noto Naskh
 // ─────────────────────────────────────────────────────────────
-val TajawalFontFamily = FontFamily(
-    Font(R.font.tajawal_regular,  FontWeight.Normal),    // 400
-    Font(R.font.tajawal_medium,   FontWeight.Medium),    // 500
-    Font(R.font.tajawal_bold, FontWeight.SemiBold),  // 600
-    Font(R.font.tajawal_extrabold,     FontWeight.Bold),      // 700
+val NotoNaskhFontFamily = FontFamily(
+    Font(R.font.noto_regular,  FontWeight.Normal),    // 400
+    Font(R.font.noto_medium,   FontWeight.Medium),    // 500
+    Font(R.font.noto_semibold, FontWeight.SemiBold),  // 600
+    Font(R.font.noto_bold,     FontWeight.Bold),      // 700
 )
 
 // ─────────────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ private fun appStyle(
     lineHeight: Int,
     letterSpacing: Float = 0f,
 ): TextStyle = TextStyle(
-    fontFamily = TajawalFontFamily,
+    fontFamily = NotoNaskhFontFamily,
     fontWeight = weight,
     fontSize = size.sp,
     lineHeight = lineHeight.sp,

@@ -57,7 +57,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import kotlin.math.max
 import kotlin.math.min
-import com.gptplus18.app.ui.theme.TajawalFontFamily
+import com.gptplus18.app.ui.theme.NotoNaskhFontFamily
 
 /**
  * صندوق الرد الجاري:
@@ -249,7 +249,7 @@ fun ThinkingShimmer(
             Text(
                 text = statusInfo.label,
                 style = TextStyle(
-                    fontFamily = TajawalFontFamily,
+                    fontFamily = NotoNaskhFontFamily,
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Black,
                     brush = _titleGradient,
@@ -307,7 +307,7 @@ fun ThinkingShimmer(
                         Text(
                             text = displayText,
                             style = TextStyle(
-                                fontFamily = TajawalFontFamily,
+                                fontFamily = NotoNaskhFontFamily,
                                 fontSize = 10.sp,
                                 lineHeight = 18.sp,
                                 fontWeight = FontWeight.Bold,
