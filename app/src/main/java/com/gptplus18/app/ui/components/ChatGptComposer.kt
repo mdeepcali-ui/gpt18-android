@@ -458,14 +458,19 @@ private fun SmallChip(
     enabled: Boolean,
     isLight: Boolean,
 ) {
-    val bg = if (isLight) Color(0xFFF0F0F2) else Color(0xFF1A1B1E)
+    val bg = if (isLight) Color(0xFFF0F0F2) else Color(0xFF0D0D0D)
     val fg = if (isLight) Color(0xFF6E6E73) else Color(0xFFA0A2A8)
     Row(
         modifier = Modifier
             .height(26.dp)
             .widthIn(min = 85.dp)
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(50))
             .background(bg)
+            .border(
+                1.2.dp,
+                Brush.linearGradient(listOf(Color(0xFF3D2F22), Color(0xFF5A4938), Color(0xFF3D2F22))),
+                RoundedCornerShape(50),
+            )
             .clickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
