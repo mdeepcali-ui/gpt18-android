@@ -136,7 +136,7 @@ fun ChatGptComposer(
     var showEmojiSheet by remember { mutableStateOf(false) }
 
     // ألوان ديناميكية حسب الوضع
-    val boxBg     = if (isLight) Color(0xFFFFFFFF) else Color(0xFF242424)  // ⭐ v18.9
+    val boxBg     = if (isLight) Color(0xFFFFFFFF) else Color(0xFF1A1A1A)  // ⭐ v18.9
     val boxBorder = if (isLight) Color(0xFFE5E5EA) else Color(0xFF3D3D3D)  // ⭐ v18.9
     val textColor = if (isLight) Color(0xFF1A1A1C) else Color(0xFFE5E5E7)
     val hintColor = if (isLight) Color(0xFF8E8E93) else Color(0xFF5A5C62)
@@ -167,7 +167,7 @@ fun ChatGptComposer(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(28.dp))
                 .background(boxBg)
-                .border(1.6.dp, Brush.linearGradient(listOf(Color(0xFF5A4938), Color(0xFF7D6A55), Color(0xFF5A4938))), RoundedCornerShape(28.dp))
+                .border(1.6.dp, Brush.linearGradient(listOf(Color(0xFF3D2F22), Color(0xFF5A4938), Color(0xFF3D2F22))), RoundedCornerShape(28.dp))
                 .padding(horizontal = 14.dp, vertical = 6.dp),
         ) {
             // مرفقات
@@ -272,8 +272,8 @@ fun ChatGptComposer(
                         enabled = true,
                         bgColor = AccentBlue,
                         iconColor = Color.White,
-                        size = 36.dp,
-                        iconSize = 24.dp,   // ⭐ v5.0.9: 16 → 24 (أكبر 50%)
+                        size = 30.dp,
+                        iconSize = 18.dp,
                     )
                 } else if (hasContent) {
                     ActionCircleButton(
@@ -283,8 +283,8 @@ fun ChatGptComposer(
                         enabled = canSend && enabled,
                         bgColor = if (canSend && enabled) AccentBlue else sendIdleBg,
                         iconColor = if (canSend && enabled) Color.White else sendIdleFg,
-                        size = 36.dp,
-                        iconSize = 24.dp,   // ⭐ v5.0.9: 16 → 24 (أكبر 50%)
+                        size = 30.dp,
+                        iconSize = 18.dp,
                         isUploading = isUploading,
                     )
                 }
@@ -391,14 +391,30 @@ private fun ActionCircleButton(
                 strokeWidth = 2.dp,
             )
         } else {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDesc,
-                tint = iconColor,
+            Box(
                 modifier = Modifier
                     .size(iconSize)
                     .graphicsLayer { translationY = _iconLift },
-            )
+                contentAlignment = Alignment.Center,
+            ) {
+                listOf(
+                    Pair(-1f, -1f), Pair(1f, -1f),
+                    Pair(-1f, 1f), Pair(1f, 1f),
+                    Pair(0f, 0f),
+                ).forEach { (dx, dy) ->
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = contentDesc,
+                        tint = iconColor,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer {
+                                translationX = dx
+                                translationY = dy
+                            },
+                    )
+                }
+            }
         }
     }
 }

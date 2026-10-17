@@ -128,7 +128,7 @@ fun StatusBubble(label: String) {
             )
             .clip(RoundedCornerShape(20.dp))
             .background(Brush.verticalGradient(listOf(bgTop, bgBot)))
-            .border(1.6.dp, Brush.linearGradient(listOf(Color(0xFF5A4938), Color(0xFF7D6A55), Color(0xFF5A4938))), RoundedCornerShape(20.dp))
+            .border(1.6.dp, Brush.linearGradient(listOf(Color(0xFF3D2F22), Color(0xFF5A4938), Color(0xFF3D2F22))), RoundedCornerShape(20.dp))
     ) {
         // 💎 لمعة داخلية خفيفة بالأعلى
         Box(
