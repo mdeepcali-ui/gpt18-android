@@ -255,21 +255,6 @@ private fun PlanCard(
             .clickable { onSubscribe() }
             .padding(16.dp),
     ) {
-        if (isFull) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(accent.copy(alpha = 0.15f))
-                    .border(1.dp, accent.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
-                    .padding(horizontal = 8.dp, vertical = 3.dp),
-            ) {
-                Text(
-                    if (isArabic) "الأكثر قيمة" else "Best value",
-                    color = accent, fontSize = 9.sp, fontWeight = FontWeight.Bold,
-                )
-            }
-        }
 
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
