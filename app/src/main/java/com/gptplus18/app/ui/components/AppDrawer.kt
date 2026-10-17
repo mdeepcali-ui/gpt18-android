@@ -380,8 +380,8 @@ private fun DrawerItemNew(
             Text(
                 label,
                 color = if (highlight) Accent else TextPrimary,
-                fontSize = 9.8.sp,
-                fontWeight = if (highlight) FontWeight.Bold else FontWeight.SemiBold,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Black,
             )
             if (subtitle != null && subtitle.isNotBlank()) {
                 Text(
