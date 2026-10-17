@@ -733,13 +733,6 @@ private fun CodeBlockView(lang: String, code: String) {
                         )
                         Spacer(Modifier.width(7.dp))
                         Text(
-                            text = langIcon,
-                            fontSize = 9.sp,
-                            fontFamily = FontFamily.Monospace,
-                            color = langAccentColor,
-                        )
-                        Spacer(Modifier.width(5.dp))
-                        Text(
                             text = langDisplay,
                             color = langAccentColor,
                             fontSize = 9.sp,
@@ -1651,8 +1644,7 @@ private fun inlineMarkdown(textRaw: String, baseColor: Color, isLight: Boolean =
                         SpanStyle(
                             fontFamily = FontFamily.Monospace,
                             color = _inlineCodeColor,
-                            background = _inlineCodeBg,
-                            fontSize = (13).sp,
+                            fontSize = (11).sp,
                         ),
                     ) {
                         append(" ")
