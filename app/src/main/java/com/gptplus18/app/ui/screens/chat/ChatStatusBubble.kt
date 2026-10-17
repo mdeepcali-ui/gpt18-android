@@ -38,7 +38,7 @@ import com.gptplus18.app.ui.theme.LocalAppColors
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.layout.widthIn
-import com.gptplus18.app.ui.theme.ScheherazadeFontFamily
+import com.gptplus18.app.ui.theme.TajawalFontFamily
 
 /**
  * ═══════════════════════════════════════════════════════════════
@@ -181,29 +181,24 @@ fun StatusBubble(label: String) {
             )
 
             // ✍️ نص بمقاس راقي + مسح لامع
-            androidx.compose.foundation.layout.Box {
-                listOf(-1f, 0f, 1f).forEach { dx ->
-                    androidx.compose.foundation.text.BasicText(
-                        text = label,
-                        style = androidx.compose.ui.text.TextStyle(
-                            fontFamily = ScheherazadeFontFamily,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 0.3.sp,
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(
-                                    textBase, textBase,
-                                    textShine, textShine, textShine,
-                                    textBase, textBase,
-                                ),
-                                startX = shimmerX * 600f,
-                                endX   = shimmerX * 600f + 160f,
-                            ),
+            androidx.compose.foundation.text.BasicText(
+                text = label,
+                style = androidx.compose.ui.text.TextStyle(
+                    fontFamily = TajawalFontFamily,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 0.3.sp,
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            textBase, textBase,
+                            textShine, textShine, textShine,
+                            textBase, textBase,
                         ),
-                        modifier = androidx.compose.ui.Modifier.offset(x = dx.dp),
-                    )
-                }
-            }
+                        startX = shimmerX * 600f,
+                        endX   = shimmerX * 600f + 160f,
+                    ),
+                ),
+            )
         }
     }
 }

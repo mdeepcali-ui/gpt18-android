@@ -588,7 +588,7 @@ private fun PaymentDialog(
                         onValueChange = { vm.setTxHash(it) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        textStyle = androidx.compose.ui.text.TextStyle(fontFamily = ScheherazadeFontFamily, fontSize = 9.6.sp),
+                        textStyle = androidx.compose.ui.text.TextStyle(fontFamily = TajawalFontFamily, fontSize = 9.6.sp),
                         colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Accent,
                             unfocusedBorderColor = colors.surfaceVariant,

@@ -27,7 +27,7 @@ import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.ui.theme.TextSecondary
 import java.util.Calendar
 import java.util.Locale
-import com.gptplus18.app.ui.theme.ScheherazadeFontFamily
+import com.gptplus18.app.ui.theme.TajawalFontFamily
 
 @Composable
 fun AgeCheckScreen(
@@ -283,7 +283,7 @@ private fun DateField(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             textStyle = androidx.compose.ui.text.TextStyle(
-                fontFamily = ScheherazadeFontFamily,
+                fontFamily = TajawalFontFamily,
                 color = TextPrimary,
                 fontSize = 14.4.sp,
                 fontWeight = FontWeight.Bold,

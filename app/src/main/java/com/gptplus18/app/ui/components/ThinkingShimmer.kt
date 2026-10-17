@@ -57,7 +57,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import kotlin.math.max
 import kotlin.math.min
-import com.gptplus18.app.ui.theme.ScheherazadeFontFamily
+import com.gptplus18.app.ui.theme.TajawalFontFamily
 
 /**
  * صندوق الرد الجاري:
@@ -246,20 +246,15 @@ fun ThinkingShimmer(
                 modifier = Modifier.size(14.dp),
             )
             Spacer(Modifier.width(6.dp))
-            Box {
-                listOf(-0.8f, 0f, 0.8f).forEach { dx ->
-                    Text(
-                        text = statusInfo.label,
-                        style = TextStyle(
-                            fontFamily = ScheherazadeFontFamily,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.Black,
-                            brush = _titleGradient,
-                        ),
-                        modifier = Modifier.offset(x = dx.dp),
-                    )
-                }
-            }
+            Text(
+                text = statusInfo.label,
+                style = TextStyle(
+                    fontFamily = TajawalFontFamily,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Black,
+                    brush = _titleGradient,
+                ),
+            )
         }
 
         // ── المربع الأسود بدون حدود ──
@@ -312,7 +307,7 @@ fun ThinkingShimmer(
                         Text(
                             text = displayText,
                             style = TextStyle(
-                                fontFamily = ScheherazadeFontFamily,
+                                fontFamily = TajawalFontFamily,
                                 fontSize = 10.sp,
                                 lineHeight = 18.sp,
                                 fontWeight = FontWeight.Bold,
