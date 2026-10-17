@@ -527,14 +527,14 @@ private fun TextBlockView(text: String) {
                 .fillMaxWidth()
                 .padding(vertical = 4.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFF15171E))
+                .background(Color(0xFF0D0D0D))
                 .border(1.dp, Color(0xFF2A2D38), RoundedCornerShape(12.dp)),
         ) {
             Column {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF1B1E27))
+                        .background(Color(0xFF0D0D0D))
                         .padding(start = 14.dp, end = 10.dp, top = 9.dp, bottom = 9.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -556,7 +556,7 @@ private fun TextBlockView(text: String) {
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(Color(0xFF23262F))
+                            .background(Color(0xFF0D0D0D))
                             .clickable {
                                 clip.setText(AnnotatedString(text))
                                 android.widget.Toast.makeText(
@@ -831,7 +831,7 @@ private fun TableView(
     // ═══════════════════════════════════════════════════════
     // الألوان
     // ═══════════════════════════════════════════════════════
-    val bgColor       = if (isLight) Color(0xFFFAFAFC) else Color(0xFF1A1A1A)  // ⭐ v18.9
+    val bgColor       = if (isLight) Color(0xFFFAFAFC) else Color(0xFF0D0D0D)  // ⭐ v18.9
     val headerBg      = if (isLight) Color(0x1A6B4FDB) else Color(0xFF0D0D0D)  // ⭐ v18.9
     val rowAltBg      = if (isLight) Color(0xFFF4F4F7) else Color(0xFF141414)  // ⭐ v18.9
     val borderCol     = if (isLight) Color(0xFFC8CCD4) else Color(0xFF444444)  // ⭐ v18.9
