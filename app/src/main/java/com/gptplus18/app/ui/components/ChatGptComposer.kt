@@ -209,6 +209,7 @@ fun ChatGptComposer(
                         enabled = true,
                         textStyle = TextStyle(
                             fontFamily = ScheherazadeFontFamily,
+                            fontWeight = FontWeight.Bold,
                             color = textColor,
                             fontSize = 11.2.sp,
                             lineHeight = 17.sp,

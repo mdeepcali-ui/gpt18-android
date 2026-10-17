@@ -236,7 +236,7 @@ fun MarkdownText(
                         text = block.num + ".",
                         color = Accent,
                         fontSize = fontSize.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(end = 10.dp),
                     )
                     Text(
@@ -283,7 +283,7 @@ fun MarkdownText(
                                         text = "$icon $label",
                                         color = tintColor,
                                         fontSize = (fontSize - 2).sp,
-                                        fontWeight = FontWeight.SemiBold,
+                                        fontWeight = FontWeight.Bold,
                                         modifier = Modifier.padding(bottom = 4.dp),
                                     )
                                 }
@@ -448,7 +448,7 @@ fun MarkdownText(
                                             text = block.label,
                                             color = tintColor,
                                             fontSize = (fontSize - 2).sp,
-                                            fontWeight = FontWeight.SemiBold,
+                                            fontWeight = FontWeight.Bold,
                                             modifier = Modifier.padding(bottom = 3.dp),
                                         )
                                     }
@@ -505,7 +505,7 @@ fun MarkdownText(
                     text = inlineMarkdown(block.content, textColor, LocalAppColors.current.isLight),
                     color = textColor,
                     fontSize = fontSize.sp,
-                    fontWeight = FontWeight.Medium,    // ⭐ v5.0.5: كان Bold
+                    fontWeight = FontWeight.Bold,    // ⭐ v5.0.5: كان Bold
                     lineHeight = (fontSize + 6).sp,    // ⭐ v5.0.5: كان +8
                     modifier = Modifier
                         .fillMaxWidth()
@@ -549,7 +549,7 @@ private fun TextBlockView(text: String) {
                         text = "\u0646\u0635",
                         color = Color(0xFF7DD3FC),
                         fontSize = 9.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Bold,
                     )
                     Spacer(Modifier.weight(1f))
                     Row(
@@ -578,7 +578,7 @@ private fun TextBlockView(text: String) {
                             stringResource(R.string.t_003),
                             color = Accent,
                             fontSize = 9.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = FontWeight.Bold,
                         )
                     }
                 }
@@ -713,7 +713,7 @@ private fun CodeBlockView(lang: String, code: String) {
                             stringResource(R.string.t_003),
                             color = Accent,
                             fontSize = 9.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = FontWeight.Bold,
                         )
                     }
                     Spacer(Modifier.weight(1f))
@@ -744,7 +744,7 @@ private fun CodeBlockView(lang: String, code: String) {
                             color = langAccentColor,
                             fontSize = 9.sp,
                             fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Bold,
                             letterSpacing = 0.3.sp,
                         )
                     }
@@ -782,7 +782,7 @@ private fun CodeBlockView(lang: String, code: String) {
                                 "▼ عرض الكود كامل ($totalLines سطر)",
                             color = langAccentColor,
                             fontSize = 9.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Bold,
                         )
                     }
                 }
@@ -1055,7 +1055,7 @@ private fun highlightSyntax(code: String, lang: String, isLight: Boolean): Annot
                 withStyle(
                     SpanStyle(
                         color = color,
-                        fontWeight = if (keywords.contains(word)) FontWeight.Normal else FontWeight.Normal,
+                        fontWeight = FontWeight.Bold,
                     ),
                 ) {
                     append(word)
@@ -1124,7 +1124,7 @@ fun MarkdownTextBox(
                 "\u0645\u062d\u062a\u0648\u0649 \u0645\u0646\u0638\u0645",
                 color = TextSecondary,
                 fontSize = 9.sp,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f),
             )
             Row(
@@ -1205,7 +1205,7 @@ fun CollapsibleMarkdownTextBox(
                     text = if (expanded) "\u25b2 \u0637\u064a \u0627\u0644\u0631\u062f" else "\u25bc \u0639\u0631\u0636 \u0627\u0644\u0631\u062f \u0643\u0627\u0645\u0644\u0627\u064b (${text.length} \u062d\u0631\u0641)",
                     color = Accent,
                     fontSize = 9.1.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                 )
             }
         }

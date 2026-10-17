@@ -249,7 +249,7 @@ fun ThinkingShimmer(
                 style = TextStyle(
                     fontFamily = ScheherazadeFontFamily,
                     fontSize = 9.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     brush = _titleGradient,
                 ),
             )
@@ -308,7 +308,7 @@ fun ThinkingShimmer(
                                 fontFamily = ScheherazadeFontFamily,
                                 fontSize = 9.sp,
                                 lineHeight = 18.sp,
-                                fontWeight = FontWeight.Normal,
+                                fontWeight = FontWeight.Bold,
                                 letterSpacing = 0.2.sp,
                                 brush = gradient,
                             ),
