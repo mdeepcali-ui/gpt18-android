@@ -296,7 +296,7 @@ fun ThinkingShimmer(
                         MarkdownText(
                             text = safeText,
                             textColor = baseText,
-                            fontSize = 9,
+                            fontSize = 10,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     } else {
@@ -312,7 +312,7 @@ fun ThinkingShimmer(
                             text = displayText,
                             style = TextStyle(
                                 fontFamily = ScheherazadeFontFamily,
-                                fontSize = 9.sp,
+                                fontSize = 10.sp,
                                 lineHeight = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 0.2.sp,
