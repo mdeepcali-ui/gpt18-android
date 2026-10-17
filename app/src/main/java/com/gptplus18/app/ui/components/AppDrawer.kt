@@ -384,13 +384,13 @@ private fun DrawerItemNew(
                 color = if (highlight) Accent else TextPrimary,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                style = androidx.compose.ui.text.TextStyle(
-                    drawStyle = Stroke(
-                        width = 0.7f,
-                        miter = 10f,
-                        join = StrokeJoin.Round,
-                    ),
-                ),
+                modifier = Modifier.drawWithContent {
+                    // ⭐ v19.0: رسم مزدوج = fake black بدون تجويف
+                    drawContent()
+                    translate(left = 0.2f, top = 0.2f) {
+                        drawContent()
+                    }
+                },
             )
             if (subtitle != null && subtitle.isNotBlank()) {
                 Text(
