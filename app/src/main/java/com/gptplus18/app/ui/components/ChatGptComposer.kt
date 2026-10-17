@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -135,7 +136,7 @@ fun ChatGptComposer(
     var showEmojiSheet by remember { mutableStateOf(false) }
 
     // ألوان ديناميكية حسب الوضع
-    val boxBg     = if (isLight) Color(0xFFFFFFFF) else Color(0xFF333333)  // ⭐ v18.9
+    val boxBg     = if (isLight) Color(0xFFFFFFFF) else Color(0xFF242424)  // ⭐ v18.9
     val boxBorder = if (isLight) Color(0xFFE5E5EA) else Color(0xFF3D3D3D)  // ⭐ v18.9
     val textColor = if (isLight) Color(0xFF1A1A1C) else Color(0xFFE5E5E7)
     val hintColor = if (isLight) Color(0xFF8E8E93) else Color(0xFF5A5C62)
@@ -166,7 +167,7 @@ fun ChatGptComposer(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(28.dp))
                 .background(boxBg)
-                .border(0.8.dp, boxBorder, RoundedCornerShape(28.dp))
+                .border(1.2.dp, Brush.linearGradient(listOf(Color(0xFF8B7355), Color(0xFFB8A48F), Color(0xFF8B7355))), RoundedCornerShape(28.dp))
                 .padding(horizontal = 14.dp, vertical = 6.dp),
         ) {
             // مرفقات

@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -127,6 +128,7 @@ fun StatusBubble(label: String) {
             )
             .clip(RoundedCornerShape(20.dp))
             .background(Brush.verticalGradient(listOf(bgTop, bgBot)))
+            .border(1.2.dp, Brush.linearGradient(listOf(Color(0xFF8B7355), Color(0xFFB8A48F), Color(0xFF8B7355))), RoundedCornerShape(20.dp))
     ) {
         // 💎 لمعة داخلية خفيفة بالأعلى
         Box(

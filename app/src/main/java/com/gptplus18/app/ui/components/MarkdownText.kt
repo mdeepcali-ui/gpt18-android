@@ -81,7 +81,7 @@ object CodeColors {
 
 object CodeBlockColors {
     // 🌙 Dark
-    val Background = Color(0xFF333333)      // ⭐ v18.9: رمادي موحّد
+    val Background = Color(0xFF242424)      // ⭐ v18.9: رمادي موحّد
     val HeaderBg = Color(0xFF2A2A2A)        // ⭐ v18.9: أغمق قليلاً
     val Border = Color(0xFF444444)          // ⭐ v18.9: حدود واضحة
     val DotRed = Color(0xFFFF5F57)
@@ -831,7 +831,7 @@ private fun TableView(
     // ═══════════════════════════════════════════════════════
     // الألوان
     // ═══════════════════════════════════════════════════════
-    val bgColor       = if (isLight) Color(0xFFFAFAFC) else Color(0xFF333333)  // ⭐ v18.9
+    val bgColor       = if (isLight) Color(0xFFFAFAFC) else Color(0xFF242424)  // ⭐ v18.9
     val headerBg      = if (isLight) Color(0x1A6B4FDB) else Color(0xFF2A2A2A)  // ⭐ v18.9
     val rowAltBg      = if (isLight) Color(0xFFF4F4F7) else Color(0xFF3A3A3A)  // ⭐ v18.9
     val borderCol     = if (isLight) Color(0xFFC8CCD4) else Color(0xFF444444)  // ⭐ v18.9
