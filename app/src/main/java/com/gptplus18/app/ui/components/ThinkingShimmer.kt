@@ -244,15 +244,20 @@ fun ThinkingShimmer(
                 modifier = Modifier.size(14.dp),
             )
             Spacer(Modifier.width(6.dp))
-            Text(
-                text = statusInfo.label,
-                style = TextStyle(
-                    fontFamily = ScheherazadeFontFamily,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Black,
-                    brush = _titleGradient,
-                ),
-            )
+            Box {
+                listOf(-0.8f, 0f, 0.8f).forEach { dx ->
+                    Text(
+                        text = statusInfo.label,
+                        style = TextStyle(
+                            fontFamily = ScheherazadeFontFamily,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Black,
+                            brush = _titleGradient,
+                        ),
+                        modifier = Modifier.offset(x = dx.dp),
+                    )
+                }
+            }
         }
 
         // ── المربع الأسود بدون حدود ──

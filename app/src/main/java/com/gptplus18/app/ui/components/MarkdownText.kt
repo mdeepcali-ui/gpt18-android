@@ -82,13 +82,13 @@ object CodeColors {
 object CodeBlockColors {
     // 🌙 Dark
     val Background = Color(0xFF1A1A1A)      // ⭐ v18.9: رمادي موحّد
-    val HeaderBg = Color(0xFF242424)        // ⭐ v18.9: أغمق قليلاً
+    val HeaderBg = Color(0xFF0D0D0D)        // ⭐ v18.9: أغمق قليلاً
     val Border = Color(0xFF444444)          // ⭐ v18.9: حدود واضحة
     val DotRed = Color(0xFFFF5F57)
     val DotYellow = Color(0xFFFFBD2E)
     val DotGreen = Color(0xFF28C840)
     val LangAccent = Color(0xFF7DD3FC)
-    val CopyBg = Color(0xFF242424)          // ⭐ v18.9: زر النسخ
+    val CopyBg = Color(0xFF0D0D0D)          // ⭐ v18.9: زر النسخ
     val Shadow = Color(0x33000000)
 
     // ☀️ Light
@@ -832,8 +832,8 @@ private fun TableView(
     // الألوان
     // ═══════════════════════════════════════════════════════
     val bgColor       = if (isLight) Color(0xFFFAFAFC) else Color(0xFF1A1A1A)  // ⭐ v18.9
-    val headerBg      = if (isLight) Color(0x1A6B4FDB) else Color(0xFF2A2A2A)  // ⭐ v18.9
-    val rowAltBg      = if (isLight) Color(0xFFF4F4F7) else Color(0xFF3A3A3A)  // ⭐ v18.9
+    val headerBg      = if (isLight) Color(0x1A6B4FDB) else Color(0xFF0D0D0D)  // ⭐ v18.9
+    val rowAltBg      = if (isLight) Color(0xFFF4F4F7) else Color(0xFF141414)  // ⭐ v18.9
     val borderCol     = if (isLight) Color(0xFFC8CCD4) else Color(0xFF444444)  // ⭐ v18.9
     val cellBorderCol = if (isLight) Color(0xFFD4D8E0) else Color(0xFF3D3D3D)  // ⭐ v18.9
 
@@ -1107,14 +1107,14 @@ fun MarkdownTextBox(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF0E0E12))
+            .background(Color(0xFF0D0D0D))
             .border(1.dp, Accent.copy(alpha = 0.25f), RoundedCornerShape(12.dp)),
     ) {
         // Header مع زر نسخ
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF14141A))
+                .background(Color(0xFF0D0D0D))
                 .padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

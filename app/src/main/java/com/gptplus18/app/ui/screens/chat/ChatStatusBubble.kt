@@ -180,24 +180,29 @@ fun StatusBubble(label: String) {
             )
 
             // ✍️ نص بمقاس راقي + مسح لامع
-            androidx.compose.foundation.text.BasicText(
-                text = label,
-                style = androidx.compose.ui.text.TextStyle(
-                    fontFamily = ScheherazadeFontFamily,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 0.3.sp,
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            textBase, textBase,
-                            textShine, textShine, textShine,
-                            textBase, textBase,
+            androidx.compose.foundation.layout.Box {
+                listOf(-1f, 0f, 1f).forEach { dx ->
+                    androidx.compose.foundation.text.BasicText(
+                        text = label,
+                        style = androidx.compose.ui.text.TextStyle(
+                            fontFamily = ScheherazadeFontFamily,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 0.3.sp,
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    textBase, textBase,
+                                    textShine, textShine, textShine,
+                                    textBase, textBase,
+                                ),
+                                startX = shimmerX * 600f,
+                                endX   = shimmerX * 600f + 160f,
+                            ),
                         ),
-                        startX = shimmerX * 600f,
-                        endX   = shimmerX * 600f + 160f,
-                    ),
-                ),
-            )
+                        modifier = androidx.compose.ui.Modifier.offset(x = dx.dp),
+                    )
+                }
+            }
         }
     }
 }
