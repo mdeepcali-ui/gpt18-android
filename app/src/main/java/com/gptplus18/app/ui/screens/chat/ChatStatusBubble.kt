@@ -185,7 +185,7 @@ fun StatusBubble(label: String) {
                 style = androidx.compose.ui.text.TextStyle(
                     fontFamily = ScheherazadeFontFamily,
                     fontSize = 9.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.Black,
                     letterSpacing = 0.3.sp,
                     brush = Brush.horizontalGradient(
                         colors = listOf(

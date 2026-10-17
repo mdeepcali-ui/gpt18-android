@@ -249,7 +249,7 @@ fun ThinkingShimmer(
                 style = TextStyle(
                     fontFamily = ScheherazadeFontFamily,
                     fontSize = 9.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Black,
                     brush = _titleGradient,
                 ),
             )
