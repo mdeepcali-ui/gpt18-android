@@ -495,22 +495,22 @@ private fun DrawerUpgradeButton(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .padding(horizontal = 12.dp, vertical = 2.dp)
             .shadow(
-                elevation = 12.dp,
-                shape = RoundedCornerShape(14.dp),
-                ambientColor = blue.copy(alpha = 0.5f),
-                spotColor = blue.copy(alpha = 0.5f),
+                elevation = 4.dp,
+                shape = RoundedCornerShape(12.dp),
+                ambientColor = blue.copy(alpha = 0.3f),
+                spotColor = blue.copy(alpha = 0.3f),
             )
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(colors.surface)
             .border(
-                width = 1.5.dp,
+                width = 1.2.dp,
                 color = blue,
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(12.dp),
             )
             .clickable { onClick() }
-            .padding(horizontal = 14.dp, vertical = 12.dp),
+            .padding(horizontal = 10.dp, vertical = 10.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -519,8 +519,8 @@ private fun DrawerUpgradeButton(onClick: () -> Unit) {
             // ⭐ أيقونة النجوم
             Box(
                 modifier = Modifier
-                    .size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(9.dp))
                     .background(blue.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center,
             ) {
