@@ -290,7 +290,7 @@ fun ThinkingShimmer(
                         MarkdownText(
                             text = safeText,
                             textColor = baseText,
-                            fontSize = 11,
+                            fontSize = 9,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     } else {

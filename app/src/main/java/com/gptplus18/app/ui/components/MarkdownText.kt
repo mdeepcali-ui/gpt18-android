@@ -760,7 +760,7 @@ private fun CodeBlockView(lang: String, code: String) {
                         text = highlightSyntax(displayCode, lang, isLight),
                         fontFamily = FontFamily.Monospace,
                         fontSize = 9.1.sp,
-                        lineHeight = 19.sp,
+                        lineHeight = 13.sp,
                         softWrap = false,
                         style = TextStyle(textDirection = TextDirection.Ltr),
                     )
@@ -798,7 +798,7 @@ private fun TableView(
     fontSize: Int,
 ) {
     val cellSize = (fontSize - 1).sp
-    val headerSize = (fontSize - 1).sp
+    val headerSize = (fontSize + 1).sp
     val isLight = LocalAppColors.current.isLight
 
     // ═══════════════════════════════════════════════════════
@@ -868,7 +868,7 @@ private fun TableView(
                         lineHeight = (fontSize + 3).sp,
                         modifier = Modifier
                             .width(widths[i])
-                            .padding(vertical = 11.dp)
+                            .padding(vertical = 6.dp)
                             .padding(end = if (i < headers.size - 1) 14.dp else 0.dp),
                     )
                     if (i < headers.size - 1) {
@@ -897,7 +897,7 @@ private fun TableView(
                             lineHeight = (fontSize + 3).sp,
                             modifier = Modifier
                                 .width(widths[i])
-                                .padding(vertical = 10.dp)
+                                .padding(vertical = 6.dp)
                                 .padding(end = if (i < row.size - 1) 14.dp else 0.dp),
                         )
                         if (i < row.size - 1) {
