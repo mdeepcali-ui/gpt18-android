@@ -167,7 +167,7 @@ fun ChatGptComposer(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(28.dp))
                 .background(boxBg)
-                .border(1.2.dp, Brush.linearGradient(listOf(Color(0xFF8B7355), Color(0xFFB8A48F), Color(0xFF8B7355))), RoundedCornerShape(28.dp))
+                .border(1.6.dp, Brush.linearGradient(listOf(Color(0xFF5A4938), Color(0xFF7D6A55), Color(0xFF5A4938))), RoundedCornerShape(28.dp))
                 .padding(horizontal = 14.dp, vertical = 6.dp),
         ) {
             // مرفقات
