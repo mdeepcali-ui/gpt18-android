@@ -186,12 +186,13 @@ fun ThinkingShimmer(
             val targetLen = textState.value.length
             if (revealed < targetLen) {
                 val diff = targetLen - revealed
+                // ⭐ v19.0: Adaptive Reveal — يلحق بالـ backend + انسياب
                 val step = when {
-                    diff > 200 -> 10
-                    diff > 80  -> 5
-                    diff > 20  -> 3
-                    diff > 5   -> 2
-                    else       -> 1
+                    diff > 100 -> diff                          // عرض كامل
+                    diff > 30  -> (diff / 2).coerceAtLeast(20)  // سريع
+                    diff > 10  -> (diff / 2).coerceAtLeast(6)   // متوسط
+                    diff > 5   -> 3                              // انسياب
+                    else       -> 1                              // typewriter
                 }
                 revealed = min(revealed + step, targetLen)
             } else if (revealed > targetLen) {

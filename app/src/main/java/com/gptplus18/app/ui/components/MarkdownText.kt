@@ -183,7 +183,7 @@ fun MarkdownText(
                             color = textColor,
                             fontWeight = FontWeight.Black,
                             fontSize = size.sp,
-                            lineHeight = (size + 8).sp,
+                            lineHeight = (size + 13).sp,
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -221,7 +221,7 @@ fun MarkdownText(
                             color = textColor,
                             fontSize = fontSize.sp,
                             fontWeight = FontWeight.Black,
-                            lineHeight = (fontSize + 5).sp,
+                            lineHeight = (fontSize + 11).sp,
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -244,7 +244,7 @@ fun MarkdownText(
                         color = textColor,
                         fontSize = fontSize.sp,
                         fontWeight = FontWeight.Black,
-                        lineHeight = (fontSize + 5).sp,
+                        lineHeight = (fontSize + 11).sp,
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -291,7 +291,7 @@ fun MarkdownText(
                                     text = inlineMarkdown(block.content, TextSecondary, LocalAppColors.current.isLight),
                                     color = TextSecondary,
                                     fontSize = (fontSize - 1).sp,
-                                    lineHeight = (fontSize + 3).sp,
+                                    lineHeight = (fontSize + 9).sp,
                                 )
                             }
                         }
@@ -394,7 +394,7 @@ fun MarkdownText(
                             color = textColor,
                             fontWeight = FontWeight.Black,
                             fontSize = (fontSize + 2).sp,
-                            lineHeight = (fontSize + 5).sp,
+                            lineHeight = (fontSize + 11).sp,
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -456,7 +456,7 @@ fun MarkdownText(
                                         text = inlineMarkdown(block.content, textColor, LocalAppColors.current.isLight),
                                         color = textColor,
                                         fontSize = (fontSize - 1).sp,
-                                        lineHeight = (fontSize + 3).sp,
+                                        lineHeight = (fontSize + 9).sp,
                                     )
                                 }
                             }
@@ -491,7 +491,7 @@ fun MarkdownText(
                         text = inlineMarkdown(block.content, if (block.checked) TextSecondary else textColor, LocalAppColors.current.isLight),
                         color = if (block.checked) TextSecondary else textColor,
                         fontSize = fontSize.sp,
-                        lineHeight = (fontSize + 5).sp,
+                        lineHeight = (fontSize + 11).sp,
                         textDecoration = if (block.checked) androidx.compose.ui.text.style.TextDecoration.LineThrough else null,
                         modifier = Modifier.weight(1f),
                     )
@@ -506,7 +506,7 @@ fun MarkdownText(
                     color = textColor,
                     fontSize = fontSize.sp,
                     fontWeight = FontWeight.Black,    // ⭐ v5.0.5: كان Bold
-                    lineHeight = (fontSize + 3).sp,    // ⭐ v5.0.5: كان +8
+                    lineHeight = (fontSize + 9).sp,    // ⭐ v5.0.5: كان +8
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 5.dp),     // ⭐ v5.0.5: أوضح
@@ -858,7 +858,7 @@ private fun TableView(
                         color = Accent,
                         fontSize = headerSize,
                         fontWeight = FontWeight.Black,
-                        lineHeight = (fontSize + 3).sp,
+                        lineHeight = (fontSize + 9).sp,
                         modifier = Modifier
                             .width(widths[i])
                             .padding(vertical = 6.dp)
@@ -887,7 +887,7 @@ private fun TableView(
                             text = inlineMarkdown(cell, TextPrimary, isLight),
                             color = TextPrimary,
                             fontSize = cellSize,
-                            lineHeight = (fontSize + 3).sp,
+                            lineHeight = (fontSize + 9).sp,
                             modifier = Modifier
                                 .width(widths[i])
                                 .padding(vertical = 6.dp)
