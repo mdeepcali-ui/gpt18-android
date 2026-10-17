@@ -1214,12 +1214,20 @@ fun CollapsibleMarkdownTextBox(
 
 private fun isImportantReply(text: String): Boolean {
     if (text.length < 100) return false
+    
+    // ⭐ هيكل منظم (جدول/عناوين/قوائم) — أي طول
     val hasHeading = Regex("(?m)^#{1,4}\\s").containsMatchIn(text)
     val hasTable = Regex("(?m)^\\|.+\\|").containsMatchIn(text)
     val hasQuote = Regex("(?m)^>\\s?\\[!").containsMatchIn(text)
     val numberedCount = Regex("(?m)^\\d{1,2}[.)]\\s").findAll(text).count()
     val bulletCount = Regex("(?m)^[-*]\\s").findAll(text).count()
-    return hasHeading || hasTable || hasQuote || numberedCount >= 3 || bulletCount >= 3
+    if (hasHeading || hasTable || hasQuote || numberedCount >= 3 || bulletCount >= 3) return true
+    
+    // ⭐ قصة/شعر/سرد: طويل (> 600 حرف) + فقرات متعددة (2+)
+    val paragraphs = text.split(Regex("\\n\\s*\\n")).filter { it.isNotBlank() }.size
+    if (text.length >= 600 && paragraphs >= 2) return true
+    
+    return false
 }
 
 private sealed class MdBlock {
