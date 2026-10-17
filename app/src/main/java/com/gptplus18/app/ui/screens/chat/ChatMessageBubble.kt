@@ -585,7 +585,7 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     if (cleanText.isNotBlank()) {
                         // ✅ Markdown دائم — سواء أثناء البث أو بعده
                         SelectionContainer {
-                            MarkdownText(cleanText, textColor = TextPrimary, fontSize = 10)
+                            MarkdownText(cleanText, textColor = TextPrimary, fontSize = 11)
                         }
                     }
                 }
