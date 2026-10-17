@@ -82,13 +82,13 @@ object CodeColors {
 object CodeBlockColors {
     // 🌙 Dark
     val Background = Color(0xFF1A1A1A)      // ⭐ v18.9: رمادي موحّد
-    val HeaderBg = Color(0xFF2A2A2A)        // ⭐ v18.9: أغمق قليلاً
+    val HeaderBg = Color(0xFF242424)        // ⭐ v18.9: أغمق قليلاً
     val Border = Color(0xFF444444)          // ⭐ v18.9: حدود واضحة
     val DotRed = Color(0xFFFF5F57)
     val DotYellow = Color(0xFFFFBD2E)
     val DotGreen = Color(0xFF28C840)
     val LangAccent = Color(0xFF7DD3FC)
-    val CopyBg = Color(0xFF3D3D3D)          // ⭐ v18.9: زر النسخ
+    val CopyBg = Color(0xFF242424)          // ⭐ v18.9: زر النسخ
     val Shadow = Color(0x33000000)
 
     // ☀️ Light
@@ -221,7 +221,7 @@ fun MarkdownText(
                             color = textColor,
                             fontSize = fontSize.sp,
                             fontWeight = FontWeight.Black,
-                            lineHeight = (fontSize + 9).sp,
+                            lineHeight = (fontSize + 5).sp,
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -244,7 +244,7 @@ fun MarkdownText(
                         color = textColor,
                         fontSize = fontSize.sp,
                         fontWeight = FontWeight.Black,
-                        lineHeight = (fontSize + 9).sp,
+                        lineHeight = (fontSize + 5).sp,
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -291,7 +291,7 @@ fun MarkdownText(
                                     text = inlineMarkdown(block.content, TextSecondary, LocalAppColors.current.isLight),
                                     color = TextSecondary,
                                     fontSize = (fontSize - 1).sp,
-                                    lineHeight = (fontSize + 6).sp,
+                                    lineHeight = (fontSize + 3).sp,
                                 )
                             }
                         }
@@ -394,7 +394,7 @@ fun MarkdownText(
                             color = textColor,
                             fontWeight = FontWeight.Black,
                             fontSize = (fontSize + 2).sp,
-                            lineHeight = (fontSize + 9).sp,
+                            lineHeight = (fontSize + 5).sp,
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -456,7 +456,7 @@ fun MarkdownText(
                                         text = inlineMarkdown(block.content, textColor, LocalAppColors.current.isLight),
                                         color = textColor,
                                         fontSize = (fontSize - 1).sp,
-                                        lineHeight = (fontSize + 6).sp,
+                                        lineHeight = (fontSize + 3).sp,
                                     )
                                 }
                             }
@@ -491,7 +491,7 @@ fun MarkdownText(
                         text = inlineMarkdown(block.content, if (block.checked) TextSecondary else textColor, LocalAppColors.current.isLight),
                         color = if (block.checked) TextSecondary else textColor,
                         fontSize = fontSize.sp,
-                        lineHeight = (fontSize + 9).sp,
+                        lineHeight = (fontSize + 5).sp,
                         textDecoration = if (block.checked) androidx.compose.ui.text.style.TextDecoration.LineThrough else null,
                         modifier = Modifier.weight(1f),
                     )
@@ -506,7 +506,7 @@ fun MarkdownText(
                     color = textColor,
                     fontSize = fontSize.sp,
                     fontWeight = FontWeight.Black,    // ⭐ v5.0.5: كان Bold
-                    lineHeight = (fontSize + 6).sp,    // ⭐ v5.0.5: كان +8
+                    lineHeight = (fontSize + 3).sp,    // ⭐ v5.0.5: كان +8
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 5.dp),     // ⭐ v5.0.5: أوضح
@@ -590,7 +590,7 @@ private fun TextBlockView(text: String) {
                     MarkdownText(
                         text = text,
                         textColor = Color(0xFFE5E7EB),
-                        fontSize = 15,
+                        fontSize = 10,
                     )
                 }
             }
@@ -865,7 +865,7 @@ private fun TableView(
                         color = Accent,
                         fontSize = headerSize,
                         fontWeight = FontWeight.Black,
-                        lineHeight = (fontSize + 6).sp,
+                        lineHeight = (fontSize + 3).sp,
                         modifier = Modifier
                             .width(widths[i])
                             .padding(vertical = 11.dp)
@@ -894,7 +894,7 @@ private fun TableView(
                             text = inlineMarkdown(cell, TextPrimary, isLight),
                             color = TextPrimary,
                             fontSize = cellSize,
-                            lineHeight = (fontSize + 6).sp,
+                            lineHeight = (fontSize + 3).sp,
                             modifier = Modifier
                                 .width(widths[i])
                                 .padding(vertical = 10.dp)
