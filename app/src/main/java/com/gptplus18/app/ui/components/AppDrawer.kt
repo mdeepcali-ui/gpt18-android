@@ -35,6 +35,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.StrokeJoin
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -381,7 +383,14 @@ private fun DrawerItemNew(
                 label,
                 color = if (highlight) Accent else TextPrimary,
                 fontSize = 10.sp,
-                fontWeight = FontWeight.Black,
+                fontWeight = FontWeight.Bold,
+                style = androidx.compose.ui.text.TextStyle(
+                    drawStyle = Stroke(
+                        width = 0.7f,
+                        miter = 10f,
+                        join = StrokeJoin.Round,
+                    ),
+                ),
             )
             if (subtitle != null && subtitle.isNotBlank()) {
                 Text(
