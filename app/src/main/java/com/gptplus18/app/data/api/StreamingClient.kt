@@ -140,6 +140,19 @@ class StreamingClient {
                                 trySend(StreamEvent.FinalContent(fc))
                             }
                         }
+                        obj.optString("type", "") == "tool_call" -> {
+                            trySend(StreamEvent.ToolCall(
+                                obj.optString("name", ""),
+                                obj.optString("args", "")
+                            ))
+                        }
+                        obj.optString("type", "") == "tool_result" -> {
+                            trySend(StreamEvent.ToolResult(
+                                obj.optString("name", ""),
+                                obj.optBoolean("ok", true),
+                                obj.optString("preview", "")
+                            ))
+                        }
                         obj.has("delta") -> {
                             val delta = obj.optString("delta", "")
                             if (delta.isNotEmpty()) {
@@ -308,6 +321,19 @@ class StreamingClient {
                                 trySend(StreamEvent.FinalContent(fc))
                             }
                         }
+                        obj.optString("type", "") == "tool_call" -> {
+                            trySend(StreamEvent.ToolCall(
+                                obj.optString("name", ""),
+                                obj.optString("args", "")
+                            ))
+                        }
+                        obj.optString("type", "") == "tool_result" -> {
+                            trySend(StreamEvent.ToolResult(
+                                obj.optString("name", ""),
+                                obj.optBoolean("ok", true),
+                                obj.optString("preview", "")
+                            ))
+                        }
                         obj.has("delta") -> {
                             val delta = obj.optString("delta", "")
                             if (delta.isNotEmpty()) {
@@ -364,6 +390,8 @@ class StreamingClient {
  */
 sealed class StreamEvent {
     data class ThinkingDelta(val text: String) : StreamEvent()
+    data class ToolCall(val name: String, val args: String) : StreamEvent()
+    data class ToolResult(val name: String, val ok: Boolean, val preview: String) : StreamEvent()
     data class Delta(val text: String) : StreamEvent()
     data class FinalContent(val text: String) : StreamEvent()
     data class Status(val text: String, val mediaType: String = "") : StreamEvent()

@@ -48,6 +48,7 @@ data class CodeUiState(
     val zipUrl: String? = null,
     val statusLabel: String = "",
     val thinkingText: String = "",
+    val toolActivity: List<ToolActivity> = emptyList(),
     val pendingAttachments: List<Attachment> = emptyList(),
     // ⭐ v5.0: حقول المستخدم للـDrawer
     val userName: String = "",
@@ -145,6 +146,18 @@ class CodeViewModel @Inject constructor(
         when (ev) {
             is StreamEvent.Status -> {
                 _state.value = _state.value.copy(statusLabel = ev.text)
+            }
+            is StreamEvent.ToolCall -> {
+                _state.value = _state.value.copy(
+                    toolActivity = _state.value.toolActivity + ToolActivity(name = ev.name, args = ev.args, ok = null),
+                )
+            }
+            is StreamEvent.ToolResult -> {
+                _state.value = _state.value.copy(
+                    toolActivity = _state.value.toolActivity.map { t ->
+                        if (t.name == ev.name && t.ok == null) t.copy(ok = ev.ok, preview = ev.preview) else t
+                    }
+                )
             }
             is StreamEvent.ThinkingDelta -> {
                 _state.value = _state.value.copy(
@@ -474,7 +487,19 @@ class CodeViewModel @Inject constructor(
                         is StreamEvent.Status -> {
                             _state.value = _state.value.copy(statusLabel = ev.text)
                         }
-                        is StreamEvent.ThinkingDelta -> {
+                        is StreamEvent.ToolCall -> {
+                _state.value = _state.value.copy(
+                    toolActivity = _state.value.toolActivity + ToolActivity(name = ev.name, args = ev.args, ok = null),
+                )
+            }
+            is StreamEvent.ToolResult -> {
+                _state.value = _state.value.copy(
+                    toolActivity = _state.value.toolActivity.map { t ->
+                        if (t.name == ev.name && t.ok == null) t.copy(ok = ev.ok, preview = ev.preview) else t
+                    }
+                )
+            }
+            is StreamEvent.ThinkingDelta -> {
                             _state.value = _state.value.copy(thinkingText = _state.value.thinkingText + ev.text)
                         }
                         is StreamEvent.Done -> {
@@ -484,6 +509,7 @@ class CodeViewModel @Inject constructor(
                                 currentSessionId = ev.sessionId,
                                 statusLabel = "",
                                 thinkingText = "",
+                toolActivity = emptyList(),
                             )
                         }
                         is StreamEvent.Error -> {
@@ -535,6 +561,7 @@ class CodeViewModel @Inject constructor(
             jobStatus = "starting",
             statusLabel = "بدء المهمة",
             thinkingText = "",
+                toolActivity = emptyList(),
         )
 
         viewModelScope.launch {
@@ -627,6 +654,7 @@ class CodeViewModel @Inject constructor(
             jobStatus = "starting",
             statusLabel = "التفكير",
             thinkingText = "",
+                toolActivity = emptyList(),
         )
 
         streamJob = viewModelScope.launch {
@@ -641,7 +669,19 @@ class CodeViewModel @Inject constructor(
                         is StreamEvent.Status -> {
                             _state.value = _state.value.copy(statusLabel = ev.text)
                         }
-                        is StreamEvent.ThinkingDelta -> {
+                        is StreamEvent.ToolCall -> {
+                _state.value = _state.value.copy(
+                    toolActivity = _state.value.toolActivity + ToolActivity(name = ev.name, args = ev.args, ok = null),
+                )
+            }
+            is StreamEvent.ToolResult -> {
+                _state.value = _state.value.copy(
+                    toolActivity = _state.value.toolActivity.map { t ->
+                        if (t.name == ev.name && t.ok == null) t.copy(ok = ev.ok, preview = ev.preview) else t
+                    }
+                )
+            }
+            is StreamEvent.ThinkingDelta -> {
                             _state.value = _state.value.copy(
                                 thinkingText = _state.value.thinkingText + ev.text,
                             )
@@ -702,6 +742,7 @@ class CodeViewModel @Inject constructor(
                                 error = ev.message,
                                 statusLabel = "",
                                 thinkingText = "",
+                toolActivity = emptyList(),
                             )
                         }
                         else -> {}
@@ -828,6 +869,7 @@ class CodeViewModel @Inject constructor(
             isRunning = false,
             statusLabel = "",
             thinkingText = "",
+                toolActivity = emptyList(),
         )
         android.util.Log.d("CodeVM", "stopStreaming() — cancelled")
     }
@@ -938,3 +980,11 @@ class CodeViewModel @Inject constructor(
     }
 
 }
+
+data class ToolActivity(
+    val name: String,
+    val args: String = "",
+    val ok: Boolean? = null,   // null = pending, true = success, false = failed
+    val preview: String = "",
+)
+
