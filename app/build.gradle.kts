@@ -26,7 +26,7 @@ android {
         minSdk = 24
         targetSdk = 35
         // versionCode يتزايد دقيقة بدقيقة — فريد لكل build
-        versionCode = 30000000
+        versionCode = 30000001
         versionName = "5.3.0"
         vectorDrawables { useSupportLibrary = true }
 
