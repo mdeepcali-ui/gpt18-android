@@ -200,15 +200,12 @@ fun ThinkingShimmer(
             }
             val targetScroll = scrollState.maxValue
             val current = scrollState.value
-            if (targetScroll > current) {
-                val jump = targetScroll - current
-                val step = when {
-                    jump > 200 -> 15
-                    jump > 80  -> 8
-                    jump > 20  -> 4
-                    else       -> 1
-                }
-                scrollState.scrollTo(min(current + step, targetScroll))
+            val diffScroll = targetScroll - current
+            if (diffScroll > 5) {
+                scrollState.scrollTo(targetScroll)
+            }
+            if (revealed >= targetLen && diffScroll <= 5) {
+                kotlinx.coroutines.delay(33)
             }
         }
     }
