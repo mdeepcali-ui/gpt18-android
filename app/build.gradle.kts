@@ -26,8 +26,8 @@ android {
         minSdk = 24
         targetSdk = 35
         // versionCode يتزايد دقيقة بدقيقة — فريد لكل build
-        versionCode = ((System.currentTimeMillis() / 60_000L) % 2_000_000_000L).toInt()
-        versionName = "5.2.7"
+        versionCode = 528
+        versionName = "5.3.0"
         vectorDrawables { useSupportLibrary = true }
 
         buildConfigField("String", "BASE_URL", "\"http://144.225.8.248:8000/\"")
