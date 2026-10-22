@@ -181,15 +181,13 @@ fun CodeScreen(
     ) {
         val total = state.messages.size + if (state.isRunning) 1 else 0
         if (total <= 0) return@LaunchedEffect
-        kotlinx.coroutines.delay(80)
-        repeat(3) { attempt ->
-            val count = listState.layoutInfo.totalItemsCount
-            val target = if (count > 0) count - 1 else total - 1
-            try {
-                listState.animateScrollToItem(target)
-            } catch (_: Exception) {}
-            if (attempt < 2) kotlinx.coroutines.delay(60)
-        }
+        // انتظر فريم واحد عشان القائمة تكون جاهزة
+        androidx.compose.runtime.withFrameNanos { }
+        val count = listState.layoutInfo.totalItemsCount
+        val target = if (count > 0) count - 1 else total - 1
+        try {
+            listState.scrollToItem(target)
+        } catch (_: Exception) {}
     }
 
     // 🆕 عند فتح الشاشة — افتح جلسة برمجة جديدة تلقائياً

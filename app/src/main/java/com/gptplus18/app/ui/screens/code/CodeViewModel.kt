@@ -458,7 +458,11 @@ class CodeViewModel @Inject constructor(
                 val finalReq = if (request.isBlank()) "حلل الملفات المرفقة" else request
                 val sidForApi = if (sid == -1) null else sid
 
-                // ⭐ نستخدم streamCode مع fileIds
+                // ⭐ v19.0: نستخدم Detached Stream (البث بالخلفية) ليكمل حتى لو طلعت من الشاشة
+                submitDetached(finalReq, uploadedIds)
+                return@launch
+                
+                // (الكود القديم — لن يتم الوصول له)
                 repo.streamCode(sidForApi, finalReq, fileIds = uploadedIds).collect { ev ->
                     when (ev) {
                         is StreamEvent.SaveRequest -> {
@@ -657,6 +661,10 @@ class CodeViewModel @Inject constructor(
                 toolActivity = emptyList(),
         )
 
+        // ⭐ v19.0: توجيه للإرسال بالخلفية
+        submitDetached(request)
+        return
+        @Suppress("UNREACHABLE_CODE")
         streamJob = viewModelScope.launch {
             val modelKey = model.key
             val sb = StringBuilder()
