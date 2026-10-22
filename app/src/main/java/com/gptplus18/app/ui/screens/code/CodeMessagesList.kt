@@ -60,7 +60,7 @@ internal fun BoxScope.CodeMessagesList(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         contentPadding = PaddingValues(start = 12.dp, top = 12.dp, end = 12.dp, bottom = bottomPad),
     ) {
-        items(state.messages, key = { it.id.toString() + it.ts + "_$selectionEpoch" }) { m ->
+        items(state.messages, key = { it.id.toString() + it.ts }) { m ->
             if (m.id == -2) {
                 Column(Modifier.fillMaxWidth()) {
                     // ⭐ v19.0: CodeThinkingBox (Phase 4)
