@@ -1,0 +1,63 @@
+#!/bin/bash
+# ═══════════════════════════════════════════════════════════════
+# GPT+18 — Layer Isolation Pre-Commit Hook
+# يمنع أي commit ينتهك تسلسل الطبقات
+# ═══════════════════════════════════════════════════════════════
+
+BASE="app/src/main/java/com/gptplus18/app"
+VIOLATIONS=0
+
+check() {
+    local label="$1"
+    local dir="$2"
+    local pattern="$3"
+    local hits
+    hits=$(grep -rEn --include="*.kt" "$pattern" "$BASE/$dir" 2>/dev/null)
+    if [ -n "$hits" ]; then
+        echo "🚨 [$label] انتهاك طبقي:"
+        echo "$hits" | sed 's/^/    /'
+        VIOLATIONS=$((VIOLATIONS + 1))
+    fi
+}
+
+# 1) theme ← لا يستورد من أي شيء أعلى
+check "theme→higher" "ui/theme" \
+  "import com\.gptplus18\.app\.(ui\.(components|screens|helpers|navigation)|data|service)"
+
+# 2) components ← لا يستورد من screens/service
+check "components→screens/service" "ui/components" \
+  "import com\.gptplus18\.app\.(ui\.screens|service)"
+
+# 3) helpers ← لا يستورد من screens/components/data/service
+check "helpers→higher" "ui/helpers" \
+  "import com\.gptplus18\.app\.(ui\.screens|ui\.components|data|service)"
+
+# 4) data ← لا يستورد من ui/service
+check "data→ui/service" "data" \
+  "import com\.gptplus18\.app\.(ui|service)"
+
+# 5) service ← لا يستورد من ui/screens
+check "service→ui" "service" \
+  "import com\.gptplus18\.app\.ui\.(screens|components|helpers|theme|navigation)"
+
+# 6) util ← لا يستورد من ui
+check "util→ui" "util" \
+  "import com\.gptplus18\.app\.ui\.(screens|components|helpers)"
+
+# 7) chat لا يستورد من code، والعكس
+check "chat→code" "ui/screens/chat" \
+  "import com\.gptplus18\.app\.ui\.screens\.code"
+check "code→chat" "ui/screens/code" \
+  "import com\.gptplus18\.app\.ui\.screens\.chat"
+
+if [ $VIOLATIONS -gt 0 ]; then
+    echo ""
+    echo "═══════════════════════════════════════════════════════════════"
+    echo "❌ رفض الـ commit — $VIOLATIONS انتهاك(ات) طبقية."
+    echo "   أصلحها أو استخدم: git commit --no-verify (للطوارئ فقط)"
+    echo "═══════════════════════════════════════════════════════════════"
+    exit 1
+fi
+
+echo "✅ الطبقات سليمة — الـ commit مسموح"
+exit 0

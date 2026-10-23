@@ -32,8 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gptplus18.app.R
-import com.gptplus18.app.ui.screens.chat.components.RunButton
-import com.gptplus18.app.ui.screens.chat.components.SaveButton
+import com.gptplus18.app.ui.screens.code.components.RunButton
+import com.gptplus18.app.ui.screens.code.components.SaveButton
 import com.gptplus18.app.ui.theme.BgSecondary
 import com.gptplus18.app.ui.theme.TextPrimary
 

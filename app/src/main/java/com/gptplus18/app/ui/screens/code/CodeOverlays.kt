@@ -11,8 +11,8 @@ import com.gptplus18.app.R
 import com.gptplus18.app.data.models.CodeSession
 import com.gptplus18.app.ui.components.AttachMenuSheet
 import com.gptplus18.app.ui.components.FullscreenImageViewer
-import com.gptplus18.app.ui.screens.chat.components.RunDialog
-import com.gptplus18.app.ui.screens.chat.components.SaveDialog
+import com.gptplus18.app.ui.screens.code.components.RunDialog
+import com.gptplus18.app.ui.screens.code.components.SaveDialog
 import com.gptplus18.app.ui.theme.AppHaptics
 import com.gptplus18.app.ui.theme.BgSecondary
 import com.gptplus18.app.ui.theme.TextPrimary

@@ -27,6 +27,7 @@ import com.gptplus18.app.ui.components.ScrollToBottomFab
 import com.gptplus18.app.ui.theme.AppHaptics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import com.gptplus18.app.ui.components.MessageBubble
 
 /**
  * ═══════════════════════════════════════════════════════════════

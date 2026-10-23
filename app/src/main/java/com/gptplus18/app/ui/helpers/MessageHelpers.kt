@@ -1,4 +1,4 @@
-package com.gptplus18.app.ui.screens.chat
+package com.gptplus18.app.ui.helpers
 
 object MessageHelpers {
     private val IMG_REGEX = Regex("""!\[[^\]]*\]\(([^)]+)\)""")

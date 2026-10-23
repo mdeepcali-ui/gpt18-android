@@ -1,4 +1,4 @@
-package com.gptplus18.app.ui.screens.chat
+package com.gptplus18.app.ui.components
 
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.LinearEasing

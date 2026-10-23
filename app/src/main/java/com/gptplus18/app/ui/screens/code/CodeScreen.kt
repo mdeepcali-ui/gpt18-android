@@ -50,7 +50,7 @@ import com.gptplus18.app.ui.theme.TextPrimary
 import com.gptplus18.app.data.models.CodeMessage
 import com.gptplus18.app.data.models.CodeSession
 import com.gptplus18.app.data.models.Message
-import com.gptplus18.app.ui.screens.chat.MessageBubble
+import com.gptplus18.app.ui.components.MessageBubble
 import com.gptplus18.app.ui.components.ChatGptComposer
 import com.gptplus18.app.ui.components.MarkdownText
 import com.gptplus18.app.ui.theme.*
@@ -66,14 +66,10 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.zIndex
-import com.gptplus18.app.ui.screens.chat.components.RunButton
-import com.gptplus18.app.ui.screens.chat.components.RunDialog
 import com.gptplus18.app.util.ProjectSaver
 import android.widget.Toast
 import com.gptplus18.app.ui.components.icons.ServerIcon
 import com.gptplus18.app.ui.components.icons.FolderIcon
-import com.gptplus18.app.ui.screens.chat.components.SaveButton
-import com.gptplus18.app.ui.screens.chat.components.SaveDialog
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
@@ -287,7 +283,7 @@ fun CodeScreen(
                     .zIndex(100f)
                     .padding(top = 8.dp, start = 12.dp),
             ) {
-                com.gptplus18.app.ui.screens.chat.StatusBubble(
+                com.gptplus18.app.ui.components.StatusBubble(
                     label = state.statusLabel.ifBlank { "التفكير" }
                 )
             }

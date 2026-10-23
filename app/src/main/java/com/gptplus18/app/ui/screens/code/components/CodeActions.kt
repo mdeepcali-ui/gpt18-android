@@ -1,4 +1,4 @@
-package com.gptplus18.app.ui.screens.chat.components
+package com.gptplus18.app.ui.screens.code.components
 
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.graphicsLayer
