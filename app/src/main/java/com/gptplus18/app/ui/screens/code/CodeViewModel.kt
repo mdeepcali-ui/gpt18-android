@@ -165,23 +165,26 @@ class CodeViewModel @Inject constructor(
                 )
             }
             is StreamEvent.FinalContent -> {
-                _state.value = _state.value.copy(
-                    messages = _state.value.messages.map { m ->
-                        if (m.id == -2) m.copy(content = ev.text) else m
-                    },
-                    isRunning = false,
-                    jobStatus = "done",
-                )
+                val lastIdx = _state.value.messages.indexOfLast { it.id == -2 }
+                if (lastIdx != -1) {
+                    val newMsgs = _state.value.messages.toMutableList()
+                    newMsgs[lastIdx] = newMsgs[lastIdx].copy(content = ev.text)
+                    _state.value = _state.value.copy(
+                        messages = newMsgs,
+                        isRunning = false,
+                        jobStatus = "done",
+                    )
+                } else {
+                    _state.value = _state.value.copy(isRunning = false, jobStatus = "done")
+                }
             }
             is StreamEvent.Delta -> {
                 val cur = _state.value
-                val last = cur.messages.lastOrNull { it.id == -2 }
-                if (last != null) {
-                    _state.value = cur.copy(
-                        messages = cur.messages.map { m ->
-                            if (m.id == -2) m.copy(content = m.content + ev.text) else m
-                        },
-                    )
+                val lastIdx = cur.messages.indexOfLast { it.id == -2 }
+                if (lastIdx != -1) {
+                    val newMsgs = cur.messages.toMutableList()
+                    newMsgs[lastIdx] = newMsgs[lastIdx].copy(content = newMsgs[lastIdx].content + ev.text)
+                    _state.value = cur.copy(messages = newMsgs)
                 }
             }
             is StreamEvent.Done -> {
@@ -556,8 +559,9 @@ class CodeViewModel @Inject constructor(
         val tempUser = CodeMessage(id = -1, role = "user", content = request, ts = now)
         val tempAssistant = CodeMessage(id = -2, role = "assistant", content = "", ts = now + 1)
 
+        val cleanMessages = _state.value.messages.filter { it.id != -1 && it.id != -2 }
         _state.value = _state.value.copy(
-            messages = _state.value.messages + tempUser + tempAssistant,
+            messages = cleanMessages + tempUser + tempAssistant,
             isRunning = true,
             error = null,
             logs = emptyList(),
@@ -723,9 +727,15 @@ class CodeViewModel @Inject constructor(
      * ⏹ إيقاف الرد الجاري
      */
     fun stopStreaming() {
-        val job = streamJob ?: return
+        streamJob?.cancel()
         streamJob = null
-        job.cancel()
+        val taskId = _state.value.activeTaskId
+        if (!taskId.isNullOrBlank()) {
+            viewModelScope.launch {
+                try { repo.cancelTask(taskId) } catch (_: Exception) {}
+            }
+        }
+        try { TaskStreamManager.stopTask() } catch (_: Exception) {}
         val msgs = _state.value.messages.map { m ->
             if (m.id == -2) m.copy(id = 0) else m
         }
@@ -734,9 +744,10 @@ class CodeViewModel @Inject constructor(
             isRunning = false,
             statusLabel = "",
             thinkingText = "",
-                toolActivity = emptyList(),
+            toolActivity = emptyList(),
+            activeTaskId = "",
         )
-        android.util.Log.d("CodeVM", "stopStreaming() — cancelled")
+        android.util.Log.d("CodeVM", "stopStreaming() — server cancel + local reset")
     }
 
 

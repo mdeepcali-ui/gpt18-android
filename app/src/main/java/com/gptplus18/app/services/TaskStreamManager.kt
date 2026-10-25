@@ -45,7 +45,7 @@ object TaskStreamManager {
     val state: StateFlow<TaskStreamState> = _state.asStateFlow()
 
     // الأحداث
-    private val _events = MutableSharedFlow<com.gptplus18.app.data.api.StreamEvent>(replay = 100, extraBufferCapacity = 200)
+    private val _events = MutableSharedFlow<com.gptplus18.app.data.api.StreamEvent>(replay = 0, extraBufferCapacity = 200)
     val events: SharedFlow<com.gptplus18.app.data.api.StreamEvent> = _events.asSharedFlow()
 
     private var streamJob: Job? = null

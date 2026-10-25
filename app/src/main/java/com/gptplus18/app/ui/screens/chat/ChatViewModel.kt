@@ -514,9 +514,8 @@ class ChatViewModel @Inject constructor(
      * - يحرّر isSending
      */
     fun stopStreaming() {
-        val job = streamJob ?: return
+        streamJob?.cancel()
         streamJob = null
-        job.cancel()
         // ثبّت الرسالة المؤقتة (id=-2) → نخليها id=0 مع النص الحالي
         val msgs = _state.value.messages.map { m ->
             if (m.id == -2) m.copy(id = 0) else m
