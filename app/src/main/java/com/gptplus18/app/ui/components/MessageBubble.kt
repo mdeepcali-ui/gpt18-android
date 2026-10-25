@@ -624,7 +624,7 @@ fun AudioPlayerItem(url: String, title: String) {
         
         androidx.compose.material3.TextButton(
             onClick = {
-                com.gptplus18.app.util.MediaShareHelper.shareMedia(context, url, "audio")
+                scope.launch { com.gptplus18.app.util.MediaShareHelper.shareMedia(context, url, "audio") }
             },
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp)
         ) {
