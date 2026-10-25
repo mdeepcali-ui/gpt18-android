@@ -110,6 +110,13 @@ class StreamingClient {
                                 trySend(StreamEvent.ImageUrl(url, prompt))
                             }
                         }
+                        obj.has("audio_url") -> {
+                            val url = obj.optString("audio_url", "")
+                            val title = obj.optString("title", "")
+                            if (url.isNotEmpty()) {
+                                trySend(StreamEvent.AudioUrl(url, title))
+                            }
+                        }
                         // 🔒 v2.5: حدث الاشتراك المطلوب
                         obj.optBoolean("subscription_required", false) -> {
                             trySend(StreamEvent.SubscriptionRequired(
@@ -396,6 +403,7 @@ sealed class StreamEvent {
     data class FinalContent(val text: String) : StreamEvent()
     data class Status(val text: String, val mediaType: String = "") : StreamEvent()
     data class ImageUrl(val url: String, val prompt: String = "") : StreamEvent()
+    data class AudioUrl(val url: String, val title: String? = null) : StreamEvent()
     data class Done(
         val sessionId: Int,
         val thinking: String,

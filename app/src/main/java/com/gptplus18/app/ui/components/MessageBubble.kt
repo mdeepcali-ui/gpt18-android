@@ -457,6 +457,10 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                             MarkdownText(cleanText, textColor = TextPrimary, fontSize = 16)
                         }
                     }
+                    if (!msg.audioUrl.isNullOrBlank()) {
+                        Spacer(Modifier.height(8.dp))
+                        AudioPlayerItem(url = msg.audioUrl!!, title = "أغنية")
+                    }
                 }
             }
 
@@ -515,3 +519,74 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
     }
 }
 
+@androidx.compose.runtime.Composable
+fun AudioPlayerItem(url: String, title: String) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var isPlaying by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var player by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<androidx.media3.exoplayer.ExoPlayer?>(null) }
+    val isLight = LocalAppColors.current.isLight
+
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose {
+            player?.release()
+        }
+    }
+
+    androidx.compose.runtime.LaunchedEffect(isPlaying) {
+        if (isPlaying) {
+            if (player == null) {
+                val p = androidx.media3.exoplayer.ExoPlayer.Builder(context).build()
+                p.setMediaItem(androidx.media3.common.MediaItem.fromUri(url))
+                p.prepare()
+                p.playWhenReady = true
+                p.addListener(object : androidx.media3.common.Player.Listener {
+                    override fun onPlaybackStateChanged(state: Int) {
+                        if (state == androidx.media3.common.Player.STATE_ENDED) {
+                            isPlaying = false
+                            p.seekTo(0)
+                        }
+                    }
+                })
+                player = p
+            } else {
+                player?.play()
+            }
+        } else {
+            player?.pause()
+        }
+    }
+
+    androidx.compose.foundation.layout.Row(
+        modifier = androidx.compose.ui.Modifier
+            .androidx.compose.foundation.layout.fillMaxWidth()
+            .androidx.compose.foundation.layout.padding(vertical = 4.dp)
+            .androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+            .androidx.compose.foundation.background(if (isLight) androidx.compose.ui.graphics.Color(0xFFEEEEEE) else androidx.compose.ui.graphics.Color(0xFF2A2A2A))
+            .androidx.compose.foundation.layout.padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+    ) {
+        androidx.compose.material3.IconButton(onClick = { isPlaying = !isPlaying }) {
+            androidx.compose.material3.Icon(
+                imageVector = if (isPlaying) androidx.compose.material.icons.Icons.Default.Pause else androidx.compose.material.icons.Icons.Default.PlayArrow,
+                contentDescription = if (isPlaying) "إيقاف" else "تشغيل",
+                tint = LocalAppColors.current.accent
+            )
+        }
+        androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
+        androidx.compose.foundation.layout.Column(modifier = androidx.compose.ui.Modifier.weight(1f)) {
+            androidx.compose.material3.Text(
+                text = title.ifBlank { "أغنية" },
+                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                color = LocalAppColors.current.textPrimary,
+                maxLines = 1
+            )
+            androidx.compose.material3.Text(
+                text = "أغنية مولدة بالذكاء الاصطناعي",
+                style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                color = LocalAppColors.current.textSecondary,
+                fontSize = androidx.compose.ui.unit.TextUnit(11f, androidx.compose.ui.unit.TextUnitType.Sp)
+            )
+        }
+    }
+}

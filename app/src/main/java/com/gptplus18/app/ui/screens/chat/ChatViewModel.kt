@@ -403,7 +403,15 @@ class ChatViewModel @Inject constructor(
                                 codeZipUrl = ev.zipUrl,
                             )
                         }
-                        is StreamEvent.Done -> {
+                        is StreamEvent.AudioUrl -> {
+                val lastIdx = _state.value.messages.indexOfLast { it.id == -2 }
+                if (lastIdx != -1) {
+                    val newMsgs = _state.value.messages.toMutableList()
+                    newMsgs[lastIdx] = newMsgs[lastIdx].copy(audioUrl = ev.url)
+                    _state.value = _state.value.copy(messages = newMsgs)
+                }
+            }
+            is StreamEvent.Done -> {
                             finalSessionId = if (ev.sessionId > 0) ev.sessionId else current.currentSessionId
                             val newThinking = if (ev.thinking.isNotBlank()) {
                                 _state.value.thinkingByMessage + (thinkId to ThinkingData(

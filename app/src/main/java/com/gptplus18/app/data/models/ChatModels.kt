@@ -27,7 +27,8 @@ data class Message(
     val localImageUri: String? = null,          // للتوافق الخلفي
     val localImageUris: List<String>? = null,   // ⭐ متعدد — كل الصور المرفقة
     val isAnalyzing: Boolean = false,
-    val localAttachments: List<LocalAttachment>? = null,  // ⭐ v9.1: كل المرفقات (صور + ملفات)
+    val localAttachments: List<LocalAttachment>? = null,
+    val audioUrl: String? = null,  // ⭐ v9.1: كل المرفقات (صور + ملفات)
 )
 
 data class SessionsList(
