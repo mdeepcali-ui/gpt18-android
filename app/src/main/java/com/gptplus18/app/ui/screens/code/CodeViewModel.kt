@@ -532,6 +532,10 @@ class CodeViewModel @Inject constructor(
                                 statusLabel = "",
                                 thinkingText = "",
                 toolActivity = emptyList(),
+                                // ⭐ تحويل placeholder -2 إلى رسالة نهائية (id=0)
+                                messages = _state.value.messages.map { m ->
+                                    if (m.id == -2 && m.content.isNotBlank()) m.copy(id = 0) else m
+                                },
                             )
                             if (aiContent2.isNotBlank()) {
                                 viewModelScope.launch {
