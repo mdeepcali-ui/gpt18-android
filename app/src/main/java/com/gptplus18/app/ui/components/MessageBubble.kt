@@ -8,6 +8,8 @@ package com.gptplus18.app.ui.components
  */
 
 
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.animateColorAsState
@@ -519,6 +521,7 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
     }
 }
 
+
 @androidx.compose.runtime.Composable
 fun AudioPlayerItem(url: String, title: String) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -527,9 +530,7 @@ fun AudioPlayerItem(url: String, title: String) {
     val isLight = LocalAppColors.current.isLight
 
     androidx.compose.runtime.DisposableEffect(Unit) {
-        onDispose {
-            player?.release()
-        }
+        onDispose { player?.release() }
     }
 
     androidx.compose.runtime.LaunchedEffect(isPlaying) {
@@ -556,28 +557,28 @@ fun AudioPlayerItem(url: String, title: String) {
         }
     }
 
-    androidx.compose.foundation.layout.Row(
-        modifier = androidx.compose.ui.Modifier
-            .androidx.compose.foundation.layout.fillMaxWidth()
-            .androidx.compose.foundation.layout.padding(vertical = 4.dp)
-            .androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
-            .androidx.compose.foundation.background(if (isLight) androidx.compose.ui.graphics.Color(0xFFEEEEEE) else androidx.compose.ui.graphics.Color(0xFF2A2A2A))
-            .androidx.compose.foundation.layout.padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(if (isLight) Color(0xFFEEEEEE) else Color(0xFF2A2A2A))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        androidx.compose.material3.IconButton(onClick = { isPlaying = !isPlaying }) {
-            androidx.compose.material3.Icon(
-                imageVector = if (isPlaying) androidx.compose.material.icons.Icons.Default.Pause else androidx.compose.material.icons.Icons.Default.PlayArrow,
+        IconButton(onClick = { isPlaying = !isPlaying }) {
+            Icon(
+                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                 contentDescription = if (isPlaying) "إيقاف" else "تشغيل",
                 tint = LocalAppColors.current.accent
             )
         }
-        androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
-        androidx.compose.foundation.layout.Column(modifier = androidx.compose.ui.Modifier.weight(1f)) {
+        Spacer(modifier = Modifier.width(8.dp))
+        Column(modifier = Modifier.weight(1f)) {
             androidx.compose.material3.Text(
                 text = title.ifBlank { "أغنية" },
                 style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                fontWeight = FontWeight.Bold,
                 color = LocalAppColors.current.textPrimary,
                 maxLines = 1
             )
@@ -585,7 +586,7 @@ fun AudioPlayerItem(url: String, title: String) {
                 text = "أغنية مولدة بالذكاء الاصطناعي",
                 style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
                 color = LocalAppColors.current.textSecondary,
-                fontSize = androidx.compose.ui.unit.TextUnit(11f, androidx.compose.ui.unit.TextUnitType.Sp)
+                fontSize = 11.sp
             )
         }
     }
