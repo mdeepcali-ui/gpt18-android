@@ -59,8 +59,8 @@ private fun appStyle(
 ): TextStyle = TextStyle(
     fontFamily = NotoNaskhFontFamily,
     fontWeight = weight,
-    fontSize = (size + 1).sp,
-    lineHeight = (lineHeight + 2).sp,
+    fontSize = (size + 3).sp,
+    lineHeight = (lineHeight + 5).sp,
     letterSpacing = letterSpacing.sp,
     lineHeightStyle = ArabicLineHeightStyle,
     textAlign = TextAlign.Start,
@@ -171,15 +171,15 @@ val AppTypography = Typography(
 val CodeTypography = TextStyle(
     fontFamily = FontFamily.Monospace,
     fontWeight = FontWeight.Normal,
-    fontSize = 13.sp,
-    lineHeight = 20.sp,
+    fontSize = 15.sp,
+    lineHeight = 23.sp,
     letterSpacing = 0.sp,
 )
 
 val CodeTypographySmall = TextStyle(
     fontFamily = FontFamily.Monospace,
     fontWeight = FontWeight.Normal,
-    fontSize = 11.sp,
-    lineHeight = 18.sp,
+    fontSize = 13.sp,
+    lineHeight = 21.sp,
     letterSpacing = 0.sp,
 )

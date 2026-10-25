@@ -197,7 +197,7 @@ fun ChatGptComposer(
                     Text(
                         text = stringResource(R.string.t_001),
                         color = hintColor,
-                        fontSize = 11.2.sp,
+                        fontSize = 13.5.sp,
                     )
                 }
                 CompositionLocalProvider(LocalTextToolbar provides customToolbar) {
@@ -212,7 +212,7 @@ fun ChatGptComposer(
                             fontFamily = NotoNaskhFontFamily,
                             fontWeight = FontWeight.Bold,
                             color = textColor,
-                            fontSize = 11.2.sp,
+                            fontSize = 13.5.sp,
                             lineHeight = 17.sp,
                         ),
                         cursorBrush = SolidColor(AccentBlue),
@@ -486,7 +486,7 @@ private fun SmallChip(
             maxLines = 1,
             text = label,
             color = fg,
-            fontSize = 9.sp,
+            fontSize = 11.sp,
             lineHeight = 10.sp,
             fontWeight = FontWeight.Medium,
         )
@@ -512,7 +512,7 @@ private fun EmojiPickerSheet(
                 Text(
                     stringResource(R.string.t_002),
                     color = colors.textPrimary,
-                    fontSize = 12.6.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 12.dp),
                 )
@@ -620,7 +620,7 @@ private fun AttachmentChip(
                 Text(
                     text = "${(attachment.progress * 100).toInt().coerceIn(0, 100)}%",
                     color = Color.White,
-                    fontSize = 9.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }

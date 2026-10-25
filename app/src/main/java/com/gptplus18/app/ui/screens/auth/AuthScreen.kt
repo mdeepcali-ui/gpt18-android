@@ -1,5 +1,8 @@
 package com.gptplus18.app.ui.screens.auth
 
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -147,28 +150,30 @@ fun AuthScreen(
             Spacer(Modifier.height(20.dp))
 
             // ═══ العنوان الفخم ═══
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    "GPT",
-                    fontSize = 31.0.sp,
-                    fontWeight = FontWeight.Black,
-                    color = TextPrimary,
-                    letterSpacing = 1.5.sp,
-                )
-                Text(
-                    "+18",
-                    fontSize = 40.8.sp,
-                    fontWeight = FontWeight.Black,
-                    color = RedBrand,
-                    letterSpacing = 0.sp,
-                )
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        "GPT",
+                        fontSize = 36.sp,
+                        fontWeight = FontWeight.Black,
+                        color = TextPrimary,
+                        letterSpacing = 1.5.sp,
+                    )
+                    Text(
+                        "+18",
+                        fontSize = 46.sp,
+                        fontWeight = FontWeight.Black,
+                        color = RedBrand,
+                        letterSpacing = 0.sp,
+                    )
+                }
             }
 
             Spacer(Modifier.height(8.dp))
 
             Text(
                 "\u0630\u0643\u0627\u0621 \u0627\u0635\u0637\u0646\u0627\u0639\u064a \u0628\u0644\u0627 \u0642\u064a\u0648\u062f",
-                fontSize = 9.8.sp,
+                fontSize = 14.sp,
                 color = TextSecondary,
                 textAlign = TextAlign.Center,
                 letterSpacing = 0.5.sp,
@@ -250,7 +255,7 @@ fun AuthScreen(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    "GPT+18 \u00b7 v" + com.gptplus18.app.BuildConfig.VERSION_NAME,
+                    "\u2066GPT+18 \u00b7 v" + com.gptplus18.app.BuildConfig.VERSION_NAME + "\u2069",
                     color = TextTertiary,
                     fontSize = 9.sp,
                     letterSpacing = 0.5.sp,

@@ -58,7 +58,7 @@ fun MarkdownText(
     onImageClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     textColor: Color = TextPrimary,
-    fontSize: Int = 11,
+    fontSize: Int = 14,
 ) {
     val blocks = parseMarkdownBlocks(text)
 

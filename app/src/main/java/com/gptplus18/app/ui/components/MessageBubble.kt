@@ -119,7 +119,7 @@ internal fun UserMessageText(text: String) {
             Text(
                 text,
                 color = TextPrimary,
-                fontSize = 11.2.sp,
+                fontSize = 13.5.sp,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 20.sp,
             )
@@ -132,7 +132,7 @@ internal fun UserMessageText(text: String) {
             Text(
                 text = text,
                 color = TextPrimary,
-                fontSize = 11.2.sp,
+                fontSize = 13.5.sp,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 20.sp,
                 maxLines = if (expanded) Int.MAX_VALUE else PREVIEW_LINES,
@@ -150,7 +150,7 @@ internal fun UserMessageText(text: String) {
             Text(
                 text = if (expanded) "▲ عرض أقل" else "▼ عرض المزيد (${text.length} حرف)",
                 color = Accent,
-                fontSize = 9.1.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
             )
         }
@@ -298,7 +298,7 @@ fun MessageBubble(
                                 Text(
                                     text = att.name,
                                     color = androidx.compose.ui.graphics.Color(0xFFE4E4E7),
-                                    fontSize = 9.6.sp,
+                                    fontSize = 11.5.sp,
                                     maxLines = 1,
                                     modifier = Modifier.weight(1f),
                                 )
@@ -352,7 +352,7 @@ fun MessageBubble(
                                 Text(
                                     cleanText,
                                     color = androidx.compose.ui.graphics.Color(0xFFB8B8C2),
-                                    fontSize = 9.6.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Normal,
                                     lineHeight = 17.sp,
                                 )
@@ -390,7 +390,7 @@ fun MessageBubble(
                             Text(
                                 "🔍 جاري تحليل الصورة...",
                                 color = TextPrimary,
-                                fontSize = 9.8.sp,
+                                fontSize = 11.8.sp,
                                 fontWeight = FontWeight.Medium,
                             )
                         }
@@ -437,7 +437,7 @@ fun MessageBubble(
                                         }
                                         .padding(horizontal = 14.dp, vertical = 8.dp),
                                 ) {
-                                    Text(action, color = Accent, fontSize = 9.1.sp, fontWeight = FontWeight.Medium)
+                                    Text(action, color = Accent, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                                 }
                             }
                         }
