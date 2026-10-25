@@ -526,6 +526,7 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
 @androidx.compose.runtime.Composable
 fun AudioPlayerItem(url: String, title: String) {
     val context = androidx.compose.ui.platform.LocalContext.current
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
     var isPlaying by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     var player by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<androidx.media3.exoplayer.ExoPlayer?>(null) }
     val isLight = LocalAppColors.current.isLight
