@@ -119,7 +119,7 @@ internal fun UserMessageText(text: String) {
             Text(
                 text,
                 color = TextPrimary,
-                fontSize = 13.5.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 20.sp,
             )
@@ -132,7 +132,7 @@ internal fun UserMessageText(text: String) {
             Text(
                 text = text,
                 color = TextPrimary,
-                fontSize = 13.5.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 20.sp,
                 maxLines = if (expanded) Int.MAX_VALUE else PREVIEW_LINES,
@@ -298,7 +298,7 @@ fun MessageBubble(
                                 Text(
                                     text = att.name,
                                     color = androidx.compose.ui.graphics.Color(0xFFE4E4E7),
-                                    fontSize = 11.5.sp,
+                                    fontSize = 14.sp,
                                     maxLines = 1,
                                     modifier = Modifier.weight(1f),
                                 )
@@ -352,7 +352,7 @@ fun MessageBubble(
                                 Text(
                                     cleanText,
                                     color = androidx.compose.ui.graphics.Color(0xFFB8B8C2),
-                                    fontSize = 11.5.sp,
+                                    fontSize = 14.sp,
                                     fontWeight = FontWeight.Normal,
                                     lineHeight = 17.sp,
                                 )
@@ -454,7 +454,7 @@ if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     if (cleanText.isNotBlank()) {
                         // ✅ Markdown دائم — سواء أثناء البث أو بعده
                         SelectionContainer {
-                            MarkdownText(cleanText, textColor = TextPrimary, fontSize = 11)
+                            MarkdownText(cleanText, textColor = TextPrimary, fontSize = 16)
                         }
                     }
                 }
