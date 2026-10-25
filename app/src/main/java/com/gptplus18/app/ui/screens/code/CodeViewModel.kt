@@ -559,7 +559,7 @@ class CodeViewModel @Inject constructor(
         val tempUser = CodeMessage(id = -1, role = "user", content = request, ts = now)
         val tempAssistant = CodeMessage(id = -2, role = "assistant", content = "", ts = now + 1)
 
-        val cleanMessages = _state.value.messages.filter { it.id != -1 && it.id != -2 }
+        val cleanMessages = _state.value.messages.filterNot { it.id == -2 && it.content.isBlank() }
         _state.value = _state.value.copy(
             messages = cleanMessages + tempUser + tempAssistant,
             isRunning = true,
