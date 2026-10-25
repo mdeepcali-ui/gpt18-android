@@ -123,6 +123,7 @@ object TaskStreamManager {
                             finishedAt = System.currentTimeMillis(),
                             chunksCount = totalChunks,
                         )
+                        _events.tryEmit(com.gptplus18.app.data.api.StreamEvent.Done(sessionId = sessionId, thinking = ""))
                         onDone()
                         return@launch
                     }
@@ -130,6 +131,7 @@ object TaskStreamManager {
 
                 // انتهى الاتصال بدون done
                 _state.value = _state.value.copy(isRunning = false)
+                _events.tryEmit(com.gptplus18.app.data.api.StreamEvent.Done(sessionId = sessionId, thinking = ""))
                 onDone()
             } catch (e: Exception) {
                 Log.e(TAG, "stream err: ${e.message}")
