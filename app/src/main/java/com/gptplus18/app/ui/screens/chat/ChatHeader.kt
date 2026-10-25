@@ -138,12 +138,25 @@ internal fun ChatHeader(
                         onClick = onDrawerOpen,
                         modifier = Modifier.size(44.dp)
                     ) {
-                        Icon(
-                            Icons.Default.Menu,
-                            contentDescription = stringResource(R.string.t_127),
-                            tint = TextPrimary,
-                            modifier = Modifier.size(30.dp)
-                        )
+                        Column(
+                            modifier = Modifier.size(30.dp),
+                            horizontalAlignment = Alignment.Start,
+                            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .width(26.dp)
+                                    .height(3.dp)
+                                    .background(TextPrimary, androidx.compose.foundation.shape.RoundedCornerShape(1.5.dp))
+                            )
+                            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .width(14.dp)
+                                    .height(3.dp)
+                                    .background(TextPrimary, androidx.compose.foundation.shape.RoundedCornerShape(1.5.dp))
+                            )
+                        }
                     }
                 },
                 actions = {

@@ -8,6 +8,8 @@ package com.gptplus18.app.ui.components
  */
 
 
+import kotlinx.coroutines.delay
+import androidx.compose.material3.Slider
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -529,10 +531,20 @@ fun AudioPlayerItem(url: String, title: String) {
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     var isPlaying by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     var player by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<androidx.media3.exoplayer.ExoPlayer?>(null) }
+    var currentPos by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(0L) }
+    var duration by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(0L) }
     val isLight = LocalAppColors.current.isLight
 
     androidx.compose.runtime.DisposableEffect(Unit) {
         onDispose { player?.release() }
+    }
+
+    androidx.compose.runtime.LaunchedEffect(isPlaying) {
+        while (isPlaying) {
+            currentPos = player?.currentPosition ?: 0L
+            duration = player?.duration?.coerceAtLeast(0L) ?: 0L
+            delay(500L)
+        }
     }
 
     androidx.compose.runtime.LaunchedEffect(isPlaying) {
@@ -544,9 +556,13 @@ fun AudioPlayerItem(url: String, title: String) {
                 p.playWhenReady = true
                 p.addListener(object : androidx.media3.common.Player.Listener {
                     override fun onPlaybackStateChanged(state: Int) {
+                        if (state == androidx.media3.common.Player.STATE_READY) {
+                            duration = p.duration.coerceAtLeast(0L)
+                        }
                         if (state == androidx.media3.common.Player.STATE_ENDED) {
                             isPlaying = false
                             p.seekTo(0)
+                            currentPos = 0
                         }
                     }
                 })
@@ -559,89 +575,105 @@ fun AudioPlayerItem(url: String, title: String) {
         }
     }
 
-    Row(
+    fun formatTime(ms: Long): String {
+        if (ms <= 0) return "0:00"
+        val totalSec = ms / 1000
+        val min = totalSec / 60
+        val sec = totalSec % 60
+        return "%d:%02d".format(min, sec)
+    }
+
+    androidx.compose.foundation.layout.Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(if (isLight) Color(0xFFEEEEEE) else Color(0xFF2A2A2A))
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+            .androidx.compose.foundation.background(if (isLight) androidx.compose.ui.graphics.Color(0xFFEEEEEE) else androidx.compose.ui.graphics.Color(0xFF2A2A2A))
+            .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
-        IconButton(onClick = { isPlaying = !isPlaying }) {
-            Icon(
-                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                contentDescription = if (isPlaying) "إيقاف" else "تشغيل",
-                tint = LocalAppColors.current.accent
-            )
-        }
-        Spacer(modifier = Modifier.width(8.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            androidx.compose.material3.Text(
-                text = title.ifBlank { "أغنية" },
-                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = LocalAppColors.current.textPrimary,
-                maxLines = 1
-            )
-            androidx.compose.material3.Text(
-                text = "أغنية مولدة بالذكاء الاصطناعي",
-                style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
-                color = LocalAppColors.current.textSecondary,
-                fontSize = 11.sp
-            )
-        }
-    }
-
-    // ═══ أزرار الحفظ والمشاركة (نفس ستايل الصور) ═══
-    Spacer(modifier = Modifier.height(4.dp))
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        androidx.compose.material3.TextButton(
-            onClick = {
-                com.gptplus18.app.util.MediaShareHelper.saveToGallery(context, url, "audio") { ok ->
-                    // يمكن إضافة إشعار نجاح هنا لاحقاً
-                }
-            },
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+        androidx.compose.foundation.layout.Row(
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.Download,
-                contentDescription = "حفظ",
-                modifier = Modifier.size(16.dp),
-                tint = LocalAppColors.current.accent
-            )
-            Spacer(modifier = Modifier.width(4.dp))
+            androidx.compose.material3.IconButton(onClick = { isPlaying = !isPlaying }) {
+                androidx.compose.material3.Icon(
+                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                    contentDescription = if (isPlaying) "إيقاف" else "تشغيل",
+                    tint = LocalAppColors.current.accent
+                )
+            }
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(8.dp))
+            androidx.compose.foundation.layout.Column(modifier = Modifier.weight(1f)) {
+                androidx.compose.material3.Text(
+                    text = title.ifBlank { "أغنية" },
+                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = LocalAppColors.current.textPrimary,
+                    maxLines = 1
+                )
+                androidx.compose.material3.Text(
+                    text = "أغنية مولدة بالذكاء الاصطناعي",
+                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                    color = LocalAppColors.current.textSecondary,
+                    fontSize = 11.sp
+                )
+            }
             androidx.compose.material3.Text(
-                text = "حفظ",
-                color = LocalAppColors.current.accent,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
+                text = formatTime(currentPos) + " / " + formatTime(duration),
+                color = LocalAppColors.current.textSecondary,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium
             )
         }
         
-        androidx.compose.material3.TextButton(
-            onClick = {
-                scope.launch { com.gptplus18.app.util.MediaShareHelper.shareMedia(context, url, "audio") }
+        androidx.compose.material3.Slider(
+            value = if (duration > 0) currentPos.toFloat() / duration.toFloat() else 0f,
+            onValueChange = {
+                val newPos = (it * duration).toLong()
+                player?.seekTo(newPos)
+                currentPos = newPos
             },
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+            modifier = Modifier.fillMaxWidth().height(24.dp),
+            colors = androidx.compose.material3.SliderDefaults.colors(
+                thumbColor = LocalAppColors.current.accent,
+                activeTrackColor = LocalAppColors.current.accent,
+                inactiveTrackColor = LocalAppColors.current.textSecondary.copy(alpha = 0.3f)
+            )
+        )
+
+        androidx.compose.foundation.layout.Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.End
         ) {
-            Icon(
-                imageVector = Icons.Default.Share,
-                contentDescription = "مشاركة",
-                modifier = Modifier.size(16.dp),
-                tint = LocalAppColors.current.accent
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            androidx.compose.material3.Text(
-                text = "مشاركة",
-                color = LocalAppColors.current.accent,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
+            androidx.compose.material3.TextButton(
+                onClick = {
+                    com.gptplus18.app.util.MediaShareHelper.saveToGallery(context, url, "audio") { }
+                },
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Default.Download,
+                    contentDescription = "حفظ",
+                    modifier = Modifier.size(16.dp),
+                    tint = LocalAppColors.current.accent
+                )
+                androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(4.dp))
+                androidx.compose.material3.Text("حفظ", color = LocalAppColors.current.accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+            androidx.compose.material3.TextButton(
+                onClick = {
+                    scope.launch { com.gptplus18.app.util.MediaShareHelper.shareMedia(context, url, "audio") }
+                },
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = "مشاركة",
+                    modifier = Modifier.size(16.dp),
+                    tint = LocalAppColors.current.accent
+                )
+                androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(4.dp))
+                androidx.compose.material3.Text("مشاركة", color = LocalAppColors.current.accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
