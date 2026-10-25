@@ -78,7 +78,15 @@ class TaskStreamService : Service() {
                 Log.d(TAG, "START task_id=$taskId session=$sessionId")
 
                 // إشعار دائم
-                startForeground(NOTIF_ID, buildNotification("🤖 جاري التوليد..."))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(
+                        NOTIF_ID,
+                        buildNotification("🤖 جاري التوليد..."),
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+                    )
+                } else {
+                    startForeground(NOTIF_ID, buildNotification("🤖 جاري التوليد..."))
+                }
 
                 // نشغل الـ stream
                 TaskStreamManager.startTask(
