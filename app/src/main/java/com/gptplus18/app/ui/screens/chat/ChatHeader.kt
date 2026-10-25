@@ -134,8 +134,16 @@ internal fun ChatHeader(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onDrawerOpen) {
-                        Icon(Icons.Default.Menu, stringResource(R.string.t_127), tint = TextPrimary)
+                    IconButton(
+                        onClick = onDrawerOpen,
+                        modifier = Modifier.size(44.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Menu,
+                            contentDescription = stringResource(R.string.t_127),
+                            tint = TextPrimary,
+                            modifier = Modifier.size(30.dp)
+                        )
                     }
                 },
                 actions = {

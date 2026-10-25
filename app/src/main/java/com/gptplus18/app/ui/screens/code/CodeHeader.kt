@@ -81,13 +81,13 @@ internal fun CodeHeader(
             navigationIcon = {
                 IconButton(
                     onClick = onDrawerOpen,
-                    modifier = Modifier.size(38.dp),
+                    modifier = Modifier.size(44.dp),
                 ) {
                     Icon(
                         Icons.Default.Menu,
                         contentDescription = "القائمة",
                         tint = TextPrimary,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(30.dp),
                     )
                 }
             },
