@@ -8,6 +8,7 @@ package com.gptplus18.app.ui.components
  */
 
 
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import android.content.Intent
@@ -587,6 +588,58 @@ fun AudioPlayerItem(url: String, title: String) {
                 style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
                 color = LocalAppColors.current.textSecondary,
                 fontSize = 11.sp
+            )
+        }
+    }
+
+    // ═══ أزرار الحفظ والمشاركة (نفس ستايل الصور) ═══
+    Spacer(modifier = Modifier.height(4.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        androidx.compose.material3.TextButton(
+            onClick = {
+                com.gptplus18.app.util.MediaShareHelper.saveToGallery(context, url, "audio") { ok ->
+                    // يمكن إضافة إشعار نجاح هنا لاحقاً
+                }
+            },
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Download,
+                contentDescription = "حفظ",
+                modifier = Modifier.size(16.dp),
+                tint = LocalAppColors.current.accent
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            androidx.compose.material3.Text(
+                text = "حفظ",
+                color = LocalAppColors.current.accent,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        
+        androidx.compose.material3.TextButton(
+            onClick = {
+                com.gptplus18.app.util.MediaShareHelper.shareMedia(context, url, "audio")
+            },
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Share,
+                contentDescription = "مشاركة",
+                modifier = Modifier.size(16.dp),
+                tint = LocalAppColors.current.accent
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            androidx.compose.material3.Text(
+                text = "مشاركة",
+                color = LocalAppColors.current.accent,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }
