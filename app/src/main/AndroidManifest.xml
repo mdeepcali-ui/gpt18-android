@@ -84,7 +84,7 @@
 
         <!-- ⭐ v18.8: Foreground Service للـ Task Stream -->
         <service
-            android:name=".TaskStreamService"
+            android:name=".services.TaskStreamService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
