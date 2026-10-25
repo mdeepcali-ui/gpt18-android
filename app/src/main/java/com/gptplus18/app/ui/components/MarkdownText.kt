@@ -739,8 +739,8 @@ private fun TableView(
     rowsIn: List<List<String>>,
     fontSize: Int,
 ) {
-    val cellSize = (fontSize - 1).sp
-    val headerSize = (fontSize + 1).sp
+    val cellSize = 13.sp
+    val headerSize = 14.sp
     val isLight = LocalAppColors.current.isLight
 
     // ═══════════════════════════════════════════════════════
