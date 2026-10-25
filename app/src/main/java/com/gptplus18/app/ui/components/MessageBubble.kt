@@ -587,8 +587,8 @@ fun AudioPlayerItem(url: String, title: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
-            .androidx.compose.foundation.background(if (isLight) androidx.compose.ui.graphics.Color(0xFFEEEEEE) else androidx.compose.ui.graphics.Color(0xFF2A2A2A))
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
+            .background(if (isLight) androidx.compose.ui.graphics.Color(0xFFEEEEEE) else androidx.compose.ui.graphics.Color(0xFF2A2A2A))
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         androidx.compose.foundation.layout.Row(
