@@ -640,8 +640,75 @@ class CodeViewModel @Inject constructor(
         if (request.isBlank()) return
         if (_state.value.isRunning) return
 
-        // ⭐ إصلاح: نوجه الطلب مباشرة للباك-إند بدون تعيين isRunning مسبقاً
+        // ⭐ v19.1: نوجه الطلب مباشرة للباك-إند بدون تعيين isRunning مسبقاً لمنع التعليق
         submitDetached(request)
+        return
+    }
+
+    private fun startPolling(jobId: String) {
+        pollJob?.cancel()
+        pollJob = viewModelScope.launch {
+            var attempts = 0
+            while (attempts < 300) {
+                delay(2000)
+                when (val r = repo.getJobStatus(jobId)) {
+                    is Result.Success -> {
+                        val js: CodeJobStatus = r.data
+                        _state.value = _state.value.copy(
+                            logs = js.log,
+                            jobStatus = js.status,
+                        )
+                        if (js.status == "done") {
+                            onJobDone(js)
+                            return@launch
+                        }
+                        if (js.status == "error") {
+                            _state.value = _state.value.copy(
+                                isRunning = false,
+                                jobStatus = "error",
+                                error = js.error ?: "فشل التنفيذ",
+                            )
+                            return@launch
+                        }
+                    }
+                    is Result.Error -> { }
+                    else -> {}
+                }
+                attempts++
+            }
+            _state.value = _state.value.copy(
+                isRunning = false,
+                jobStatus = "error",
+                error = "انتهت المهلة",
+            )
+        }
+    }
+
+    private fun onJobDone(js: CodeJobStatus) {
+        val sid = _state.value.currentSessionId
+        // ⭐ استخراج الملفات من نتيجة الـ job
+        val res = js.result
+        val filesList = res?.files ?: emptyList()
+        val zip = res?.zipUrl
+        _state.value = _state.value.copy(
+            isRunning = false,
+            jobStatus = "done",
+            files = filesList,
+            zipUrl = zip,
+        )
+        if (sid != null && sid > 0) {
+            viewModelScope.launch {
+                when (val r = repo.getMessages(sid)) {
+                    is Result.Success -> _state.value = _state.value.copy(messages = r.data)
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun stopPolling() {
+        pollJob?.cancel()
+        pollJob = null
     }
 
     fun clearError() { _state.value = _state.value.copy(error = null) }
