@@ -1,5 +1,6 @@
 package com.gptplus18.app.ui.screens.code
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -83,12 +84,25 @@ internal fun CodeHeader(
                     onClick = onDrawerOpen,
                     modifier = Modifier.size(44.dp),
                 ) {
-                    Icon(
-                        Icons.Default.Menu,
-                        contentDescription = "القائمة",
-                        tint = TextPrimary,
+                    Column(
                         modifier = Modifier.size(30.dp),
-                    )
+                        horizontalAlignment = Alignment.Start, // في العربية يبدأ من اليمين
+                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+                    ) {
+                        androidx.compose.foundation.layout.Box(
+                            modifier = Modifier
+                                .width(26.dp)
+                                .height(3.dp)
+                                .background(TextPrimary, androidx.compose.foundation.shape.RoundedCornerShape(1.5.dp))
+                        )
+                        androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(6.dp))
+                        androidx.compose.foundation.layout.Box(
+                            modifier = Modifier
+                                .width(14.dp)
+                                .height(3.dp)
+                                .background(TextPrimary, androidx.compose.foundation.shape.RoundedCornerShape(1.5.dp))
+                        )
+                    }
                 }
             },
             actions = {
