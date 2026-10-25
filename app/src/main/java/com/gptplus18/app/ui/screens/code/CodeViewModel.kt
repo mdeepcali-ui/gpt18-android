@@ -195,6 +195,9 @@ class CodeViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     isRunning = false,
                     jobStatus = "done",
+                    messages = _state.value.messages.map { m ->
+                        if (m.id == -2 && m.content.isNotBlank()) m.copy(id = 0) else m
+                    },
                 )
                 if (ev.sessionId > 0) {
                     _state.value = _state.value.copy(currentSessionId = ev.sessionId)
