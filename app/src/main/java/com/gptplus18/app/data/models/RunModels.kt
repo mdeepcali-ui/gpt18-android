@@ -34,12 +34,18 @@ data class SaveWorkspaceResponse(
 
 
 // ⭐ v18.8: Task Persistence
+data class MessageDto(
+    @SerializedName("role") val role: String,
+    @SerializedName("content") val content: String,
+)
+
 data class DetachRequest(
     @SerializedName("request") val request: String,
     @SerializedName("session_id") val sessionId: Int? = null,
     @SerializedName("model") val model: String? = null,
     @SerializedName("use_team") val useTeam: Boolean = true,
     @SerializedName("file_ids") val fileIds: List<String>? = null,
+    @SerializedName("history") val history: List<MessageDto> = emptyList(),
 )
 
 data class DetachResponse(

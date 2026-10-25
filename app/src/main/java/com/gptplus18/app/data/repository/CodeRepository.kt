@@ -164,6 +164,7 @@ class CodeRepository @Inject constructor(
         sessionId: Int? = null,
         modelKey: String? = null,
         fileIds: List<String>? = null,
+        history: List<com.gptplus18.app.data.models.MessageDto> = emptyList(),
     ): Result<DetachResponse> {
         val b = bearer() ?: return Result.Error("غير مصرح")
         return try {
@@ -175,6 +176,7 @@ class CodeRepository @Inject constructor(
                     model = modelKey,
                     useTeam = (modelKey == null || modelKey == "auto"),
                     fileIds = fileIds,
+                    history = history
                 ),
             )
             if (r.isSuccessful && r.body() != null) {

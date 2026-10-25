@@ -95,6 +95,7 @@ class CodeViewModel @Inject constructor(
     private val prefs: PreferencesRepository,
     private val analytics: AnalyticsHelper,
     private val tokenStorage: TokenStorage,
+    private val memoryRepo: com.gptplus18.app.data.local.ChatMemoryRepository,
     private val adminRepo: AdminRepository,
     @dagger.hilt.android.qualifiers.ApplicationContext private val appContext: android.content.Context,
 ) : ViewModel() {
@@ -188,13 +189,24 @@ class CodeViewModel @Inject constructor(
                 }
             }
             is StreamEvent.Done -> {
+                val aiContent1 = _state.value.messages.lastOrNull { it.id == -2 }?.content ?: ""
+                val oldKey1 = if ((_state.value.currentSessionId ?: 0) > 0) _state.value.currentSessionId.toString() else "pending"
+                val newKey1 = if (ev.sessionId > 0) ev.sessionId.toString() else oldKey1
                 _state.value = _state.value.copy(
                     isRunning = false,
                     jobStatus = "done",
                 )
-                // نحدّث session_id
                 if (ev.sessionId > 0) {
                     _state.value = _state.value.copy(currentSessionId = ev.sessionId)
+                }
+                if (aiContent1.isNotBlank()) {
+                    viewModelScope.launch {
+                        try {
+                            val u1 = tokenStorage.getUid().toString()
+                            if (oldKey1 == "pending" && newKey1 != "pending") memoryRepo.migrateSession(u1, "pending", newKey1)
+                            memoryRepo.appendAssistantMessage(u1, newKey1, aiContent1)
+                        } catch (_: Exception) {}
+                    }
                 }
             }
             is StreamEvent.Error -> {
@@ -510,6 +522,9 @@ class CodeViewModel @Inject constructor(
                             _state.value = _state.value.copy(thinkingText = _state.value.thinkingText + ev.text)
                         }
                         is StreamEvent.Done -> {
+                            val aiContent2 = _state.value.messages.lastOrNull { it.id == -2 }?.content ?: ""
+                            val oldKey2 = if ((_state.value.currentSessionId ?: 0) > 0) _state.value.currentSessionId.toString() else "pending"
+                            val newKey2 = if (ev.sessionId > 0) ev.sessionId.toString() else oldKey2
                             _state.value = _state.value.copy(
                                 isRunning = false,
                                 pendingAttachments = emptyList(),
@@ -518,6 +533,15 @@ class CodeViewModel @Inject constructor(
                                 thinkingText = "",
                 toolActivity = emptyList(),
                             )
+                            if (aiContent2.isNotBlank()) {
+                                viewModelScope.launch {
+                                    try {
+                                        val u2 = tokenStorage.getUid().toString()
+                                        if (oldKey2 == "pending" && newKey2 != "pending") memoryRepo.migrateSession(u2, "pending", newKey2)
+                                        memoryRepo.appendAssistantMessage(u2, newKey2, aiContent2)
+                                    } catch (_: Exception) {}
+                                }
+                            }
                         }
                         is StreamEvent.Error -> {
                             _state.value = _state.value.copy(
@@ -553,6 +577,7 @@ class CodeViewModel @Inject constructor(
         val sid = _state.value.currentSessionId
         val sidForApi = if (sid == -1) null else sid
         val model = _state.value.currentModel
+        val sessionKey = if ((sid ?: 0) > 0) sid.toString() else "pending"
 
         // رسائل مؤقتة
         val now = System.currentTimeMillis() / 1000.0
@@ -573,15 +598,26 @@ class CodeViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
+            val uid = try { tokenStorage.getUid().toString() } catch (_: Exception) { "0" }
+            val history = try {
+                memoryRepo.appendUserMessage(uid, sessionKey, request)
+                val all = memoryRepo.getHistory(uid, sessionKey)
+                if (all.isNotEmpty() && all.last().role == "user" && all.last().content == request) all.dropLast(1) else all
+            } catch (_: Exception) { emptyList() }
+
             when (val r = repo.detachStream(
                 request = request,
                 sessionId = sidForApi,
                 modelKey = model.key,
                 fileIds = fileIds,
+                history = history,
             )) {
                 is Result.Success -> {
                     val resp = r.data
                     if (resp.success && resp.taskId.isNotBlank()) {
+                        if (sessionKey == "pending" && resp.sessionId > 0) {
+                            try { memoryRepo.migrateSession(uid, "pending", resp.sessionId.toString()) } catch (_: Exception) {}
+                        }
                         _state.value = _state.value.copy(
                             activeTaskId = resp.taskId,
                             jobStatus = "running",
