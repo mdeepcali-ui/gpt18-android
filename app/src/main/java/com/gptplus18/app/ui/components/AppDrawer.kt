@@ -492,68 +492,65 @@ private fun DrawerUpgradeButton(onClick: () -> Unit) {
     val title = if (isArabic) "ترقية حسابك" else "Upgrade Account"
     val subtitle = if (isArabic) "افتح كل الميزات" else "Unlock all features"
 
+    val gradient = androidx.compose.ui.graphics.Brush.linearGradient(
+        colors = listOf(blue.copy(alpha = 0.15f), blue.copy(alpha = 0.05f))
+    )
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 2.dp)
-            .shadow(
-                elevation = 4.dp,
-                shape = RoundedCornerShape(12.dp),
-                ambientColor = blue.copy(alpha = 0.3f),
-                spotColor = blue.copy(alpha = 0.3f),
-            )
-            .clip(RoundedCornerShape(12.dp))
-            .background(colors.surface)
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(gradient)
             .border(
-                width = 1.2.dp,
-                color = blue,
-                shape = RoundedCornerShape(12.dp),
+                width = 1.dp,
+                color = blue.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(10.dp),
             )
             .clickable { onClick() }
-            .padding(horizontal = 10.dp, vertical = 10.dp),
+            .padding(horizontal = 10.dp, vertical = 8.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            // ⭐ أيقونة النجوم
+            // ⭐ أيقونة النجوم (أصغر)
             Box(
                 modifier = Modifier
-                    .size(32.dp)
-                    .clip(RoundedCornerShape(9.dp))
-                    .background(blue.copy(alpha = 0.15f)),
+                    .size(28.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(blue.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     androidx.compose.material.icons.Icons.Default.WorkspacePremium,
                     contentDescription = null,
                     tint = blue,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(16.dp),
                 )
             }
 
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(10.dp))
 
             Column(Modifier.weight(1f)) {
                 Text(
                     title,
                     color = blue,
-                    fontSize = 12.8.sp,
-                    fontWeight = FontWeight.Black,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
                 )
-                Spacer(Modifier.height(2.dp))
                 Text(
                     subtitle,
                     color = colors.textTertiary,
-                    fontSize = 11.sp,
+                    fontSize = 10.sp,
                 )
             }
 
             Icon(
                 androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = null,
-                tint = blue,
-                modifier = Modifier.size(16.dp),
+                tint = blue.copy(alpha = 0.7f),
+                modifier = Modifier.size(14.dp),
             )
         }
     }
