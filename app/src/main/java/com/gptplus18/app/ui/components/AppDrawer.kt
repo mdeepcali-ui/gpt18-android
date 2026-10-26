@@ -498,7 +498,7 @@ private fun DrawerUpgradeButton(onClick: () -> Unit) {
             .padding(horizontal = 16.dp, vertical = 4.dp)
             .height(52.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(colors.surfaceElevated) // لون داكن مثل بقية العناصر
+            .background(colors.surface) // لون داكن مثل بقية العناصر
             .border(
                 width = 1.dp,
                 color = blue.copy(alpha = 0.4f), // حدود زرقاء رقيقة جداً وفخمة
