@@ -493,64 +493,58 @@ private fun DrawerUpgradeButton(onClick: () -> Unit) {
     val subtitle = if (isArabic) "افتح كل الميزات" else "Unlock all features"
 
     val gradient = androidx.compose.ui.graphics.Brush.linearGradient(
-        colors = listOf(blue.copy(alpha = 0.15f), blue.copy(alpha = 0.05f))
+        colors = listOf(Color(0xFF3B82F6), Color(0xFF2563EB))
     )
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(14.dp))
             .background(gradient)
-            .border(
-                width = 1.dp,
-                color = blue.copy(alpha = 0.3f),
-                shape = RoundedCornerShape(10.dp),
-            )
             .clickable { onClick() }
-            .padding(horizontal = 10.dp, vertical = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            // ⭐ أيقونة النجوم (أصغر)
             Box(
                 modifier = Modifier
-                    .size(28.dp)
+                    .size(30.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(blue.copy(alpha = 0.2f)),
+                    .background(Color.White.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     androidx.compose.material.icons.Icons.Default.WorkspacePremium,
                     contentDescription = null,
-                    tint = blue,
-                    modifier = Modifier.size(16.dp),
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp),
                 )
             }
 
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(12.dp))
 
             Column(Modifier.weight(1f)) {
                 Text(
                     title,
-                    color = blue,
-                    fontSize = 12.sp,
+                    color = Color.White,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
                     subtitle,
-                    color = colors.textTertiary,
-                    fontSize = 10.sp,
+                    color = Color.White.copy(alpha = 0.85f),
+                    fontSize = 10.5.sp,
                 )
             }
 
             Icon(
                 androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = null,
-                tint = blue.copy(alpha = 0.7f),
-                modifier = Modifier.size(14.dp),
+                tint = Color.White,
+                modifier = Modifier.size(16.dp),
             )
         }
     }
