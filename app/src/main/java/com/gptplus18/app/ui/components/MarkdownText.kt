@@ -454,7 +454,7 @@ fun MarkdownText(
                     text = inlineMarkdown(block.content, textColor, LocalAppColors.current.isLight),
                     color = textColor,
                     fontSize = (fontSize - 2).sp,     // ⭐ الفقرة أصغر (14sp)
-                    fontWeight = FontWeight.Normal,   // ⭐ نص عادي أنعم
+                    fontWeight = FontWeight.Bold,     // ⭐ بناء على طلبك: خط الرد عريض
                     lineHeight = (fontSize + 4).sp,   // ⭐ مسافة مريحة
                     modifier = Modifier
                         .fillMaxWidth()
