@@ -4,7 +4,9 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.material3.CircularProgressIndicator
 import com.gptplus18.app.ui.theme.LocalAppColors
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.border
 import android.content.Intent
