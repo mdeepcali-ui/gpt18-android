@@ -92,10 +92,10 @@ fun MarkdownText(
                 }
                 is MdBlock.Heading -> {
                     val size = when (block.level) {
-                        1 -> fontSize + 14
-                        2 -> fontSize + 10
-                        3 -> fontSize + 7
-                        else -> fontSize + 4
+                        1 -> fontSize + 18   // H1: 34sp
+                        2 -> fontSize + 14   // H2: 30sp
+                        3 -> fontSize + 10   // H3: 26sp
+                        else -> fontSize + 6 // H4: 22sp
                     }
                     val topPad = when (block.level) {
                         1 -> 18.dp
@@ -454,8 +454,8 @@ fun MarkdownText(
                     text = inlineMarkdown(block.content, textColor, LocalAppColors.current.isLight),
                     color = textColor,
                     fontSize = fontSize.sp,
-                    fontWeight = FontWeight.Black,    // ⭐ v5.0.5: كان Bold
-                    lineHeight = (fontSize + 9).sp,    // ⭐ v5.0.5: كان +8
+                    fontWeight = FontWeight.Normal,   // ⭐ v5.3.22: نص عادي أنعم
+                    lineHeight = (fontSize + 8).sp,   // ⭐ v5.3.22: مسافة مريحة
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 5.dp),     // ⭐ v5.0.5: أوضح
