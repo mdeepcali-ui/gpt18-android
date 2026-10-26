@@ -26,8 +26,8 @@ android {
         minSdk = 24
         targetSdk = 35
         // versionCode يتزايد دقيقة بدقيقة — فريد لكل build
-        versionCode = 30000068
-        versionName = "5.3.31"
+        versionCode = 30000070
+        versionName = "5.3.32"
         vectorDrawables { useSupportLibrary = true }
 
         buildConfigField("String", "BASE_URL", "\"http://144.225.8.248:8000/\"")
@@ -47,8 +47,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
