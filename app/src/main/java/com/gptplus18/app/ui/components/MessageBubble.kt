@@ -155,7 +155,7 @@ internal fun UserMessageText(text: String) {
             Text(
                 text = if (expanded) "▲ عرض أقل" else "▼ عرض المزيد (${text.length} حرف)",
                 color = Accent,
-                fontSize = 11.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.SemiBold,
             )
         }
@@ -421,13 +421,13 @@ fun MessageBubble(
                             modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
-                            val imgActions = listOf("تحويل", "تعديل", "حفظ", "مشاركة")
+                            val imgActions = listOf("حفظ", "مشاركة")
                             items(imgActions) { action ->
                                 Box(
                                     modifier = Modifier
-                                        .clip(RoundedCornerShape(18.dp))
+                                        .clip(RoundedCornerShape(14.dp))
                                         .background(Accent.copy(alpha = 0.12f))
-                                        .border(0.8.dp, Accent.copy(alpha = 0.5f), RoundedCornerShape(18.dp))
+                                        .border(0.8.dp, Accent.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
                                         .clickable {
                                             when (action) {
                                                 
@@ -440,9 +440,9 @@ fun MessageBubble(
                                                 }
                                             }
                                         }
-                                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                                        .padding(horizontal = 10.dp, vertical = 6.dp),
                                 ) {
-                                    Text(action, color = Accent, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                                    Text(action, color = Accent, fontSize = 10.sp, fontWeight = FontWeight.Medium)
                                 }
                             }
                         }
@@ -614,13 +614,13 @@ fun AudioPlayerItem(url: String, title: String) {
                     text = "أغنية مولدة بالذكاء الاصطناعي",
                     style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
                     color = LocalAppColors.current.textSecondary,
-                    fontSize = 11.sp
+                    fontSize = 10.sp
                 )
             }
             androidx.compose.material3.Text(
                 text = formatTime(currentPos) + " / " + formatTime(duration),
                 color = LocalAppColors.current.textSecondary,
-                fontSize = 11.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Medium
             )
         }
