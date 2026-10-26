@@ -492,59 +492,59 @@ private fun DrawerUpgradeButton(onClick: () -> Unit) {
     val title = if (isArabic) "ترقية حسابك" else "Upgrade Account"
     val subtitle = if (isArabic) "افتح كل الميزات" else "Unlock all features"
 
-    val gradient = androidx.compose.ui.graphics.Brush.linearGradient(
-        colors = listOf(Color(0xFF3B82F6), Color(0xFF2563EB))
-    )
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(gradient)
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .height(52.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(colors.surfaceElevated) // لون داكن مثل بقية العناصر
+            .border(
+                width = 1.dp,
+                color = blue.copy(alpha = 0.4f), // حدود زرقاء رقيقة جداً وفخمة
+                shape = RoundedCornerShape(12.dp),
+            )
             .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .padding(horizontal = 12.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         ) {
-            Box(
-                modifier = Modifier
-                    .size(30.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.White.copy(alpha = 0.2f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    androidx.compose.material.icons.Icons.Default.WorkspacePremium,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(18.dp),
-                )
-            }
+            // أيقونة صغيرة وأنيقة
+            Icon(
+                androidx.compose.material.icons.Icons.Default.WorkspacePremium,
+                contentDescription = null,
+                tint = blue,
+                modifier = Modifier.size(20.dp),
+            )
 
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(10.dp))
 
-            Column(Modifier.weight(1f)) {
-                Text(
-                    title,
-                    color = Color.White,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                Text(
-                    subtitle,
-                    color = Color.White.copy(alpha = 0.85f),
-                    fontSize = 10.5.sp,
-                )
-            }
+            // نصوص مضغوطة
+            Text(
+                title,
+                color = colors.textPrimary,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            
+            Spacer(Modifier.weight(1f))
+            
+            Text(
+                subtitle,
+                color = blue,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
+            )
+            
+            Spacer(Modifier.width(4.dp))
 
             Icon(
                 androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(16.dp),
+                tint = colors.textTertiary,
+                modifier = Modifier.size(14.dp),
             )
         }
     }
