@@ -25,9 +25,11 @@ android {
         applicationId = "com.gptplus18.app"
         minSdk = 24
         targetSdk = 35
-        // v5.5: auto-increment — يزيد دقيقة بدقيقة (فريد لكل build)
-        // القاعدة: 100M + (epoch minutes % 90M) → دائماً > 30,000,070
-        versionCode = 100_000_000 + ((System.currentTimeMillis() / 60_000L) % 90_000_000L).toInt()
+        // v5.5: auto-increment — أبسط صيغة (epoch_minutes + 30M)
+        // كل دقيقة → +1 | النطاق: ~59M حالياً، ينمو تدريجياً
+        // مضمون: > 30,000,070 (النسخة الحالية)
+        val _epochMinutes: Long = System.currentTimeMillis() / 60_000L
+        versionCode = _epochMinutes.toInt() + 30_000_000
         versionName = "5.5.0"
         vectorDrawables { useSupportLibrary = true }
 
