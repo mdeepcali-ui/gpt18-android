@@ -414,32 +414,58 @@ fun MessageBubble(
                                     onLongClick = onLongPress,
                                 ),
                         )
-                                                // ⭐ فقاعات إجراءات الصورة (تحويل / تعديل / حفظ / مشاركة)
+                                                // ⭐ v5.5: فقاعات إجراءات الصورة — تصميم محسّن
                         val _imgCtx = LocalContext.current
                         val _imgScope = rememberCoroutineScope()
-                        androidx.compose.foundation.lazy.LazyRow(
-                            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
-                            val imgActions = listOf("حفظ", "مشاركة")
-                            items(imgActions) { action ->
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(14.dp))
-                                        .background(Accent.copy(alpha = 0.12f))
-                                        .border(0.8.dp, Accent.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
-                                        .clickable {
-                                            when (action) {
-                                                
-                                                "تعديل" -> onChoiceClick("عدّلها")
-                                                "حفظ" -> com.gptplus18.app.util.MediaShareHelper.saveToGallery(_imgCtx, imageUrl, "image") { ok ->
-                                                    android.widget.Toast.makeText(_imgCtx, if (ok) "✅ تم حفظ الصورة بنجاح" else "❌ فشل الحفظ", android.widget.Toast.LENGTH_SHORT).show()
-                                                }
-                                                "مشاركة" -> _imgScope.launch {
-                                                    com.gptplus18.app.util.MediaShareHelper.shareMedia(_imgCtx, imageUrl, "image")
-                                                }
-                                            }
+                            Row(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(22.dp))
+                                    .background(Accent.copy(alpha = 0.15f))
+                                    .border(1.dp, Accent.copy(alpha = 0.55f), RoundedCornerShape(22.dp))
+                                    .clickable {
+                                        com.gptplus18.app.util.MediaShareHelper.saveToGallery(_imgCtx, imageUrl, "image") { ok ->
+                                            android.widget.Toast.makeText(_imgCtx, if (ok) "✅ تم حفظ الصورة بنجاح" else "❌ فشل الحفظ", android.widget.Toast.LENGTH_SHORT).show()
                                         }
+                                    }
+                                    .padding(horizontal = 14.dp, vertical = 9.dp),
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Download,
+                                    contentDescription = "حفظ",
+                                    tint = Accent,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                                Text("حفظ", color = Accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(22.dp))
+                                    .background(Accent.copy(alpha = 0.15f))
+                                    .border(1.dp, Accent.copy(alpha = 0.55f), RoundedCornerShape(22.dp))
+                                    .clickable {
+                                        _imgScope.launch {
+                                            com.gptplus18.app.util.MediaShareHelper.shareMedia(_imgCtx, imageUrl, "image")
+                                        }
+                                    }
+                                    .padding(horizontal = 14.dp, vertical = 9.dp),
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Share,
+                                    contentDescription = "مشاركة",
+                                    tint = Accent,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                                Text("مشاركة", color = Accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
                                         .padding(horizontal = 10.dp, vertical = 6.dp),
                                 ) {
                                     Text(action, color = Accent, fontSize = 10.sp, fontWeight = FontWeight.Medium)
