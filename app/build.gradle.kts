@@ -25,9 +25,10 @@ android {
         applicationId = "com.gptplus18.app"
         minSdk = 24
         targetSdk = 35
-        // versionCode يتزايد دقيقة بدقيقة — فريد لكل build
-        versionCode = 30000070
-        versionName = "5.3.32"
+        // v5.5: auto-increment — يزيد دقيقة بدقيقة (فريد لكل build)
+        // القاعدة: 100M + (epoch minutes % 90M) → دائماً > 30,000,070
+        versionCode = 100_000_000 + ((System.currentTimeMillis() / 60_000L) % 90_000_000L).toInt()
+        versionName = "5.5.0"
         vectorDrawables { useSupportLibrary = true }
 
         buildConfigField("String", "BASE_URL", "\"http://144.225.8.248:8000/\"")
