@@ -414,7 +414,7 @@ fun MessageBubble(
                                     onLongClick = onLongPress,
                                 ),
                         )
-                                                // ⭐ v5.5: فقاعات إجراءات الصورة — تصميم محسّن
+                                                // ⭐ فقاعات إجراءات الصورة (تحويل / تعديل / حفظ / مشاركة)
                         val _imgCtx = LocalContext.current
                         val _imgScope = rememberCoroutineScope()
                         Row(
@@ -435,12 +435,7 @@ fun MessageBubble(
                                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Download,
-                                    contentDescription = "حفظ",
-                                    tint = Accent,
-                                    modifier = Modifier.size(16.dp),
-                                )
+                                Icon(Icons.Default.Download, contentDescription = "حفظ", tint = Accent, modifier = Modifier.size(16.dp))
                                 Text("حفظ", color = Accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                             Row(
@@ -457,21 +452,11 @@ fun MessageBubble(
                                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Share,
-                                    contentDescription = "مشاركة",
-                                    tint = Accent,
-                                    modifier = Modifier.size(16.dp),
-                                )
+                                Icon(Icons.Default.Share, contentDescription = "مشاركة", tint = Accent, modifier = Modifier.size(16.dp))
                                 Text("مشاركة", color = Accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
-                                        .padding(horizontal = 10.dp, vertical = 6.dp),
-                                ) {
-                                    Text(action, color = Accent, fontSize = 10.sp, fontWeight = FontWeight.Medium)
-                                }
-                            }
-                        }
+
 if (cleanText.isNotBlank()) Spacer(Modifier.height(8.dp))
                     }
                     if (audioUrl != null) {
