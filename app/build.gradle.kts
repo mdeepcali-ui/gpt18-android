@@ -29,8 +29,8 @@ android {
         // كل دقيقة → +1 | النطاق: ~59M حالياً، ينمو تدريجياً
         // مضمون: > 30,000,070 (النسخة الحالية)
         val _epochMinutes: Long = System.currentTimeMillis() / 60_000L
-        versionCode = _epochMinutes.toInt() + 30_000_000
-        versionName = "5.5.0"
+        versionCode = 30000070
+        versionName = "5.6.0"
         vectorDrawables { useSupportLibrary = true }
 
         buildConfigField("String", "BASE_URL", "\"http://144.225.8.248:8000/\"")
