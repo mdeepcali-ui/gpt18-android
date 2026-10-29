@@ -263,6 +263,101 @@ class StreamingClient {
     }
 
     /**
+     * v5.4: subscribe على مهمة شات detached (GET /api/chat/task/{taskId})
+     * نفس منطق streamMessage، بس URL مختلف (SSE subscribe، بدون بدء مهمة).
+     */
+    fun streamChatTask(
+        token: String,
+        taskId: String,
+    ): Flow<StreamEvent> = callbackFlow {
+
+        val req = Request.Builder()
+            .url("${BuildConfig.BASE_URL}api/chat/task/$taskId")
+            .addHeader("Authorization", "Bearer $token")
+            .addHeader("Accept", "text/event-stream")
+            .addHeader("Cache-Control", "no-cache")
+            .get()
+            .build()
+
+        var doneEmitted = false
+
+        val listener = object : EventSourceListener() {
+            override fun onEvent(
+                eventSource: EventSource,
+                id: String?,
+                type: String?,
+                data: String,
+            ) {
+                try {
+                    val obj = JSONObject(data)
+                    when {
+                        obj.has("thinking_delta") -> {
+                            val td = obj.optString("thinking_delta", "")
+                            if (td.isNotEmpty()) trySend(StreamEvent.ThinkingDelta(td))
+                        }
+                        obj.has("status") -> {
+                            val st = obj.optString("status", "")
+                            if (st.isNotEmpty()) trySend(StreamEvent.Status(st))
+                        }
+                        obj.has("delta") -> {
+                            val delta = obj.optString("delta", "")
+                            if (delta.isNotEmpty()) trySend(StreamEvent.Delta(delta))
+                        }
+                        obj.has("image_url") -> {
+                            val url = obj.optString("image_url", "")
+                            val prompt = obj.optString("image_prompt", "")
+                            if (url.isNotEmpty()) trySend(StreamEvent.ImageUrl(url, prompt))
+                        }
+                        obj.has("audio_url") -> {
+                            val url = obj.optString("audio_url", "")
+                            val title = obj.optString("title", "")
+                            if (url.isNotEmpty()) trySend(StreamEvent.AudioUrl(url, title))
+                        }
+                        obj.optBoolean("done", false) -> {
+                            val sid = obj.optInt("session_id", -1)
+                            doneEmitted = true
+                            trySend(StreamEvent.Done(sessionId = sid, thinking = ""))
+                            close()
+                        }
+                        obj.has("error") -> {
+                            doneEmitted = true
+                            trySend(StreamEvent.Error(obj.optString("error", "خطأ")))
+                            close()
+                        }
+                    }
+                } catch (e: Exception) {
+                    trySend(StreamEvent.Error(e.message ?: "خطأ parse"))
+                }
+            }
+
+            override fun onFailure(
+                eventSource: EventSource,
+                t: Throwable?,
+                response: Response?,
+            ) {
+                doneEmitted = true
+                trySend(StreamEvent.Error(t?.message ?: "فشل الاتصال"))
+                close()
+            }
+
+            override fun onClosed(eventSource: EventSource) {
+                if (!doneEmitted) {
+                    doneEmitted = true
+                    trySend(StreamEvent.Done(sessionId = -1, thinking = ""))
+                }
+                close()
+            }
+        }
+
+        val eventSource = EventSources.createFactory(client)
+            .newEventSource(req, listener)
+
+        awaitClose {
+            eventSource.cancel()
+        }
+    }
+
+    /**
      * يبعت طلب برمجة ويرجّع Flow من chunks
      */
     fun streamCode(

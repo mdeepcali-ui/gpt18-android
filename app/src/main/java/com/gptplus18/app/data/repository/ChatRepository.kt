@@ -112,4 +112,92 @@ class ChatRepository @Inject constructor(
             emitAll(streamingClient.streamMessage(token, sid, text, memory, bd))
         }
     }
+
+    // ===== v5.4: Chat Detached Tasks =====
+
+    /** يبدأ مهمة شات detached — يرجع taskId فوراً */
+    suspend fun streamDetach(
+        sid: Int?,
+        text: String,
+        imageUrl: String? = null,
+        memory: Boolean = true,
+    ): Result<ChatStreamDetachResponse> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.chatStreamDetach(
+                b,
+                ChatStreamDetachRequest(
+                    sessionId = sid,
+                    message = text,
+                    imageUrl = imageUrl,
+                    memory = memory,
+                )
+            )
+            if (r.isSuccessful) {
+                val body = r.body()
+                if (body != null) Result.Success(body)
+                else Result.Error("رد فارغ من السيرفر")
+            } else if (r.code() == 402) {
+                Result.Error("انتهت تجربتك المجانية")
+            } else {
+                Result.Error("فشل بدء المهمة (${r.code()})")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ شبكة")
+        }
+    }
+
+    /** يشترك على SSE لمهمة شات — Flow من StreamEvent */
+    fun streamChatTask(taskId: String): Flow<StreamEvent> {
+        return kotlinx.coroutines.flow.flow {
+            val token = tokenStorage.getToken()
+            if (token.isNullOrBlank()) {
+                emit(StreamEvent.Error("غير مصرح"))
+                return@flow
+            }
+            emitAll(streamingClient.streamChatTask(token, taskId))
+        }
+    }
+
+    /** يوقف مهمة شات من الجذور */
+    suspend fun cancelChatTask(taskId: String): Result<Unit> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.chatTaskStop(b, taskId)
+            if (r.isSuccessful) Result.Success(Unit)
+            else Result.Error("فشل الإيقاف (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ شبكة")
+        }
+    }
+
+    /** حالة مهمة شات */
+    suspend fun getChatTaskStatus(taskId: String): Result<ChatTaskStatusResponse> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.chatTaskStatus(b, taskId)
+            if (r.isSuccessful) {
+                val body = r.body()
+                if (body != null) Result.Success(body)
+                else Result.Error("رد فارغ")
+            } else Result.Error("فشل (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ شبكة")
+        }
+    }
+
+    /** مهمة نشطة في الجلسة (للـ resume) */
+    suspend fun getActiveChatTask(sessionId: Int): Result<ChatActiveTaskResponse> {
+        val b = bearer() ?: return Result.Error("غير مصرح")
+        return try {
+            val r = api.chatSessionActiveTask(b, sessionId)
+            if (r.isSuccessful) {
+                val body = r.body()
+                if (body != null) Result.Success(body)
+                else Result.Error("رد فارغ")
+            } else Result.Error("فشل (${r.code()})")
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "خطأ شبكة")
+        }
+    }
 }

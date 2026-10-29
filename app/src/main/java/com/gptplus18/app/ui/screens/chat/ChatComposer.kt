@@ -53,6 +53,8 @@ internal fun ChatComposer(
         onEditImagePick = onEditImagePickRequest,
         isStreaming = state.isSending,
         onStop = { vm.stopStreaming() },
+        canRetry = vm.canRetry(),
+        onRetry = { vm.retryLast() },
         showMediaChips = true,
     )
 }

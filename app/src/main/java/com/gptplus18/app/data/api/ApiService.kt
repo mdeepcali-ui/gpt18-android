@@ -354,6 +354,31 @@ interface ApiService {
         @Path("taskId") taskId: String,
     ): Response<Map<String, Any>>
 
+    // ===== v5.4: Chat Detached Tasks =====
+    @POST("api/chat/stream-detach")
+    suspend fun chatStreamDetach(
+        @Header("Authorization") bearer: String,
+        @Body body: ChatStreamDetachRequest,
+    ): Response<ChatStreamDetachResponse>
+
+    @POST("api/chat/task/{taskId}/stop")
+    suspend fun chatTaskStop(
+        @Header("Authorization") bearer: String,
+        @Path("taskId") taskId: String,
+    ): Response<Map<String, Any>>
+
+    @GET("api/chat/task/{taskId}/status")
+    suspend fun chatTaskStatus(
+        @Header("Authorization") bearer: String,
+        @Path("taskId") taskId: String,
+    ): Response<ChatTaskStatusResponse>
+
+    @GET("api/chat/session/{sessionId}/active-task")
+    suspend fun chatSessionActiveTask(
+        @Header("Authorization") bearer: String,
+        @Path("sessionId") sessionId: Int,
+    ): Response<ChatActiveTaskResponse>
+
 }
 
 data class BirthDateBody(val birth_date: String)

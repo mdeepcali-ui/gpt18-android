@@ -82,6 +82,9 @@ class ChatViewModel @Inject constructor(
 
     // ⏹ Job الـ streaming الحالي — للإيقاف
     private var streamJob: kotlinx.coroutines.Job? = null
+    private var activeTaskId: String? = null
+    private var lastUserMessage: String? = null
+    private var lastUserImageUrl: String? = null
     val state: StateFlow<ChatUiState> = _state.asStateFlow()
 
     /** ⭐ v5.1.34: إعادة تحميل الصورة من الـ storage */
@@ -345,8 +348,19 @@ class ChatViewModel @Inject constructor(
 
             var gotImage = false
             try {
-            chatRepo.streamMessage(sidForServer, finalText)
-                .collect { ev ->
+                // v5.4: Stream detached — بدء المهمة أولاً، ثم الاشتراك
+                val _detachRes = chatRepo.streamDetach(sidForServer, finalText, null, true)
+                val _detachData = when (_detachRes) {
+                    is com.gptplus18.app.util.Result.Success -> _detachRes.data
+                    is com.gptplus18.app.util.Result.Error -> {
+                        throw Exception(_detachRes.message)
+                    }
+                }
+                activeTaskId = _detachData.taskId
+                lastUserMessage = finalText
+                lastUserImageUrl = null
+                chatRepo.streamChatTask(_detachData.taskId)
+                    .collect { ev ->
                     when (ev) {
                         // ⭐ التفكير — يُجمع في السحابة (لا يظهر في الرسالة)
                         is StreamEvent.Status -> {
@@ -495,6 +509,8 @@ class ChatViewModel @Inject constructor(
                     error = "انقطع الاتصال — حاول مرة ثانية",
                 )
             } finally {
+                // v5.4: صفّر activeTaskId (المهمة انتهت أو فشلت)
+                activeTaskId = null
                 // ⭐ ضمان أخير: ما نسمح يبقى isSending عالق
                 if (_state.value.isSending) {
                     _state.value = _state.value.copy(
@@ -522,6 +538,14 @@ class ChatViewModel @Inject constructor(
      * - يحرّر isSending
      */
     fun stopStreaming() {
+        // v5.4: أوقف المهمة على السيرفر أولاً (kill from root)
+        val _tid = activeTaskId
+        if (_tid != null) {
+            viewModelScope.launch {
+                try { chatRepo.cancelChatTask(_tid) } catch (_: Exception) {}
+            }
+        }
+        activeTaskId = null
         streamJob?.cancel()
         streamJob = null
         // ثبّت الرسالة المؤقتة (id=-2) → نخليها id=0 مع النص الحالي
@@ -535,6 +559,33 @@ class ChatViewModel @Inject constructor(
             pendingMediaType = null,
         )
         android.util.Log.d("ChatVM", "stopStreaming() — cancelled")
+    }
+
+    /**
+     * v5.4: إعادة إرسال آخر رسالة
+     * - إذا آخر رسالة user محفوظة → يستخدمها
+     * - وإلا → لا يفعل شي
+     * - يمسح رسالة البوت الفاشلة السابقة قبل الإعادة
+     */
+    fun retryLast() {
+        val last = lastUserMessage ?: return
+        // احذف آخر رسالة assistant فاشلة (id=-2 أو id=0 بعد stop)
+        val msgs = _state.value.messages.toMutableList()
+        while (msgs.isNotEmpty() && msgs.last().role == "assistant" && msgs.last().content.isBlank()) {
+            msgs.removeAt(msgs.size - 1)
+        }
+        _state.value = _state.value.copy(
+            messages = msgs,
+            error = null,
+            isSending = false,
+        )
+        send(last)
+    }
+
+    /** v5.4: هل يمكن إعادة الإرسال الآن؟ (فقط عند وجود خطأ) */
+    fun canRetry(): Boolean {
+        val s = _state.value
+        return !s.isSending && s.error != null && !lastUserMessage.isNullOrBlank()
     }
 
     private fun cleanStreamingText(raw: String): String {

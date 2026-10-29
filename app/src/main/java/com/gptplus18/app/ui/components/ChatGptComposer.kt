@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Movie
@@ -84,6 +85,8 @@ fun ChatGptComposer(
     onEditImagePick: (() -> Unit)? = null,
     isStreaming: Boolean = false,
     onStop: (() -> Unit)? = null,
+    canRetry: Boolean = false,
+    onRetry: (() -> Unit)? = null,
     showMediaChips: Boolean = true,
 ) {
     val colors = LocalAppColors.current
@@ -269,6 +272,17 @@ fun ChatGptComposer(
                         icon = Icons.Default.Stop,
                         contentDesc = "إيقاف",
                         onClick = onStop,
+                        enabled = true,
+                        bgColor = AccentBlue,
+                        iconColor = Color.White,
+                        size = 30.dp,
+                        iconSize = 18.dp,
+                    )
+                } else if (!hasContent && canRetry && onRetry != null) {
+                    ActionCircleButton(
+                        icon = Icons.Default.Refresh,
+                        contentDesc = "إعادة الإرسال",
+                        onClick = onRetry,
                         enabled = true,
                         bgColor = AccentBlue,
                         iconColor = Color.White,

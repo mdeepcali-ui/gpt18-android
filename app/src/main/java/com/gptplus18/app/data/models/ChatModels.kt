@@ -68,3 +68,28 @@ data class AllSession(
 data class AllSessionsList(
     @SerializedName("sessions") val sessions: List<AllSession> = emptyList(),
 )
+
+// ===== v5.4: Chat Detached Tasks =====
+data class ChatStreamDetachRequest(
+    @SerializedName("session_id") val sessionId: Int?,
+    @SerializedName("message") val message: String,
+    @SerializedName("image_url") val imageUrl: String? = null,
+    @SerializedName("memory") val memory: Boolean = true,
+)
+
+data class ChatStreamDetachResponse(
+    @SerializedName("task_id") val taskId: String,
+    @SerializedName("session_id") val sessionId: Int,
+    @SerializedName("status") val status: String,
+)
+
+data class ChatTaskStatusResponse(
+    @SerializedName("task_id") val taskId: String,
+    @SerializedName("status") val status: String,
+)
+
+data class ChatActiveTaskResponse(
+    @SerializedName("active") val active: Boolean,
+    @SerializedName("task_id") val taskId: String? = null,
+    @SerializedName("status") val status: String? = null,
+)
